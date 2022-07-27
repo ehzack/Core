@@ -1,6 +1,6 @@
 {
   "name": "@quatrain/core",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Core objects for business apps",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",

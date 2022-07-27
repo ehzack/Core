@@ -25,7 +25,7 @@ export class BaseProperty implements PropertyType {
       this._protected = config.protected || false
       this._mandatory = config.mandatory || false
       this._defaultValue = config.defaultValue
-      this._value = config.defaultValue || undefined
+      this._value = config.defaultValue
    }
 
    get name() {
@@ -52,7 +52,6 @@ export class BaseProperty implements PropertyType {
       ) {
          throw new Error(`Value already defined and protected from change`)
       }
-      console.log(`setting ${this._name} with '${value}'`)
       this._value = value
 
       return this

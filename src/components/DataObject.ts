@@ -35,9 +35,7 @@ export class DataObject {
    async populate(data: any = undefined): Promise<DataObject> {
       if (this._populated === false) {
          if (data) {
-            console.log(`[DAO] Populating ${this.path}`)
             for (const key in data) {
-               console.log(`processing ${key}`)
                if (Reflect.get(this._data, key)) {
                   Reflect.get(this._data, key).set(data[key])
                }

@@ -52,6 +52,8 @@ export class MockAdapter extends AbstractAdapter implements BackendInterface {
          throw new Error(`[Mock] No data for ${path}`)
       }
 
+      this.log(`[DAO] Populating ${dataObject.path}`)
+
       return await dataObject.populate(data)
    }
 

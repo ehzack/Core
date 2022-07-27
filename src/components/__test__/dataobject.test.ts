@@ -1,5 +1,5 @@
 import { properties, fClass, fData } from './fixtures/dao'
-import { DataObject } from '../'
+import { DataObject } from '..'
 import { Core } from '../..'
 import { MockAdapter } from '../../backends'
 import { ObjectUri } from '../ObjectUri'
@@ -45,7 +45,7 @@ describe('Data object', () => {
 
    test('can be populated with data', () => {
       DataObject.factory(fClass.prototype, properties).then(dao => {
-         dao.uri = 'a/b'
+         dao.uri = fData.uid
          dao.read()
             .then(() => {
                expect(dao.isPopulated()).toBe(true)
