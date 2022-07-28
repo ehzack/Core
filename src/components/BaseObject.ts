@@ -69,15 +69,15 @@ export class BaseObject {
 
    static async factory(uri: string | ObjectUri | undefined = undefined) {
       try {
-         const dao = await DataObject.factory(this, BaseObject.PROPS_DEFINITION)
+         const dao = await DataObject.factory(this, this.PROPS_DEFINITION)
          if (uri) {
             dao.uri = uri
             await dao.populate()
          }
          return new this(dao)
       } catch (err) {
-         console.log(err)
-         throw new Error(`Unable to build ${this.constructor.name} instance`)
+         console.log((err as Error).message)
+         throw new Error(`Unable to build instance for '${this.constructor.name}': ${(err as Error).message}`)
       }
    }
 }

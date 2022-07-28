@@ -1,6 +1,10 @@
+import { DataObject } from '..'
 import { Property, PropertyType } from './Property'
 
+export type EventTypes = typeof Property.EVENT_ONCHANGE | typeof Property.EVENT_ONDELETE
+
 export interface BasePropertyType {
+   parent?: DataObject
    name: string
    type?:
       | typeof Property.TYPE_STRING
@@ -10,22 +14,29 @@ export interface BasePropertyType {
    protected?: boolean
    mandatory?: boolean
    defaultValue?: any
+   onChange?: (dao: DataObject) => DataObject
 }
 
 export class BaseProperty implements PropertyType {
+   protected _parent: DataObject | undefined
    protected _name: string
    protected _value: any = undefined
    protected _mandatory: boolean = false
    protected _protected: boolean = false
    protected _allows: String[] = []
    protected _defaultValue: any
+   protected _events: { [key: EventTypes]: Function } = {}
 
    constructor(config: BasePropertyType) {
+      this._parent = config.parent
       this._name = config.name
       this._protected = config.protected || false
       this._mandatory = config.mandatory || false
       this._defaultValue = config.defaultValue
       this._value = config.defaultValue
+      if (typeof config.onChange === 'function') {
+         this._events.onChange = config.onChange
+      }
    }
 
    get name() {
@@ -53,6 +64,10 @@ export class BaseProperty implements PropertyType {
          throw new Error(`Value already defined and protected from change`)
       }
       this._value = value
+
+      if (this._events[Property.EVENT_ONCHANGE]) {
+         this._events[Property.EVENT_ONCHANGE](this._parent)
+      }
 
       return this
    }

@@ -53,3 +53,15 @@ export const BaseObjectData = {
    name: 'a simple object',
    status: statuses.PENDING,
 }
+
+export const UserUri = 'users/abc'
+
+export const UserData = {
+   uid: UserUri,
+   name: ' ',
+   status: statuses.ACTIVE,
+   firstname: 'John',
+   lastname: 'Doe',
+   email: 'john@doe.com',
+   password: 'azerty'
+}

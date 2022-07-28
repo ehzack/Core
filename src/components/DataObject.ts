@@ -17,14 +17,14 @@ export class DataObject {
    protected _objectUri: ObjectUri | undefined
    protected _obj: any
    protected _uid: string | undefined = undefined
-   protected _data: { [x: string]: any } = {}
+   protected _properties: { [x: string]: any } = {}
    protected _persisted: boolean = false
    protected _populated: boolean = false
 
    protected constructor(objClass: Function, data: any[] | undefined) {
       this._class = objClass
       if (Array.isArray(data)) {
-         data.forEach(prop => (this._data[prop.name] = Property.factory(prop)))
+         data.forEach(prop => (this._properties[prop.name] = Property.factory(prop, this)))
       }
    }
 
@@ -36,8 +36,8 @@ export class DataObject {
       if (this._populated === false) {
          if (data) {
             for (const key in data) {
-               if (Reflect.get(this._data, key)) {
-                  Reflect.get(this._data, key).set(data[key])
+               if (Reflect.get(this._properties, key)) {
+                  Reflect.get(this._properties, key).set(data[key])
                }
             }
          } else if (this.path !== '/') {
@@ -81,7 +81,7 @@ export class DataObject {
    }
 
    get data(): any {
-      return this._data
+      return this._properties
    }
 
    set uri(uri: string | ObjectUri | undefined) {
@@ -92,25 +92,39 @@ export class DataObject {
       return this._objectUri
    }
 
+   /**
+    * Returns property matching key or throw
+    * @param key string
+    * @returns BaseProperty
+    */
    get(key: string) {
-      return this._data[key]
+      try {
+         return this._properties[key]
+      } catch (err) {
+         throw new Error((err as Error).message)
+      }
    }
 
    set(key: string, val: any) {
-      if (!Reflect.has(this._data, key)) {
+      if (!Reflect.has(this._properties, key)) {
          throw new Error(`Unknown property in data object: ${key}`)
       }
-      this._data[key] = val
+      this._properties[key].set(val)
       this._populated = true
 
       return this
    }
 
+   /**
+    * Get value of given property
+    * @param key string
+    * @returns any
+    */
    val(key: string) {
-      if (Reflect.get(this._data, key)) {
-         return Reflect.get(this._data, key).val()
+      if (Reflect.get(this._properties, key)) {
+         return Reflect.get(this._properties, key).val()
       } else {
-         console.log(key, this._data)
+         console.log(key, this._properties)
          throw new Error(`Unknown property '${key}'`)
       }
    }
@@ -125,8 +139,8 @@ export class DataObject {
 
    protected _dataToJSON() {
       const data = {}
-      Object.keys(this._data).forEach((key: string) => {
-         const prop: any = Reflect.get(this._data, key)
+      Object.keys(this._properties).forEach((key: string) => {
+         const prop: any = Reflect.get(this._properties, key)
          if (typeof prop === 'object' && Reflect.has(prop, 'toJSON')) {
             Reflect.set(data, key, prop.toJSON())
          } else if (prop !== undefined) {

@@ -21,8 +21,8 @@ export class StringProperty extends BaseProperty {
 
    constructor(config: StringPropertyType) {
       super(config)
-      this._minLength = config.minLength || 0
-      this._maxLength = config.maxLength || 0
+      this.minLength = config.minLength || 0
+      this.maxLength = config.maxLength || 0
       if (this._enable(config.allowSpaces)) {
          this._allows.push(Property.ALLOW_SPACES)
       }
@@ -78,10 +78,17 @@ export class StringProperty extends BaseProperty {
       }
    }
 
+   set minLength(min: number) {
+      this._minLength = min >= 0 ? min : 0
+   }
+
    get minLength() {
       return this._minLength
    }
 
+   set maxLength(max: number) {
+      this._maxLength = max >= 0 ? max : 0
+   }
    get maxLength() {
       return this._maxLength
    }
