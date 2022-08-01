@@ -1,17 +1,25 @@
-import { BaseObject, DataObject, ObjectUri, Property } from '..'
+import { Property } from '../properties/Property'
+import { DataObject } from './DataObject'
 import { DataObjectProperties } from '../properties'
+import { BaseObject } from './BaseObject'
 
-const onChange = (dao:DataObject) => dao.set('name', `${dao.val('firstname')} ${dao.val('lastname')}`)
+const onChange = (dao: DataObject) =>
+   dao.set('name', `${dao.val('firstname')} ${dao.val('lastname')}`)
 
 export const UserProperties: DataObjectProperties = [
-   ...BaseObject.PROPS_DEFINITION,
+   {
+      // change name property minLength
+      name: 'name',
+      type: Property.TYPE_STRING,
+      minLength: 0,
+   },
    {
       name: 'firstname',
       mandatory: true,
       type: Property.TYPE_STRING,
       minLength: 1,
       maxLength: 100,
-      onChange
+      onChange,
    },
    {
       name: 'lastname',
@@ -19,7 +27,7 @@ export const UserProperties: DataObjectProperties = [
       type: Property.TYPE_STRING,
       minLength: 1,
       maxLength: 100,
-      onChange
+      onChange,
    },
    {
       name: 'email',
@@ -39,10 +47,4 @@ export const UserProperties: DataObjectProperties = [
 
 export class User extends BaseObject {
    static PROPS_DEFINITION = UserProperties
-
-   static async factory(uri: string | ObjectUri | undefined = undefined) {
-      const obj = await super.factory(uri)
-      obj.get('name').minLength = 0
-      return obj
-   }
 }

@@ -1,4 +1,4 @@
-import { BaseProperty, BasePropertyType } from './BaseProperty'
+import { BaseProperty, BasePropertyType } from './'
 
 export interface BooleanPropertyType extends BasePropertyType {}
 

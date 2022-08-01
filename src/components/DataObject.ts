@@ -1,5 +1,5 @@
-import { Core } from '../'
-import { Property } from '../properties'
+import { Core } from '../Core'
+import { Property } from '../properties/Property'
 import { ObjectUri } from './ObjectUri'
 
 export interface DataObjectFactoryType {
@@ -21,11 +21,17 @@ export class DataObject {
    protected _persisted: boolean = false
    protected _populated: boolean = false
 
-   protected constructor(objClass: Function, data: any[] | undefined) {
+   protected constructor(objClass: Function, properties: any[] | undefined) {
       this._class = objClass
-      if (Array.isArray(data)) {
-         data.forEach(prop => (this._properties[prop.name] = Property.factory(prop, this)))
+      if (Array.isArray(properties)) {
+         this._init(properties)
       }
+   }
+
+   protected _init(properties: any[]) {
+      properties.forEach((prop) => {
+         this._properties[prop.name] = Property.factory(prop, this)
+      })
    }
 
    /**
@@ -55,6 +61,10 @@ export class DataObject {
 
    isPersisted() {
       return this._persisted
+   }
+
+   get properties() {
+      return this._properties
    }
 
    get backend() {

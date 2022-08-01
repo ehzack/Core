@@ -1,5 +1,5 @@
+import { Property } from './Property'
 import { BaseProperty, BasePropertyType } from './BaseProperty'
-import { Property, PropertyType } from './Property'
 
 export interface StringPropertyType extends BasePropertyType {
    minLength?: number

@@ -1,23 +1,20 @@
-import { DataObject } from '..'
-import { Property, PropertyType } from './Property'
+import { DataObject } from '../components/DataObject'
+import { Property } from './Property'
+import { AbstractPropertyType, PropertyClassType } from './'
 
-export type EventTypes = typeof Property.EVENT_ONCHANGE | typeof Property.EVENT_ONDELETE
+export type EventTypes =
+   | typeof Property.EVENT_ONCHANGE
+   | typeof Property.EVENT_ONDELETE
 
-export interface BasePropertyType {
+export interface BasePropertyType extends AbstractPropertyType {
    parent?: DataObject
-   name: string
-   type?:
-      | typeof Property.TYPE_STRING
-      | typeof Property.TYPE_ENUM
-      | typeof Property.TYPE_BOOLEAN
-      | typeof Property.TYPE_OBJECT
    protected?: boolean
    mandatory?: boolean
    defaultValue?: any
    onChange?: (dao: DataObject) => DataObject
 }
 
-export class BaseProperty implements PropertyType {
+export class BaseProperty implements PropertyClassType {
    protected _parent: DataObject | undefined
    protected _name: string
    protected _value: any = undefined

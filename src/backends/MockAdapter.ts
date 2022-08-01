@@ -1,7 +1,7 @@
 import { AbstractAdapter, BackendInterface } from './'
 import { DELETED } from '../statuses'
 import { DataObject } from '../components'
-import { Core } from '..'
+import { Core } from '../Core'
 import { BackendRecordType } from './AbstractAdapter'
 
 export class MockAdapter extends AbstractAdapter implements BackendInterface {

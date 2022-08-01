@@ -1,8 +1,8 @@
 import { DataObject } from '../../components'
 import { fClass } from '../../components/__test__/fixtures/dao'
-import { Core } from '../..'
+import { Core } from '../../Core'
 import { Property } from '../../properties'
-import { MockAdapter } from '..'
+import { MockAdapter } from '../MockAdapter'
 
 // inject makes default
 MockAdapter.inject({ uid: 'a/b', a: 'b', c: 'd', e: 3 })

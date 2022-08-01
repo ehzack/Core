@@ -1,23 +1,31 @@
+import { DataObject } from '../components/DataObject'
+import { ObjectUri } from '../components/ObjectUri'
 import { BaseProperty, BasePropertyType } from './BaseProperty'
 
 export interface ObjectPropertyType extends BasePropertyType {
-   instanceOf?: Function
+   instanceOf?: Function | string
 }
 
 export class ObjectProperty extends BaseProperty {
-   _instanceOf: Function
+   _instanceOf: Function | string
 
    constructor(config: ObjectPropertyType) {
       super(config)
       this._instanceOf = config.instanceOf || Object
    }
 
-   set(value: Object | undefined) {
-      if (value instanceof this._instanceOf) {
+   set(value: DataObject | ObjectUri | Object) {
+      if (
+         value instanceof ObjectUri ||
+         value instanceof DataObject ||
+         value.constructor.name === this._instanceOf.constructor.name
+      ) {
          return super.set(value)
       } else {
          throw new Error(
-            `value is not an instance of ${this._instanceOf.constructor.name}`
+            `value ${JSON.stringify(value)} is not an instance of ${
+               this._instanceOf.constructor.name
+            }`
          )
       }
    }

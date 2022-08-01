@@ -1,7 +1,8 @@
+import { Property } from '../..'
 import { BaseProperty } from '../BaseProperty'
 
 describe('Default Base Property', () => {
-   const prop = new BaseProperty({ name: 'toto' })
+   const prop = new BaseProperty({ name: 'toto', type: Property.TYPE_ANY })
    test(`has a name`, () => expect(prop.name).toBe('toto'))
    test('is not mandatory by default', () => expect(prop.mandatory).toBe(false))
    test('is not protected by default', () => expect(prop.protected).toBe(false))
@@ -16,6 +17,7 @@ describe('Default Base Property', () => {
 describe('Conf Base Property', () => {
    const prop = new BaseProperty({
       name: 'toto',
+      type: Property.TYPE_ANY,
       mandatory: true,
       protected: true,
       defaultValue: 'nothing',
@@ -28,6 +30,7 @@ describe('Conf Base Property', () => {
 describe('Advanced Base Property', () => {
    const prop = new BaseProperty({
       name: 'toto',
+      type: Property.TYPE_ANY,
       mandatory: true,
       protected: true,
       defaultValue: 'nothing',

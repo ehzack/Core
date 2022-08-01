@@ -1,13 +1,14 @@
-import { User } from '..'
+import { User } from '../User'
 import { statuses } from '../..'
 import { MockAdapter } from '../../backends'
 import { UserData, UserUri } from './fixtures/dao'
 
 MockAdapter.inject(UserData) // sets default to @mock
 
-describe('Base object', () => {
-   test('has name and status properties that are instances', () =>
+describe('User object', () => {
+   test('has 5 properties that are instances', () =>
       User.factory().then(obj => {
+         expect(Object.keys(obj.dataObject.properties)).toHaveLength(7)
          expect(obj.get('firstname').constructor.name).toBe('StringProperty')
          expect(obj.get('lastname').constructor.name).toBe('StringProperty')
          expect(obj.get('email').constructor.name).toBe('StringProperty')

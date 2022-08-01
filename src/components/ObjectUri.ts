@@ -1,4 +1,4 @@
-import { Core } from '..'
+import { Core } from '../Core'
 
 export class ObjectUri {
    static DEFAULT = '/'

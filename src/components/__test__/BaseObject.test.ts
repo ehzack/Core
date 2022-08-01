@@ -1,4 +1,4 @@
-import { BaseObject } from '..'
+import { BaseObject } from '../BaseObject'
 import { statuses } from '../..'
 import { MockAdapter } from '../../backends'
 import { BaseObjectData, baseObjectUri } from './fixtures/dao'

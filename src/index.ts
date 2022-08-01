@@ -9,13 +9,16 @@ import {
    BooleanPropertyType,
 } from './properties/BooleanProperty'
 import { ObjectProperty, ObjectPropertyType } from './properties/ObjectProperty'
-
 import {
-   ObjectUri,
-   DataObject,
-   BaseObject,
-   BaseObjectProperties,
-} from './components'
+   DateTimeProperty,
+   DateTimePropertyType,
+} from './properties/DateTimeProperty'
+import { HashProperty, HashPropertyType } from './properties/HashProperty'
+import { AbstractObject } from './components/AbstractObject'
+import { ObjectUri } from './components/ObjectUri'
+import { DataObject } from './components/DataObject'
+import { BaseObject } from './components/BaseObject'
+import { BaseObjectProperties } from './components/BaseObjectProperties'
 
 import { AbstractAdapter, MockAdapter, BackendError } from './backends'
 
@@ -27,8 +30,12 @@ export {
    BasePropertyType,
    BooleanProperty,
    BooleanPropertyType,
+   DateTimeProperty,
+   DateTimePropertyType,
    EnumProperty,
    EnumPropertyType,
+   HashProperty,
+   HashPropertyType,
    ObjectProperty,
    ObjectPropertyType,
    StringProperty,
@@ -38,6 +45,7 @@ export {
    BackendError,
    ObjectUri,
    DataObject,
+   AbstractObject,
    BaseObject,
    BaseObjectProperties,
 }

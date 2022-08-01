@@ -1,20 +1,10 @@
-import { statuses } from '../../..'
-import {
-   BooleanPropertyType,
-   EnumPropertyType,
-   ObjectPropertyType,
-   Property,
-   StringPropertyType,
-} from '../../../properties'
+import * as statuses from '../../../statuses'
+import { DataObjectProperties } from '../../../properties'
+import { Property } from '../../../properties/Property'
 
 export class fClass {}
 
-export const properties: (
-   | StringPropertyType
-   | BooleanPropertyType
-   | EnumPropertyType
-   | ObjectPropertyType
-)[] = [
+export const properties: DataObjectProperties = [
    {
       name: 'string',
       mandatory: true,
@@ -63,5 +53,5 @@ export const UserData = {
    firstname: 'John',
    lastname: 'Doe',
    email: 'john@doe.com',
-   password: 'azerty'
+   password: 'azerty',
 }

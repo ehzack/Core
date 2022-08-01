@@ -1,55 +1,11 @@
-import { DataObject, ObjectUri, Property, statuses } from '..'
+import { DataObject } from './DataObject'
+import { ObjectUri } from './ObjectUri'
+import { AbstractObject } from './AbstractObject'
+import { BaseObjectProperties } from './BaseObjectProperties'
 import { DataObjectProperties } from '../properties'
 
-export const BaseObjectProperties: DataObjectProperties = [
-   {
-      name: 'name',
-      mandatory: true,
-      type: Property.TYPE_STRING,
-      minLength: 1,
-      maxLength: 100,
-   },
-   {
-      name: 'status',
-      mandatory: true,
-      type: Property.TYPE_ENUM,
-      values: [
-         statuses.CREATED,
-         statuses.PENDING,
-         statuses.ACTIVE,
-         statuses.DELETED,
-      ],
-      defaultValue: statuses.CREATED,
-   },
-]
-
-export class BaseObject {
-   static PROPS_DEFINITION = BaseObjectProperties
-   protected _dataObject: DataObject
-
-   protected constructor(dao: DataObject) {
-      this._dataObject = dao
-   }
-
-   get(key: string) {
-      return this._dataObject.get(key)
-   }
-
-   set(key: string, val: any) {
-      return this._dataObject.set(key, val)
-   }
-
-   val(key: string) {
-      return this.get(key).val()
-   }
-
-   get backend() {
-      return this._dataObject.backend
-   }
-
-   get path(): string {
-      return this._dataObject.path
-   }
+export class BaseObject extends AbstractObject {
+   static PROPS_DEFINITION: DataObjectProperties = BaseObjectProperties
 
    get status(): string {
       return this._dataObject.get('status')
@@ -59,17 +15,21 @@ export class BaseObject {
       this._dataObject.set('status', status)
    }
 
-   get uid() {
-      return this._dataObject.uid
-   }
-
-   async save(uid: string | undefined = undefined) {
-      return await this._dataObject.save(uid)
-   }
-
    static async factory(uri: string | ObjectUri | undefined = undefined) {
       try {
-         const dao = await DataObject.factory(this, this.PROPS_DEFINITION)
+         // merge base properties with additional or redefined ones
+         const base = BaseObjectProperties
+
+         this.PROPS_DEFINITION &&
+            this.PROPS_DEFINITION.forEach((property) => {
+               const found = base.findIndex((el) => el.name === property.name)
+               if (found !== -1) {
+                  base[found] = Object.assign(base[found], property)
+               } else {
+                  base.push(property)
+               }
+            })
+         const dao = await DataObject.factory(this, base)
          if (uri) {
             dao.uri = uri
             await dao.populate()
@@ -77,7 +37,11 @@ export class BaseObject {
          return new this(dao)
       } catch (err) {
          console.log((err as Error).message)
-         throw new Error(`Unable to build instance for '${this.constructor.name}': ${(err as Error).message}`)
+         throw new Error(
+            `Unable to build instance for '${this.constructor.name}': ${
+               (err as Error).message
+            }`
+         )
       }
    }
 }

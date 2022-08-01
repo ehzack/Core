@@ -1,6 +1,16 @@
 import { DataObject } from './DataObject'
 import { ObjectUri } from './ObjectUri'
-import { BaseObject, BaseObjectProperties } from './BaseObject'
+import { AbstractObject } from './AbstractObject';
+import { BaseObject } from './BaseObject'
+import { BaseObjectProperties } from './BaseObjectProperties'
 import { User, UserProperties } from './User'
 
-export { DataObject, ObjectUri, BaseObject, BaseObjectProperties, User, UserProperties }
+export {
+   DataObject,
+   ObjectUri,
+   AbstractObject,
+   BaseObject,
+   User,
+   BaseObjectProperties,
+   UserProperties,
+}

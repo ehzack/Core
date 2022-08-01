@@ -1,5 +1,5 @@
 import { properties, fClass, fData } from './fixtures/dao'
-import { DataObject } from '..'
+import { DataObject } from '../DataObject'
 import { Core } from '../..'
 import { MockAdapter } from '../../backends'
 import { ObjectUri } from '../ObjectUri'
