@@ -3,11 +3,11 @@ import { ObjectUri } from '../components/ObjectUri'
 import { BaseProperty, BasePropertyType } from './BaseProperty'
 
 export interface ObjectPropertyType extends BasePropertyType {
-   instanceOf?: Function | string
+   instanceOf?: Function | string | Object
 }
 
 export class ObjectProperty extends BaseProperty {
-   _instanceOf: Function | string
+   _instanceOf: Function | string | Object
 
    constructor(config: ObjectPropertyType) {
       super(config)

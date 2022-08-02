@@ -24,7 +24,7 @@ export const properties: DataObjectProperties = [
    {
       name: 'object',
       type: Property.TYPE_OBJECT,
-      instanceOf: fClass,
+      instanceOf: fClass.prototype,
    },
 ]
 
