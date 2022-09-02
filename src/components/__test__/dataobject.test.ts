@@ -1,13 +1,9 @@
 import { properties, fClass, fData } from './fixtures/dao'
 import { DataObject } from '../DataObject'
-import { Core } from '../..'
-import { MockAdapter } from '../../backends'
+import { MockAdapter } from '../../backends/MockAdapter'
 import { ObjectUri } from '../ObjectUri'
 
-Core.defaultBackend = '@mock'
 MockAdapter.inject(fData)
-
-//console.log(MockAdapter.getFixtures())
 
 describe('Data object', () => {
    test('has properties that are instances', () =>

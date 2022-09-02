@@ -34,7 +34,8 @@ export class MockAdapter extends AbstractAdapter implements BackendInterface {
       desiredUid: string | undefined = undefined
    ): Promise<DataObject> {
       const uri =
-         desiredUid || `${dataObject.class.constructor.name.toLowerCase()}/toto`
+         desiredUid ||
+         `${dataObject.class.constructor.name.toLowerCase()}/${Date.now()}`
       MockAdapter.inject({
          ...dataObject.toJSON(),
          uid: uri,

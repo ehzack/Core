@@ -142,8 +142,14 @@ export class DataObject {
    toJSON() {
       return {
          uid: this._uid,
-         //path: this._path,
          ...this._dataToJSON(),
+      }
+   }
+
+   toReference() {
+      return {
+         ...this._objectUri?.toReference(),
+         label: this.val('name'),
       }
    }
 

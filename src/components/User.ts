@@ -1,6 +1,6 @@
 import { Property } from '../properties/Property'
 import { DataObject } from './DataObject'
-import { DataObjectProperties } from '../properties'
+import { DataObjectProperties, HashProperty } from '../properties'
 import { BaseObject } from './BaseObject'
 
 const onChange = (dao: DataObject) =>
@@ -39,7 +39,9 @@ export const UserProperties: DataObjectProperties = [
    {
       name: 'password',
       mandatory: true,
-      type: Property.TYPE_STRING,
+      type: Property.TYPE_HASH,
+      algorithm: HashProperty.ALGORITHM_SHA1,
+      salt: 'abcdef',
       minLength: 1,
       maxLength: 24,
    },

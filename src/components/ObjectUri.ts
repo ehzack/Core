@@ -37,4 +37,22 @@ export class ObjectUri {
    get uid() {
       return this._uid
    }
+
+   /**
+    * Return references to find object locally and remotely
+    * @returns object
+    */
+   toReference() {
+      return {
+         ref: this._path,
+         uri: this._literal,
+      }
+   }
+
+   toJSON() {
+      return {
+         literal: this._literal,
+         ref: this._path,
+      }
+   }
 }

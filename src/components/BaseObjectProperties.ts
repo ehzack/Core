@@ -28,5 +28,32 @@ export const BaseObjectProperties: DataObjectProperties = [
       type: Property.TYPE_OBJECT,
       instanceOf: 'User',
       mandatory: true,
+      protected: true,
+   },
+   {
+      name: 'createdAt',
+      type: Property.TYPE_DATETIME,
+      mandatory: true,
+      protected: true,
+   },
+   {
+      name: 'updatedBy',
+      type: Property.TYPE_OBJECT,
+      instanceOf: 'User',
+   },
+   {
+      name: 'updatedAt',
+      type: Property.TYPE_DATETIME,
+   },
+   {
+      name: 'deletedBy',
+      type: Property.TYPE_OBJECT,
+      instanceOf: 'User',
+      protected: true,
+   },
+   {
+      name: 'deletedAt',
+      type: Property.TYPE_DATETIME,
+      protected: true,
    },
 ]

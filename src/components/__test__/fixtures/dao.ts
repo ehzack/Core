@@ -1,6 +1,7 @@
 import * as statuses from '../../../statuses'
 import { DataObjectProperties } from '../../../properties'
 import { Property } from '../../../properties/Property'
+import { User } from '../../User'
 
 export class fClass {}
 
@@ -37,6 +38,7 @@ export const fData = {
 }
 
 export const baseObjectUri = 'baseobject/xyz'
+export const UserUri = 'users/abc'
 
 export const BaseObjectData = {
    uid: baseObjectUri,
@@ -44,7 +46,6 @@ export const BaseObjectData = {
    status: statuses.PENDING,
 }
 
-export const UserUri = 'users/abc'
 
 export const UserData = {
    uid: UserUri,

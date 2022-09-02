@@ -38,6 +38,14 @@ export abstract class AbstractObject {
       return this._dataObject
    }
 
+   get uri() {
+      return this._dataObject.uri
+   }
+
+   toJSON() {
+      return typeof this.uri === 'string' ? this.uri : this.uri?.toJSON()
+   }
+
    async save(uid: string | undefined = undefined) {
       return await this._dataObject.save(uid)
    }

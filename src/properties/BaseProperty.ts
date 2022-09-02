@@ -76,4 +76,8 @@ export class BaseProperty implements PropertyClassType {
    protected _enable(value: boolean | undefined) {
       return value === undefined || value === true
    }
+
+   toJSON() {
+      return this._value
+   }
 }

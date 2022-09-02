@@ -29,7 +29,7 @@ export class BaseObject extends AbstractObject {
                   base.push(property)
                }
             })
-         const dao = await DataObject.factory(this, base)
+         const dao = await DataObject.factory(this.prototype, base)
          if (uri) {
             dao.uri = uri
             await dao.populate()
