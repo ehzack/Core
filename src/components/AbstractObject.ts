@@ -19,7 +19,12 @@ export abstract class AbstractObject {
    }
 
    val(key: string) {
-      return this.get(key).val()
+      const prop = this.get(key)
+      if (prop) {
+         return prop.val()
+      } else {
+         throw new Error(`${key} is not a valid property`)
+      }
    }
 
    get backend() {

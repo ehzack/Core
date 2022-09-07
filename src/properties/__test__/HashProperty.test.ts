@@ -65,7 +65,7 @@ describe('Hash Property supports SHA1 algorithm', () => {
 })
 
 describe('Hash Property supports SHA256 algorithm', () => {
-   test('value is hashed with SHA1 and optional salt', () => {
+   test('value is hashed with SHA256 and optional salt', () => {
       const prop = new HashProperty({
          name: 'hash',
          algorithm: HashProperty.ALGORITHM_SHA256,

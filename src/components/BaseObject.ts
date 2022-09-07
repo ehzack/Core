@@ -15,7 +15,9 @@ export class BaseObject extends AbstractObject {
       this._dataObject.set('status', status)
    }
 
-   static async factory(uri: string | ObjectUri | undefined = undefined) {
+   static async factory(
+      src: string | ObjectUri | object | undefined = undefined
+   ) {
       try {
          // merge base properties with additional or redefined ones
          const base = BaseObjectProperties
@@ -29,10 +31,15 @@ export class BaseObject extends AbstractObject {
                   base.push(property)
                }
             })
+
+         // create data object
          const dao = await DataObject.factory(this.prototype, base)
-         if (uri) {
-            dao.uri = uri
+
+         if (src instanceof ObjectUri) {
+            dao.uri = src
             await dao.populate()
+         } else if (src instanceof Object) {
+            await dao.populate(src)
          }
          return new this(dao)
       } catch (err) {
@@ -43,5 +50,9 @@ export class BaseObject extends AbstractObject {
             }`
          )
       }
+   }
+
+   asReference() {
+      return this._dataObject.toReference()
    }
 }

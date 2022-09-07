@@ -40,10 +40,10 @@ export const UserProperties: DataObjectProperties = [
       name: 'password',
       mandatory: true,
       type: Property.TYPE_HASH,
-      algorithm: HashProperty.ALGORITHM_SHA1,
-      salt: 'abcdef',
+      algorithm: HashProperty.ALGORITHM_SHA256,
+      salt: '', // you should override it in your code
       minLength: 1,
-      maxLength: 24,
+      maxLength: 16, // this is for the clear password
    },
 ]
 

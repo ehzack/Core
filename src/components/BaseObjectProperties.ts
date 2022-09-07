@@ -1,7 +1,24 @@
 import { Property } from '../properties/Property'
 import { DataObjectProperties } from '../properties'
 import * as statuses from '../statuses'
+import { User } from './User'
+import { ObjectUri } from './ObjectUri'
 //import { User } from './User'
+
+export interface BaseObjectType {
+   name: string
+   status:
+      | typeof statuses.CREATED
+      | typeof statuses.PENDING
+      | typeof statuses.ACTIVE
+      | typeof statuses.DELETED
+   createdBy: User | ObjectUri
+   createdAt: number
+   updatedBy?: User | ObjectUri
+   updatedAt?: number
+   deletedBy?: User | ObjectUri
+   deletedAt?: number
+}
 
 export const BaseObjectProperties: DataObjectProperties = [
    {

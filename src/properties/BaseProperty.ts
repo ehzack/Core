@@ -1,10 +1,9 @@
 import { DataObject } from '../components/DataObject'
-import { Property } from './Property'
 import { AbstractPropertyType, PropertyClassType } from './'
 
 export type EventTypes =
-   | typeof Property.EVENT_ONCHANGE
-   | typeof Property.EVENT_ONDELETE
+   | typeof BaseProperty.EVENT_ONCHANGE
+   | typeof BaseProperty.EVENT_ONDELETE
 
 export interface BasePropertyType extends AbstractPropertyType {
    parent?: DataObject
@@ -15,6 +14,9 @@ export interface BasePropertyType extends AbstractPropertyType {
 }
 
 export class BaseProperty implements PropertyClassType {
+   static EVENT_ONCHANGE = 'onChange'
+   static EVENT_ONDELETE = 'onDelete'
+
    protected _parent: DataObject | undefined
    protected _name: string
    protected _value: any = undefined
@@ -62,9 +64,9 @@ export class BaseProperty implements PropertyClassType {
       }
       this._value = value
 
-      if (this._events[Property.EVENT_ONCHANGE]) {
-         this._events[Property.EVENT_ONCHANGE](this._parent)
-      }
+      // if (this._events[Property.EVENT_ONCHANGE]) {
+      //    this._events[Property.EVENT_ONCHANGE](this._parent)
+      // }
 
       return this
    }

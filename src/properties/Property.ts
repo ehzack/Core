@@ -6,19 +6,17 @@ import { EnumProperty } from './EnumProperty'
 import { HashProperty } from './HashProperty'
 import { ObjectProperty } from './ObjectProperty'
 import { StringProperty } from './StringProperty'
+import { NumberProperty } from './NumberProperty'
 
 export class Property {
    static TYPE_ANY = 'any'
+   static TYPE_NUMBER = 'number'
    static TYPE_STRING = 'string'
    static TYPE_OBJECT = 'object'
-   static TYPE_NUMBER = 'number'
    static TYPE_ENUM = 'enum'
    static TYPE_BOOLEAN = 'boolean'
    static TYPE_HASH = 'hash'
    static TYPE_DATETIME = 'datetime'
-
-   static EVENT_ONCHANGE = 'onChange'
-   static EVENT_ONDELETE = 'onDelete'
 
    static ALLOW_SPACES = 'spaces'
    static ALLOW_LETTERS = 'letters'
@@ -29,8 +27,12 @@ export class Property {
       switch (params.type) {
          case Property.TYPE_ANY:
             return new BaseProperty(params)
+
          case Property.TYPE_STRING:
             return new StringProperty(params)
+
+         case Property.TYPE_NUMBER:
+            return new NumberProperty(params)
 
          case Property.TYPE_OBJECT:
             return new ObjectProperty(params)
