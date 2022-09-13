@@ -20,7 +20,12 @@ import { DataObject } from './components/DataObject'
 import { BaseObject } from './components/BaseObject'
 import { BaseObjectProperties } from './components/BaseObjectProperties'
 
-import { AbstractAdapter, MockAdapter, BackendError } from './backends'
+import {
+   AbstractAdapter,
+   MockAdapter,
+   BackendError,
+   BackendParameters,
+} from './backends'
 
 export {
    statuses,
@@ -42,10 +47,11 @@ export {
    StringPropertyType,
    AbstractAdapter,
    MockAdapter,
-   BackendError,
    ObjectUri,
    DataObject,
    AbstractObject,
    BaseObject,
    BaseObjectProperties,
+   BackendParameters,
+   BackendError,
 }

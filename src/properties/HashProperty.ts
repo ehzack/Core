@@ -54,6 +54,8 @@ export class HashProperty extends StringProperty {
       let hash = this._prefixed ? `${this._algorithm}-` : ''
       hash += algo.update(`${this._salt}${value}`).digest('hex')
 
+      this._rawValue = false // don't test some constraints after hashing
+
       return hash
    }
 

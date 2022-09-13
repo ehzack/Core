@@ -19,6 +19,12 @@ export class StringProperty extends BaseProperty {
 
    protected _value: string | undefined
 
+
+   /**
+    * Set to false to bypass some rules
+    */
+   protected _rawValue = true
+
    constructor(config: StringPropertyType) {
       super(config)
       this.minLength = config.minLength || 0
@@ -56,12 +62,12 @@ export class StringProperty extends BaseProperty {
          throw new Error(`Letters are not allowed in value`)
       }
 
-      if (this._minLength > 0 && value.length < this._minLength) {
+      if (this._rawValue && this._minLength > 0 && value.length < this._minLength) {
          throw new Error(`Value is too short`)
       }
 
-      if (this._maxLength > 0 && value.length > this._maxLength) {
-         throw new Error(`Value is too long`)
+      if (this._rawValue && this._maxLength > 0 && value.length > this._maxLength) {
+         throw new Error(`${this._name}: value '${value}' is too long`)
       }
 
       return super.set(value)

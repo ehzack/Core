@@ -41,12 +41,14 @@ describe('Base object', () => {
    test('can be populated with data', () => {
       BaseObject.factory(baseObjectUri)
          .then((obj) => {
-            User.factory(UserUri).then((user: User) => {
-               obj.set('createdBy', user)
-               expect(obj.val('name')).toEqual('a simple object')
-               expect(obj.val('status')).toEqual(statuses.PENDING)
-               expect(obj.val('createdBy')).toEqual(user)
-            })
+            User.factory(UserUri)
+               .then((user: User) => {
+                  obj.set('createdBy', user)
+                  expect(obj.val('name')).toEqual('a simple object')
+                  expect(obj.val('status')).toEqual(statuses.PENDING)
+                  expect(obj.val('createdBy')).toEqual(user)
+               })
+               .catch((e) => console.log(e))
          })
          .catch((e) => console.log(e))
    })

@@ -39,6 +39,7 @@ export class DataObject {
     * @param data
     */
    async populate(data: any = undefined): Promise<DataObject> {
+      console.log('path', this.path)
       if (this._populated === false) {
          if (data) {
             for (const key in data) {

@@ -15,9 +15,9 @@ export class BaseObject extends AbstractObject {
       this._dataObject.set('status', status)
    }
 
-   static async factory(
+   static async factory<T extends BaseObject>(
       src: string | ObjectUri | object | undefined = undefined
-   ) {
+   ): Promise<T | BaseObject> {
       try {
          // merge base properties with additional or redefined ones
          const base = BaseObjectProperties
@@ -37,6 +37,9 @@ export class BaseObject extends AbstractObject {
 
          if (src instanceof ObjectUri) {
             dao.uri = src
+            await dao.populate()
+         } else if (typeof src === 'string') {
+            dao.uri = new ObjectUri(src)
             await dao.populate()
          } else if (src instanceof Object) {
             await dao.populate(src)
