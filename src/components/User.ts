@@ -1,8 +1,14 @@
 import { Property } from '../properties/Property'
 import { DataObject } from './DataObject'
-import { DataObjectProperties, HashProperty } from '../properties'
+import { DataObjectProperties } from '../properties'
+import { HashProperty } from '../properties/HashProperty'
 import { BaseObject } from './BaseObject'
 
+/**
+ * Callback function to populate the 'name' property
+ * @param dao DataObject
+ * @returns
+ */
 const onChange = (dao: DataObject) =>
    dao.set('name', `${dao.val('firstname')} ${dao.val('lastname')}`)
 

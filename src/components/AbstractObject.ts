@@ -4,6 +4,12 @@ import { DataObjectProperties } from '../properties/'
 export abstract class AbstractObject {
    static PROPS_DEFINITION: DataObjectProperties = []
 
+   // Which name to use in backend as table or collection identifer
+   static COLLECTION: string = this.constructor.name.toLowerCase()
+
+   // Which property's value to use in backend as label for object reference
+   static LABEL_KEY = 'name'
+
    protected _dataObject: DataObject
 
    constructor(dao: DataObject) {

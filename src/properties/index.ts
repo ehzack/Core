@@ -7,6 +7,7 @@ import { EnumProperty, EnumPropertyType } from './EnumProperty'
 import { BooleanProperty, BooleanPropertyType } from './BooleanProperty'
 import { DateTimeProperty, DateTimePropertyType } from './DateTimeProperty'
 import { ObjectProperty, ObjectPropertyType } from './ObjectProperty'
+import { PropertyTypes } from './types/PropertyTypes'
 
 export {
    Property,
@@ -28,15 +29,6 @@ export {
    HashPropertyType,
 }
 
-export type PropertyTypes =
-   | typeof Property.TYPE_STRING
-   | typeof Property.TYPE_NUMBER
-   | typeof Property.TYPE_ENUM
-   | typeof Property.TYPE_BOOLEAN
-   | typeof Property.TYPE_OBJECT
-   | typeof Property.TYPE_DATETIME
-   | typeof Property.TYPE_HASH
-
 type BaseType = { type: PropertyTypes }
 
 export type DataObjectProperties = (
@@ -48,13 +40,3 @@ export type DataObjectProperties = (
    | (HashPropertyType & BaseType)
    | (DateTimeProperty & BaseType)
 )[]
-
-export interface PropertyClassType {
-   set(value: any): void
-   val(transform: any): void
-}
-
-export interface AbstractPropertyType {
-   name: string
-   type?: PropertyTypes
-}

@@ -1,5 +1,6 @@
 import { DataObject } from '../components/DataObject'
-import { AbstractPropertyType, PropertyClassType } from './'
+import { AbstractPropertyType } from './types/AbstractPropertyType'
+import { PropertyClassType } from './types/PropertyClassType'
 
 export type EventTypes =
    | typeof BaseProperty.EVENT_ONCHANGE
@@ -60,13 +61,15 @@ export class BaseProperty implements PropertyClassType {
          this._value !== this._defaultValue &&
          this._protected === true
       ) {
-         throw new Error(`Value already defined and protected from change`)
+         throw new Error(
+            `Value already defined as '${this._value}' and protected from change`
+         )
       }
       this._value = value
 
-      // if (this._events[Property.EVENT_ONCHANGE]) {
-      //    this._events[Property.EVENT_ONCHANGE](this._parent)
-      // }
+      if (this._events[BaseProperty.EVENT_ONCHANGE]) {
+         this._events[BaseProperty.EVENT_ONCHANGE](this._parent)
+      }
 
       return this
    }

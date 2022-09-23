@@ -1,5 +1,6 @@
 import { Core } from '../Core'
 import { Property } from '../properties/Property'
+import { AbstractObject } from './AbstractObject'
 import { ObjectUri } from './ObjectUri'
 
 export interface DataObjectFactoryType {
@@ -7,22 +8,33 @@ export interface DataObjectFactoryType {
    [x: string]: any
 }
 
+export type CoreObject<T extends AbstractObject> = T
+
 /**
  * Data objects constitute the agnostic glue between objects and backends.
  * They handle data and identifiers in a protected registry
  * This is what backends and objects manipulate, oblivious of the other.
  */
 export class DataObject {
-   protected _class: Function
-   protected _objectUri: ObjectUri | undefined
+   protected _class: CoreObject<any>
+   protected _objectUri: ObjectUri
    protected _obj: any
    protected _uid: string | undefined = undefined
    protected _properties: { [x: string]: any } = {}
    protected _persisted: boolean = false
    protected _populated: boolean = false
 
-   protected constructor(objClass: Function, properties: any[] | undefined) {
+   /**
+    * Data has been modified since last backend operation
+    */
+   protected _modified: boolean = false
+
+   protected constructor(
+      objClass: AbstractObject,
+      properties: any[] | undefined
+   ) {
       this._class = objClass
+      this._objectUri = new ObjectUri()
       if (Array.isArray(properties)) {
          this._init(properties)
       }
@@ -39,7 +51,6 @@ export class DataObject {
     * @param data
     */
    async populate(data: any = undefined): Promise<DataObject> {
-      console.log('path', this.path)
       if (this._populated === false) {
          if (data) {
             for (const key in data) {
@@ -47,10 +58,16 @@ export class DataObject {
                   Reflect.get(this._properties, key).set(data[key])
                }
             }
-         } else if (this.path !== '/') {
+         } else if (this.path !== '/' && this.path !== '') {
             await Core.getBackend(this.backend).read(this)
          }
          this._populated = true
+
+         console.log('properties', this.toJSON())
+
+         if (Reflect.get(this._properties, 'name')) {
+            this.uri.label = this.val('name')
+         }
       }
 
       return this
@@ -99,7 +116,7 @@ export class DataObject {
       this._objectUri = uri instanceof ObjectUri ? uri : new ObjectUri(uri)
    }
 
-   get uri() {
+   get uri(): ObjectUri {
       return this._objectUri
    }
 
@@ -122,6 +139,7 @@ export class DataObject {
       }
       this._properties[key].set(val)
       this._populated = true
+      this._modified = true
 
       return this
    }
@@ -140,9 +158,9 @@ export class DataObject {
       }
    }
 
-   toJSON() {
+   toJSON(): { [x: string]: any } {
       return {
-         uid: this._uid,
+         ...(this._uid && { uid: this._uid }),
          ...this._dataToJSON(),
       }
    }
@@ -158,10 +176,13 @@ export class DataObject {
       const data = {}
       Object.keys(this._properties).forEach((key: string) => {
          const prop: any = Reflect.get(this._properties, key)
-         if (typeof prop === 'object' && Reflect.has(prop, 'toJSON')) {
-            Reflect.set(data, key, prop.toJSON())
+         if (
+            typeof prop.val() === 'object' &&
+            Reflect.has(prop.val(), 'toJSON')
+         ) {
+            Reflect.set(data, key, prop.val().toJSON())
          } else if (prop !== undefined) {
-            Reflect.set(data, key, prop)
+            Reflect.set(data, key, prop.val())
          }
       })
 
@@ -180,6 +201,7 @@ export class DataObject {
    async save(desiredUid: string | undefined = undefined): Promise<DataObject> {
       const backend = Core.getBackend(this.backend || Core.defaultBackend)
       this._persisted = true
+      this._modified = false
       return this._uid
          ? await backend.update(this)
          : await backend.create(this, desiredUid)

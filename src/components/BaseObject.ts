@@ -8,7 +8,7 @@ export class BaseObject extends AbstractObject {
    static PROPS_DEFINITION: DataObjectProperties = BaseObjectProperties
 
    get status(): string {
-      return this._dataObject.get('status')
+      return this._dataObject.val('status')
    }
 
    set status(status: string) {
@@ -39,9 +39,14 @@ export class BaseObject extends AbstractObject {
             dao.uri = src
             await dao.populate()
          } else if (typeof src === 'string') {
-            dao.uri = new ObjectUri(src)
+            dao.uri.path = src
             await dao.populate()
          } else if (src instanceof Object) {
+            dao.uri = new ObjectUri(
+               `${this.COLLECTION}${ObjectUri.DEFAULT}`,
+               Reflect.get(src, 'name')
+            )
+            dao.uri.collection = this.COLLECTION
             await dao.populate(src)
          }
          return new this(dao)
