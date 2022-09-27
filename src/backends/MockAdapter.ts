@@ -1,10 +1,14 @@
 import { AbstractAdapter, BackendInterface } from './'
 import { DELETED } from '../statuses'
-import { DataObject } from '../components'
+import { BaseObject, DataObject } from '../components'
 import { Core } from '../Core'
 import { BackendRecordType } from './AbstractAdapter'
+import { Query } from './Query'
+import { Filter } from './Filter'
+import { Filters } from './Filters'
+import { SortAndLimit } from './SortAndLimit'
 
-export class MockAdapter extends AbstractAdapter implements BackendInterface {
+export class MockAdapter<T extends BaseObject> extends AbstractAdapter implements BackendInterface<T> {
    protected static _fixtures: any = {}
 
    /**
@@ -75,5 +79,17 @@ export class MockAdapter extends AbstractAdapter implements BackendInterface {
       }
 
       return new Promise(() => dataObject)
+   }
+
+   async query(query: Query<T>): Promise<DataObject[]> {
+      return await this.find(query.obj.dataObject, query.filters, query.sortAndLimit)
+   }
+
+   async find(
+      dataObject: DataObject,
+      filters: Filters | Filter[] | undefined = undefined,
+      pagination: SortAndLimit | undefined = undefined
+   ): Promise<DataObject[]> {
+      return [dataObject, dataObject]
    }
 }

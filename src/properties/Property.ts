@@ -24,6 +24,7 @@ export class Property {
 
    static factory<P extends BasePropertyType>(params: P, parent: DataObject) {
       params.parent = parent
+      console.log(`Creating ${params.type} property named ${params.name}`)
       switch (params.type) {
          case Property.TYPE_ANY:
             return new BaseProperty(params)

@@ -41,6 +41,9 @@ export class DataObject {
    }
 
    protected _init(properties: any[]) {
+      console.log(
+         `Preparing properties for instance of ${this._class.constructor.name}`
+      )
       properties.forEach((prop) => {
          this._properties[prop.name] = Property.factory(prop, this)
       })
@@ -62,8 +65,6 @@ export class DataObject {
             await Core.getBackend(this.backend).read(this)
          }
          this._populated = true
-
-         console.log('properties', this.toJSON())
 
          if (Reflect.get(this._properties, 'name')) {
             this.uri.label = this.val('name')

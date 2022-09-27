@@ -3,6 +3,7 @@ import { ObjectUri } from './ObjectUri'
 import { AbstractObject } from './AbstractObject'
 import { BaseObjectProperties } from './BaseObjectProperties'
 import { DataObjectProperties } from '../properties'
+import { Query } from '../backends'
 
 export class BaseObject extends AbstractObject {
    static PROPS_DEFINITION: DataObjectProperties = BaseObjectProperties
@@ -22,8 +23,9 @@ export class BaseObject extends AbstractObject {
          // merge base properties with additional or redefined ones
          const base = BaseObjectProperties
 
-         this.PROPS_DEFINITION &&
+        // this.PROPS_DEFINITION &&
             this.PROPS_DEFINITION.forEach((property) => {
+               // manage parent properties potential redeclaration
                const found = base.findIndex((el) => el.name === property.name)
                if (found !== -1) {
                   base[found] = Object.assign(base[found], property)
@@ -31,6 +33,8 @@ export class BaseObject extends AbstractObject {
                   base.push(property)
                }
             })
+
+         console.log('props to add', JSON.stringify(base))
 
          // create data object
          const dao = await DataObject.factory(this.prototype, base)
@@ -62,5 +66,9 @@ export class BaseObject extends AbstractObject {
 
    asReference() {
       return this._dataObject.toReference()
+   }
+
+   query() {
+      return new Query(this)
    }
 }

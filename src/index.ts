@@ -25,6 +25,12 @@ import {
    MockAdapter,
    BackendError,
    BackendParameters,
+   Query,
+   Filter,
+   Filters,
+   Limits,
+   Sorting,
+   SortAndLimit,
 } from './backends'
 
 export {
@@ -54,4 +60,10 @@ export {
    BaseObjectProperties,
    BackendParameters,
    BackendError,
+   Query,
+   Filter,
+   Filters,
+   Limits,
+   Sorting,
+   SortAndLimit,
 }

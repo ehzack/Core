@@ -1,4 +1,8 @@
-import { DataObject } from '../components'
+import { BaseObject, DataObject } from '../components'
+import { Filter } from './Filter'
+import { Filters } from './Filters'
+import { Query } from './Query'
+import { SortAndLimit } from './SortAndLimit'
 
 export interface BackendRecordType {
    uid: string | undefined
@@ -24,7 +28,7 @@ export interface BackendParameters {
    debug?: boolean
 }
 
-export interface BackendInterface {
+export interface BackendInterface<T extends BaseObject> {
    create(
       dataObject: DataObject,
       desiredUid: string | undefined
@@ -35,6 +39,14 @@ export interface BackendInterface {
    update(dataObject: DataObject): Promise<DataObject>
 
    delete(dataObject: DataObject): Promise<DataObject>
+
+   query(query: Query<T>): Promise<DataObject[] | T[]>
+
+   find(
+      dataObject: DataObject,
+      filters: Filters | Filter[] | undefined,
+      pagination: SortAndLimit | undefined
+   ): Promise<DataObject[] | T[]>
 }
 
 export abstract class AbstractAdapter {
