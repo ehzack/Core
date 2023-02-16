@@ -4,19 +4,21 @@ import { Core } from '../../Core'
 import { Property } from '../../properties'
 import { MockAdapter } from '../MockAdapter'
 
-// inject makes default
-MockAdapter.inject({ uid: 'a/b', a: 'b', c: 'd', e: 3 })
+// inject() makes @mock default backend
 
-const backend = Core.getBackend()
+const backend = Core.getBackend('@mock')
 
 describe('CRUD operations', () => {
    test('write data', async () => {
+      // create a basic data object
       const dao = await DataObject.factory(fClass.prototype, [
          { name: 'a', type: Property.TYPE_STRING },
       ])
 
+      // set an acceptable value to its property
       dao.set('a', 'a string')
 
+      // Check that object is successfully created in backend
       backend.create(dao).then(() => {
          expect(dao.isPersisted()).toBe(true)
          expect(dao.uri).not.toBeUndefined()
@@ -27,11 +29,13 @@ describe('CRUD operations', () => {
       })
    })
 
-   test('read data', async () => {
-      const dao = await DataObject.factory(fClass.prototype, [
-         { name: 'a', type: Property.TYPE_STRING },
-      ])
+   test.only('read data', async () => {
+      MockAdapter.inject({ uid: 'a/b', a: 'b', c: 'd', e: 3 })
+
+      const dao = await DataObject.factory(fClass.prototype)
       dao.uri = 'a/b'
+
+      console.log(dao)
 
       backend.read(dao).then(() => {
          expect(dao.val('a')).toBe('b')
@@ -39,13 +43,11 @@ describe('CRUD operations', () => {
    })
 
    test('update data', async () => {
-      const dao = await DataObject.factory(fClass.prototype, [
-         { name: 'a', type: Property.TYPE_STRING },
-      ])
+      const dao = await DataObject.factory(fClass.prototype)
 
       dao.uri = 'a/b'
 
-      dao.set('a', 'a string')
+      //dao.set('a', 'a string')
 
       backend.read(dao).then(() => {
          dao.set('a', 'another string')

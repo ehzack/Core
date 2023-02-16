@@ -4,11 +4,17 @@ import { Filters } from './Filters'
 import { Query } from './Query'
 import { SortAndLimit } from './SortAndLimit'
 
+/**
+ * Default interface for a backend record
+ */
 export interface BackendRecordType {
    uid: string | undefined
    [key: string]: string | number | boolean | any[] | Object | undefined
 }
 
+/**
+ * Backend Parameters acceptable keys
+ */
 export type BackendParametersKeys =
    | 'alias'
    | 'mapping'
@@ -18,6 +24,9 @@ export type BackendParametersKeys =
    | 'softDelete'
    | 'debug'
 
+/**
+ * Backend parameters interface
+ */
 export interface BackendParameters {
    alias?: string
    mapping?: { [x: string]: any }

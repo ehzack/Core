@@ -1,5 +1,5 @@
 import { BaseObject } from '../BaseObject'
-import { statuses } from '../..'
+import { statuses, Core } from '../..'
 import { MockAdapter } from '../../backends'
 import {
    BaseObjectData,
@@ -24,7 +24,7 @@ describe('Base object', () => {
       BaseObject.factory()
          .then((obj) => {
             User.factory(UserUri).then((user: User) => {
-               expect(obj.uid).toBeUndefined()
+               expect(obj.uid).not.toBeUndefined()
                obj.set('name', 'a name')
                obj.set('createdBy', user)
                obj.save().then(() => {

@@ -2,6 +2,10 @@ import { Core } from '../Core'
 
 export class ObjectUri {
    static DEFAULT = '/'
+   static MISSING_COLLECTION = '_?_'
+
+   protected _str: string
+   protected _pairs: Array<string> = []
    protected _literal: string = ''
    protected _backend: string = '@default'
    protected _path: string = '/'
@@ -16,15 +20,36 @@ export class ObjectUri {
     * @param str
     */
    constructor(str: string = '', label: string | undefined = undefined) {
-      const [backend, path] = str.split(':')
-      if (path) {
-         this._backend = backend || Core.defaultBackend
-         this._path = path || backend
-         this._collection = path.split('/').pop()
-      }
-      this._uid = this._path ? this._path.split('/').pop() : undefined
-      this._literal = `${this._backend}:${this._path}`
+      this._str = str
       this._label = label || this._uid
+      if (str.indexOf(':') !== -1) {
+         const [backend, path] = str.split(':')
+         this._backend = backend || Core.defaultBackend
+         this._path = path
+      } else {
+         this._path = str
+      }
+      const parts = this._path.split(ObjectUri.DEFAULT)
+      if (parts.length === 1) {
+         // It is allowed to only give the uid part of the uri
+         // provided that collection will be injected by another mean
+         this._uid = parts[0]
+         this._collection = ObjectUri.MISSING_COLLECTION
+         this._pairs.push(
+            `${ObjectUri.MISSING_COLLECTION}${ObjectUri.DEFAULT}${this._uid}`
+         )
+      } else if (parts.length % 2 === 0) {
+         // General case is a path containing pairs of collection/uid
+         let i = 0
+         while (i < parts.length) {
+            this._collection = parts[i]
+            this._uid = parts[i + 1]
+            this._pairs.push(`${parts[i]}${ObjectUri.DEFAULT}${parts[i + 1]}`)
+            i += 2
+         }
+      } else {
+         throw new Error('Path parts number must be 1 or even')
+      }
    }
 
    get backend() {
@@ -43,6 +68,13 @@ export class ObjectUri {
       return this._label
    }
 
+   get literal() {
+      // return `${this._backend}:${
+      //    this._collection || ObjectUri.MISSING_COLLECTION
+      // }${ObjectUri.DEFAULT}${this._uid}`
+      return `${this._backend}:${this._pairs.join(ObjectUri.DEFAULT)}`
+   }
+
    set path(path: string) {
       if (this._path !== '/') {
          throw new Error('Path value already set')
@@ -57,7 +89,9 @@ export class ObjectUri {
    }
 
    get collection(): string | undefined {
-      return this._collection
+      return this._collection === ObjectUri.MISSING_COLLECTION
+         ? undefined
+         : this._collection
    }
 
    set collection(collection: string | undefined) {

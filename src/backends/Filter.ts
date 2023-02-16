@@ -6,6 +6,9 @@ export interface FilterType {
    value: number | string | string[] | undefined
 }
 
+/**
+ * Filter object
+ */
 export class Filter implements FilterType {
    prop: string
    operator: FilterOperatorType

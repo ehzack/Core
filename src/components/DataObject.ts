@@ -25,10 +25,15 @@ export class DataObject {
    protected _populated: boolean = false
 
    /**
-    * Data has been modified since last backend operation
+    * Has data been modified since last backend operation?
     */
    protected _modified: boolean = false
 
+   /**
+    * Constructor is protected, use factory() instead
+    * @param objClass AbstractObject
+    * @param properties array of properties instances
+    */
    protected constructor(
       objClass: AbstractObject,
       properties: any[] | undefined
@@ -41,9 +46,9 @@ export class DataObject {
    }
 
    protected _init(properties: any[]) {
-      console.log(
-         `Preparing properties for instance of ${this._class.constructor.name}`
-      )
+      // console.log(
+      //    `Preparing properties for instance of ${this._class.constructor.name}`
+      // )
       properties.forEach((prop) => {
          this._properties[prop.name] = Property.factory(prop, this)
       })
@@ -62,7 +67,7 @@ export class DataObject {
                }
             }
          } else if (this.path !== '/' && this.path !== '') {
-            await Core.getBackend(this.backend).read(this)
+            await Core.getBackend(this._objectUri.backend).read(this)
          }
          this._populated = true
 
