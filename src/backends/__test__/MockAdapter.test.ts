@@ -1,5 +1,8 @@
 import { DataObject } from '../../components'
-import { fClass } from '../../components/__test__/fixtures/dao'
+import {
+   fClass,
+   fClassProperties,
+} from '../../components/__test__/fixtures/dao'
 import { Core } from '../../Core'
 import { Property } from '../../properties'
 import { MockAdapter } from '../MockAdapter'
@@ -11,9 +14,7 @@ const backend = Core.getBackend('@mock')
 describe('CRUD operations', () => {
    test('write data', async () => {
       // create a basic data object
-      const dao = await DataObject.factory(fClass.prototype, [
-         { name: 'a', type: Property.TYPE_STRING },
-      ])
+      const dao = await DataObject.factory(fClass.prototype, fClassProperties)
 
       // set an acceptable value to its property
       dao.set('a', 'a string')
@@ -29,13 +30,11 @@ describe('CRUD operations', () => {
       })
    })
 
-   test.only('read data', async () => {
+   test('read data', async () => {
       MockAdapter.inject({ uid: 'a/b', a: 'b', c: 'd', e: 3 })
 
-      const dao = await DataObject.factory(fClass.prototype)
+      const dao = await DataObject.factory(fClass.prototype, fClassProperties)
       dao.uri = 'a/b'
-
-      console.log(dao)
 
       backend.read(dao).then(() => {
          expect(dao.val('a')).toBe('b')
@@ -43,11 +42,11 @@ describe('CRUD operations', () => {
    })
 
    test('update data', async () => {
-      const dao = await DataObject.factory(fClass.prototype)
+      const dao = await DataObject.factory(fClass.prototype, fClassProperties)
 
       dao.uri = 'a/b'
 
-      //dao.set('a', 'a string')
+      dao.set('a', 'a string')
 
       backend.read(dao).then(() => {
          dao.set('a', 'another string')
@@ -59,9 +58,7 @@ describe('CRUD operations', () => {
    })
 
    test('delete data', async () => {
-      const dao = await DataObject.factory(fClass.prototype, [
-         { name: 'a', type: Property.TYPE_STRING },
-      ])
+      const dao = await DataObject.factory(fClass.prototype, fClassProperties)
 
       dao.uri = 'a/b'
 

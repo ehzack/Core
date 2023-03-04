@@ -159,7 +159,6 @@ export class DataObject {
       if (Reflect.get(this._properties, key)) {
          return Reflect.get(this._properties, key).val()
       } else {
-         console.log(key, this._properties)
          throw new Error(`Unknown property '${key}'`)
       }
    }

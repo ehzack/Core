@@ -8,7 +8,10 @@ import { Filter } from './Filter'
 import { Filters } from './Filters'
 import { SortAndLimit } from './SortAndLimit'
 
-export class MockAdapter<T extends BaseObject> extends AbstractAdapter implements BackendInterface<T> {
+export class MockAdapter<T extends BaseObject>
+   extends AbstractAdapter
+   implements BackendInterface<T>
+{
    protected static _fixtures: any = {}
 
    /**
@@ -82,7 +85,11 @@ export class MockAdapter<T extends BaseObject> extends AbstractAdapter implement
    }
 
    async query(query: Query<T>): Promise<DataObject[]> {
-      return await this.find(query.obj.dataObject, query.filters, query.sortAndLimit)
+      return await this.find(
+         query.obj.dataObject,
+         query.filters,
+         query.sortAndLimit
+      )
    }
 
    async find(

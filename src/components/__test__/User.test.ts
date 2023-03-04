@@ -6,13 +6,19 @@ import { UserData, UserUri } from './fixtures/dao'
 MockAdapter.inject(UserData) // sets default to @mock
 
 describe('User object', () => {
-   test('has 5 properties that are instances', () =>
+   test('has properties that are instances', () =>
       User.factory().then((obj) => {
-         expect(Object.keys(obj.dataObject.properties)).toHaveLength(7)
+         // own properties
+         expect(Object.keys(obj.dataObject.properties)).toHaveLength(12)
          expect(obj.get('firstname').constructor.name).toBe('StringProperty')
          expect(obj.get('lastname').constructor.name).toBe('StringProperty')
          expect(obj.get('email').constructor.name).toBe('StringProperty')
          expect(obj.get('password').constructor.name).toBe('HashProperty')
+         // herited properties
+         expect(obj.get('name').constructor.name).toBe('StringProperty')
+         expect(obj.get('status').constructor.name).toBe('EnumProperty')
+         expect(obj.get('createdAt').constructor.name).toBe('DateTimeProperty')
+         expect(obj.get('updatedAt').constructor.name).toBe('DateTimeProperty')
       }))
 
    test('can be persisted in backend', () => {

@@ -7,8 +7,8 @@ export class ObjectUri {
    protected _str: string
    protected _pairs: Array<string> = []
    protected _literal: string = ''
-   protected _backend: string = '@default'
-   protected _path: string = '/'
+   protected _backend: string = Core.defaultBackend
+   protected _path: string = ObjectUri.DEFAULT
    protected _uid: string | undefined = undefined
    protected _collection: string | undefined = undefined
    protected _label: string | undefined
@@ -33,7 +33,7 @@ export class ObjectUri {
       if (parts.length === 1) {
          // It is allowed to only give the uid part of the uri
          // provided that collection will be injected by another mean
-         this._uid = parts[0]
+         this._uid = parts[0].length > 0 ? parts[0] : undefined
          this._collection = ObjectUri.MISSING_COLLECTION
          this._pairs.push(
             `${ObjectUri.MISSING_COLLECTION}${ObjectUri.DEFAULT}${this._uid}`
@@ -76,8 +76,8 @@ export class ObjectUri {
    }
 
    set path(path: string) {
-      if (this._path !== '/') {
-         throw new Error('Path value already set')
+      if (this._path && this._path !== ObjectUri.DEFAULT) {
+         throw new Error(`Path value already set with '${this._path}'`)
       }
       this._path = path
       this._collection = path.split('/').pop()

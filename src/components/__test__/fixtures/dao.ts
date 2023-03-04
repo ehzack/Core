@@ -2,8 +2,18 @@ import * as statuses from '../../../statuses'
 import { DataObjectProperties } from '../../../properties'
 import { Property } from '../../../properties/Property'
 import { User } from '../../User'
+import { BaseObject } from '../../BaseObject'
+import { ObjectUri } from '../../ObjectUri'
 
-export class fClass {}
+export const fClassProperties: DataObjectProperties = [
+   {
+      name: 'a',
+      type: Property.TYPE_STRING,
+   },
+]
+export class fClass extends BaseObject {
+   static PROPS_DEFINITION: DataObjectProperties = fClassProperties
+}
 
 export const properties: DataObjectProperties = [
    {
@@ -34,7 +44,7 @@ export const fData = {
    string: 'a string',
    boolean: true,
    enum: 'Miss',
-   object: new fClass(),
+   object: new ObjectUri('c/d') //fClass.factory(),
 }
 
 export const baseObjectUri = 'baseobject/xyz'
@@ -45,7 +55,6 @@ export const BaseObjectData = {
    name: 'a simple object',
    status: statuses.PENDING,
 }
-
 
 export const UserData = {
    uid: UserUri,
