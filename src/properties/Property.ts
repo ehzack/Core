@@ -21,6 +21,8 @@ export class Property {
    static ALLOW_SPACES = 'spaces'
    static ALLOW_LETTERS = 'letters'
    static ALLOW_DIGITS = 'digits'
+   static ALLOW_STRINGS = 'strings'
+   static ALLOW_NUMBERS = 'numbers'
 
    static factory<P extends BasePropertyType>(params: P, parent: DataObject) {
       params.parent = parent

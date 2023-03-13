@@ -1,5 +1,6 @@
 import { Property } from './Property'
 import { BaseProperty, BasePropertyType } from './BaseProperty'
+import { ArrayProperty, ArrayPropertyType } from './ArrayProperty'
 import { NumberProperty, NumberPropertyType } from './NumberProperty'
 import { StringProperty, StringPropertyType } from './StringProperty'
 import { HashProperty, HashPropertyType } from './HashProperty'
@@ -13,6 +14,8 @@ export {
    Property,
    BaseProperty,
    BasePropertyType,
+   ArrayProperty,
+   ArrayPropertyType,
    NumberProperty,
    NumberPropertyType,
    BooleanProperty,
