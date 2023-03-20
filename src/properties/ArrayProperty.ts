@@ -46,9 +46,35 @@ export class ArrayProperty extends BaseProperty {
          throw new Error(`value ${JSON.stringify(value)} is not an array`)
       }
 
-      // TODO add controls over allowed values
+      if (this._minLength > 0 && value.length < this._minLength) {
+         throw new Error(`Array has too few values`)
+      }
+
+      if (this._maxLength > 0 && value.length > this._maxLength) {
+         throw new Error(`Array values are too many`)
+      }
+
+      const joined = value.join()
+
+      if (
+         this._allows.includes(Property.ALLOW_STRINGS) === false &&
+         /[a-zA-Z]/.test(joined)
+      ) {
+         throw new Error(`Strings are not allowed in value`)
+      }
+
+      if (
+         this._allows.includes(Property.ALLOW_NUMBERS) === false &&
+         /\d/.test(joined)
+      ) {
+         throw new Error(`Numbers are not allowed in value`)
+      }
 
       return super.set(value)
+   }
+
+   get(transform: Function | undefined = undefined) {
+      return transform ? transform(this._value) : this._value
    }
 
    toJSON() {
