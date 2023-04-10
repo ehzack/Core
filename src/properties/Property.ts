@@ -1,4 +1,4 @@
-import { DataObject } from '../components/DataObject'
+import { DataObjectType } from '../components/DataObject'
 import { BaseProperty, BasePropertyType } from './BaseProperty'
 import { BooleanProperty } from './BooleanProperty'
 import { DateTimeProperty } from './DateTimeProperty'
@@ -24,9 +24,11 @@ export class Property {
    static ALLOW_STRINGS = 'strings'
    static ALLOW_NUMBERS = 'numbers'
 
-   static factory<P extends BasePropertyType>(params: P, parent: DataObject) {
+   static factory<P extends BasePropertyType>(
+      params: P,
+      parent: DataObjectType
+   ) {
       params.parent = parent
-   //   console.log(`Creating ${params.type} property named ${params.name}`)
       switch (params.type) {
          case Property.TYPE_ANY:
             return new BaseProperty(params)

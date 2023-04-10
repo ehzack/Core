@@ -49,7 +49,7 @@ export interface BackendInterface<T extends BaseObject> {
 
    delete(dataObject: DataObject): Promise<DataObject>
 
-   query(query: Query<T>): Promise<DataObject[] | T[]>
+   query(query: Query<any>): Promise<DataObject[]>
 
    find(
       dataObject: DataObject,

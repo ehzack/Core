@@ -1,5 +1,5 @@
 import { Property } from '../properties/Property'
-import { DataObject } from './DataObject'
+import { DataObjectType } from './DataObject'
 import { DataObjectProperties } from '../properties'
 import { HashProperty } from '../properties/HashProperty'
 import { BaseObject } from './BaseObject'
@@ -9,7 +9,7 @@ import { BaseObject } from './BaseObject'
  * @param dao DataObject
  * @returns
  */
-const onChange = (dao: DataObject) =>
+const onChange = (dao: DataObjectType) =>
    dao.set('name', `${dao.val('firstname')} ${dao.val('lastname')}`)
 
 export const UserProperties: DataObjectProperties = [
@@ -55,4 +55,8 @@ export const UserProperties: DataObjectProperties = [
 
 export class User extends BaseObject {
    static PROPS_DEFINITION = UserProperties
+
+   static async factory(src: any = undefined): Promise<User> {
+      return super.factory(src, User)
+   }
 }

@@ -42,7 +42,7 @@ export class MockAdapter<T extends BaseObject>
    ): Promise<DataObject> {
       const uri =
          desiredUid ||
-         `${dataObject.class.constructor.name.toLowerCase()}/${Date.now()}`
+         `${dataObject.uri.class.constructor.name.toLowerCase()}/${Date.now()}`
       MockAdapter.inject({
          ...dataObject.toJSON(),
          uid: uri,
@@ -84,9 +84,9 @@ export class MockAdapter<T extends BaseObject>
       return new Promise(() => dataObject)
    }
 
-   async query(query: Query<T>): Promise<DataObject[]> {
-      return await this.find(
-         query.obj.dataObject,
+   async query(query: Query<any>): Promise<DataObject[]> {
+      return this.find(
+         await DataObject.factory(query.obj),
          query.filters,
          query.sortAndLimit
       )
@@ -97,6 +97,13 @@ export class MockAdapter<T extends BaseObject>
       filters: Filters | Filter[] | undefined = undefined,
       pagination: SortAndLimit | undefined = undefined
    ): Promise<DataObject[]> {
-      return [dataObject, dataObject]
+      console.log('mock', dataObject)
+      const result: DataObject[] = []
+      for (let key in MockAdapter.getFixtures()) {
+         const dao = await dataObject.clone(MockAdapter.getFixture(key))
+         result.push(dao)
+      }
+
+      return result
    }
 }

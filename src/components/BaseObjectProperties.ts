@@ -1,8 +1,9 @@
-import { Property } from '../properties/Property'
-import { DataObjectProperties } from '../properties'
 import * as statuses from '../statuses'
 import { User } from './User'
 import { ObjectUri } from './ObjectUri'
+import { DataObjectProperties, Property } from '../properties'
+
+console.log('property class', Property)
 
 export interface BaseObjectType {
    name: string
@@ -18,6 +19,7 @@ export interface BaseObjectType {
    deletedBy?: User | ObjectUri
    deletedAt?: number
 }
+
 
 export const BaseObjectProperties: DataObjectProperties = [
    {

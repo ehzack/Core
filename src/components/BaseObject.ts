@@ -8,6 +8,10 @@ import { Query } from '../backends'
 export class BaseObject extends AbstractObject {
    static PROPS_DEFINITION: DataObjectProperties = BaseObjectProperties
 
+   static getProperty(key: string) {
+      return BaseObject.PROPS_DEFINITION.find((prop) => prop.name === key)
+   }
+
    get status(): string {
       return this._dataObject.val('status')
    }
@@ -17,7 +21,8 @@ export class BaseObject extends AbstractObject {
    }
 
    static async factory<T extends BaseObject>(
-      src: string | ObjectUri | object | undefined = undefined
+      src: string | ObjectUri | DataObject | undefined = undefined,
+      child: any
    ): Promise<T | BaseObject> {
       try {
          // merge base properties with additional or redefined ones
@@ -34,10 +39,9 @@ export class BaseObject extends AbstractObject {
             }
          })
 
-         //console.log('props to add', JSON.stringify(base))
-
          // create data object
-         const dao = await DataObject.factory(this.prototype, base)
+         const dao = await DataObject.factory(base)
+         dao.uri.class = child
 
          if (src instanceof ObjectUri) {
             dao.uri = src
@@ -53,7 +57,7 @@ export class BaseObject extends AbstractObject {
             dao.uri.collection = this.COLLECTION
             await dao.populate(src)
          }
-         return new this(dao)
+         return Reflect.construct(child, [dao])
       } catch (err) {
          console.log((err as Error).message)
          throw new Error(

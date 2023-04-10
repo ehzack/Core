@@ -10,6 +10,8 @@ import { DateTimeProperty, DateTimePropertyType } from './DateTimeProperty'
 import { ObjectProperty, ObjectPropertyType } from './ObjectProperty'
 import { PropertyTypes } from './types/PropertyTypes'
 
+console.log('property in index', Property)
+
 export {
    Property,
    BaseProperty,

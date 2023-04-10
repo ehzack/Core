@@ -8,6 +8,26 @@ export interface DataObjectFactoryType {
    [x: string]: any
 }
 
+export interface DataObjectType {
+   uid: any
+   uri: ObjectUri
+   properties: { [x: string]: any }
+   class: any
+   path: any
+   backend: any
+   setProperties(properties: any[]): void
+   populate(data: any): Promise<DataObjectType>
+   isPopulated(): boolean
+   isPersisted(): boolean
+   get(key: string): any
+   set(key: string, val: any): any
+   val(key: string): any
+   read(): Promise<DataObjectType>
+   save(): Promise<DataObjectType>
+   clone(): Promise<DataObjectType>
+   toReference(): any
+}
+
 export type CoreObject<T extends AbstractObject> = T
 
 /**
@@ -15,10 +35,8 @@ export type CoreObject<T extends AbstractObject> = T
  * They handle data and identifiers in a protected registry
  * This is what backends and objects manipulate, oblivious of the other.
  */
-export class DataObject {
-   protected _class: CoreObject<any>
+export class DataObject implements DataObjectType {
    protected _objectUri: ObjectUri
-   protected _obj: any
    protected _uid: string | undefined = undefined
    protected _properties: { [x: string]: any } = {}
    protected _persisted: boolean = false
@@ -34,11 +52,7 @@ export class DataObject {
     * @param objClass AbstractObject
     * @param properties array of properties instances
     */
-   protected constructor(
-      objClass: AbstractObject,
-      properties: any[] | undefined
-   ) {
-      this._class = objClass
+   protected constructor(properties: any[] | undefined) {
       this._objectUri = new ObjectUri()
       if (Array.isArray(properties)) {
          this._init(properties)
@@ -46,12 +60,14 @@ export class DataObject {
    }
 
    protected _init(properties: any[]) {
-      // console.log(
-      //    `Preparing properties for instance of ${this._class.constructor.name}`
-      // )
       properties.forEach((prop) => {
          this._properties[prop.name] = Property.factory(prop, this)
       })
+   }
+
+   public setProperties(properties: any) {
+      // TODO check if doable
+      this._properties = properties
    }
 
    /**
@@ -95,10 +111,6 @@ export class DataObject {
       return this._objectUri ? this._objectUri.backend : undefined
    }
 
-   get class() {
-      return this._class
-   }
-
    get path() {
       return this._objectUri ? this._objectUri.path : ''
    }
@@ -124,6 +136,11 @@ export class DataObject {
 
    get uri(): ObjectUri {
       return this._objectUri
+   }
+
+   get class(): any {
+      // TODO get class type
+      return this.uri.class
    }
 
    /**
@@ -219,20 +236,25 @@ export class DataObject {
     * @returns DataObject
     */
    static async factory(
-      className: any,
       param: any[] | undefined = undefined
-   ): Promise<DataObject> {
-      if (className === undefined) {
-         throw new Error(`className is a require value`)
-      }
-
+   ): Promise<DataObjectType> {
       try {
-         return new this(className, param)
+         return new this(param)
       } catch (err) {
          console.log(err)
          throw new Error(
             `Unable to build data object: ${(err as Error).message}`
          )
       }
+   }
+
+   async clone(data: any = undefined): Promise<DataObjectType> {
+      const cloned = await DataObject.factory()
+      cloned.setProperties(this._properties)
+      if (data) {
+         await cloned.populate(data)
+      }
+
+      return cloned
    }
 }
