@@ -1,4 +1,4 @@
-import { DataObjectType } from '../components/DataObject'
+import { DataObjectClass } from '../components/types/DataObjectClass'
 import { AbstractPropertyType } from './types/AbstractPropertyType'
 import { PropertyClassType } from './types/PropertyClassType'
 
@@ -7,18 +7,18 @@ export type EventTypes =
    | typeof BaseProperty.EVENT_ONDELETE
 
 export interface BasePropertyType extends AbstractPropertyType {
-   parent?: DataObjectType
+   parent?: DataObjectClass
    protected?: boolean
    mandatory?: boolean
    defaultValue?: any
-   onChange?: (dao: DataObjectType) => DataObjectType
+   onChange?: (dao: DataObjectClass) => DataObjectClass
 }
 
 export class BaseProperty implements PropertyClassType {
    static EVENT_ONCHANGE = 'onChange'
    static EVENT_ONDELETE = 'onDelete'
 
-   protected _parent: DataObjectType | undefined
+   protected _parent: DataObjectClass | undefined
    protected _name: string
    protected _value: any = undefined
    protected _mandatory: boolean = false

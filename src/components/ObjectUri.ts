@@ -121,7 +121,7 @@ export class ObjectUri {
 
    toJSON() {
       return {
-         literal: this._literal,
+         backend: this._backend,
          ref: this._path,
          label: this._label,
       }

@@ -1,4 +1,4 @@
-import { DataObjectType } from './DataObject'
+import { DataObjectClass } from './types/DataObjectClass'
 import { DataObjectProperties } from '../properties/'
 
 export abstract class AbstractObject {
@@ -10,9 +10,9 @@ export abstract class AbstractObject {
    // Which property's value to use in backend as label for object reference
    static LABEL_KEY = 'name'
 
-   protected _dataObject: DataObjectType
+   protected _dataObject: DataObjectClass
 
-   constructor(dao: DataObjectType) {
+   constructor(dao: DataObjectClass) {
       this._dataObject = dao
    }
 

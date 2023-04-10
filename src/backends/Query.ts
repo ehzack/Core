@@ -3,7 +3,7 @@ import { Limits } from './Limits'
 import { Sorting } from './Sorting'
 import { SortAndLimit } from './SortAndLimit'
 import { BackendInterface } from './AbstractAdapter'
-import { BaseObject, DataObject, ObjectUri } from '../components'
+import { BaseObject } from '../components/BaseObject'
 import { Core } from '../Core'
 
 export const AS_OBJECTURIS = 'objectUris'
@@ -93,7 +93,7 @@ export class Query<T extends typeof BaseObject> {
                return await Promise.all(result.map((dao) => dao.uri))
 
             case AS_INSTANCES:
-               console.log(this._obj)
+               //console.log(this._obj)
                return await Promise.all(
                   result.map((dao) => Reflect.construct(this._obj, [dao]))
                )

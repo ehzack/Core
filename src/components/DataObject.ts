@@ -1,7 +1,13 @@
 import { Core } from '../Core'
+import { DataObjectProperties } from '../properties'
 import { Property } from '../properties/Property'
+import { PropertyClassType } from '../properties/types/PropertyClassType'
 import { AbstractObject } from './AbstractObject'
 import { ObjectUri } from './ObjectUri'
+import { DataObjectClass } from './types/DataObjectClass'
+
+export type CoreObject<T extends AbstractObject> = T
+export type Properties = { [x: string]: PropertyClassType }
 
 export interface DataObjectFactoryType {
    path: string
@@ -9,36 +15,19 @@ export interface DataObjectFactoryType {
 }
 
 export interface DataObjectType {
-   uid: any
-   uri: ObjectUri
-   properties: { [x: string]: any }
-   class: any
-   path: any
-   backend: any
-   setProperties(properties: any[]): void
-   populate(data: any): Promise<DataObjectType>
-   isPopulated(): boolean
-   isPersisted(): boolean
-   get(key: string): any
-   set(key: string, val: any): any
-   val(key: string): any
-   read(): Promise<DataObjectType>
-   save(): Promise<DataObjectType>
-   clone(): Promise<DataObjectType>
-   toReference(): any
+   uri?: string
+   properties: DataObjectProperties
 }
-
-export type CoreObject<T extends AbstractObject> = T
 
 /**
  * Data objects constitute the agnostic glue between objects and backends.
  * They handle data and identifiers in a protected registry
  * This is what backends and objects manipulate, oblivious of the other.
  */
-export class DataObject implements DataObjectType {
+export class DataObject implements DataObjectClass {
    protected _objectUri: ObjectUri
    protected _uid: string | undefined = undefined
-   protected _properties: { [x: string]: any } = {}
+   protected _properties: Properties = {}
    protected _persisted: boolean = false
    protected _populated: boolean = false
 
@@ -52,10 +41,14 @@ export class DataObject implements DataObjectType {
     * @param objClass AbstractObject
     * @param properties array of properties instances
     */
-   protected constructor(properties: any[] | undefined) {
-      this._objectUri = new ObjectUri()
-      if (Array.isArray(properties)) {
-         this._init(properties)
+   protected constructor(params: DataObjectType | undefined) {
+      if (params) {
+         if (Array.isArray(params.properties)) {
+            this._init(params.properties)
+         }
+         this._objectUri = new ObjectUri(params.uri)
+      } else {
+         this._objectUri = new ObjectUri()
       }
    }
 
@@ -65,7 +58,7 @@ export class DataObject implements DataObjectType {
       })
    }
 
-   public setProperties(properties: any) {
+   public setProperties(properties: Properties) {
       // TODO check if doable
       this._properties = properties
    }
@@ -236,8 +229,8 @@ export class DataObject implements DataObjectType {
     * @returns DataObject
     */
    static async factory(
-      param: any[] | undefined = undefined
-   ): Promise<DataObjectType> {
+      param: DataObjectType | undefined = undefined
+   ): Promise<DataObjectClass> {
       try {
          return new this(param)
       } catch (err) {
@@ -248,7 +241,7 @@ export class DataObject implements DataObjectType {
       }
    }
 
-   async clone(data: any = undefined): Promise<DataObjectType> {
+   async clone(data: any = {}): Promise<DataObjectClass> {
       const cloned = await DataObject.factory()
       cloned.setProperties(this._properties)
       if (data) {

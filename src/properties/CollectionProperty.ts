@@ -7,13 +7,13 @@ import { returnAs } from '../backends/Query'
 export interface CollectionPropertyType<T extends typeof BaseObject>
    extends BasePropertyType {
    instanceOf: T
-   backend: string
+   backend?: string
 }
 
 export class CollectionProperty<
    T extends typeof BaseObject,
-//   B extends BackendInterface<T>
 > extends BaseProperty {
+   static TYPE = 'collection'
    protected _value: Array<T> | Array<DataObject> | Array<ObjectUri> | undefined = undefined
    protected _instanceOf: T
    protected _backend: undefined

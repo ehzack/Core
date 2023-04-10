@@ -1,9 +1,11 @@
 import * as statuses from '../statuses'
-import { User } from './User'
+import { UserClass } from './types/UserClass'
 import { ObjectUri } from './ObjectUri'
-import { DataObjectProperties, Property } from '../properties'
-
-console.log('property class', Property)
+//import { DataObjectProperties } from '../properties'
+import { StringProperty } from '../properties/StringProperty'
+import { ObjectProperty } from '../properties/ObjectProperty'
+import { EnumProperty } from '../properties/EnumProperty'
+import { DateTimeProperty } from '../properties/DateTimeProperty'
 
 export interface BaseObjectType {
    name: string
@@ -12,27 +14,26 @@ export interface BaseObjectType {
       | typeof statuses.PENDING
       | typeof statuses.ACTIVE
       | typeof statuses.DELETED
-   createdBy?: User | ObjectUri
+   createdBy?: UserClass | ObjectUri
    createdAt?: number
-   updatedBy?: User | ObjectUri
+   updatedBy?: UserClass | ObjectUri
    updatedAt?: number
-   deletedBy?: User | ObjectUri
+   deletedBy?: UserClass | ObjectUri
    deletedAt?: number
 }
 
-
-export const BaseObjectProperties: DataObjectProperties = [
+export const BaseObjectProperties: any = [
    {
       name: 'name',
       mandatory: true,
-      type: Property.TYPE_STRING,
+      type: StringProperty.TYPE,
       minLength: 1,
       maxLength: 100,
    },
    {
       name: 'status',
       mandatory: true,
-      type: Property.TYPE_ENUM,
+      type: EnumProperty.TYPE,
       values: [
          statuses.CREATED,
          statuses.PENDING,
@@ -43,35 +44,35 @@ export const BaseObjectProperties: DataObjectProperties = [
    },
    {
       name: 'createdBy',
-      type: Property.TYPE_OBJECT,
+      type: ObjectProperty.TYPE,
       instanceOf: 'User',
       mandatory: true,
       protected: true,
    },
    {
       name: 'createdAt',
-      type: Property.TYPE_DATETIME,
+      type: DateTimeProperty.TYPE,
       mandatory: true,
       protected: true,
    },
    {
       name: 'updatedBy',
-      type: Property.TYPE_OBJECT,
+      type: ObjectProperty.TYPE,
       instanceOf: 'User',
    },
    {
       name: 'updatedAt',
-      type: Property.TYPE_DATETIME,
+      type: DateTimeProperty.TYPE,
    },
    {
       name: 'deletedBy',
-      type: Property.TYPE_OBJECT,
+      type: ObjectProperty.TYPE,
       instanceOf: 'User',
       protected: true,
    },
    {
       name: 'deletedAt',
-      type: Property.TYPE_DATETIME,
+      type: DateTimeProperty.TYPE,
       protected: true,
    },
 ]

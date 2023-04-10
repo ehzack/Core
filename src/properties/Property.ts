@@ -1,4 +1,4 @@
-import { DataObjectType } from '../components/DataObject'
+import { DataObjectClass } from '../components/types/DataObjectClass'
 import { BaseProperty, BasePropertyType } from './BaseProperty'
 import { BooleanProperty } from './BooleanProperty'
 import { DateTimeProperty } from './DateTimeProperty'
@@ -17,6 +17,7 @@ export class Property {
    static TYPE_BOOLEAN = 'boolean'
    static TYPE_HASH = 'hash'
    static TYPE_DATETIME = 'datetime'
+   static TYPE_ARRAY = 'array'
 
    static ALLOW_SPACES = 'spaces'
    static ALLOW_LETTERS = 'letters'
@@ -26,7 +27,7 @@ export class Property {
 
    static factory<P extends BasePropertyType>(
       params: P,
-      parent: DataObjectType
+      parent: DataObjectClass
    ) {
       params.parent = parent
       switch (params.type) {

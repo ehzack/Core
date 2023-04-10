@@ -5,9 +5,11 @@ import { ObjectUri } from '../ObjectUri'
 
 MockAdapter.inject(fData)
 
+const params = { properties }
+
 describe('Data object', () => {
    test('has properties that are instances', () =>
-      DataObject.factory(properties).then((dao) => {
+      DataObject.factory(params).then((dao) => {
          expect(dao.get('string').constructor.name).toBe('StringProperty')
          expect(dao.get('boolean').constructor.name).toBe('BooleanProperty')
          expect(dao.get('enum').constructor.name).toBe('EnumProperty')
@@ -15,15 +17,14 @@ describe('Data object', () => {
       }))
 
    test('has a class name', () =>
-      DataObject.factory(properties).then((dao) => {
+      DataObject.factory(params).then((dao) => {
          expect(dao.class).toBeUndefined()
          dao.uri.class = fClass.prototype
          expect(dao.class).toBe(fClass.prototype)
       }))
 
    test('can set its uri from a string or an ObjectUri', () => {
-      DataObject.factory(properties).then((dao) => {
-         dao.uri = 'a/b'
+      DataObject.factory({ uri: 'a/b', ...params }).then((dao) => {
          expect(dao.uri.constructor.name).toBe('ObjectUri')
          dao.uri = new ObjectUri('a/b')
          expect(dao.uri.constructor.name).toBe('ObjectUri')
@@ -31,7 +32,7 @@ describe('Data object', () => {
    })
 
    test('can provide default values of props', () => {
-      DataObject.factory(properties)
+      DataObject.factory(params)
          .then((dao) => {
             expect(dao.val('string')).toEqual('nothing')
             expect(dao.val('boolean')).toEqual(false)
@@ -42,8 +43,7 @@ describe('Data object', () => {
    })
 
    test('can be populated with data', () => {
-      DataObject.factory(properties).then((dao) => {
-         dao.uri = fData.uid
+      DataObject.factory({ uri: 'a/b', ...params }).then((dao) => {
          dao.read()
             .then(() => {
                expect(dao.isPopulated()).toBe(true)
@@ -57,7 +57,7 @@ describe('Data object', () => {
    })
 
    test('can be cloned', () => {
-      DataObject.factory(properties).then((dao) => {
+      DataObject.factory(params).then((dao) => {
          dao.clone().then((clone) => {
             expect(clone.class).toBe(dao.class)
             expect(clone.properties.length).toBe(dao.properties.length)
