@@ -22,13 +22,14 @@ describe('Base object', () => {
       }))
 })
 
-describe.only('User object', () => {
+describe('User object', () => {
    test('can be loaded from backend', () => {
       User.factory(UserUri)
          .then((user: User) => {
             expect(user.val('name')).toEqual('John Doe')
             expect(user.val('status')).toEqual(statuses.ACTIVE)
             expect(user.val('createdBy')).toEqual(user.toJSON())
+            expect(user.val('createdAt')).toEqual(1)
          })
          .catch((e) => console.log(e))
    })
