@@ -23,7 +23,7 @@ export class Query<T extends typeof BaseObject> {
    sortings: Sorting[]
    limits: Limits
 
-   constructor(obj: any, params: { [x: string]: any } = {}) {
+   constructor(obj: T, params: { [x: string]: any } = {}) {
       this._obj = obj
       this._params = params // just in case
       this.filters = []

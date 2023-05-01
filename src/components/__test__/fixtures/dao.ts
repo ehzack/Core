@@ -4,6 +4,7 @@ import { Property } from '../../../properties/Property'
 import { User } from '../../User'
 import { BaseObject } from '../../BaseObject'
 import { ObjectUri } from '../../ObjectUri'
+import { DataObjectClass } from '../../types/DataObjectClass'
 
 export const fClassProperties: DataObjectProperties = [
    {
@@ -41,6 +42,7 @@ export const properties: DataObjectProperties = [
 
 export const fData = {
    uid: 'a/b',
+   path: 'a/b',
    string: 'a string',
    boolean: true,
    enum: 'Miss',
@@ -52,12 +54,14 @@ export const UserUri = 'users/abc'
 
 export const BaseObjectData = {
    uid: baseObjectUri,
+   path: baseObjectUri,
    name: 'a simple object',
    status: statuses.PENDING,
 }
 
 export const UserData = {
-   uid: UserUri,
+   uid: 'abc',
+   path: UserUri,
    name: 'John Doe',
    status: statuses.ACTIVE,
    firstname: 'John',

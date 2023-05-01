@@ -4,9 +4,10 @@ import { BooleanProperty } from './BooleanProperty'
 import { DateTimeProperty } from './DateTimeProperty'
 import { EnumProperty } from './EnumProperty'
 import { HashProperty } from './HashProperty'
-import { ObjectProperty } from './ObjectProperty'
 import { StringProperty } from './StringProperty'
 import { NumberProperty } from './NumberProperty'
+import { ObjectProperty } from './ObjectProperty'
+import { CollectionProperty } from './CollectionProperty'
 
 export class Property {
    static TYPE_ANY = 'any'
@@ -19,41 +20,38 @@ export class Property {
    static TYPE_DATETIME = 'datetime'
    static TYPE_ARRAY = 'array'
 
-   static ALLOW_SPACES = 'spaces'
-   static ALLOW_LETTERS = 'letters'
-   static ALLOW_DIGITS = 'digits'
-   static ALLOW_STRINGS = 'strings'
-   static ALLOW_NUMBERS = 'numbers'
-
    static factory<P extends BasePropertyType>(
       params: P,
       parent: DataObjectClass
    ) {
       params.parent = parent
       switch (params.type) {
-         case Property.TYPE_ANY:
+         case BaseProperty.TYPE:
             return new BaseProperty(params)
 
-         case Property.TYPE_STRING:
+         case StringProperty.TYPE:
             return new StringProperty(params)
 
-         case Property.TYPE_NUMBER:
+         case NumberProperty.TYPE:
             return new NumberProperty(params)
 
-         case Property.TYPE_OBJECT:
+         case ObjectProperty.TYPE:
             return new ObjectProperty(params)
 
-         case Property.TYPE_ENUM:
+         case EnumProperty.TYPE:
             return new EnumProperty(params)
 
-         case Property.TYPE_BOOLEAN:
+         case BooleanProperty.TYPE:
             return new BooleanProperty(params)
 
-         case Property.TYPE_HASH:
+         case HashProperty.TYPE:
             return new HashProperty(params)
 
-         case Property.TYPE_DATETIME:
+         case DateTimeProperty.TYPE:
             return new DateTimeProperty(params)
+
+         case CollectionProperty.TYPE:
+            return new CollectionProperty(params)
          default:
             throw new Error(`Unknown property type ${params.type}`)
       }

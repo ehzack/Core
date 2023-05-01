@@ -9,11 +9,12 @@ describe('User object', () => {
    test('has properties that are instances', () =>
       User.factory().then((obj) => {
          // own properties
-         expect(Object.keys(obj.dataObject.properties)).toHaveLength(12)
+         expect(Object.keys(obj.dataObject.properties)).toHaveLength(13)
          expect(obj.get('firstname').constructor.name).toBe('StringProperty')
          expect(obj.get('lastname').constructor.name).toBe('StringProperty')
          expect(obj.get('email').constructor.name).toBe('StringProperty')
          expect(obj.get('password').constructor.name).toBe('HashProperty')
+         expect(obj.get('entity').constructor.name).toBe('ObjectProperty')
          // herited properties
          expect(obj.get('name').constructor.name).toBe('StringProperty')
          expect(obj.get('status').constructor.name).toBe('EnumProperty')

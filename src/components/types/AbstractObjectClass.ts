@@ -1,6 +1,6 @@
 import { DataObjectClass } from "./DataObjectClass"
 
-export interface BaseObjectClass {
+export interface AbstractObjectClass {
    status: string
    dataObject: DataObjectClass
    asReference(): any

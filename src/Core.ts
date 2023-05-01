@@ -1,4 +1,5 @@
-import { MockAdapter, AbstractAdapter } from './backends'
+import { AbstractAdapter } from './backends/AbstractAdapter'
+import { MockAdapter } from './backends/MockAdapter'
 import { UserClass } from './components/types/UserClass'
 
 export type BackendRegistry<T extends AbstractAdapter> = { [x: string]: T }

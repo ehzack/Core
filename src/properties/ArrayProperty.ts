@@ -1,5 +1,5 @@
-import { Property } from './Property'
 import { BaseProperty, BasePropertyType } from './BaseProperty'
+import { StringProperty } from './StringProperty'
 
 export interface ArrayPropertyType extends BasePropertyType {
    minLength?: number
@@ -20,10 +20,10 @@ export class ArrayProperty extends BaseProperty {
       this.minLength = config.minLength || 0
       this.maxLength = config.maxLength || 0
       if (this._enable(config.allowNumbers)) {
-         this._allows.push(Property.ALLOW_NUMBERS)
+         this._allows.push(StringProperty.ALLOW_NUMBERS)
       }
       if (this._enable(config.allowStrings)) {
-         this._allows.push(Property.ALLOW_STRINGS)
+         this._allows.push(StringProperty.ALLOW_STRINGS)
       }
    }
 
@@ -58,14 +58,14 @@ export class ArrayProperty extends BaseProperty {
       const joined = value.join()
 
       if (
-         this._allows.includes(Property.ALLOW_STRINGS) === false &&
+         this._allows.includes(StringProperty.ALLOW_STRINGS) === false &&
          /[a-zA-Z]/.test(joined)
       ) {
          throw new Error(`Strings are not allowed in value`)
       }
 
       if (
-         this._allows.includes(Property.ALLOW_NUMBERS) === false &&
+         this._allows.includes(StringProperty.ALLOW_NUMBERS) === false &&
          /\d/.test(joined)
       ) {
          throw new Error(`Numbers are not allowed in value`)

@@ -1,10 +1,40 @@
-import { User } from '../../components'
+import { DataObject, User } from '../../components'
 import { CollectionProperty } from '../CollectionProperty'
 import { UserDataGenerator } from '../../backends/__test__/fixtures/Generators'
+import { MockAdapter } from '../../backends'
 
-UserDataGenerator(5)
+// inject Entity
+MockAdapter.inject({
+   uid: 'first',
+   path: 'entities/first',
+   name: 'Acme Inc.',
+})
 
-describe('Default Collection Property', () => {
-   const prop = new CollectionProperty({ name: 'toto', instanceOf: User })
-   prop.get().then((value) => console.log(value))
+const factory = () =>
+   DataObject.factory({
+      properties: [
+         {
+            name: 'collection',
+            mandatory: true,
+            type: CollectionProperty.TYPE,
+            instanceOf: User,
+            parentKey: 'entity',
+         },
+      ],
+      uri: 'entities/abc',
+   })
+
+describe('Collection Property', () => {
+   test('can retrieve user records matching relation', () => {
+      // Generate 3 users not associated to any entity
+      UserDataGenerator(3)
+      // Generate 3 users associated with entity 1
+      UserDataGenerator(3, `entities/abc`)
+      factory().then((dao) =>
+         dao.val('collection').then((value: DataObject[]) => {
+            expect(value).toBeInstanceOf(Array)
+            expect(value.length).toBe(3)
+         })
+      )
+   })
 })

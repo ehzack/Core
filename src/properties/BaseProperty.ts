@@ -15,6 +15,7 @@ export interface BasePropertyType extends AbstractPropertyType {
 }
 
 export class BaseProperty implements PropertyClassType {
+   static TYPE = 'any'
    static EVENT_ONCHANGE = 'onChange'
    static EVENT_ONDELETE = 'onDelete'
 
@@ -74,7 +75,7 @@ export class BaseProperty implements PropertyClassType {
       return this
    }
 
-   val(transform: any = undefined) {
+   val(transform: any = undefined): any {
       return this._value
    }
 

@@ -1,7 +1,6 @@
-import { AbstractAdapter, BackendInterface } from './'
+import { AbstractAdapter, BackendInterface } from './AbstractAdapter'
 import { DELETED } from '../statuses'
 import { ObjectUri } from '../components/ObjectUri'
-import { DataObject } from '../components/DataObject'
 import { Core } from '../Core'
 import { BackendRecordType } from './AbstractAdapter'
 import { Query } from './Query'
@@ -9,9 +8,10 @@ import { Filter } from './Filter'
 import { Filters } from './Filters'
 import { SortAndLimit } from './SortAndLimit'
 import { DataObjectClass } from '../components/types/DataObjectClass'
-import { BaseObject } from '../components/BaseObject'
+import { faker } from '@faker-js/faker'
+import { BaseObjectClass } from '../components/types/BaseObjectClass'
 
-export class MockAdapter<T extends BaseObject>
+export class MockAdapter<T extends BaseObjectClass>
    extends AbstractAdapter
    implements BackendInterface<T>
 {
@@ -23,12 +23,28 @@ export class MockAdapter<T extends BaseObject>
     * @param data BackendRecordType
     */
    static inject(data: BackendRecordType) {
-      if (data.uid) {
-         MockAdapter._fixtures[data.uid] = data
+      if (data.path) {
+         MockAdapter._fixtures[data.path] = this.dao2backend(data)
          Core.defaultBackend = '@mock'
       } else {
-         throw new Error(`Can't inject data without uid`)
+         throw new Error(`Can't inject data without a path`)
       }
+   }
+
+   static dao2backend(data: BackendRecordType): Promise<any> {
+      const processed: any = {}
+      Object.keys(data).forEach((key: any) => {
+         if (
+            data[key] !== null &&
+            typeof data[key] === 'object' &&
+            data[key].name === 'BaseObject'
+         ) {
+            processed[key] = data[key].dataObject.uri.toReference()
+         } else {
+            processed[key] = data[key]
+         }
+      })
+      return processed
    }
 
    static getFixtures() {
@@ -39,16 +55,14 @@ export class MockAdapter<T extends BaseObject>
       return MockAdapter._fixtures[key]
    }
 
-   create(
-      dataObject: DataObjectClass,
-      desiredUid: string | undefined = undefined
-   ): Promise<DataObjectClass> {
-      const uri =
-         desiredUid ||
-         `${dataObject.uri.class.constructor.name.toLowerCase()}/${Date.now()}`
+   create(dataObject: DataObjectClass): Promise<DataObjectClass> {
+      const uri = `${dataObject.uri.class.name.toLowerCase()}/${faker.random.alphaNumeric(
+         12
+      )}`
       MockAdapter.inject({
          ...dataObject.toJSON(),
          uid: uri,
+         path: uri,
       })
       if (this._params.injectMeta) {
          dataObject.set('createdBy', Core.currentUser)
@@ -72,11 +86,11 @@ export class MockAdapter<T extends BaseObject>
       return await dataObject.populate(data)
    }
 
-   update(dataObject: DataObjectClass): Promise<DataObjectClass> {
+   async update(dataObject: DataObjectClass): Promise<DataObjectClass> {
       return new Promise(() => dataObject)
    }
 
-   delete(dataObject: DataObjectClass): Promise<DataObjectClass> {
+   async delete(dataObject: DataObjectClass): Promise<DataObjectClass> {
       if (this.getParam('softDelete') === true) {
          dataObject.set('status', DELETED)
          MockAdapter.inject({
@@ -91,9 +105,14 @@ export class MockAdapter<T extends BaseObject>
       return new Promise(() => dataObject)
    }
 
+   /**
+    * Process Query instance and return result
+    * @param query
+    * @returns Array
+    */
    async query(query: Query<any>): Promise<DataObjectClass[]> {
       return this.find(
-         await DataObject.factory(query.obj),
+         await query.obj.daoFactory(),
          query.filters,
          query.sortAndLimit
       )
@@ -104,11 +123,51 @@ export class MockAdapter<T extends BaseObject>
       filters: Filters | Filter[] | undefined = undefined,
       pagination: SortAndLimit | undefined = undefined
    ): Promise<DataObjectClass[]> {
-      console.log('mock', dataObject)
-      const result: DataObjectClass[] = []
+      const limit = pagination?.limits.batch || 1e10
+      let result: DataObjectClass[] = []
       for (let key in MockAdapter.getFixtures()) {
-         const dao = await dataObject.clone(MockAdapter.getFixture(key))
-         result.push(dao)
+         let keep = true
+         if (result.length <= limit) {
+            const dao = await dataObject.clone(MockAdapter.getFixture(key))
+            if (filters) {
+               if (Array.isArray(filters)) {
+                  filters.forEach((filter) => {
+                     const prop = dao.get(filter.prop)
+                     if (
+                        typeof prop === 'object' &&
+                        prop.constructor.name === 'ObjectProperty'
+                     ) {
+                        if (
+                           filter.value instanceof ObjectUri &&
+                           prop.val() !== filter.value.path
+                        ) {
+                           keep = false
+                           return
+                        }
+                     } else {
+                        if (prop.val() !== filter.value) {
+                           keep = false
+                           return
+                        }
+                     }
+                  })
+               }
+            }
+
+            if (keep) {
+               dao.uri = new ObjectUri(key)
+               result.push(dao)
+            }
+         }
+      }
+
+      if (pagination && pagination.sortings.length > 0) {
+         result = result.sort((a: DataObjectClass, b: DataObjectClass) =>
+            Number(
+               a.val(pagination.sortings[0].prop) >
+                  b.val(pagination.sortings[0].prop)
+            )
+         )
       }
 
       return result

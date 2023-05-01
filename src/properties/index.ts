@@ -9,6 +9,10 @@ import { BooleanProperty, BooleanPropertyType } from './BooleanProperty'
 import { DateTimeProperty, DateTimePropertyType } from './DateTimeProperty'
 import { ObjectProperty, ObjectPropertyType } from './ObjectProperty'
 import { MapProperty, MapPropertyType } from './MapProperty'
+import {
+   CollectionProperty,
+   CollectionPropertyType,
+} from './CollectionProperty'
 import { PropertyTypes } from './types/PropertyTypes'
 
 export {
@@ -33,6 +37,8 @@ export {
    HashPropertyType,
    MapProperty,
    MapPropertyType,
+   CollectionProperty,
+   CollectionPropertyType,
 }
 
 type BaseType = { type: PropertyTypes }
@@ -45,6 +51,7 @@ export type DataObjectProperties = (
    | (StringPropertyType & BaseType)
    | (HashPropertyType & BaseType)
    | (DateTimeProperty & BaseType)
-   | (ArrayProperty & BaseType)
-   | (MapProperty & BaseType)
+   | (ArrayPropertyType & BaseType)
+   | (MapPropertyType & BaseType)
+   | (CollectionPropertyType & BaseType)
 )[]

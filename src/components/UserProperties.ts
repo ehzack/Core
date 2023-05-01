@@ -1,5 +1,7 @@
+import { ObjectProperty } from '../properties'
 import { HashProperty } from '../properties/HashProperty'
 import { StringProperty } from '../properties/StringProperty'
+import { Entity } from './Entity'
 import { DataObjectClass } from './types/DataObjectClass'
 
 /**
@@ -48,5 +50,11 @@ export const UserProperties: any = [
       salt: '', // you should override it in your code
       minLength: 5,
       maxLength: 20, // this is for the clear password
+   },
+   {
+      name: 'entity',
+      mandatory: false,
+      type: ObjectProperty.TYPE,
+      instanceof: Entity,
    },
 ]

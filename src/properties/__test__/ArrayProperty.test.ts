@@ -1,5 +1,5 @@
-import { Property } from '../Property'
 import { ArrayProperty } from '../ArrayProperty'
+import { StringProperty } from '../StringProperty'
 
 const arrayValue = ['ab', 'cd', 'ef']
 const transformer = (array: Array<string>) => array.join()
@@ -7,14 +7,14 @@ const transformer = (array: Array<string>) => array.join()
 describe('Array Property without digits', () => {
    const prop = new ArrayProperty({ name: 'toto', allowNumbers: false })
    test('allow numbers is not set', () =>
-      expect(prop.allows).not.toContain(Property.ALLOW_NUMBERS))
+      expect(prop.allows).not.toContain(StringProperty.ALLOW_NUMBERS))
    test('no numbers allowed', () => expect(() => prop.set([123])).toThrow())
 })
 
 describe('Array Property without strings', () => {
    const prop = new ArrayProperty({ name: 'toto', allowStrings: false })
    test('allow strings is not set', () =>
-      expect(prop.allows).not.toContain(Property.ALLOW_STRINGS))
+      expect(prop.allows).not.toContain(StringProperty.ALLOW_STRINGS))
    test('no strings allowed', () => expect(() => prop.set(['value'])).toThrow())
 })
 

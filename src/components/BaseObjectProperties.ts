@@ -1,7 +1,6 @@
 import * as statuses from '../statuses'
 import { UserClass } from './types/UserClass'
 import { ObjectUri } from './ObjectUri'
-//import { DataObjectProperties } from '../properties'
 import { StringProperty } from '../properties/StringProperty'
 import { ObjectProperty } from '../properties/ObjectProperty'
 import { EnumProperty } from '../properties/EnumProperty'

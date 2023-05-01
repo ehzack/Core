@@ -1,4 +1,4 @@
-import { DataObject } from '../../components'
+import { DataObject, ObjectUri } from '../../components'
 import {
    fClass,
    fClassProperties,
@@ -10,10 +10,16 @@ import { MockAdapter } from '../MockAdapter'
 
 const backend = Core.getBackend('@mock')
 
+const uri = new ObjectUri()
+uri.class = fClass
+
 describe('CRUD operations', () => {
    test('write data', async () => {
       // create a basic data object
-      const dao = await DataObject.factory(fClass.prototype, fClassProperties)
+      const dao = await DataObject.factory({
+         properties: fClassProperties,
+         uri,
+      })
 
       // set an acceptable value to its property
       dao.set('a', 'a string')
@@ -30,21 +36,22 @@ describe('CRUD operations', () => {
    })
 
    test('read data', async () => {
-      MockAdapter.inject({ uid: 'a/b', a: 'b', c: 'd', e: 3 })
+      MockAdapter.inject({ uid: 'a/b', path: 'a/b', a: 'b', c: 'd', e: 3 })
 
-      const dao = await DataObject.factory(fClass.prototype, fClassProperties)
-      dao.uri = 'a/b'
-
+      const dao = await DataObject.factory({
+         properties: fClassProperties,
+         uri: 'a/b',
+      })
       backend.read(dao).then(() => {
          expect(dao.val('a')).toBe('b')
       })
    })
 
    test('update data', async () => {
-      const dao = await DataObject.factory(fClass.prototype, fClassProperties)
-
-      dao.uri = 'a/b'
-
+      const dao = await DataObject.factory({
+         properties: fClassProperties,
+         uri: 'a/b',
+      })
       dao.set('a', 'a string')
 
       backend.read(dao).then(() => {
@@ -57,12 +64,13 @@ describe('CRUD operations', () => {
    })
 
    test('delete data', async () => {
-      const dao = await DataObject.factory(fClass.prototype, fClassProperties)
-
-      dao.uri = 'a/b'
-
+      const dao = await DataObject.factory({
+         properties: fClassProperties,
+         uri: 'a/b',
+      })
       backend.delete(dao).then(() => {
          expect(dao.uid).toBeUndefined()
+         expect(MockAdapter.getFixture('a/b')).toBeUndefined()
       })
    })
 })

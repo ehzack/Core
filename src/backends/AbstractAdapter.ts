@@ -1,4 +1,5 @@
 import { BaseObject, DataObjectClass, DataObjectType } from '../components'
+import { BaseObjectClass } from '../components/types/BaseObjectClass'
 import { Filter } from './Filter'
 import { Filters } from './Filters'
 import { Query } from './Query'
@@ -9,7 +10,8 @@ import { SortAndLimit } from './SortAndLimit'
  */
 export interface BackendRecordType {
    uid: string | undefined
-   [key: string]: string | number | boolean | any[] | Object | undefined
+   path: string | undefined
+   [key: string]: any
 }
 
 /**
@@ -37,7 +39,7 @@ export interface BackendParameters {
    debug?: boolean
 }
 
-export interface BackendInterface<T extends BaseObject> {
+export interface BackendInterface<T extends BaseObjectClass> {
    create(
       dataObject: DataObjectClass,
       desiredUid: string | undefined

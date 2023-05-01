@@ -6,39 +6,40 @@ import { returnAs } from '../Query'
 const MEMBERS = 5
 
 // Generate data of fake users on mock adapter
-UserDataGenerator(MEMBERS)
+const uids = UserDataGenerator(MEMBERS)
 
 describe('Test Query object', () => {
    test('A simple query', () => {
-      User.factory().then((user) => {
-         const query = new Query(user)
-         query.execute().then((value) => {
-            expect(value).toBeInstanceOf(Array)
-            expect(value.length).toBe(MEMBERS)
-            expect(value[0]).toBeInstanceOf(DataObject)
-         })
+      const query = new Query(User)
+      query.execute().then((value: DataObject[]) => {
+         //const user = MockAdapter.getFixture(value[0].path)
+         expect(value).toBeInstanceOf(Array)
+         expect(value.length).toBe(MEMBERS)
+         expect(value[0]).toBeInstanceOf(DataObject)
+         expect(value[0].uid).toBe(uids[0])
+         //expect(value[0].val('email')).toBe(user['email'])
+         //expect(value[0].class).toBe(User)
       })
    })
 
    test('return object uris', () => {
-      User.factory().then((user) => {
-         const query = new Query(user)
-         query.execute(returnAs.AS_OBJECTURIS).then((value) => {
-            expect(value).toBeInstanceOf(Array)
-            expect(value.length).toBe(MEMBERS)
-            expect(value[0]).toBeInstanceOf(ObjectUri)
-         })
+      const query = new Query(User)
+      query.execute(returnAs.AS_OBJECTURIS).then((value) => {
+         expect(value).toBeInstanceOf(Array)
+         expect(value.length).toBe(MEMBERS)
+         expect(value[0]).toBeInstanceOf(ObjectUri)
+         expect(value[0].uid).toBe(uids[0])
+         expect(value[0].collection).toBe(`users`)
       })
    })
 
-   test.only('return object instances', () => {
-      User.factory().then((user) => {
-         const query = new Query(Reflect.getPrototypeOf(user))
-         query.execute(returnAs.AS_INSTANCES).then((value) => {
-            expect(value).toBeInstanceOf(Array)
-            expect(value.length).toBe(MEMBERS)
-            expect(value[0]).toBeInstanceOf(User)
-         })
+   test('return object instances', () => {
+      const query = new Query(User)
+      query.execute(returnAs.AS_INSTANCES).then((value) => {
+         expect(value).toBeInstanceOf(Array)
+         expect(value.length).toBe(MEMBERS)
+         expect(value[0]).toBeInstanceOf(User)
+         expect(value[0].uid).toBe(uids[0])
       })
    })
 })

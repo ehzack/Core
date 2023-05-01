@@ -15,7 +15,7 @@ export interface DataObjectFactoryType {
 }
 
 export interface DataObjectType {
-   uri?: string
+   uri?: string | ObjectUri
    properties: DataObjectProperties
 }
 
@@ -38,15 +38,19 @@ export class DataObject implements DataObjectClass {
 
    /**
     * Constructor is protected, use factory() instead
-    * @param objClass AbstractObject
-    * @param properties array of properties instances
+    * @param params object of parameters
     */
    protected constructor(params: DataObjectType | undefined) {
       if (params) {
          if (Array.isArray(params.properties)) {
             this._init(params.properties)
          }
-         this._objectUri = new ObjectUri(params.uri)
+
+         if (typeof params.uri !== 'object') {
+            this._objectUri = new ObjectUri(params.uri)
+         } else {
+            this._objectUri = params.uri
+         }
       } else {
          this._objectUri = new ObjectUri()
       }

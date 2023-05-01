@@ -1,6 +1,6 @@
-import { BaseObject } from '../components'
 import { DataObject } from '../components/DataObject'
 import { ObjectUri } from '../components/ObjectUri'
+import { BaseObjectClass } from '../components/types/BaseObjectClass'
 import { BaseProperty, BasePropertyType } from './BaseProperty'
 
 export interface ObjectPropertyType extends BasePropertyType {
@@ -9,7 +9,7 @@ export interface ObjectPropertyType extends BasePropertyType {
 
 export class ObjectProperty extends BaseProperty {
    static TYPE = 'object'
-   _value: BaseObject | undefined = undefined
+   _value: BaseObjectClass | undefined = undefined
    _instanceOf: Function | string | Object
 
    constructor(config: ObjectPropertyType) {

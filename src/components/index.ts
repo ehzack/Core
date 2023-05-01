@@ -6,6 +6,7 @@ import { BaseObject } from './BaseObject'
 import { BaseObjectProperties } from './BaseObjectProperties'
 import { UserProperties } from './UserProperties'
 import { User } from './User'
+import { Entity } from './Entity'
 
 export {
    DataObject,
@@ -15,6 +16,7 @@ export {
    AbstractObject,
    BaseObject,
    User,
+   Entity,
    BaseObjectProperties,
    UserProperties,
 }

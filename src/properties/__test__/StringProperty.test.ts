@@ -1,24 +1,23 @@
-import { Property } from '../Property'
 import { StringProperty } from '../StringProperty'
 
 describe('String Property without digits', () => {
    const prop = new StringProperty({ name: 'toto', allowDigits: false })
    test('allow digits is not set', () =>
-      expect(prop.allows).not.toContain(Property.ALLOW_DIGITS))
+      expect(prop.allows).not.toContain(StringProperty.ALLOW_DIGITS))
    test('no digits allowed', () => expect(() => prop.set('va1ue')).toThrow())
 })
 
 describe('String Property without spaces', () => {
    const prop = new StringProperty({ name: 'toto', allowSpaces: false })
    test('allow spaces is not set', () =>
-      expect(prop.allows).not.toContain(Property.ALLOW_SPACES))
+      expect(prop.allows).not.toContain(StringProperty.ALLOW_SPACES))
    test('no space allowed', () => expect(() => prop.set('va1 ue')).toThrow())
 })
 
 describe('String Property without letters', () => {
    const prop = new StringProperty({ name: 'toto', allowLetters: false })
    test('allow letters is not set', () =>
-      expect(prop.allows).not.toContain(Property.ALLOW_LETTERS))
+      expect(prop.allows).not.toContain(StringProperty.ALLOW_LETTERS))
    test('no letters allowed', () => expect(() => prop.set('value')).toThrow())
 })
 
