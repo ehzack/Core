@@ -5,6 +5,7 @@ import { StringProperty } from '../properties/StringProperty'
 import { ObjectProperty } from '../properties/ObjectProperty'
 import { EnumProperty } from '../properties/EnumProperty'
 import { DateTimeProperty } from '../properties/DateTimeProperty'
+import * as htmlType from '../properties/types/PropertyHTMLType'
 
 export interface BaseObjectType {
    name: string
@@ -28,6 +29,7 @@ export const BaseObjectProperties: any = [
       type: StringProperty.TYPE,
       minLength: 1,
       maxLength: 100,
+      htmlType: htmlType.NAME,
    },
    {
       name: 'status',

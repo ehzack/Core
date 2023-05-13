@@ -1,7 +1,7 @@
-import { DataObjectClass } from "./DataObjectClass"
+import { DataObjectClass } from './DataObjectClass'
 
 export interface BaseObjectClass {
    status: string
-   dataObject: DataObjectClass
+   dataObject: DataObjectClass<any>
    asReference(): any
 }

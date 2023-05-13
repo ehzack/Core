@@ -8,12 +8,14 @@ import { MockAdapter } from '../MockAdapter'
 
 // inject() makes @mock default backend
 
+
+Core.addBackend(new MockAdapter(), '@mock')
 const backend = Core.getBackend('@mock')
 
 const uri = new ObjectUri()
 uri.class = fClass
 
-describe('CRUD operations', () => {
+describe('MockAdapter CRUD operations', () => {
    test('write data', async () => {
       // create a basic data object
       const dao = await DataObject.factory({

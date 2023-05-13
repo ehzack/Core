@@ -3,18 +3,13 @@ import { DELETED } from '../statuses'
 import { ObjectUri } from '../components/ObjectUri'
 import { Core } from '../Core'
 import { BackendRecordType } from './AbstractAdapter'
-import { Query } from './Query'
 import { Filter } from './Filter'
 import { Filters } from './Filters'
 import { SortAndLimit } from './SortAndLimit'
 import { DataObjectClass } from '../components/types/DataObjectClass'
-import { faker } from '@faker-js/faker'
-import { BaseObjectClass } from '../components/types/BaseObjectClass'
+//import { faker } from '@faker-js/faker'
 
-export class MockAdapter<T extends BaseObjectClass>
-   extends AbstractAdapter
-   implements BackendInterface<T>
-{
+export class MockAdapter extends AbstractAdapter implements BackendInterface {
    protected static _fixtures: any = {}
 
    /**
@@ -25,7 +20,7 @@ export class MockAdapter<T extends BaseObjectClass>
    static inject(data: BackendRecordType) {
       if (data.path) {
          MockAdapter._fixtures[data.path] = this.dao2backend(data)
-         Core.defaultBackend = '@mock'
+         Core.defaultBackend = '@mock' // should be a variable
       } else {
          throw new Error(`Can't inject data without a path`)
       }
@@ -55,24 +50,21 @@ export class MockAdapter<T extends BaseObjectClass>
       return MockAdapter._fixtures[key]
    }
 
-   create(dataObject: DataObjectClass): Promise<DataObjectClass> {
-      const uri = `${dataObject.uri.class.name.toLowerCase()}/${faker.random.alphaNumeric(
-         12
-      )}`
+   create(dataObject: DataObjectClass<any>): Promise<DataObjectClass<any>> {
+      const uri = `${dataObject.uri.class.name.toLowerCase()}/123` //${faker.random.alphaNumeric(
+      //   12
+      //)}`
       MockAdapter.inject({
          ...dataObject.toJSON(),
          uid: uri,
          path: uri,
       })
-      if (this._params.injectMeta) {
-         dataObject.set('createdBy', Core.currentUser)
-         dataObject.set('createdAt', Date.now())
-      }
+
       dataObject.uri = new ObjectUri(uri)
       return new Promise(() => dataObject)
    }
 
-   async read(dataObject: DataObjectClass): Promise<DataObjectClass> {
+   async read(dataObject: DataObjectClass<any>): Promise<DataObjectClass<any>> {
       const path = dataObject.path
 
       const data = MockAdapter._fixtures[path]
@@ -86,11 +78,15 @@ export class MockAdapter<T extends BaseObjectClass>
       return await dataObject.populate(data)
    }
 
-   async update(dataObject: DataObjectClass): Promise<DataObjectClass> {
+   async update(
+      dataObject: DataObjectClass<any>
+   ): Promise<DataObjectClass<any>> {
       return new Promise(() => dataObject)
    }
 
-   async delete(dataObject: DataObjectClass): Promise<DataObjectClass> {
+   async delete(
+      dataObject: DataObjectClass<any>
+   ): Promise<DataObjectClass<any>> {
       if (this.getParam('softDelete') === true) {
          dataObject.set('status', DELETED)
          MockAdapter.inject({
@@ -105,26 +101,25 @@ export class MockAdapter<T extends BaseObjectClass>
       return new Promise(() => dataObject)
    }
 
-   /**
-    * Process Query instance and return result
-    * @param query
-    * @returns Array
-    */
-   async query(query: Query<any>): Promise<DataObjectClass[]> {
-      return this.find(
-         await query.obj.daoFactory(),
-         query.filters,
-         query.sortAndLimit
-      )
+   async deleteCollection(
+      collection: string,
+      batchSize?: number | undefined
+   ): Promise<void> {
+      for (let key in MockAdapter._fixtures) {
+         if (key.startsWith(`${collection}/`)) {
+            delete MockAdapter._fixtures[key]
+         }
+      }
+      return new Promise(() => null)
    }
 
    async find(
-      dataObject: DataObjectClass,
+      dataObject: DataObjectClass<any>,
       filters: Filters | Filter[] | undefined = undefined,
       pagination: SortAndLimit | undefined = undefined
-   ): Promise<DataObjectClass[]> {
+   ): Promise<DataObjectClass<any>[]> {
       const limit = pagination?.limits.batch || 1e10
-      let result: DataObjectClass[] = []
+      let result: DataObjectClass<any>[] = []
       for (let key in MockAdapter.getFixtures()) {
          let keep = true
          if (result.length <= limit) {
@@ -162,11 +157,12 @@ export class MockAdapter<T extends BaseObjectClass>
       }
 
       if (pagination && pagination.sortings.length > 0) {
-         result = result.sort((a: DataObjectClass, b: DataObjectClass) =>
-            Number(
-               a.val(pagination.sortings[0].prop) >
-                  b.val(pagination.sortings[0].prop)
-            )
+         result = result.sort(
+            (a: DataObjectClass<any>, b: DataObjectClass<any>) =>
+               Number(
+                  a.val(pagination.sortings[0].prop) >
+                     b.val(pagination.sortings[0].prop)
+               )
          )
       }
 

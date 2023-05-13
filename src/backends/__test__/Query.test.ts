@@ -1,7 +1,10 @@
 import { DataObject, ObjectUri, User } from '../../components'
-import { Query } from '../../backends'
+import { MockAdapter, Query } from '../../backends'
 import { UserDataGenerator } from './fixtures/Generators'
 import { returnAs } from '../Query'
+import { Core } from '../../Core'
+
+Core.addBackend(new MockAdapter(), '@mock')
 
 const MEMBERS = 5
 

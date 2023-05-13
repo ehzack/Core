@@ -1,10 +1,13 @@
 import { StringProperty } from '../properties/StringProperty'
+import * as htmlType from '../properties/types/PropertyHTMLType'
 
 export const EntityProperties: any = [
    {
-      // change name property minLength
+      // surcharge property minLength and htmlType
       name: 'name',
       type: StringProperty.TYPE,
-      minLength: 0,
+      mandatory: true,
+      minLength: 1,
+      htmlType: htmlType.ORG,
    },
 ]

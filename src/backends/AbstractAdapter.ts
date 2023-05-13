@@ -1,5 +1,4 @@
-import { BaseObject, DataObjectClass, DataObjectType } from '../components'
-import { BaseObjectClass } from '../components/types/BaseObjectClass'
+import { DataObjectClass } from '../components/types/DataObjectClass'
 import { Filter } from './Filter'
 import { Filters } from './Filters'
 import { Query } from './Query'
@@ -18,9 +17,10 @@ export interface BackendRecordType {
  * Backend Parameters acceptable keys
  */
 export type BackendParametersKeys =
+   | 'host'
    | 'alias'
    | 'mapping'
-   | 'injectMeta'
+   | 'middlewares'
    | 'config'
    | 'fixtures'
    | 'softDelete'
@@ -30,44 +30,45 @@ export type BackendParametersKeys =
  * Backend parameters interface
  */
 export interface BackendParameters {
+   host?: string
    alias?: string
    mapping?: { [x: string]: any }
-   injectMeta?: boolean
+   middlewares?: any[]
    config?: any
    fixtures?: any
    softDelete?: boolean
    debug?: boolean
 }
 
-export interface BackendInterface<T extends BaseObjectClass> {
+export interface BackendInterface {
    create(
-      dataObject: DataObjectClass,
+      dataObject: DataObjectClass<any>,
       desiredUid: string | undefined
-   ): Promise<DataObjectClass>
+   ): Promise<DataObjectClass<any>>
 
-   read(param: string | DataObjectClass): Promise<DataObjectClass>
+   read(param: string | DataObjectClass<any>): Promise<DataObjectClass<any>>
 
-   update(dataObject: DataObjectClass): Promise<DataObjectClass>
+   update(dataObject: DataObjectClass<any>): Promise<DataObjectClass<any>>
 
-   delete(dataObject: DataObjectClass): Promise<DataObjectClass>
+   delete(dataObject: DataObjectClass<any>): Promise<DataObjectClass<any>>
 
-   query(query: Query<any>): Promise<DataObjectClass[]>
+   query(query: Query<any>): Promise<DataObjectClass<any>[]>
 
    find(
-      dataObject: DataObjectClass,
+      dataObject: DataObjectClass<any>,
       filters: Filters | Filter[] | undefined,
       pagination: SortAndLimit | undefined
-   ): Promise<DataObjectClass[] | T[]>
+   ): Promise<DataObjectClass<any>[]>
 }
 
 export abstract class AbstractAdapter {
    protected _alias: string = ''
    protected _params: BackendParameters = {}
-   protected _injectMeta: boolean = false
+   protected _middlewares: any[] = []
 
-   constructor(params: BackendParameters) {
+   constructor(params: BackendParameters = {}) {
       this._alias = params.alias || ''
-      this._injectMeta = params.injectMeta || false
+      this._middlewares = params.middlewares || []
    }
 
    setParam(key: BackendParametersKeys, value: any) {
@@ -86,9 +87,57 @@ export abstract class AbstractAdapter {
       return this._alias
    }
 
+   abstract create(
+      dataObject: DataObjectClass<any>
+   ): Promise<DataObjectClass<any>>
+
+   abstract read(
+      dataObject: DataObjectClass<any>
+   ): Promise<DataObjectClass<any>>
+
+   abstract update(
+      dataObject: DataObjectClass<any>
+   ): Promise<DataObjectClass<any>>
+
+   abstract delete(
+      dataObject: DataObjectClass<any>
+   ): Promise<DataObjectClass<any>>
+
+   abstract deleteCollection(
+      collection: string,
+      batchSize?: number
+   ): Promise<void>
+
+   /**
+    * Process Query instance and return result
+    * @param query
+    * @returns Array
+    */
+   async query(query: Query<any>): Promise<DataObjectClass<any>[]> {
+      return this.find(
+         await query.obj.daoFactory(),
+         query.filters,
+         query.sortAndLimit
+      )
+   }
+
+   abstract find(
+      dataObject: DataObjectClass<any>,
+      filters: Filters | Filter[] | undefined,
+      pagination: SortAndLimit | undefined
+   ): Promise<DataObjectClass<any>[]>
+
    log(message: string) {
       if (this._params['debug'] === true) {
          console.log(message)
       }
+   }
+
+   async executeMiddlewares(dataObject: DataObjectClass<any>) {
+      this._middlewares.forEach(
+         async (middleware) => await middleware.execute(dataObject)
+      )
+
+      return dataObject
    }
 }

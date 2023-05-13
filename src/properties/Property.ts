@@ -22,7 +22,7 @@ export class Property {
 
    static factory<P extends BasePropertyType>(
       params: P,
-      parent: DataObjectClass
+      parent: DataObjectClass<any>
    ) {
       params.parent = parent
       switch (params.type) {

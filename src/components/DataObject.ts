@@ -14,7 +14,7 @@ export interface DataObjectFactoryType {
    [x: string]: any
 }
 
-export interface DataObjectType {
+export interface DataObjectParams {
    uri?: string | ObjectUri
    properties: DataObjectProperties
 }
@@ -24,7 +24,7 @@ export interface DataObjectType {
  * They handle data and identifiers in a protected registry
  * This is what backends and objects manipulate, oblivious of the other.
  */
-export class DataObject implements DataObjectClass {
+export class DataObject implements DataObjectClass<any> {
    protected _objectUri: ObjectUri
    protected _uid: string | undefined = undefined
    protected _properties: Properties = {}
@@ -40,7 +40,7 @@ export class DataObject implements DataObjectClass {
     * Constructor is protected, use factory() instead
     * @param params object of parameters
     */
-   protected constructor(params: DataObjectType | undefined) {
+   protected constructor(params: DataObjectParams | undefined) {
       if (params) {
          if (Array.isArray(params.properties)) {
             this._init(params.properties)
@@ -140,6 +140,10 @@ export class DataObject implements DataObjectClass {
       return this.uri.class
    }
 
+   has(key: string) {
+      return Reflect.has(this._properties, key)
+   }
+
    /**
     * Returns property matching key or throw
     * @param key string
@@ -154,7 +158,7 @@ export class DataObject implements DataObjectClass {
    }
 
    set(key: string, val: any) {
-      if (!Reflect.has(this._properties, key)) {
+      if (!this.has(key)) {
          throw new Error(`Unknown property in data object: ${key}`)
       }
       this._properties[key].set(val)
@@ -170,7 +174,7 @@ export class DataObject implements DataObjectClass {
     * @returns any
     */
    val(key: string) {
-      if (Reflect.get(this._properties, key)) {
+      if (this.has(key)) {
          return Reflect.get(this._properties, key).val()
       } else {
          throw new Error(`Unknown property '${key}'`)
@@ -186,8 +190,8 @@ export class DataObject implements DataObjectClass {
 
    toReference() {
       return {
-         ...this._objectUri?.toReference(),
-         label: this.val('name'),
+         ...this._objectUri.toReference(),
+         label: this.val('name') || '',
       }
    }
 
@@ -195,35 +199,44 @@ export class DataObject implements DataObjectClass {
       const data = {}
       Object.keys(this._properties).forEach((key: string) => {
          const prop: any = Reflect.get(this._properties, key)
-         if (
-            typeof prop.val() === 'object' &&
-            Reflect.has(prop.val(), 'toJSON')
-         ) {
-            Reflect.set(data, key, prop.val().toJSON())
-         } else if (prop !== undefined) {
-            Reflect.set(data, key, prop.val())
+         const value = prop.val()
+         switch (prop.constructor.name) {
+            case 'ObjectProperty':
+               Reflect.set(data, key, value ? value.toJSON() : null)
+               break
+
+            default:
+               Reflect.set(data, key, value || null)
          }
       })
 
+      console.log(data)
       return data
    }
 
-   async read(): Promise<DataObject> {
+   async read(): Promise<DataObjectClass<any>> {
       try {
-         return this.populate(Core.getBackend().read(this))
+         return this.populate(await Core.getBackend().read(this))
       } catch (err) {
          console.log((err as Error).message)
          throw new Error((err as Error).message)
       }
    }
 
-   async save(desiredUid: string | undefined = undefined): Promise<DataObject> {
+   async save(): Promise<DataObjectClass<any>> {
       const backend = Core.getBackend(this.backend || Core.defaultBackend)
       this._persisted = true
       this._modified = false
-      return this._uid
-         ? await backend.update(this)
-         : await backend.create(this, desiredUid)
+
+      return this.uid ? await backend.update(this) : await backend.create(this)
+   }
+
+   async delete(): Promise<DataObjectClass<any>> {
+      const backend = Core.getBackend(this.backend || Core.defaultBackend)
+      this._persisted = false
+      this._modified = false
+
+      return await backend.delete(this)
    }
 
    /**
@@ -233,8 +246,8 @@ export class DataObject implements DataObjectClass {
     * @returns DataObject
     */
    static async factory(
-      param: DataObjectType | undefined = undefined
-   ): Promise<DataObjectClass> {
+      param: DataObjectParams | undefined = undefined
+   ): Promise<DataObject> {
       try {
          return new this(param)
       } catch (err) {
@@ -245,8 +258,9 @@ export class DataObject implements DataObjectClass {
       }
    }
 
-   async clone(data: any = {}): Promise<DataObjectClass> {
+   async clone(data: any = {}): Promise<DataObject> {
       const cloned = await DataObject.factory()
+      cloned.uri.class = this.uri.class
       cloned.setProperties(this._properties)
       if (data) {
          await cloned.populate(data)

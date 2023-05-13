@@ -1,5 +1,6 @@
 import { AbstractAdapter } from './backends/AbstractAdapter'
-import { MockAdapter } from './backends/MockAdapter'
+import { DataObject } from './components/DataObject'
+import { DataObjectClass } from './components/types/DataObjectClass'
 import { UserClass } from './components/types/UserClass'
 
 export type BackendRegistry<T extends AbstractAdapter> = { [x: string]: T }
@@ -7,10 +8,9 @@ export type BackendRegistry<T extends AbstractAdapter> = { [x: string]: T }
 export class Core {
    static defaultBackend = '@default'
    static currentUser: UserClass
+   static logger = console.log
 
-   protected static _backends: BackendRegistry<any> = {
-      '@mock': new MockAdapter({ alias: '@mock' }),
-   }
+   protected static _backends: BackendRegistry<any> = {}
 
    static definition(key: string) {
       return {
@@ -25,11 +25,36 @@ export class Core {
       Core._backends[alias] = backend
    }
 
-   static getBackend(alias: string = this.defaultBackend) {
+   static getBackend<T extends AbstractAdapter>(
+      alias: string = this.defaultBackend
+   ): T {
       if (this._backends[alias]) {
          return this._backends[alias]
       } else {
          throw new Error(`Unknown backend alias: '${alias}'`)
       }
+   }
+
+   /**
+    * Returns the class to use for a data object
+    * This is currently just a stub that will be implemented from config in the future
+    * @returns DataObjectClass
+    */
+   static getDataObjectClass(): DataObjectClass<any> {
+      return DataObject.prototype
+   }
+
+   /**
+    * Log message using defined logger
+    * This is currently just a stub that will be implemented from config in the future
+    * @param message string
+    * @param level string
+    */
+   static log(
+      message: string,
+      src: string = 'Core',
+      level: string = 'NOTICE'
+   ): void {
+      Core.logger(`[${src}] ${message}`, level)
    }
 }

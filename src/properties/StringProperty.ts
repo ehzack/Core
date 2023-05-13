@@ -1,5 +1,6 @@
 //import { Property } from './Property'
 import { BaseProperty, BasePropertyType } from './BaseProperty'
+import { PropertyHTMLType } from './types/PropertyHTMLType'
 
 export interface StringPropertyType extends BasePropertyType {
    minLength?: number
@@ -8,6 +9,7 @@ export interface StringPropertyType extends BasePropertyType {
    allowDigits?: boolean
    allowLetters?: boolean
    allowPattern?: String
+   fullSearch?: boolean
 }
 
 export class StringProperty extends BaseProperty {
@@ -22,12 +24,11 @@ export class StringProperty extends BaseProperty {
    static ALLOW_STRINGS = 'strings'
    static ALLOW_NUMBERS = 'numbers'
 
-
    protected _minLength: number = 0
    protected _maxLength: number = 0
+   protected _fullSearch: boolean = false
 
    protected _value: string | undefined
-
 
    /**
     * Set to false to bypass some rules
@@ -38,6 +39,8 @@ export class StringProperty extends BaseProperty {
       super(config)
       this.minLength = config.minLength || 0
       this.maxLength = config.maxLength || 0
+      this.fullSearch = config.fullSearch || false
+      this._htmlType = config.htmlType || 'off'
       if (this._enable(config.allowSpaces)) {
          this._allows.push(StringProperty.ALLOW_SPACES)
       }
@@ -50,35 +53,44 @@ export class StringProperty extends BaseProperty {
    }
 
    set(value: any) {
-      if (
-         this._allows.includes(StringProperty.ALLOW_DIGITS) === false &&
-         /\d/.test(value)
-      ) {
-         throw new Error(`Digits are not allowed in value`)
-      }
+      if (value !== null && value !== undefined) {
+         if (
+            this._allows.includes(StringProperty.ALLOW_DIGITS) === false &&
+            /\d/.test(value)
+         ) {
+            throw new Error(`Digits are not allowed in value`)
+         }
 
-      if (
-         this._allows.includes(StringProperty.ALLOW_SPACES) === false &&
-         /\s/g.test(value)
-      ) {
-         throw new Error(`Spaces are not allowed in value`)
-      }
+         if (
+            this._allows.includes(StringProperty.ALLOW_SPACES) === false &&
+            /\s/g.test(value)
+         ) {
+            throw new Error(`Spaces are not allowed in value`)
+         }
 
-      if (
-         this._allows.includes(StringProperty.ALLOW_LETTERS) === false &&
-         /[a-zA-Z]/.test(value)
-      ) {
-         throw new Error(`Letters are not allowed in value`)
-      }
+         if (
+            this._allows.includes(StringProperty.ALLOW_LETTERS) === false &&
+            /[a-zA-Z]/.test(value)
+         ) {
+            throw new Error(`Letters are not allowed in value`)
+         }
 
-      if (this._rawValue && this._minLength > 0 && value.length < this._minLength) {
-         throw new Error(`Value is too short`)
-      }
+         if (
+            this._rawValue &&
+            this._minLength > 0 &&
+            value.length < this._minLength
+         ) {
+            throw new Error(`Value is too short`)
+         }
 
-      if (this._rawValue && this._maxLength > 0 && value.length > this._maxLength) {
-         throw new Error(`${this._name}: value '${value}' is too long`)
+         if (
+            this._rawValue &&
+            this._maxLength > 0 &&
+            value.length > this._maxLength
+         ) {
+            throw new Error(`${this._name}: value '${value}' is too long`)
+         }
       }
-
       return super.set(value)
    }
 
@@ -104,7 +116,16 @@ export class StringProperty extends BaseProperty {
    set maxLength(max: number) {
       this._maxLength = max >= 0 ? max : 0
    }
+
    get maxLength() {
       return this._maxLength
+   }
+
+   set fullSearch(mode: boolean) {
+      this._fullSearch = mode
+   }
+
+   get fullSearch() {
+      return this._fullSearch
    }
 }

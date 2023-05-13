@@ -14,10 +14,14 @@ export class EnumProperty extends BaseProperty {
    }
 
    set(value: string) {
-      if (!this._values.includes(value)) {
+      if (value !== null && !this._values.includes(value)) {
          throw new Error(`Value '${value}' is not acceptable`)
       }
 
       return super.set(value)
+   }
+
+   get values() {
+      return this._values
    }
 }

@@ -1,5 +1,6 @@
 import { Core } from './Core'
 import * as statuses from './common/statuses'
+import * as utils from './utils'
 import { Property } from './properties/Property'
 import { BaseProperty, BasePropertyType } from './properties/BaseProperty'
 import { StringProperty, StringPropertyType } from './properties/StringProperty'
@@ -16,9 +17,12 @@ import {
 import { HashProperty, HashPropertyType } from './properties/HashProperty'
 import { AbstractObject } from './components/AbstractObject'
 import { ObjectUri } from './components/ObjectUri'
+import { DataObjectClass } from './components/types/DataObjectClass'
 import { DataObject } from './components/DataObject'
 import { BaseObject } from './components/BaseObject'
 import { BaseObjectProperties } from './components/BaseObjectProperties'
+import { User } from './components/User'
+import { Entity } from './components/Entity'
 
 import {
    AbstractAdapter,
@@ -35,6 +39,7 @@ import {
 
 export {
    statuses,
+   utils,
    Core,
    Property,
    BaseProperty,
@@ -54,6 +59,7 @@ export {
    AbstractAdapter,
    MockAdapter,
    ObjectUri,
+   DataObjectClass,
    DataObject,
    AbstractObject,
    BaseObject,
@@ -66,4 +72,6 @@ export {
    Limits,
    Sorting,
    SortAndLimit,
+   User,
+   Entity,
 }

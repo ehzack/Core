@@ -1,5 +1,6 @@
 import { DataObjectClass } from './types/DataObjectClass'
 import { DataObjectProperties } from '../properties/'
+import { Query } from '../backends/Query'
 
 export abstract class AbstractObject {
    static PROPS_DEFINITION: DataObjectProperties = []
@@ -10,9 +11,9 @@ export abstract class AbstractObject {
    // Which property's value to use in backend as label for object reference
    static LABEL_KEY = 'name'
 
-   protected _dataObject: DataObjectClass
+   protected _dataObject: DataObjectClass<any>
 
-   constructor(dao: DataObjectClass) {
+   constructor(dao: DataObjectClass<any>) {
       this._dataObject = dao
    }
 
@@ -24,7 +25,7 @@ export abstract class AbstractObject {
       return this._dataObject.set(key, val)
    }
 
-   val(key: string) {
+   val(key: string): any {
       const prop = this.get(key)
       if (prop) {
          return prop.val()
@@ -57,7 +58,15 @@ export abstract class AbstractObject {
       return typeof this.uri === 'string' ? this.uri : this.uri?.toJSON()
    }
 
-   async save() {
+   async save(): Promise<DataObjectClass<any>> {
       return await this._dataObject.save()
+   }
+
+   async delete(): Promise<DataObjectClass<any>> {
+      return await this._dataObject.delete()
+   }
+
+   static query() {
+      return new Query(this)
    }
 }

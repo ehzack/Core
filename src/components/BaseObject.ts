@@ -1,10 +1,10 @@
 import { ObjectUri } from './ObjectUri'
-import { DataObject } from './DataObject'
 import { DataObjectClass } from './types/DataObjectClass'
 import { BaseObjectClass } from './types/BaseObjectClass'
 import { AbstractObject } from './AbstractObject'
 import { BaseObjectProperties } from './BaseObjectProperties'
 import { Query } from '../backends/Query'
+import { DataObject } from './DataObject'
 
 export class BaseObject extends AbstractObject implements BaseObjectClass {
    static PROPS_DEFINITION: any = BaseObjectProperties
@@ -22,9 +22,9 @@ export class BaseObject extends AbstractObject implements BaseObjectClass {
    }
 
    static async daoFactory(
-      src: string | ObjectUri | DataObjectClass | undefined = undefined,
+      src: string | ObjectUri | DataObjectClass<any> | undefined = undefined,
       child: any = this
-   ): Promise<DataObjectClass> {
+   ): Promise<DataObjectClass<any>> {
       // merge base properties with additional or redefined ones
       const base = BaseObjectProperties
 
@@ -62,11 +62,11 @@ export class BaseObject extends AbstractObject implements BaseObjectClass {
    }
 
    static async factory<T extends BaseObject>(
-      src: string | ObjectUri | DataObjectClass | undefined = undefined,
+      src: string | ObjectUri | DataObjectClass<any> | undefined = undefined,
       child: any = this
    ): Promise<T | BaseObject> {
       try {
-         const dao = await this.daoFactory(src)
+         const dao = await this.daoFactory(src, child)
 
          return Reflect.construct(this, [dao])
       } catch (err) {

@@ -1,15 +1,16 @@
-import { ObjectProperty } from '../properties'
+import { DateTimeProperty, EnumProperty, ObjectProperty } from '../properties'
 import { HashProperty } from '../properties/HashProperty'
 import { StringProperty } from '../properties/StringProperty'
 import { Entity } from './Entity'
 import { DataObjectClass } from './types/DataObjectClass'
+import * as htmlType from '../properties/types/PropertyHTMLType'
 
 /**
  * Callback function to populate the 'name' property
  * @param dao DataObject
  * @returns
  */
-const onChange = (dao: DataObjectClass) =>
+const onChange = (dao: DataObjectClass<any>) =>
    dao.set('name', `${dao.val('firstname')} ${dao.val('lastname')}`)
 
 export const UserProperties: any = [
@@ -18,6 +19,8 @@ export const UserProperties: any = [
       name: 'name',
       type: StringProperty.TYPE,
       minLength: 0,
+      fullSearch: true,
+      htmlType: htmlType.NAME,
    },
    {
       name: 'firstname',
@@ -25,6 +28,7 @@ export const UserProperties: any = [
       type: StringProperty.TYPE,
       minLength: 1,
       maxLength: 100,
+      htmlType: htmlType.GIVEN_NAME,
       onChange,
    },
    {
@@ -33,7 +37,21 @@ export const UserProperties: any = [
       type: StringProperty.TYPE,
       minLength: 1,
       maxLength: 100,
+      htmlType: htmlType.FAMILY_NAME,
       onChange,
+   },
+   {
+      name: 'gender',
+      mandatory: false,
+      type: EnumProperty.TYPE,
+      values: ['male', 'female', 'nonbinary'],
+      htmlType: htmlType.GENDER,
+   },
+   {
+      name: 'birthday',
+      mandatory: false,
+      type: DateTimeProperty.TYPE,
+      htmlType: htmlType.BIRTHDAY,
    },
    {
       name: 'email',
@@ -41,6 +59,8 @@ export const UserProperties: any = [
       type: StringProperty.TYPE,
       minLength: 1,
       maxLength: 100,
+      fullSearch: true,
+      htmlType: htmlType.EMAIL,
    },
    {
       name: 'password',
@@ -50,6 +70,7 @@ export const UserProperties: any = [
       salt: '', // you should override it in your code
       minLength: 5,
       maxLength: 20, // this is for the clear password
+      htmlType: htmlType.PASSWORD,
    },
    {
       name: 'entity',

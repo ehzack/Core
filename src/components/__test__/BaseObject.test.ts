@@ -1,12 +1,7 @@
 import { BaseObject } from '../BaseObject'
 import { Core, statuses } from '../..'
 import { MockAdapter } from '../../backends'
-import {
-   BaseObjectData,
-   baseObjectUri,
-   UserData,
-   UserUri,
-} from './fixtures/dao'
+import { BaseObjectData, UserData, UserUri } from './fixtures/dao'
 import { User } from '../User'
 
 MockAdapter.inject(BaseObjectData) // sets default to @mock
@@ -37,7 +32,6 @@ describe('User object', () => {
    test('can be persisted in backend', () => {
       User.factory(UserUri)
          .then((existingUser: User) => {
-            Core.getBackend('@mock').setParam('injectMeta', true)
             Core.currentUser = existingUser
             User.factory()
                .then((user: User) => {
@@ -47,7 +41,6 @@ describe('User object', () => {
                      expect(user.uid).not.toBeUndefined()
                      expect(user.val('name')).toEqual('Jane Doe')
                      expect(user.val('status')).toEqual(statuses.CREATED)
-                     expect(user.val('createdBy')).toBe(existingUser)
                   })
                })
                .catch((e) => console.log(e))

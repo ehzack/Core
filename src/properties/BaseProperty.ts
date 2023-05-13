@@ -1,17 +1,19 @@
 import { DataObjectClass } from '../components/types/DataObjectClass'
 import { AbstractPropertyType } from './types/AbstractPropertyType'
 import { PropertyClassType } from './types/PropertyClassType'
+import { PropertyHTMLType } from './types/PropertyHTMLType'
 
 export type EventTypes =
    | typeof BaseProperty.EVENT_ONCHANGE
    | typeof BaseProperty.EVENT_ONDELETE
 
 export interface BasePropertyType extends AbstractPropertyType {
-   parent?: DataObjectClass
+   parent?: DataObjectClass<any>
    protected?: boolean
    mandatory?: boolean
    defaultValue?: any
-   onChange?: (dao: DataObjectClass) => DataObjectClass
+   htmlType?: PropertyHTMLType
+   onChange?: (dao: DataObjectClass<any>) => DataObjectClass<any>
 }
 
 export class BaseProperty implements PropertyClassType {
@@ -19,12 +21,13 @@ export class BaseProperty implements PropertyClassType {
    static EVENT_ONCHANGE = 'onChange'
    static EVENT_ONDELETE = 'onDelete'
 
-   protected _parent: DataObjectClass | undefined
+   protected _parent: DataObjectClass<any> | undefined
    protected _name: string
    protected _value: any = undefined
    protected _mandatory: boolean = false
    protected _protected: boolean = false
    protected _allows: String[] = []
+   protected _htmlType: PropertyHTMLType = 'off'
    protected _defaultValue: any
    protected _events: { [key: EventTypes]: Function } = {}
 
@@ -35,6 +38,7 @@ export class BaseProperty implements PropertyClassType {
       this._mandatory = config.mandatory || false
       this._defaultValue = config.defaultValue
       this._value = config.defaultValue
+      this._htmlType = config.htmlType || 'off'
       if (typeof config.onChange === 'function') {
          this._events.onChange = config.onChange
       }
@@ -56,9 +60,18 @@ export class BaseProperty implements PropertyClassType {
       return this._allows
    }
 
+   set htmlType(type: PropertyHTMLType) {
+      this._htmlType = type
+   }
+
+   get htmlType() {
+      return this._htmlType
+   }
+
    set(value: any) {
       if (
          this._value !== undefined &&
+         this._value !== null &&
          this._value !== this._defaultValue &&
          this._protected === true
       ) {
@@ -76,7 +89,7 @@ export class BaseProperty implements PropertyClassType {
    }
 
    val(transform: any = undefined): any {
-      return this._value
+      return transform ? transform(this._value) : this._value
    }
 
    protected _enable(value: boolean | undefined) {

@@ -5,6 +5,7 @@ import { SortAndLimit } from './SortAndLimit'
 import { BackendInterface } from './AbstractAdapter'
 import { BaseObject } from '../components/BaseObject'
 import { Core } from '../Core'
+import { AbstractObject } from '../components'
 
 export const AS_OBJECTURIS = 'objectUris'
 export const AS_DATAOBJECTS = 'dataObjects'
@@ -16,7 +17,7 @@ export enum returnAs {
    AS_INSTANCES = 'classInstances',
 }
 
-export class Query<T extends typeof BaseObject> {
+export class Query<T extends typeof AbstractObject> {
    protected _obj: T
    protected _params: any
    filters: Filter[]
@@ -80,7 +81,7 @@ export class Query<T extends typeof BaseObject> {
 
    async execute(
       as: returnAs = returnAs.AS_DATAOBJECTS,
-      backend: BackendInterface<any> = Core.getBackend()
+      backend: BackendInterface = Core.getBackend()
    ): Promise<any> { //</any><Array<T2> | Array<DataObject> | Array<ObjectUri>> {
       try {
          const result = await backend.query(this)

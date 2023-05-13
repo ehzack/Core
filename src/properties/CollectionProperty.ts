@@ -1,12 +1,14 @@
 import { BaseProperty, BasePropertyType } from './BaseProperty'
-import { Query, Filter } from '../backends'
-import { DataObject, ObjectUri } from '../components'
+import { Query } from '../backends/Query'
+import { Filter } from '../backends/Filter'
+import { ObjectUri } from '../components/ObjectUri'
 import { Core } from '../Core'
 import { returnAs } from '../backends/Query'
+import { DataObjectClass } from '../components/types/DataObjectClass'
 
 export interface CollectionPropertyType extends BasePropertyType {
    instanceOf?: Function | string | Object
-   backend?: string
+   backend?: any
    parentKey?: string
 }
 
@@ -14,11 +16,11 @@ export class CollectionProperty extends BaseProperty {
    static TYPE = 'collection'
    protected _value:
       | Array<any>
-      | Array<DataObject>
+      | Array<DataObjectClass<any>>
       | Array<ObjectUri>
       | undefined = undefined
    protected _instanceOf: any
-   protected _backend: undefined
+   protected _backend: any
    protected _parentKey: string
    protected _query: Query<any> | undefined = undefined
    protected _filters: Filter[] | Filter | undefined = undefined
@@ -58,7 +60,7 @@ export class CollectionProperty extends BaseProperty {
 
    async val(
       transform: returnAs = returnAs.AS_DATAOBJECTS
-   ): Promise<Array<any> | Array<DataObject> | Array<ObjectUri>> {
+   ): Promise<Array<any> | Array<DataObjectClass<any>> | Array<ObjectUri>> {
       return await this.get().execute(transform, this._backend)
    }
 

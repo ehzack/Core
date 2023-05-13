@@ -11,7 +11,7 @@ export class ObjectUri {
    protected _path: string = ObjectUri.DEFAULT
    protected _uid: string | undefined = undefined
    protected _collection: string | undefined = undefined
-   protected _label: string | undefined
+   protected _label: string | undefined = ''
    protected _objClass: any
 
    /**
@@ -20,9 +20,9 @@ export class ObjectUri {
     * some backends will need a collection or table name, some may deduct it from object
     * @param str
     */
-   constructor(str: string = '', label: string | undefined = undefined) {
+   constructor(str: string = '', label: string | undefined = '') {
       this._str = str
-      this._label = label || this._uid
+      this._label = label
       if (str.indexOf(':') !== -1) {
          const [backend, path] = str.split(':')
          this._backend = backend || Core.defaultBackend
@@ -39,6 +39,7 @@ export class ObjectUri {
          this._pairs.push(
             `${ObjectUri.MISSING_COLLECTION}${ObjectUri.DEFAULT}${this._uid}`
          )
+         this._label = label || this._uid
       } else if (parts.length % 2 === 0) {
          // General case is a path containing pairs of collection/uid
          let i = 0
@@ -48,6 +49,7 @@ export class ObjectUri {
             this._pairs.push(`${parts[i]}${ObjectUri.DEFAULT}${parts[i + 1]}`)
             i += 2
          }
+         this._label = label || this._uid
       } else {
          throw new Error('Path parts number must be 1 or even')
       }
@@ -55,6 +57,7 @@ export class ObjectUri {
 
    set class(objClass: any) {
       this._objClass = objClass
+      this._collection = objClass.name.toLowerCase()
    }
 
    get class() {
@@ -86,8 +89,10 @@ export class ObjectUri {
          throw new Error(`Path value already set with '${this._path}'`)
       }
       this._path = path
-      this._collection = path.split('/').pop()
+      // TODO manage paths to subcollection
+      this._collection = path.split('/')[0]
       this._literal = `${this._backend}:${this._path}`
+      this._uid = path.split('/').pop()
    }
 
    get uid() {
@@ -123,7 +128,7 @@ export class ObjectUri {
       return {
          backend: this._backend,
          ref: this._path,
-         label: this._label,
+         label: this._label || '',
       }
    }
 }

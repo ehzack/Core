@@ -1,4 +1,4 @@
-import { DataObject, DataObjectType } from './DataObject'
+import { DataObject, DataObjectParams } from './DataObject'
 import { DataObjectClass } from './types/DataObjectClass'
 import { ObjectUri } from './ObjectUri'
 import { AbstractObject } from './AbstractObject'
@@ -10,7 +10,7 @@ import { Entity } from './Entity'
 
 export {
    DataObject,
-   DataObjectType,
+   DataObjectParams,
    DataObjectClass,
    ObjectUri,
    AbstractObject,
