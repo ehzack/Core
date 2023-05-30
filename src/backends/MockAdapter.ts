@@ -8,6 +8,8 @@ import { Filters } from './Filters'
 import { SortAndLimit } from './SortAndLimit'
 import { DataObjectClass } from '../components/types/DataObjectClass'
 import { faker } from '@faker-js/faker'
+import { BackendError } from './BackendError'
+import { NotFoundError } from './NotFoundError'
 
 export class MockAdapter extends AbstractAdapter implements BackendInterface {
    protected static _fixtures: any = {}
@@ -64,46 +66,53 @@ export class MockAdapter extends AbstractAdapter implements BackendInterface {
             })
             resolve(dataObject)
          } catch (err) {
-            reject(err)
+            reject(new BackendError((err as Error).message))
          }
       })
    }
 
    async read(dataObject: DataObjectClass<any>): Promise<DataObjectClass<any>> {
-      const path = dataObject.path
+      return new Promise(async (resolve, reject) => {
+         const path = dataObject.path
+         const data = MockAdapter._fixtures[path]
 
-      const data = MockAdapter._fixtures[path]
-
-      if (data === undefined) {
-         throw new Error(`[Mock] No data for ${path}`)
-      }
-
-      this.log(`[DAO] Populating ${dataObject.path}`)
-
-      return await dataObject.populate(data)
+         if (data === undefined) {
+            reject(new NotFoundError(`[Mock] No data for ${path}`))
+         }
+         this.log(`[DAO] Populating ${dataObject.path}`)
+         resolve(await dataObject.populate(data))
+      })
    }
 
    async update(
       dataObject: DataObjectClass<any>
    ): Promise<DataObjectClass<any>> {
-      return new Promise(() => dataObject)
+      return new Promise((resolve) => resolve(dataObject))
    }
 
    async delete(
       dataObject: DataObjectClass<any>
    ): Promise<DataObjectClass<any>> {
-      if (this.getParam('softDelete') === true) {
-         dataObject.set('status', DELETED)
-         MockAdapter.inject({
-            ...dataObject.toJSON(),
-            uid: dataObject.uid,
-         })
-      } else if (dataObject.uid !== undefined) {
-         delete MockAdapter._fixtures[dataObject.uid]
-         dataObject.uri = new ObjectUri()
-      }
+      return new Promise((resolve, reject) => {
+         const path = dataObject.path
+         const data = MockAdapter._fixtures[path]
 
-      return new Promise(() => dataObject)
+         if (data === undefined) {
+            reject(new NotFoundError(`[Mock] No data for ${path}`))
+         }
+
+         if (this.getParam('softDelete') === true) {
+            dataObject.set('status', DELETED)
+            MockAdapter.inject({
+               ...dataObject.toJSON(),
+               uid: dataObject.uid,
+            })
+         } else if (dataObject.uid !== undefined) {
+            delete MockAdapter._fixtures[dataObject.uid]
+            dataObject.uri = new ObjectUri()
+         }
+         resolve(dataObject)
+      })
    }
 
    async deleteCollection(
