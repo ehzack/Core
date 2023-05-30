@@ -14,7 +14,12 @@ export const fClassProperties: DataObjectProperties = [
    },
 ]
 export class fClass extends BaseObject {
-   static PROPS_DEFINITION: DataObjectProperties = fClassProperties
+   static PROPS_DEFINITION: DataObjectProperties = [
+      {
+         name: 'a',
+         type: StringProperty.TYPE,
+      },
+   ]
 }
 
 export const properties: DataObjectProperties = [

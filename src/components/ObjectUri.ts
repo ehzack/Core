@@ -57,7 +57,11 @@ export class ObjectUri {
 
    set class(objClass: any) {
       this._objClass = objClass
-      this._collection = objClass.COLLECTION || objClass.name.toLowerCase()
+      if (objClass) {
+         this._collection = objClass.COLLECTION || objClass.name?.toLowerCase()
+      } else {
+         this._collection = undefined
+      }
    }
 
    get class() {

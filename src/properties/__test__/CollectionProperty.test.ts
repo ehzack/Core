@@ -1,5 +1,5 @@
 import { DataObject, Entity, User } from '../../components'
-import { DataGenerator } from '../../utils'
+import { DataGenerator } from '../../utils/DataGenerator'
 import { MockAdapter } from '../../backends'
 import { Core } from '../../Core'
 
