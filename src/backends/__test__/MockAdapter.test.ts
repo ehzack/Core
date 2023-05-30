@@ -25,12 +25,12 @@ describe('MockAdapter CRUD operations', () => {
 
       // Check that object is successfully created in backend
       backend.create(dao).then(() => {
-         //expect(dao.isPersisted()).toBe(true)
+         expect(dao.isPersisted()).toBe(true)
          expect(dao.uri).not.toBeUndefined()
-         //expect(dao.uri.uid).not.toBeUndefined()
+         expect(dao.uid).not.toBeUndefined()
          expect(dao.uri.constructor.name).toBe('ObjectUri')
-         expect(dao.uid && MockAdapter.getFixture(dao.uid)).not.toBeUndefined()
-         expect(dao.uid && MockAdapter.getFixture(dao.uid)).toContain('a')
+         expect(dao.uid && MockAdapter.getFixture(dao.path)).not.toBeUndefined()
+         expect(dao.uid && MockAdapter.getFixture(dao.path)).toHaveProperty('a')
       })
    })
 
@@ -47,6 +47,7 @@ describe('MockAdapter CRUD operations', () => {
    })
 
    test('update data', async () => {
+      MockAdapter.inject({ uid: 'a/b', path: 'a/b', a: 'b', c: 'd', e: 3 })
       const dao = await DataObject.factory({
          properties: fClassProperties,
          uri: 'a/b',
@@ -56,13 +57,15 @@ describe('MockAdapter CRUD operations', () => {
       backend.read(dao).then(() => {
          dao.set('a', 'another string')
          backend.update(dao).then(() => {
-            const fixture = dao.uid && MockAdapter.getFixture(dao.uid)
+            const fixture = MockAdapter.getFixture(dao.path)
             expect(fixture.a).toEqual('another string')
          })
       })
    })
 
    test('delete data', async () => {
+      MockAdapter.inject({ uid: 'a/b', path: 'a/b', a: 'b', c: 'd', e: 3 })
+
       const dao = await DataObject.factory({
          properties: fClassProperties,
          uri: 'a/b',

@@ -87,7 +87,17 @@ export class MockAdapter extends AbstractAdapter implements BackendInterface {
    async update(
       dataObject: DataObjectClass<any>
    ): Promise<DataObjectClass<any>> {
-      return new Promise((resolve) => resolve(dataObject))
+      return new Promise(async (resolve, reject) => {
+         const path = dataObject.path
+         const data = MockAdapter._fixtures[path]
+
+         if (data === undefined) {
+            reject(new NotFoundError(`[Mock] No data for ${path}`))
+         }
+         this.log(`[DAO] Updating ${dataObject.path}`)
+         MockAdapter._fixtures[path] = { ...data, ...dataObject.toJSON() }
+         resolve(dataObject)
+      })
    }
 
    async delete(
@@ -101,16 +111,9 @@ export class MockAdapter extends AbstractAdapter implements BackendInterface {
             reject(new NotFoundError(`[Mock] No data for ${path}`))
          }
 
-         if (this.getParam('softDelete') === true) {
-            dataObject.set('status', DELETED)
-            MockAdapter.inject({
-               ...dataObject.toJSON(),
-               uid: dataObject.uid,
-            })
-         } else if (dataObject.uid !== undefined) {
-            delete MockAdapter._fixtures[dataObject.uid]
-            dataObject.uri = new ObjectUri()
-         }
+         delete MockAdapter._fixtures[dataObject.path]
+         dataObject.uri = new ObjectUri()
+
          resolve(dataObject)
       })
    }

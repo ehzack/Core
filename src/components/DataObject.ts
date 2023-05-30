@@ -129,6 +129,9 @@ export class DataObject implements DataObjectClass<any> {
 
    set uri(uri: string | ObjectUri | undefined) {
       this._objectUri = uri instanceof ObjectUri ? uri : new ObjectUri(uri)
+      if (this._objectUri.collection !== ObjectUri.MISSING_COLLECTION) {
+         this._persisted = true
+      }
    }
 
    get uri(): ObjectUri {
