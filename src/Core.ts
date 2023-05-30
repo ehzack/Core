@@ -21,8 +21,15 @@ export class Core {
       }
    }
 
-   static addBackend(backend: AbstractAdapter, alias: string) {
+   static addBackend(
+      backend: AbstractAdapter,
+      alias: string,
+      setDefault: boolean = false
+   ) {
       Core._backends[alias] = backend
+      if (setDefault) {
+         Core.defaultBackend = alias
+      }
    }
 
    static getBackend<T extends AbstractAdapter>(

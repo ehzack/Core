@@ -1,15 +1,16 @@
 import * as statuses from '../../../statuses'
+import { BooleanProperty } from '../../../properties/BooleanProperty'
+import { EnumProperty } from '../../../properties/EnumProperty'
+import { ObjectProperty } from '../../../properties/ObjectProperty'
+import { StringProperty } from '../../../properties/StringProperty'
 import { DataObjectProperties } from '../../../properties'
-import { Property } from '../../../properties/Property'
-import { User } from '../../User'
 import { BaseObject } from '../../BaseObject'
 import { ObjectUri } from '../../ObjectUri'
-import { DataObjectClass } from '../../types/DataObjectClass'
 
 export const fClassProperties: DataObjectProperties = [
    {
       name: 'a',
-      type: Property.TYPE_STRING,
+      type: StringProperty.TYPE,
    },
 ]
 export class fClass extends BaseObject {
@@ -20,22 +21,22 @@ export const properties: DataObjectProperties = [
    {
       name: 'string',
       mandatory: true,
-      type: Property.TYPE_STRING,
+      type: StringProperty.TYPE,
       defaultValue: 'nothing',
    },
    {
       name: 'boolean',
-      type: Property.TYPE_BOOLEAN,
+      type: BooleanProperty.TYPE,
       defaultValue: false,
    },
    {
       name: 'enum',
-      type: Property.TYPE_ENUM,
+      type: EnumProperty.TYPE,
       values: ['Mr', 'Miss', 'Ms', 'Dr'],
    },
    {
       name: 'object',
-      type: Property.TYPE_OBJECT,
+      type: ObjectProperty.TYPE,
       instanceOf: fClass.prototype,
    },
 ]

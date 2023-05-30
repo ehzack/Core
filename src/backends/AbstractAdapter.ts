@@ -87,6 +87,10 @@ export abstract class AbstractAdapter {
       return this._alias
    }
 
+   getCollection(dao: DataObjectClass<any>) {
+      return dao.uri.class.name.toLowerCase()
+   }
+
    abstract create(
       dataObject: DataObjectClass<any>
    ): Promise<DataObjectClass<any>>

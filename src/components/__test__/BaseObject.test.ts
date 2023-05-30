@@ -4,8 +4,9 @@ import { MockAdapter } from '../../backends'
 import { BaseObjectData, UserData, UserUri } from './fixtures/dao'
 import { User } from '../User'
 
-MockAdapter.inject(BaseObjectData) // sets default to @mock
+MockAdapter.inject(BaseObjectData)
 MockAdapter.inject(UserData)
+Core.addBackend(new MockAdapter(), '@mock', true)
 
 describe('Base object', () => {
    test('has name, status and createdBy properties that are instances', () =>

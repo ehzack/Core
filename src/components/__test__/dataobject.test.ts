@@ -2,8 +2,10 @@ import { properties, fClass, fData } from './fixtures/dao'
 import { DataObject } from '../DataObject'
 import { MockAdapter } from '../../backends/MockAdapter'
 import { ObjectUri } from '../ObjectUri'
+import { Core } from '../../Core'
 
 MockAdapter.inject(fData)
+Core.addBackend(new MockAdapter(), '@mock', true)
 
 const params = { properties }
 

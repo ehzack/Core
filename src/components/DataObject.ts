@@ -42,10 +42,6 @@ export class DataObject implements DataObjectClass<any> {
     */
    protected constructor(params: DataObjectParams | undefined) {
       if (params) {
-         if (Array.isArray(params.properties)) {
-            this._init(params.properties)
-         }
-
          if (typeof params.uri !== 'object') {
             this._objectUri = new ObjectUri(params.uri)
          } else {
@@ -53,6 +49,10 @@ export class DataObject implements DataObjectClass<any> {
          }
       } else {
          this._objectUri = new ObjectUri()
+      }
+
+      if (params && Array.isArray(params.properties)) {
+         this._init(params.properties)
       }
    }
 
@@ -210,7 +210,6 @@ export class DataObject implements DataObjectClass<any> {
          }
       })
 
-      console.log(data)
       return data
    }
 
@@ -228,7 +227,7 @@ export class DataObject implements DataObjectClass<any> {
       this._persisted = true
       this._modified = false
 
-      return this.uid ? await backend.update(this) : await backend.create(this)
+      return this.uid ? backend.update(this) : backend.create(this)
    }
 
    async delete(): Promise<DataObjectClass<any>> {

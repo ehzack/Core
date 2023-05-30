@@ -22,7 +22,7 @@ export class CollectionProperty extends BaseProperty {
    protected _instanceOf: any
    protected _backend: any
    protected _parentKey: string
-   protected _query: Query<any> | undefined = undefined
+   protected _query: Query<any>
    protected _filters: Filter[] | Filter | undefined = undefined
 
    constructor(config: CollectionPropertyType) {
@@ -33,6 +33,17 @@ export class CollectionProperty extends BaseProperty {
          : undefined
       this._parentKey =
          config.parentKey || this._parent?.uri?.collection || 'unknown'
+      this._query = this._setQuery()
+   }
+
+   protected _setQuery(filters?: Filter[]) {
+      const query = this._instanceOf.query()
+      query.where(this._parentKey, this._parent ? this._parent.uri : 'unknown')
+      if (filters) {
+         query.filters = filters
+      }
+
+      return query
    }
 
    set(value: Array<any>) {
@@ -47,14 +58,9 @@ export class CollectionProperty extends BaseProperty {
     */
    get(filters: Filter[] | undefined = undefined): Query<any> {
       if (!this._query || this._filters !== filters) {
-         this._query = new Query(this._instanceOf)
-         if (this._parent) {
-            this._query.where(this._parentKey, this._parent.uri)
-         }
-         if (filters) {
-            this._query.filters = filters
-         }
+         this._query = this._setQuery(filters)
       }
+
       return this._query
    }
 

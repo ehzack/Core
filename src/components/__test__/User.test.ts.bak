@@ -1,9 +1,10 @@
 import { User } from '../User'
-import { statuses } from '../..'
+import { Core, statuses } from '../..'
 import { MockAdapter } from '../../backends'
 import { UserData, UserUri } from './fixtures/dao'
 
-MockAdapter.inject(UserData) // sets default to @mock
+MockAdapter.inject(UserData)
+Core.addBackend(new MockAdapter(), '@mock', true)
 
 describe('User object', () => {
    test('has properties that are instances', () =>

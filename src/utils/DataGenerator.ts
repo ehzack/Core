@@ -1,3 +1,4 @@
+import { Core } from '../Core'
 import { BaseObject } from '../components'
 import * as htmlType from '../properties/types/PropertyHTMLType'
 import { faker } from '@faker-js/faker'
@@ -72,5 +73,5 @@ export const DataGenerator = async <T extends BaseObject>(
       promises.push(dao.save())
    }
 
-   return await Promise.all(promises)
+   return Promise.all(promises)
 }

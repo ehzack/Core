@@ -9,11 +9,11 @@ import * as htmlType from '../properties/types/PropertyHTMLType'
 
 export interface BaseObjectType {
    name: string
-   status:
-      | typeof statuses.CREATED
-      | typeof statuses.PENDING
-      | typeof statuses.ACTIVE
-      | typeof statuses.DELETED
+   status: string
+   // | typeof statuses.CREATED
+   // | typeof statuses.PENDING
+   // | typeof statuses.ACTIVE
+   // | typeof statuses.DELETED
    createdBy?: UserClass | ObjectUri
    createdAt?: number
    updatedBy?: UserClass | ObjectUri
