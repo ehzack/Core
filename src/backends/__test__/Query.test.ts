@@ -17,7 +17,6 @@ describe('Test Query object', () => {
       uids = await DataGenerator<User>(await User.factory(), MEMBERS)
    })
 
-
    test('A simple query', () => {
       const query = new Query(User)
       query.execute().then((value: DataObject[]) => {

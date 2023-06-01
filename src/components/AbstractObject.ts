@@ -6,7 +6,7 @@ export abstract class AbstractObject {
    static PROPS_DEFINITION: DataObjectProperties = []
 
    // Which name to use in backend as table/collection identifer
-   static COLLECTION: string = this.constructor.name.toLowerCase()
+   static COLLECTION: string | undefined
 
    // Which property's value to use in backend as label for object reference
    static LABEL_KEY = 'name'
@@ -15,6 +15,7 @@ export abstract class AbstractObject {
 
    constructor(dao: DataObjectClass<any>) {
       this._dataObject = dao
+      AbstractObject.COLLECTION = this.constructor.name.toLowerCase()
    }
 
    get(key: string) {

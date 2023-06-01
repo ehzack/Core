@@ -20,7 +20,6 @@ describe('Data object', () => {
 
    test('has a class name', () =>
       DataObject.factory(params).then((dao) => {
-         console.log('fClass', fClass)
          expect(dao.class).toBeUndefined()
          dao.uri.class = fClass
          expect(dao.class).toBe(fClass)
