@@ -37,6 +37,14 @@ import {
    SortAndLimit,
 } from './backends'
 
+import {
+   BadRequestError,
+   UnauthorizedError,
+   ForbiddenError,
+   NotFoundError,
+   GoneError,
+} from './common/ResourcesErrors'
+
 export {
    statuses,
    utils,
@@ -74,4 +82,9 @@ export {
    SortAndLimit,
    User,
    Entity,
+   BadRequestError,
+   UnauthorizedError,
+   ForbiddenError,
+   NotFoundError,
+   GoneError,
 }

@@ -56,7 +56,7 @@ export const fData = {
 }
 
 export const baseObjectUri = 'baseobject/xyz'
-export const UserUri = 'users/abc'
+export const UserUri = 'user/abc'
 
 export const BaseObjectData = {
    uid: baseObjectUri,

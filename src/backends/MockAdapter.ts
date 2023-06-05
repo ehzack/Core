@@ -1,7 +1,5 @@
 import { AbstractAdapter, BackendInterface } from './AbstractAdapter'
-import { DELETED } from '../statuses'
 import { ObjectUri } from '../components/ObjectUri'
-import { Core } from '../Core'
 import { BackendRecordType } from './AbstractAdapter'
 import { Filter } from './Filter'
 import { Filters } from './Filters'
@@ -9,7 +7,7 @@ import { SortAndLimit } from './SortAndLimit'
 import { DataObjectClass } from '../components/types/DataObjectClass'
 import { faker } from '@faker-js/faker'
 import { BackendError } from './BackendError'
-import { NotFoundError } from './NotFoundError'
+import { NotFoundError } from '../common/ResourcesErrors'
 
 export class MockAdapter extends AbstractAdapter implements BackendInterface {
    protected static _fixtures: any = {}
@@ -78,7 +76,9 @@ export class MockAdapter extends AbstractAdapter implements BackendInterface {
 
          if (data === undefined) {
             reject(new NotFoundError(`[Mock] No data for ${path}`))
+            return
          }
+
          this.log(`[DAO] Populating ${dataObject.path}`)
          resolve(await dataObject.populate(data))
       })

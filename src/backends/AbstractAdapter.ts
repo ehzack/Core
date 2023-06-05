@@ -88,7 +88,7 @@ export abstract class AbstractAdapter {
    }
 
    getCollection(dao: DataObjectClass<any>) {
-      return dao.uri.class.COLLECTION || dao.uri.class.name.toLowerCase()
+      return dao.uri.collection || dao.uri.class.name.toLowerCase() //.class.COLLECTION
    }
 
    abstract create(

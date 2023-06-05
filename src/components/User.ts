@@ -6,6 +6,7 @@ import { HashProperty } from '../properties/HashProperty'
 import { StringProperty } from '../properties/StringProperty'
 import { Entity } from './Entity'
 import * as htmlType from '../properties/types/PropertyHTMLType'
+import { BaseObjectProperties } from './BaseObjectProperties'
 
 /**
  * Callback function to populate the 'name' property
@@ -15,8 +16,8 @@ import * as htmlType from '../properties/types/PropertyHTMLType'
 const onChange = (dao: DataObjectClass<any>) =>
    dao.set('name', `${dao.val('firstname')} ${dao.val('lastname')}`)
 
-
 export const UserProperties: any = [
+   ...BaseObjectProperties,
    {
       // change name property minLength
       name: 'name',

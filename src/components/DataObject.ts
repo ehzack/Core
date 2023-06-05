@@ -201,11 +201,13 @@ export class DataObject implements DataObjectClass<any> {
    protected _dataToJSON() {
       const data = {}
       Object.keys(this._properties).forEach((key: string) => {
-         const prop: any = Reflect.get(this._properties, key)
+         const prop = Reflect.get(this._properties, key)
+
          const value = prop.val()
+
          switch (prop.constructor.name) {
             case 'ObjectProperty':
-               Reflect.set(data, key, value ? value.toJSON() : null)
+               Reflect.set(data, key, typeof value ? prop.toJSON() : null)
                break
 
             default:

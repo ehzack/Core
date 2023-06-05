@@ -2,15 +2,26 @@ import { ObjectUri } from './ObjectUri'
 import { DataObjectClass } from './types/DataObjectClass'
 import { BaseObjectClass } from './types/BaseObjectClass'
 import { AbstractObject } from './AbstractObject'
-import { BaseObjectProperties } from './BaseObjectProperties'
+import { BaseObjectProperties, BaseObjectType } from './BaseObjectProperties'
 import { Query } from '../backends/Query'
 import { DataObject } from './DataObject'
 
-export class BaseObject extends AbstractObject implements BaseObjectClass {
+export class BaseObject
+   extends AbstractObject
+   implements BaseObjectClass, BaseObjectType
+{
    static PROPS_DEFINITION: any = BaseObjectProperties
 
    static getProperty(key: string) {
       return BaseObject.PROPS_DEFINITION.find((prop: any) => prop.name === key)
+   }
+
+   get name(): string {
+      return this._dataObject.val('name')
+   }
+
+   set name(name: string) {
+      this._dataObject.set('name', name)
    }
 
    get status(): string {
@@ -19,6 +30,14 @@ export class BaseObject extends AbstractObject implements BaseObjectClass {
 
    set status(status: string) {
       this._dataObject.set('status', status)
+   }
+
+   set deletedAt(timestamp: number) {
+      this._dataObject.set('deletedAt', timestamp)
+   }
+
+   get deletedAt(): number {
+      return this._dataObject.val('deletedAt')
    }
 
    static async daoFactory(
@@ -54,7 +73,12 @@ export class BaseObject extends AbstractObject implements BaseObjectClass {
             `${this.COLLECTION}${ObjectUri.DEFAULT}`,
             Reflect.get(src, 'name')
          )
-         dao.uri.collection = this.COLLECTION
+
+         // Collection is already defined in URI constructor
+         // Shouldn't this line be removed?
+         // It causes a crash
+         //dao.uri.collection = this.COLLECTION
+
          await dao.populate(src)
       }
 
@@ -77,6 +101,12 @@ export class BaseObject extends AbstractObject implements BaseObjectClass {
             }`
          )
       }
+   }
+
+   static instantiateFromDataObject(dao: DataObjectClass<any>) {
+      const obj = new this(dao)
+
+      return obj
    }
 
    asReference() {

@@ -76,7 +76,7 @@ export class BaseProperty implements PropertyClassType {
          this._protected === true
       ) {
          throw new Error(
-            `Value already defined as '${this._value}' and protected from change`
+            `Value '${this._name}' already defined as '${this._value}' and protected from change`
          )
       }
       this._value = value
