@@ -8,6 +8,7 @@ import { DataObjectClass } from '../components/types/DataObjectClass'
 import { faker } from '@faker-js/faker'
 import { BackendError } from './BackendError'
 import { NotFoundError } from '../common/ResourcesErrors'
+import { DataObject } from '../components'
 
 export class MockAdapter extends AbstractAdapter implements BackendInterface {
    protected static _fixtures: any = {}
@@ -142,13 +143,24 @@ export class MockAdapter extends AbstractAdapter implements BackendInterface {
       for (let key in MockAdapter.getFixtures()) {
          let keep = true
          if (key.startsWith(`${collection}/`) && result.length <= limit) {
+            // const dao = await DataObject.factory({
+            //    properties: MockAdapter.getFixtures()[key], // dataObject.properties,
+            // })
+
             const dao = await dataObject.clone(MockAdapter.getFixture(key))
+
             if (filters) {
                if (Array.isArray(filters)) {
                   filters.forEach((filter) => {
                      const prop = dao.get(filter.prop)
+
+                     if (typeof prop === 'undefined') {
+                        keep = false
+                        return
+                     }
+
                      const val = prop.val()
-                     //console.log(filter.prop, prop)
+
                      if (typeof prop === 'object') {
                         if (prop.constructor.name === 'ObjectProperty') {
                            if (
@@ -171,7 +183,7 @@ export class MockAdapter extends AbstractAdapter implements BackendInterface {
                            }
                         }
                      } else {
-                        if (prop.val() !== filter.value) {
+                        if ((prop as any).val() !== filter.value) {
                            keep = false
                            return
                         }

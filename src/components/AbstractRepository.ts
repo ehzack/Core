@@ -28,12 +28,16 @@ export default abstract class AbstractRepository<T extends BaseObject>
    protected async getDataObjectFromUid(
       uid: string
    ): Promise<DataObjectClass<any>> {
-      const path = `${this.model.COLLECTION}/${uid}`
+      const collection = this.model.COLLECTION || this.model.name.toLowerCase()
+
+      const path = `${collection}/${uid}`
 
       const dataObject = await DataObject.factory({
          properties: this.model.PROPS_DEFINITION,
          uri: path,
       })
+
+      dataObject.uid = uid
 
       return dataObject
    }
@@ -49,6 +53,8 @@ export default abstract class AbstractRepository<T extends BaseObject>
    async read(uid: string) {
       try {
          const dataObject = await this.getDataObjectFromUid(uid)
+
+         console.log(dataObject)
 
          const response = await this.backendAdapter.read(dataObject)
 
