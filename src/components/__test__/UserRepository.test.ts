@@ -13,6 +13,7 @@ MockAdapter.inject({
    ...UserData,
    path: 'user/deleted',
    uid: 'deleted',
+   name: 'Jane Ive',
    status: statuses.DELETED,
 })
 Core.addBackend(new MockAdapter(), '@mock', true)
@@ -95,7 +96,7 @@ describe('CRUD methods tests', () => {
    test.only('query should work as expected', async () => {
       const query: Query<typeof User> = User.query() as Query<typeof User>
 
-      userRepository.query(query).then(({ meta }) => {
+      userRepository.query(query).then(({ items, meta }) => {
          const numberOfObjects = 2
 
          expect(meta.count).toEqual(numberOfObjects)

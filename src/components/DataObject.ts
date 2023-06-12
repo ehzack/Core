@@ -265,7 +265,12 @@ export class DataObject implements DataObjectClass<any> {
    async clone(data: any = {}): Promise<DataObject> {
       const cloned = await DataObject.factory()
       cloned.uri.class = this.uri.class
-      cloned.setProperties(this._properties)
+      cloned._populated = false
+
+      for (let property of Object.keys(this._properties)) {
+         cloned._properties[property] = this._properties[property].clone()
+      }
+
       if (data) {
          await cloned.populate(data)
       }

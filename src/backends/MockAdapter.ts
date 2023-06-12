@@ -143,10 +143,6 @@ export class MockAdapter extends AbstractAdapter implements BackendInterface {
       for (let key in MockAdapter.getFixtures()) {
          let keep = true
          if (key.startsWith(`${collection}/`) && result.length <= limit) {
-            // const dao = await DataObject.factory({
-            //    properties: MockAdapter.getFixtures()[key], // dataObject.properties,
-            // })
-
             const dao = await dataObject.clone(MockAdapter.getFixture(key))
 
             if (filters) {
@@ -208,6 +204,12 @@ export class MockAdapter extends AbstractAdapter implements BackendInterface {
                )
          )
       }
+
+      // let i = 0
+      // for (let res of result) {
+      //    console.log(i, res.properties)
+      //    i++
+      // }
 
       return result
    }

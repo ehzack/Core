@@ -29,7 +29,9 @@ export class BaseProperty implements PropertyClassType {
    protected _allows: String[] = []
    protected _htmlType: PropertyHTMLType = 'off'
    protected _defaultValue: any
-   protected _events: { [key: EventTypes]: Function } = {}
+   protected _events: {
+      [key: EventTypes]: Function
+   } = {}
 
    constructor(config: BasePropertyType) {
       this._parent = config.parent
@@ -98,5 +100,14 @@ export class BaseProperty implements PropertyClassType {
 
    toJSON() {
       return this._value
+   }
+
+   clone() {
+      const cloned = Object.create(
+         Object.getPrototypeOf(this),
+         Object.getOwnPropertyDescriptors(this)
+      )
+
+      return cloned
    }
 }
