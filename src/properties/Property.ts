@@ -8,6 +8,7 @@ import { StringProperty } from './StringProperty'
 import { NumberProperty } from './NumberProperty'
 import { ObjectProperty } from './ObjectProperty'
 import { CollectionProperty } from './CollectionProperty'
+import { ArrayProperty } from './ArrayProperty'
 
 export class Property {
    static TYPE_ANY = 'any'
@@ -52,6 +53,10 @@ export class Property {
 
          case CollectionProperty.TYPE:
             return new CollectionProperty(params)
+
+         case ArrayProperty.TYPE:
+            return new ArrayProperty(params)
+
          default:
             throw new Error(`Unknown property type ${params.type}`)
       }
