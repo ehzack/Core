@@ -3,8 +3,11 @@ import UserRepository from '../UserRepository'
 import { MockAdapter, Query } from '../../backends'
 import { UserData, UserUri } from './fixtures/dao'
 import { Core } from '../../Core'
-import { BaseObject } from '../BaseObject'
-import { GoneError, NotFoundError } from '../../common/ResourcesErrors'
+import {
+   GoneError,
+   NotFoundError,
+   UnauthorizedError,
+} from '../../common/ResourcesErrors'
 import { User } from '../User'
 import { statuses } from '../..'
 
@@ -31,21 +34,25 @@ describe('repository instantiation tests', () => {
 
 describe('CRUD methods tests', () => {
    test('create method should save in collection', async () => {
-      const fUser: User = await User.factory(UserData)
+      User.factory(UserData).then((fUser) => {
+         userRepository
+            .create(fUser, UserData.uid)
+            .then((createdBradObject) => {
+               expect(createdBradObject).toEqual(fUser)
 
-      userRepository.create(fUser, UserData.uid).then((createdBradObject) => {
-         expect(createdBradObject).toEqual(fUser)
+               if (!createdBradObject.uid) {
+                  throw new Error()
+               }
 
-         if (!createdBradObject.uid) {
-            throw new Error()
-         }
+               backendAdapter
+                  .read(createdBradObject.dataObject)
+                  .then((readBradObject) => {
+                     expect(readBradObject).toEqual(
+                        createdBradObject.dataObject
+                     )
 
-         backendAdapter
-            .read(createdBradObject.dataObject)
-            .then((readBradObject) => {
-               expect(readBradObject).toEqual(createdBradObject.dataObject)
-
-               expect(readBradObject.val('name')).toEqual(fUser.name)
+                     expect(readBradObject.val('name')).toEqual(fUser.name)
+                  })
             })
       })
    })
@@ -93,7 +100,7 @@ describe('CRUD methods tests', () => {
          )
    })
 
-   test.only('query should work as expected', async () => {
+   test('query should work as expected', async () => {
       const query: Query<typeof User> = User.query() as Query<typeof User>
 
       userRepository.query(query).then(({ items, meta }) => {
@@ -104,29 +111,30 @@ describe('CRUD methods tests', () => {
    })
 })
 
-// describe('UserRepository specific methods', () => {
-//    test.only('getUserByEmail should return a user', async () => {
-//       userRepository.getFromEmail(UserData.email).then((user) => {
-//          expect(user.name).toBe(UserData.name)
-//       })
-//    })
+describe('UserRepository specific methods', () => {
+   test('getUserByEmail should return a user', async () => {
+      userRepository.getFromEmail(UserData.email).then((user) => {
+         expect(user.val('email')).toBe(UserData.email)
+      })
+   })
 
-//    test('getUserByEmail should throw NotFoundError', () => {
-//       const t = async () => userRepository.getFromEmail('idontexist@acme.com')
+   test('getUserByEmail should throw NotFoundError', () => {
+      const t = async () => userRepository.getFromEmail('idontexist@acme.com')
 
-//       expect(t).rejects.toThrow(NotFoundError)
-//    })
+      expect(t).rejects.toThrow(NotFoundError)
+   })
 
-//    test('login should return a user', () => {
-//       userRepository.login(UserData.email, UserData.email).then((user) => {
-//          expect(user.name).toBe(UserData.name)
-//       })
-//    })
+   //    test('login should return a user', () => {
+   //       userRepository.login(UserData.email, UserData.password).then((user) => {
+   //          expect(user.val('email')).toBe(UserData.email)
+   //          expect(user.val('password')).toBe(UserData.password)
+   //       })
+   //    })
 
-//    test('login should throw UnauthorizedError', () => {
-//       const t = async () =>
-//          userRepository.login(UserData.email, 'wrongpassword')
+   //    test('login should throw UnauthorizedError', () => {
+   //       const t = async () =>
+   //          userRepository.login(UserData.email, 'wrongpassword')
 
-//       expect(t).rejects.toThrow(NotFoundError)
-//    })
-// })
+   //       expect(t).rejects.toThrow(UnauthorizedError)
+   //    })
+})

@@ -1,4 +1,5 @@
-import { statuses } from '..'
+import { Core } from '../Core'
+import * as statuses from '../statuses'
 import { BackendInterface } from '../backends/AbstractAdapter'
 import { Query } from '../backends/Query'
 import { GoneError, NotFoundError } from '../common/ResourcesErrors'
@@ -20,8 +21,12 @@ export default abstract class AbstractRepository<T extends BaseObject>
    protected model: typeof BaseObject
    backendAdapter: BackendInterface
 
-   constructor(model: typeof BaseObject, backendAdapter: BackendInterface) {
+   constructor(
+      model: typeof BaseObject,
+      backendAdapter: BackendInterface = Core.getBackend()
+   ) {
       this.model = model
+
       this.backendAdapter = backendAdapter
    }
 
@@ -53,8 +58,6 @@ export default abstract class AbstractRepository<T extends BaseObject>
    async read(uid: string) {
       try {
          const dataObject = await this.getDataObjectFromUid(uid)
-
-         console.log(dataObject)
 
          const response = await this.backendAdapter.read(dataObject)
 

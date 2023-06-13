@@ -60,6 +60,7 @@ export class BaseObject
 
       // create data object
       const dao = await DataObject.factory({ properties: base })
+
       dao.uri.class = child
 
       if (src instanceof ObjectUri) {
@@ -74,10 +75,12 @@ export class BaseObject
             Reflect.get(src, 'name')
          )
 
+         dao.uri.class = child
+
          // Collection is already defined in URI constructor
          // Shouldn't this line be removed?
          // It causes a crash
-         //dao.uri.collection = this.COLLECTION
+         // dao.uri.collection = this.COLLECTION
 
          await dao.populate(src)
       }

@@ -21,7 +21,13 @@ import { DataObjectClass } from './components/types/DataObjectClass'
 import { DataObject } from './components/DataObject'
 import { BaseObject } from './components/BaseObject'
 import { BaseObjectProperties } from './components/BaseObjectProperties'
+
+import RepositoryClass from './components/types/RepositoryClass'
+import AbstractRepository from './components/AbstractRepository'
+
 import { User } from './components/User'
+import UserRepository from './components/UserRepository'
+
 import { Entity } from './components/Entity'
 
 import {
@@ -65,6 +71,8 @@ export {
    StringProperty,
    StringPropertyType,
    AbstractAdapter,
+   RepositoryClass,
+   AbstractRepository,
    MockAdapter,
    ObjectUri,
    DataObjectClass,
@@ -81,6 +89,7 @@ export {
    Sorting,
    SortAndLimit,
    User,
+   UserRepository,
    Entity,
    BadRequestError,
    UnauthorizedError,

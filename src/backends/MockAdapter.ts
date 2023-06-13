@@ -177,6 +177,9 @@ export class MockAdapter extends AbstractAdapter implements BackendInterface {
                               keep = false
                               return
                            }
+                        } else if (val !== filter.value) {
+                           keep = false
+                           return
                         }
                      } else {
                         if ((prop as any).val() !== filter.value) {
@@ -204,12 +207,6 @@ export class MockAdapter extends AbstractAdapter implements BackendInterface {
                )
          )
       }
-
-      // let i = 0
-      // for (let res of result) {
-      //    console.log(i, res.properties)
-      //    i++
-      // }
 
       return result
    }
