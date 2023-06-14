@@ -5,12 +5,11 @@ import { Core } from '../../Core'
 
 Core.addBackend(new MockAdapter(), '@mock')
 Core.defaultBackend = '@mock'
+Core.classRegistry['User'] = User
 
 describe('Collection Property', () => {
-   let entity: Entity
-
-   beforeAll(async () => {
-      entity = await Entity.factory()
+   test('can retrieve user records matching relation', async () => {
+      const entity = await Entity.factory()
       await entity.save()
 
       const user = await User.factory()
@@ -20,9 +19,7 @@ describe('Collection Property', () => {
 
       // Generate 3 users associated with entity 1
       await DataGenerator(user, 3, { status: 'created', entity })
-   })
 
-   test('can retrieve user records matching relation', () => {
       entity.val('users').then((value: DataObject[]) => {
          expect(value).toBeInstanceOf(Array)
          expect(value.length).toBe(3)

@@ -70,9 +70,8 @@ export class BaseObject extends AbstractObject implements BaseObjectClass {
 
          return Reflect.construct(this, [dao])
       } catch (err) {
-         console.log((err as Error).message)
          throw new Error(
-            `Unable to build instance for '${this.constructor.name}': ${
+            `Unable to build instance for '${this.name}': ${
                (err as Error).message
             }`
          )
