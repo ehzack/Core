@@ -204,6 +204,9 @@ export class DataObject implements DataObjectClass<any> {
          const prop: any = Reflect.get(this._properties, key)
          const value = prop.val()
          switch (prop.constructor.name) {
+            case 'CollectionProperty':
+               // ignore
+               break
             case 'ObjectProperty':
                Reflect.set(data, key, value ? value.toJSON() : null)
                break

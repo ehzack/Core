@@ -16,8 +16,10 @@ export const DataGenerator = async <T extends BaseObject>(
    forcedValues: any = {}
 ): Promise<any> => {
    const promises = []
+   Core.log(`Starting to create ${qty} ${model.constructor.name} records`)
    for (let i = 0; i < qty; i++) {
-      const dao = await model.dataObject.clone(model.dataObject.toJSON())
+      const dao = await model.dataObject.clone() //model.dataObject.toJSON())
+
       Object.keys(dao.properties).forEach((key) => {
          const property = dao.get(key)
 

@@ -26,14 +26,14 @@ export class BaseObject extends AbstractObject implements BaseObjectClass {
       child: any = this
    ): Promise<DataObjectClass<any>> {
       // merge base properties with additional or redefined ones
-      const base = BaseObjectProperties
+      const base = [...BaseObject.PROPS_DEFINITION]
 
       // this.PROPS_DEFINITION &&
-      this.PROPS_DEFINITION.forEach((property: any) => {
+      child.PROPS_DEFINITION.forEach((property: any) => {
          // manage parent properties potential redeclaration
          const found = base.findIndex((el: any) => el.name === property.name)
          if (found !== -1) {
-            base[found] = Object.assign(base[found], property)
+            base[found] = property
          } else {
             base.push(property)
          }

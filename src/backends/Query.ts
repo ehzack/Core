@@ -3,7 +3,6 @@ import { Limits } from './Limits'
 import { Sorting } from './Sorting'
 import { SortAndLimit } from './SortAndLimit'
 import { BackendInterface } from './AbstractAdapter'
-import { BaseObject } from '../components/BaseObject'
 import { Core } from '../Core'
 import { AbstractObject } from '../components'
 

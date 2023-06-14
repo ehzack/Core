@@ -8,6 +8,7 @@ export type BackendRegistry<T extends AbstractAdapter> = { [x: string]: T }
 export class Core {
    static defaultBackend = '@default'
    static currentUser: UserClass
+   static classRegistry: { [key: string]: any } = {}
    static logger = console.log
 
    protected static _backends: BackendRegistry<any> = {}
@@ -62,6 +63,6 @@ export class Core {
       src: string = 'Core',
       level: string = 'NOTICE'
    ): void {
-      Core.logger(`[${src}] ${message}`, level)
+      Core.logger(`${Date.now()} - [${src}] ${message}`)
    }
 }

@@ -118,7 +118,7 @@ export abstract class AbstractAdapter {
     * @returns Array
     */
    async query(query: Query<any>): Promise<DataObjectClass<any>[]> {
-      return this.find(
+      return await this.find(
          await query.obj.daoFactory(),
          query.filters,
          query.sortAndLimit
