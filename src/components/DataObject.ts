@@ -184,10 +184,10 @@ export class DataObject implements DataObjectClass<any> {
       }
    }
 
-   toJSON(): { [x: string]: any } {
+   toJSON(objectsAsReferences = false): { [x: string]: any } {
       return {
          ...(this._uid && { uid: this._uid }),
-         ...this._dataToJSON(),
+         ...this._dataToJSON(objectsAsReferences),
       }
    }
 
@@ -198,21 +198,29 @@ export class DataObject implements DataObjectClass<any> {
       }
    }
 
-   protected _dataToJSON() {
+   protected _dataToJSON(objectsAsReferences = false) {
       const data = {}
       Object.keys(this._properties).forEach((key: string) => {
          const prop: any = Reflect.get(this._properties, key)
-         const value = prop.val()
          switch (prop.constructor.name) {
             case 'CollectionProperty':
                // ignore
                break
             case 'ObjectProperty':
-               Reflect.set(data, key, value ? value.toJSON() : null)
+               const value = prop.val()
+               Reflect.set(
+                  data,
+                  key,
+                  value
+                     ? objectsAsReferences
+                        ? value.toReference()
+                        : value.toJSON()
+                     : null
+               )
                break
 
             default:
-               Reflect.set(data, key, value || null)
+               Reflect.set(data, key, prop.val() || null)
          }
       })
 
@@ -228,7 +236,7 @@ export class DataObject implements DataObjectClass<any> {
       }
    }
 
-   async save(): Promise<DataObjectClass<any>> {
+   save(): Promise<DataObjectClass<any>> {
       const backend = Core.getBackend(this.backend || Core.defaultBackend)
       this._persisted = true
       this._modified = false

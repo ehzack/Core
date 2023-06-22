@@ -34,8 +34,9 @@ export class ObjectProperty extends BaseProperty {
    }
 
    toJSON() {
-      return this._value && this._value.dataObject
+      return this._value &&
+         (this._value.dataObject || this._value instanceof DataObject)
          ? this._value.dataObject.toReference()
-         : undefined
+         : null
    }
 }

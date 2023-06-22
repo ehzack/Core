@@ -22,5 +22,5 @@ export interface DataObjectClass<T extends DataObjectClass<any>> {
    delete(): Promise<T>
    clone(data?: any): Promise<T>
    toReference(): any
-   toJSON(): any
+   toJSON(objectsAsReferences?: boolean): any
 }

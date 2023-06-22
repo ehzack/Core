@@ -15,7 +15,6 @@ export abstract class AbstractObject {
 
    constructor(dao: DataObjectClass<any>) {
       this._dataObject = dao
-      AbstractObject.COLLECTION = this.constructor.name.toLowerCase()
    }
 
    get(key: string) {
@@ -59,8 +58,9 @@ export abstract class AbstractObject {
       return typeof this.uri === 'string' ? this.uri : this.uri?.toJSON()
    }
 
-   async save(): Promise<DataObjectClass<any>> {
-      return await this._dataObject.save()
+   async save(): Promise<this> {
+      await this._dataObject.save()
+      return this
    }
 
    async delete(): Promise<DataObjectClass<any>> {
