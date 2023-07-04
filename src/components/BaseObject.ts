@@ -35,6 +35,29 @@ export class BaseObjectCore extends AbstractObject implements BaseObjectClass {
       })
    }
 
+   static fromObject<T extends BaseObject>(
+      src: Omit<T, 'core' | 'toJSON'>,
+      child?: any
+   ): T {
+      const dao = this.fillProperties()
+
+      dao.uri.class = child
+      dao.uri.collection = this.COLLECTION
+
+      dao.uri = new ObjectUri(
+         `${this.COLLECTION}${ObjectUri.DEFAULT}`,
+         Reflect.get(src, 'name')
+      )
+
+      dao.uri.class = child
+
+      dao.populateFromData(src as any)
+
+      const obj = new this(dao)
+
+      return obj.toProxy() as T
+   }
+
    static async daoFactory(
       src:
          | string
@@ -54,20 +77,6 @@ export class BaseObjectCore extends AbstractObject implements BaseObjectClass {
       } else if (typeof src === 'string') {
          dao.uri.path = src
          await dao.read()
-      } else if (src instanceof Object) {
-         dao.uri = new ObjectUri(
-            `${this.COLLECTION}${ObjectUri.DEFAULT}`,
-            Reflect.get(src, 'name')
-         )
-
-         dao.uri.class = child
-
-         // Collection is already defined in URI constructor
-         // Shouldn't this line be removed?
-         // It causes a crash
-         // dao.uri.collection = this.COLLECTION
-
-         await dao.populate(src)
       }
 
       if (!dao.uri.collection) {
@@ -86,6 +95,10 @@ export class BaseObjectCore extends AbstractObject implements BaseObjectClass {
       child: any = this
    ): Promise<any> {
       try {
+         if (src instanceof Object) {
+            return this.fromObject(src)
+         }
+
          const dao = await this.daoFactory(src, child)
 
          const constructedObject = Reflect.construct(this, [dao])
@@ -98,6 +111,16 @@ export class BaseObjectCore extends AbstractObject implements BaseObjectClass {
             }`
          )
       }
+   }
+
+   static async fromBackend<T>(path: string): Promise<Persisted<T>> {
+      return this.factory(path)
+   }
+
+   static fromDataObject<T extends BaseObject>(dao: DataObjectClass<any>): T {
+      const obj = new this(dao)
+
+      return obj.toProxy()
    }
 
    private toProxy<ProxyType extends BaseObject>() {
@@ -136,39 +159,6 @@ export class BaseObjectCore extends AbstractObject implements BaseObjectClass {
             return true
          },
       })
-   }
-
-   static async fromBackend<T>(path: string): Promise<Persisted<T>> {
-      return this.factory(path)
-   }
-
-   static fromDataObject<T extends BaseObject>(dao: DataObjectClass<any>): T {
-      const obj = new this(dao)
-
-      return obj.toProxy()
-   }
-
-   static fromObject<T extends BaseObject>(
-      src: Omit<T, 'core' | 'toJSON'>,
-      child?: any
-   ): T {
-      const dao = this.fillProperties()
-
-      dao.uri.class = child
-      dao.uri.collection = this.COLLECTION
-
-      dao.uri = new ObjectUri(
-         `${this.COLLECTION}${ObjectUri.DEFAULT}`,
-         Reflect.get(src, 'name')
-      )
-
-      dao.uri.class = child
-
-      dao.populateFromData(src as any)
-
-      const obj = new this(dao)
-
-      return obj.toProxy() as T
    }
 
    asReference() {
