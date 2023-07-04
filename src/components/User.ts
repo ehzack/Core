@@ -1,12 +1,21 @@
-import { BaseObject } from './BaseObject'
+import { BaseObjectCore } from './BaseObject'
 import { DataObjectClass } from './types/DataObjectClass'
-import { UserClass } from './types/UserClass'
 import { DateTimeProperty, EnumProperty, ObjectProperty } from '../properties'
 import { HashProperty } from '../properties/HashProperty'
 import { StringProperty } from '../properties/StringProperty'
-import { Entity } from './Entity'
 import * as htmlType from '../properties/types/PropertyHTMLType'
-import { BaseObjectProperties } from './BaseObjectProperties'
+import { BaseObjectProperties, BaseObject } from './BaseObjectProperties'
+import { Persisted } from './types/Persisted'
+import { EntityCore } from './Entity'
+
+export interface User extends BaseObject {
+   firstname: string
+   lastname: string
+   gender?: 'male' | 'female' | 'nonbinary'
+   birthday?: Date
+   password: string
+   email: string
+}
 
 /**
  * Callback function to populate the 'name' property
@@ -80,14 +89,19 @@ export const UserProperties: any = [
       name: 'entity',
       mandatory: false,
       type: ObjectProperty.TYPE,
-      instanceof: Entity,
+      instanceOf: BaseObjectCore,
    },
 ]
 
-export class User extends BaseObject implements UserClass {
+export class UserCore extends BaseObjectCore {
    static PROPS_DEFINITION = UserProperties
+   static COLLECTION = 'user'
 
-   static async factory(src: any = undefined): Promise<User> {
-      return super.factory(src, User)
+   static async factory(src: any = undefined): Promise<User | Persisted<User>> {
+      return super.factory(src, UserCore)
    }
+
+   // static fromObject(obj: Omit<User, 'core' | 'toJSON'>) {
+   //    return super.fromObject(obj, UserCore)
+   // }
 }

@@ -1,4 +1,4 @@
-import { BaseObject } from '../BaseObject'
+import { BaseObject } from '../BaseObjectProperties'
 
 export default interface Payload<T extends BaseObject> {
    items: T[]

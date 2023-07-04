@@ -1,4 +1,4 @@
-import { AbstractObject, BaseObject } from '../components'
+import { BaseObjectCore } from '../components'
 import { DataObjectClass } from '../components/types/DataObjectClass'
 import { Filter } from './Filter'
 import { Filters } from './Filters'
@@ -89,7 +89,7 @@ export abstract class AbstractAdapter {
    }
 
    getCollection(dao: DataObjectClass<any>) {
-      return dao.uri.class.COLLECTION || dao.uri.class.name.toLowerCase()
+      return dao.uri.collection //|| dao.uri.class.name.toLowerCase() //class.COLLECTION
    }
 
    abstract create(
@@ -119,7 +119,7 @@ export abstract class AbstractAdapter {
     * @returns Array
     */
    async query(
-      query: Query<typeof BaseObject>
+      query: Query<typeof BaseObjectCore>
    ): Promise<DataObjectClass<any>[]> {
       return this.find(
          await query.obj.daoFactory(),

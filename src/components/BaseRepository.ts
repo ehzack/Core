@@ -3,11 +3,13 @@ import * as statuses from '../statuses'
 import { BackendInterface } from '../backends/AbstractAdapter'
 import { Query } from '../backends/Query'
 import { GoneError, NotFoundError } from '../common/ResourcesErrors'
-import { BaseObject } from './BaseObject'
+import { BaseObjectCore } from './BaseObject'
 import { DataObject } from './DataObject'
 import { DataObjectClass } from './types/DataObjectClass'
 import Payload, { Meta } from './types/Payload'
 import RepositoryClass from './types/RepositoryClass'
+import { BaseObject } from './BaseObjectProperties'
+import { Persisted } from './types/Persisted'
 
 const RESOURCE_GONE_ERROR = `The resource you are trying to access has been deleted.`
 
@@ -15,14 +17,14 @@ const RESOURCE_GONE_ERROR = `The resource you are trying to access has been dele
  * CRUD methods for models/entities inheriting from BaseObject
  * Extend this by passing the typeof of the desired class to the constructor
  */
-export default abstract class AbstractRepository<T extends BaseObject>
+export default class BaseRepository<T extends BaseObject>
    implements RepositoryClass<T>
 {
-   protected model: typeof BaseObject
+   protected model: typeof BaseObjectCore
    backendAdapter: BackendInterface
 
    constructor(
-      model: typeof BaseObject,
+      model: typeof BaseObjectCore,
       backendAdapter: BackendInterface = Core.getBackend()
    ) {
       this.model = model
@@ -48,11 +50,11 @@ export default abstract class AbstractRepository<T extends BaseObject>
    }
 
    async create(obj: T, uid?: string): Promise<T> {
-      const dataObject = obj.dataObject
+      const dataObject = obj.core.dataObject
 
       const savedObj = await this.backendAdapter.create(dataObject, uid)
 
-      return this.model.instantiateFromDataObject(savedObj) as T
+      return this.model.fromDataObject(savedObj) as T
    }
 
    async read(uid: string) {
@@ -61,7 +63,7 @@ export default abstract class AbstractRepository<T extends BaseObject>
 
          const response = await this.backendAdapter.read(dataObject)
 
-         const obj = this.model.instantiateFromDataObject(response) as T
+         const obj = this.model.fromDataObject(response) as T
 
          if (obj.status === statuses.DELETED) {
             throw new GoneError(RESOURCE_GONE_ERROR)
@@ -82,36 +84,23 @@ export default abstract class AbstractRepository<T extends BaseObject>
    }
 
    async update(obj: T): Promise<T> {
-      const dataObject = obj.dataObject
+      const dataObject = obj.core.dataObject
 
       const savedObj = await this.backendAdapter.update(dataObject)
 
-      return this.model.instantiateFromDataObject(savedObj) as T
+      return this.model.fromDataObject(savedObj) as T
    }
 
-   async softDelete(uid: string): Promise<T> {
-      const obj = await this.read(uid)
-
-      obj.status = statuses.DELETED
-      //obj.deletedAt = new Date().getTime()
-
-      const deletedObj = await this.update(obj)
-
-      return deletedObj
-   }
-
-   async hardDelete(uid: string) {
+   async delete(uid: string) {
       const dataObject = await this.getDataObjectFromUid(uid)
 
       await this.backendAdapter.delete(dataObject)
    }
 
-   async query(query: Query<typeof BaseObject>): Promise<Payload<T>> {
-      const rawItems = await this.backendAdapter.query(query)
-
-      const items = rawItems.map((item) => {
-         return this.model.instantiateFromDataObject(item) as T
-      })
+   async query(query: Query<typeof BaseObjectCore>): Promise<Payload<T>> {
+      const items = (await query.fetchAsInstances(
+         this.backendAdapter
+      )) as unknown as Persisted<T>[]
 
       const meta: Meta = {
          count: items.length,

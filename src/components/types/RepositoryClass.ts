@@ -1,6 +1,7 @@
 import { BackendInterface } from '../../backends/AbstractAdapter'
 import { Query } from '../../backends/Query'
-import { BaseObject } from '../BaseObject'
+import { BaseObjectCore } from '../BaseObject'
+import { BaseObject } from '../BaseObjectProperties'
 import Payload from './Payload'
 
 export default interface RepositoryClass<T extends BaseObject> {
@@ -28,22 +29,16 @@ export default interface RepositoryClass<T extends BaseObject> {
    update(obj: T): Promise<T>
 
    /**
-    * Changes the status of the object to DELETED
+    * Deletes a given object of the collection
     * @param uid
     * @returns
     */
-   softDelete(uid: string): Promise<T>
-
-   /**
-    * Deletes a given object of the collection
-    * @param obj
-    */
-   hardDelete(uid: string): void
+   delete(uid: string): Promise<void>
 
    /**
     * Executes a given query on the collection
     * @param query
     * @returns
     */
-   query(query: Query<typeof BaseObject>): Promise<Payload<T>>
+   query(query: Query<typeof BaseObjectCore>): Promise<Payload<T>>
 }

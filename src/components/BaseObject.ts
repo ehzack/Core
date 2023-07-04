@@ -2,52 +2,24 @@ import { ObjectUri } from './ObjectUri'
 import { DataObjectClass } from './types/DataObjectClass'
 import { BaseObjectClass } from './types/BaseObjectClass'
 import { AbstractObject } from './AbstractObject'
-import { BaseObjectProperties, BaseObjectType } from './BaseObjectProperties'
+import { BaseObjectProperties, BaseObject } from './BaseObjectProperties'
 import { Query } from '../backends/Query'
 import { DataObject } from './DataObject'
+import { Persisted } from './types/Persisted'
+import { ProxyConstructor } from './types/ProxyConstructor'
 
-export class BaseObject
-   extends AbstractObject
-   implements BaseObjectClass, BaseObjectType
-{
+export class BaseObjectCore extends AbstractObject implements BaseObjectClass {
    static PROPS_DEFINITION: any = BaseObjectProperties
 
    static getProperty(key: string) {
-      return BaseObject.PROPS_DEFINITION.find((prop: any) => prop.name === key)
+      return BaseObjectCore.PROPS_DEFINITION.find(
+         (prop: any) => prop.name === key
+      )
    }
 
-   get name(): string {
-      return this._dataObject.val('name')
-   }
-
-   set name(name: string) {
-      this._dataObject.set('name', name)
-   }
-
-   get status(): string {
-      return this._dataObject.val('status')
-   }
-
-   set status(status: string) {
-      this._dataObject.set('status', status)
-   }
-
-   set deletedAt(timestamp: number) {
-      this._dataObject.set('deletedAt', timestamp)
-   }
-
-   get deletedAt(): number {
-      return this._dataObject.val('deletedAt')
-   }
-
-   static async daoFactory(
-      src: string | ObjectUri | DataObjectClass<any> | undefined = undefined,
-      child: any = this
-   ): Promise<DataObjectClass<any>> {
-      // merge base properties with additional or redefined ones
+   private static fillProperties() {
       const base = BaseObjectProperties
 
-      // this.PROPS_DEFINITION &&
       this.PROPS_DEFINITION.forEach((property: any) => {
          // manage parent properties potential redeclaration
          const found = base.findIndex((el: any) => el.name === property.name)
@@ -58,8 +30,21 @@ export class BaseObject
          }
       })
 
-      // create data object
-      const dao = await DataObject.factory({ properties: base })
+      return DataObject.factory({
+         properties: base,
+      })
+   }
+
+   static async daoFactory(
+      src:
+         | string
+         | ObjectUri
+         | { name: string; [x: string]: unknown }
+         | undefined = undefined,
+      child: any = this
+   ): Promise<DataObjectClass<any>> {
+      // merge base properties with additional or redefined ones
+      const dao = this.fillProperties()
 
       dao.uri.class = child
 
@@ -85,19 +70,28 @@ export class BaseObject
          await dao.populate(src)
       }
 
+      if (!dao.uri.collection) {
+         dao.uri.collection = this.COLLECTION
+      }
+
       return dao
    }
 
-   static async factory<T extends BaseObject>(
-      src: string | ObjectUri | DataObjectClass<any> | undefined = undefined,
+   static async factory(
+      src:
+         | string
+         | ObjectUri
+         | { name: string; [x: string]: unknown }
+         | undefined = undefined,
       child: any = this
-   ): Promise<T | BaseObject> {
+   ): Promise<any> {
       try {
          const dao = await this.daoFactory(src, child)
 
-         return Reflect.construct(this, [dao])
+         const constructedObject = Reflect.construct(this, [dao])
+
+         return constructedObject.toProxy()
       } catch (err) {
-         console.log((err as Error).message)
          throw new Error(
             `Unable to build instance for '${this.constructor.name}': ${
                (err as Error).message
@@ -106,10 +100,75 @@ export class BaseObject
       }
    }
 
-   static instantiateFromDataObject(dao: DataObjectClass<any>) {
+   private toProxy<ProxyType extends BaseObject>() {
+      return new ProxyConstructor<this, ProxyType>(this, {
+         get: (cible, prop) => {
+            if (prop === 'uid') {
+               return cible.uid
+            }
+
+            if (prop === 'uri') {
+               return cible.uri
+            }
+
+            if (prop == 'toJSON') {
+               return cible.toJSON
+            }
+
+            if (prop === 'core') {
+               return cible
+            }
+
+            // i don't know why and i shouldn't have to wonder why
+            // but everything crashes unless we do this terribleness
+            if (prop == 'then') {
+               return
+            }
+
+            return cible.val(prop as string)
+         },
+         set(cible, prop, newValue, _receiver) {
+            if (prop === 'uid' || prop === 'core') {
+               throw new Error(`Property '${prop}' is readonly`)
+            }
+
+            cible.set(prop as string, newValue)
+            return true
+         },
+      })
+   }
+
+   static async fromBackend<T>(path: string): Promise<Persisted<T>> {
+      return this.factory(path)
+   }
+
+   static fromDataObject<T extends BaseObject>(dao: DataObjectClass<any>): T {
       const obj = new this(dao)
 
-      return obj
+      return obj.toProxy()
+   }
+
+   static fromObject<T extends BaseObject>(
+      src: Omit<T, 'core' | 'toJSON'>,
+      child?: any
+   ): T {
+      const dao = this.fillProperties()
+
+      dao.uri.class = child
+      dao.uri.collection = this.COLLECTION
+
+      dao.uri = new ObjectUri(
+         `${this.COLLECTION}${ObjectUri.DEFAULT}`,
+         Reflect.get(src, 'name')
+      )
+
+      dao.uri.class = child
+
+      dao.populateFromData(src as any)
+
+      const obj = new this(dao)
+
+      return obj.toProxy() as T
    }
 
    asReference() {
@@ -118,5 +177,9 @@ export class BaseObject
 
    query() {
       return new Query(this.constructor.prototype)
+   }
+
+   static query() {
+      return new Query(this)
    }
 }

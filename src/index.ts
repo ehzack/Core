@@ -19,11 +19,14 @@ import { AbstractObject } from './components/AbstractObject'
 import { ObjectUri } from './components/ObjectUri'
 import { DataObjectClass } from './components/types/DataObjectClass'
 import { DataObject } from './components/DataObject'
-import { BaseObject } from './components/BaseObject'
-import { BaseObjectProperties } from './components/BaseObjectProperties'
+import { BaseObjectCore } from './components/BaseObject'
+import {
+   BaseObject,
+   BaseObjectProperties,
+} from './components/BaseObjectProperties'
 
 import RepositoryClass from './components/types/RepositoryClass'
-import AbstractRepository from './components/AbstractRepository'
+import AbstractRepository from './components/BaseRepository'
 
 import { User } from './components/User'
 import UserRepository from './components/UserRepository'
@@ -79,6 +82,7 @@ export {
    DataObject,
    AbstractObject,
    BaseObject,
+   BaseObjectCore,
    BaseObjectProperties,
    BackendParameters,
    BackendError,

@@ -1,13 +1,13 @@
 import { DataObjectClass } from '../../components'
-import { UserClass } from '../../components/types/UserClass'
 import * as actions from '../../Backend'
+import { User } from '../../components/User'
 
 export interface InjectMetaMiddlewareParams {
-   user: UserClass
+   user: User
 }
 
 export class InjectMetaMiddleware {
-   protected _user: UserClass
+   protected _user: User
 
    constructor(params: InjectMetaMiddlewareParams) {
       this._user = params.user

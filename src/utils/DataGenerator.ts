@@ -1,5 +1,4 @@
-import { Core } from '../Core'
-import { BaseObject } from '../components'
+import { BaseObject } from '../components/BaseObjectProperties'
 import * as htmlType from '../properties/types/PropertyHTMLType'
 import { faker } from '@faker-js/faker'
 
@@ -17,7 +16,9 @@ export const DataGenerator = async <T extends BaseObject>(
 ): Promise<any> => {
    const promises = []
    for (let i = 0; i < qty; i++) {
-      const dao = await model.dataObject.clone(model.dataObject.toJSON())
+      const dao = await model.core.dataObject.clone(
+         model.core.dataObject.toJSON()
+      )
       Object.keys(dao.properties).forEach((key) => {
          const property = dao.get(key)
 

@@ -1,25 +1,24 @@
 import * as statuses from '../statuses'
-import { UserClass } from './types/UserClass'
 import { ObjectUri } from './ObjectUri'
 import { StringProperty } from '../properties/StringProperty'
 import { ObjectProperty } from '../properties/ObjectProperty'
 import { EnumProperty } from '../properties/EnumProperty'
 import { DateTimeProperty } from '../properties/DateTimeProperty'
 import * as htmlType from '../properties/types/PropertyHTMLType'
+import { User } from './User'
+import { BaseObjectCore } from './BaseObject'
 
-export interface BaseObjectType {
+export interface BaseObject {
    name: string
    status: string
-   // | typeof statuses.CREATED
-   // | typeof statuses.PENDING
-   // | typeof statuses.ACTIVE
-   // | typeof statuses.DELETED
-   createdBy?: UserClass | ObjectUri
+   createdBy?: User | ObjectUri
    createdAt?: number
-   updatedBy?: UserClass | ObjectUri
+   updatedBy?: User | ObjectUri
    updatedAt?: number
-   deletedBy?: UserClass | ObjectUri
+   deletedBy?: User | ObjectUri
    deletedAt?: number
+   readonly toJSON: () => object
+   readonly core: BaseObjectCore
 }
 
 export const BaseObjectProperties: any = [

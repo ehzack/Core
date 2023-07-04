@@ -4,7 +4,7 @@ import { EnumProperty } from '../../../properties/EnumProperty'
 import { ObjectProperty } from '../../../properties/ObjectProperty'
 import { StringProperty } from '../../../properties/StringProperty'
 import { DataObjectProperties } from '../../../properties'
-import { BaseObject } from '../../BaseObject'
+import { BaseObjectCore } from '../../BaseObject'
 import { ObjectUri } from '../../ObjectUri'
 
 export const fClassProperties: DataObjectProperties = [
@@ -13,7 +13,7 @@ export const fClassProperties: DataObjectProperties = [
       type: StringProperty.TYPE,
    },
 ]
-export class fClass extends BaseObject {
+export class fClass extends BaseObjectCore {
    static PROPS_DEFINITION: DataObjectProperties = [
       {
          name: 'a',
@@ -74,6 +74,6 @@ export const UserData = {
    lastname: 'Doe',
    email: 'john@doe.com',
    password: 'f2d81a260dea8a100dd517984e53c56a7523d96942a834b9cdc249bd4e8c7aa9',
-   createdBy: { label: 'John Doe', ref: UserUri, backend: '@mock' },
+   createdBy: new ObjectUri(UserUri, 'John Doe'),
    createdAt: 1,
 }

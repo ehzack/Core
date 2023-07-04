@@ -1,15 +1,11 @@
-import { describe, test, expect, beforeAll } from '@jest/globals'
+import { describe, test, expect } from '@jest/globals'
 import UserRepository from '../UserRepository'
 import { MockAdapter, Query } from '../../backends'
 import { UserData, UserUri } from './fixtures/dao'
 import { Core } from '../../Core'
-import {
-   GoneError,
-   NotFoundError,
-   UnauthorizedError,
-} from '../../common/ResourcesErrors'
-import { User } from '../User'
-import { statuses } from '../..'
+import { GoneError, NotFoundError } from '../../common/ResourcesErrors'
+import { User, UserCore } from '../User'
+import * as statuses from '../../statuses'
 
 MockAdapter.inject(UserData)
 MockAdapter.inject({
@@ -34,33 +30,27 @@ describe('repository instantiation tests', () => {
 
 describe('CRUD methods tests', () => {
    test('create method should save in collection', async () => {
-      User.factory(UserData).then((fUser) => {
-         userRepository
-            .create(fUser, UserData.uid)
-            .then((createdBradObject) => {
-               expect(createdBradObject).toEqual(fUser)
+      const fUser: User = UserCore.fromObject(UserData)
 
-               if (!createdBradObject.uid) {
-                  throw new Error()
-               }
+      userRepository.create(fUser, UserData.uid).then((createdBradObject) => {
+         if (!createdBradObject.core.uid) {
+            throw new Error()
+         }
 
-               backendAdapter
-                  .read(createdBradObject.dataObject)
-                  .then((readBradObject) => {
-                     expect(readBradObject).toEqual(
-                        createdBradObject.dataObject
-                     )
+         backendAdapter
+            .read(createdBradObject.core.dataObject)
+            .then((readBradObject) => {
+               expect(readBradObject).toEqual(createdBradObject.core.dataObject)
 
-                     expect(readBradObject.val('name')).toEqual(fUser.name)
-                  })
+               expect(readBradObject.val('name')).toEqual(fUser.name)
             })
       })
    })
 
-   test('readFromUid method should return a User', async () => {
+   test('read method should return a User', async () => {
       userRepository.read(UserData.uid).then((readBradObject) => {
-         expect(readBradObject).toBeInstanceOf(User)
-         expect(readBradObject.name).toBe(UserData.name)
+         //expect(readBradObject).toBeInstanceOf(User)
+         expect(readBradObject.core.val('name')).toEqual(UserData.name)
       })
    })
 
@@ -69,7 +59,7 @@ describe('CRUD methods tests', () => {
          await userRepository.read('hello')
       }
 
-      expect(t()).rejects.toThrow(NotFoundError)
+      expect(t).rejects.toThrow(NotFoundError)
    })
 
    test('readFromUid should throw GoneError', async () => {
@@ -92,19 +82,21 @@ describe('CRUD methods tests', () => {
       })
    })
 
-   test('hardDelete should remove the object from the backend', async () => {
+   test('delete should remove the object from the backend', async () => {
       userRepository
-         .hardDelete('deleted')
+         .delete('deleted')
          .then(() =>
             expect(MockAdapter.getFixture('user/deleted')).toEqual(undefined)
          )
    })
 
    test('query should work as expected', async () => {
-      const query: Query<typeof User> = User.query() as Query<typeof User>
+      const query: Query<typeof UserCore> = UserCore.query() as Query<
+         typeof UserCore
+      >
 
       userRepository.query(query).then(({ items, meta }) => {
-         const numberOfObjects = 2
+         const numberOfObjects = 1
 
          expect(meta.count).toEqual(numberOfObjects)
       })
@@ -113,8 +105,9 @@ describe('CRUD methods tests', () => {
 
 describe('UserRepository specific methods', () => {
    test('getUserByEmail should return a user', async () => {
-      userRepository.getFromEmail(UserData.email).then((user) => {
-         expect(user.val('email')).toBe(UserData.email)
+      //expect.assertions(1)
+      userRepository.getFromEmail(UserData.email).then((user: User) => {
+         expect(user.email).toBe(UserData.email)
       })
    })
 

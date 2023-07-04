@@ -52,7 +52,11 @@ export class Property {
             return new DateTimeProperty(params)
 
          case CollectionProperty.TYPE:
-            return new CollectionProperty(params)
+            if (!('instanceOf' in params)) {
+               throw new Error('Missing property instanceOf!')
+            }
+
+            return new CollectionProperty(params as any)
 
          case ArrayProperty.TYPE:
             return new ArrayProperty(params)

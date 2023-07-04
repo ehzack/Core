@@ -2,10 +2,9 @@ import { DataObject, DataObjectParams } from './DataObject'
 import { DataObjectClass } from './types/DataObjectClass'
 import { ObjectUri } from './ObjectUri'
 import { AbstractObject } from './AbstractObject'
-import { BaseObject } from './BaseObject'
+import { BaseObjectCore } from './BaseObject'
 import { BaseObjectProperties } from './BaseObjectProperties'
-import { UserProperties } from './UserProperties'
-import { User } from './User'
+import { UserCore, UserProperties } from './User'
 import { Entity } from './Entity'
 
 export {
@@ -14,8 +13,8 @@ export {
    DataObjectClass,
    ObjectUri,
    AbstractObject,
-   BaseObject,
-   User,
+   BaseObjectCore,
+   UserCore,
    Entity,
    BaseObjectProperties,
    UserProperties,

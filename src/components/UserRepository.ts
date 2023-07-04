@@ -1,18 +1,17 @@
-import { Core } from '../Core'
 import { BackendInterface, Query } from '../backends'
 import { NotFoundError, UnauthorizedError } from '../common/ResourcesErrors'
-import AbstractRepository from './AbstractRepository'
-import { User } from './User'
+import BaseRepository from './BaseRepository'
+import { User, UserCore } from './User'
 
 const UNAUTHORIZED_ERROR = `Wrong password or email`
 
-export default class UserRepository extends AbstractRepository<User> {
+export default class UserRepository extends BaseRepository<User> {
    constructor(backendAdapter?: BackendInterface) {
-      super(User, backendAdapter)
+      super(UserCore, backendAdapter)
    }
 
    async getFromEmail(email: string) {
-      const query = new Query<typeof User>(User)
+      const query = new Query<typeof UserCore>(UserCore)
 
       query.where('email', email).batch(1)
 
