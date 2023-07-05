@@ -3,6 +3,7 @@ import { Query } from '../../backends/Query'
 import { BaseObjectCore } from '../BaseObject'
 import { BaseObject } from '../BaseObjectProperties'
 import Payload from './Payload'
+import { Persisted } from './Persisted'
 
 export default interface RepositoryClass<T extends BaseObject> {
    backendAdapter: BackendInterface
@@ -12,21 +13,21 @@ export default interface RepositoryClass<T extends BaseObject> {
     * @param obj
     * @returns
     */
-   create(obj: T): Promise<T>
+   create(obj: T): Promise<Persisted<T>>
 
    /**
     * Returns an object of the collection from its uid
     * @param uid
     * @returns
     */
-   read(uid: string): Promise<T>
+   read(uid: string): Promise<Persisted<T>>
 
    /**
     * Updates a given object in the collction and returns it
     * @param obj
     * @returns
     */
-   update(obj: T): Promise<T>
+   update(obj: T): Promise<Persisted<T>>
 
    /**
     * Deletes a given object of the collection
@@ -40,5 +41,5 @@ export default interface RepositoryClass<T extends BaseObject> {
     * @param query
     * @returns
     */
-   query(query: Query<typeof BaseObjectCore>): Promise<Payload<T>>
+   query(query: Query<typeof BaseObjectCore>): Promise<Payload<Persisted<T>>>
 }

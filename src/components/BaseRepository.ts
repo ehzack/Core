@@ -49,12 +49,12 @@ export default class BaseRepository<T extends BaseObject>
       return dataObject
    }
 
-   async create(obj: T, uid?: string): Promise<T> {
+   async create(obj: T, uid?: string) {
       const dataObject = obj.core.dataObject
 
       const savedObj = await this.backendAdapter.create(dataObject, uid)
 
-      return this.model.fromDataObject(savedObj) as T
+      return this.model.fromDataObject(savedObj) as Persisted<T>
    }
 
    async read(uid: string) {
@@ -63,7 +63,7 @@ export default class BaseRepository<T extends BaseObject>
 
          const response = await this.backendAdapter.read(dataObject)
 
-         const obj = this.model.fromDataObject(response) as T
+         const obj = this.model.fromDataObject(response) as Persisted<T>
 
          if (obj.status === statuses.DELETED) {
             throw new GoneError(RESOURCE_GONE_ERROR)
@@ -83,12 +83,12 @@ export default class BaseRepository<T extends BaseObject>
       }
    }
 
-   async update(obj: T): Promise<T> {
+   async update(obj: T) {
       const dataObject = obj.core.dataObject
 
       const savedObj = await this.backendAdapter.update(dataObject)
 
-      return this.model.fromDataObject(savedObj) as T
+      return this.model.fromDataObject(savedObj) as Persisted<T>
    }
 
    async delete(uid: string) {
@@ -97,7 +97,9 @@ export default class BaseRepository<T extends BaseObject>
       await this.backendAdapter.delete(dataObject)
    }
 
-   async query(query: Query<typeof BaseObjectCore>): Promise<Payload<T>> {
+   async query(
+      query: Query<typeof BaseObjectCore>
+   ): Promise<Payload<Persisted<T>>> {
       const items = (await query.fetchAsInstances(
          this.backendAdapter
       )) as unknown as Persisted<T>[]
@@ -107,7 +109,7 @@ export default class BaseRepository<T extends BaseObject>
          updatedAt: new Date().getTime(),
       }
 
-      const payload: Payload<T> = { items, meta }
+      const payload: Payload<Persisted<T>> = { items, meta }
 
       return payload
    }
