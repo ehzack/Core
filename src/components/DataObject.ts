@@ -94,7 +94,7 @@ export class DataObject implements DataObjectClass<any> {
     * Populate data object from instant data or backend query
     * @param data
     */
-   populateFromData(data: { [x: string]: unknown }): DataObject {
+   populateFromData(data: { [x: string]: unknown }): this {
       if (this._populated === false) {
          for (const key in data) {
             if (Reflect.get(this._properties, key)) {
@@ -223,10 +223,10 @@ export class DataObject implements DataObjectClass<any> {
       }
    }
 
-   toJSON(): { [x: string]: any } {
+   toJSON(objectsAsReferences = false): { [x: string]: any } {
       return {
          ...(this._uid && { uid: this._uid }),
-         ...this._dataToJSON(),
+         ...this._dataToJSON(objectsAsReferences),
       }
    }
 
@@ -237,20 +237,29 @@ export class DataObject implements DataObjectClass<any> {
       }
    }
 
-   protected _dataToJSON() {
+   protected _dataToJSON(objectsAsReferences = false) {
       const data = {}
       Object.keys(this._properties).forEach((key: string) => {
-         const prop = Reflect.get(this._properties, key)
-
-         const value = prop.val()
-
+         const prop: any = Reflect.get(this._properties, key)
          switch (prop.constructor.name) {
+            case 'CollectionProperty':
+               // ignore
+               break
             case 'ObjectProperty':
-               Reflect.set(data, key, typeof value ? prop.toJSON() : null)
+               const value = prop.val()
+               Reflect.set(
+                  data,
+                  key,
+                  value
+                     ? objectsAsReferences
+                        ? value.toReference()
+                        : value.toJSON()
+                     : null
+               )
                break
 
             default:
-               Reflect.set(data, key, value || null)
+               Reflect.set(data, key, prop.val() || null)
          }
       })
 
@@ -266,7 +275,7 @@ export class DataObject implements DataObjectClass<any> {
       }
    }
 
-   async save(): Promise<DataObjectClass<any>> {
+   save(): Promise<DataObjectClass<any>> {
       const backend = Core.getBackend(this.backend || Core.defaultBackend)
       this._persisted = true
       this._modified = false

@@ -118,10 +118,8 @@ export abstract class AbstractAdapter {
     * @param query
     * @returns Array
     */
-   async query(
-      query: Query<typeof BaseObjectCore>
-   ): Promise<DataObjectClass<any>[]> {
-      return this.find(
+   async query(query: Query<any>): Promise<DataObjectClass<any>[]> {
+      return await this.find(
          await query.obj.daoFactory(),
          query.filters,
          query.sortAndLimit

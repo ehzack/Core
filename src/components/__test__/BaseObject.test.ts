@@ -26,14 +26,12 @@ describe('Base object', () => {
 
 describe('User object', () => {
    test('can be loaded from backend', () => {
-      UserCore.factory(UserUri)
-         .then((user: User) => {
-            expect(user.name).toEqual('John Doe')
-            expect(user.status).toEqual(statuses.ACTIVE)
-            //expect(user.createdBy).toEqual(user.toJSON())
-            expect(user.createdAt).toEqual(1)
-         })
-         .catch((e) => console.log(e))
+      UserCore.factory(UserUri).then((user: User) => {
+         expect(user.name).toEqual('John Doe')
+         expect(user.status).toEqual(statuses.ACTIVE)
+         //expect(user.createdBy).toEqual(user.toJSON())
+         expect(user.createdAt).toEqual(1)
+      })
    })
 
    test('can be persisted in backend', () => {

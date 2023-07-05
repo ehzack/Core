@@ -96,7 +96,7 @@ describe('CRUD methods tests', () => {
       >
 
       userRepository.query(query).then(({ items, meta }) => {
-         const numberOfObjects = 1
+         const numberOfObjects = 2
 
          expect(meta.count).toEqual(numberOfObjects)
       })

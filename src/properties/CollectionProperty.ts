@@ -28,7 +28,13 @@ export class CollectionProperty extends BaseProperty {
 
    constructor(config: CollectionPropertyType) {
       super(config)
-      this._instanceOf = config.instanceOf
+      if (!config.instanceOf) {
+         throw new Error('Parameter instanceOf is mandatory')
+      }
+      this._instanceOf =
+         typeof config.instanceOf === 'string'
+            ? Core.classRegistry[config.instanceOf]
+            : config.instanceOf
       this._backend = config.backend
          ? Core.getBackend(config.backend)
          : undefined
