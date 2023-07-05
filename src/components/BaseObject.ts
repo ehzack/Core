@@ -51,14 +51,6 @@ export class BaseObjectCore extends AbstractObject implements BaseObjectClass {
          dao.uri.path = src
          await dao.read()
       }
-      // else if (src instanceof Object) {
-      //    dao.uri = new ObjectUri(
-      //        `${this.COLLECTION}${ObjectUri.DEFAULT}`,
-      //        Reflect.get(src, 'name')
-      //     )
-      //     dao.uri.collection = this.COLLECTION
-      //     await dao.populate(src)
-      //  }
 
       return dao
    }
@@ -68,8 +60,6 @@ export class BaseObjectCore extends AbstractObject implements BaseObjectClass {
       child: any = this
    ): T {
       const dao = this.fillProperties(child)
-      //dao.uri.class = child
-      //dao.uri.collection = this.COLLECTION
 
       dao.uri = new ObjectUri(
          `${this.COLLECTION}${ObjectUri.DEFAULT}`,
