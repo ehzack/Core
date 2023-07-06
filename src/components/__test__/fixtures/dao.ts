@@ -4,7 +4,7 @@ import { EnumProperty } from '../../../properties/EnumProperty'
 import { ObjectProperty } from '../../../properties/ObjectProperty'
 import { StringProperty } from '../../../properties/StringProperty'
 import { DataObjectProperties } from '../../../properties'
-import { BaseObjectCore } from '../../BaseObject'
+import { BaseObjectCore } from '../../BaseObjectCore'
 import { ObjectUri } from '../../ObjectUri'
 
 export const fClassProperties: DataObjectProperties = [

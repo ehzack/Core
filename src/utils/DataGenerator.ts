@@ -1,5 +1,5 @@
 import { Core } from '../Core'
-import { BaseObject } from '../components/BaseObjectProperties'
+import { BaseObject } from '../components/BaseObject'
 import * as htmlType from '../properties/types/PropertyHTMLType'
 import { faker } from '@faker-js/faker'
 import { Proxy } from '../components/types/ProxyConstructor'

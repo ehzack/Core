@@ -1,10 +1,10 @@
-import { BaseObjectCore } from './BaseObject'
+import { BaseObjectCore } from './BaseObjectCore'
 import { DataObjectClass } from './types/DataObjectClass'
 import { DateTimeProperty, EnumProperty, ObjectProperty } from '../properties'
 import { HashProperty } from '../properties/HashProperty'
 import { StringProperty } from '../properties/StringProperty'
 import * as htmlType from '../properties/types/PropertyHTMLType'
-import { BaseObjectProperties, BaseObject } from './BaseObjectProperties'
+import { BaseObjectProperties, BaseObject } from './BaseObject'
 import { Persisted } from './types/Persisted'
 import { Proxy } from './types/ProxyConstructor'
 
@@ -102,8 +102,4 @@ export class UserCore extends BaseObjectCore {
    ): Promise<Proxy<User> | Persisted<User>> {
       return super.factory(src, UserCore)
    }
-
-   // static fromObject(obj: Omit<User, 'core' | 'toJSON'>) {
-   //    return super.fromObject(obj, UserCore)
-   // }
 }

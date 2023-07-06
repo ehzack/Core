@@ -65,8 +65,4 @@ export abstract class AbstractObject {
    async delete(): Promise<DataObjectClass<any>> {
       return await this._dataObject.delete()
    }
-
-   // static query() {
-   //    return new Query(this)
-   // }
 }

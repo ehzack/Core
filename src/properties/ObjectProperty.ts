@@ -1,4 +1,4 @@
-import { BaseObject } from '../components/BaseObjectProperties'
+import { BaseObject } from '../components/BaseObject'
 import { DataObject } from '../components/DataObject'
 import { ObjectUri } from '../components/ObjectUri'
 import { BaseProperty, BasePropertyType } from './BaseProperty'

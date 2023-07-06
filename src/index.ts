@@ -19,11 +19,8 @@ import { AbstractObject } from './components/AbstractObject'
 import { ObjectUri } from './components/ObjectUri'
 import { DataObjectClass } from './components/types/DataObjectClass'
 import { DataObject } from './components/DataObject'
-import { BaseObjectCore } from './components/BaseObject'
-import {
-   BaseObject,
-   BaseObjectProperties,
-} from './components/BaseObjectProperties'
+import { BaseObjectCore } from './components/BaseObjectCore'
+import { BaseObject, BaseObjectProperties } from './components/BaseObject'
 import { Proxy } from './components/types/ProxyConstructor'
 
 import RepositoryClass from './components/types/RepositoryClass'
@@ -33,6 +30,7 @@ import { User } from './components/User'
 import UserRepository from './components/UserRepository'
 
 import { Entity } from './components/Entity'
+import EntityRepository from './components/EntityRepository'
 
 import {
    AbstractAdapter,
@@ -97,6 +95,7 @@ export {
    Proxy,
    UserRepository,
    Entity,
+   EntityRepository,
    BadRequestError,
    UnauthorizedError,
    ForbiddenError,

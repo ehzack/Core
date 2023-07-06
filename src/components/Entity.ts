@@ -1,5 +1,5 @@
-import { BaseObjectCore } from './BaseObject'
-import { BaseObject } from './BaseObjectProperties'
+import { BaseObjectCore } from './BaseObjectCore'
+import { BaseObject } from './BaseObject'
 import { User, UserCore } from './User'
 import { EntityClass } from './types/EntityClass'
 import { CollectionProperty } from '../properties/CollectionProperty'

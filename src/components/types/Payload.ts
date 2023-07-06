@@ -1,4 +1,4 @@
-import { BaseObject } from '../BaseObjectProperties'
+import { BaseObject } from '../BaseObject'
 import { Persisted } from './Persisted'
 
 export default interface Payload<T extends BaseObject> {

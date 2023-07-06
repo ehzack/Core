@@ -1,4 +1,4 @@
-import { BaseObjectCore } from '../BaseObject'
+import { BaseObjectCore } from '../BaseObjectCore'
 import { Core, statuses } from '../..'
 import { MockAdapter } from '../../backends'
 import { BaseObjectData, UserData, UserUri } from './fixtures/dao'
