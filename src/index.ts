@@ -24,6 +24,7 @@ import {
    BaseObject,
    BaseObjectProperties,
 } from './components/BaseObjectProperties'
+import { Proxy } from './components/types/ProxyConstructor'
 
 import RepositoryClass from './components/types/RepositoryClass'
 import AbstractRepository from './components/BaseRepository'
@@ -93,6 +94,7 @@ export {
    Sorting,
    SortAndLimit,
    User,
+   Proxy,
    UserRepository,
    Entity,
    BadRequestError,

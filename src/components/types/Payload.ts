@@ -1,7 +1,8 @@
 import { BaseObject } from '../BaseObjectProperties'
+import { Persisted } from './Persisted'
 
 export default interface Payload<T extends BaseObject> {
-   items: T[]
+   items: Persisted<T>[]
    meta: Meta
 }
 

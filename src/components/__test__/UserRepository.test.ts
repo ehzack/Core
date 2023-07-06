@@ -30,10 +30,10 @@ describe('repository instantiation tests', () => {
 
 describe('CRUD methods tests', () => {
    test('create method should save in collection', async () => {
-      const fUser: User = UserCore.fromObject(UserData)
+      const fUser = UserCore.fromObject(UserData)
 
       userRepository.create(fUser, UserData.uid).then((createdBradObject) => {
-         if (!createdBradObject.core.uid) {
+         if (!createdBradObject.uid) {
             throw new Error()
          }
 

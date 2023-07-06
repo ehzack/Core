@@ -1,12 +1,12 @@
 import { ObjectUri } from './ObjectUri'
 import { DataObjectClass } from './types/DataObjectClass'
-import { BaseObjectClass, BaseObjectMethods } from './types/BaseObjectClass'
+import { BaseObjectClass } from './types/BaseObjectClass'
 import { AbstractObject } from './AbstractObject'
 import { BaseObjectProperties, BaseObject } from './BaseObjectProperties'
 import { Query } from '../backends/Query'
 import { DataObject } from './DataObject'
 import { Persisted } from './types/Persisted'
-import { ProxyConstructor } from './types/ProxyConstructor'
+import { ProxyConstructor, Proxy } from './types/ProxyConstructor'
 import { DataObjectProperties } from '../properties'
 
 export class BaseObjectCore extends AbstractObject implements BaseObjectClass {
@@ -56,9 +56,9 @@ export class BaseObjectCore extends AbstractObject implements BaseObjectClass {
    }
 
    static fromObject<T extends BaseObject>(
-      src: Omit<T, 'core' | 'toJSON'>,
+      src: T,
       child: any = this
-   ): T {
+   ): Proxy<T> {
       const dao = this.fillProperties(child)
 
       dao.uri = new ObjectUri(
@@ -72,15 +72,11 @@ export class BaseObjectCore extends AbstractObject implements BaseObjectClass {
 
       const obj = new this(dao)
 
-      return obj.toProxy() as T
+      return obj.toProxy() as Proxy<T>
    }
 
    static async factory(
-      src:
-         | string
-         | ObjectUri
-         | { name: string; [x: string]: unknown }
-         | undefined = undefined,
+      src: string | ObjectUri | BaseObject | undefined = undefined,
       child: any = this
    ): Promise<any> {
       try {
@@ -112,8 +108,8 @@ export class BaseObjectCore extends AbstractObject implements BaseObjectClass {
       return obj.toProxy()
    }
 
-   private toProxy<ProxyType extends BaseObject>() {
-      return new ProxyConstructor<this, BaseObjectMethods & ProxyType>(this, {
+   private toProxy<T extends BaseObject>() {
+      return new ProxyConstructor<this, Proxy<T>>(this, {
          get: (target, prop) => {
             if (prop === 'uid') {
                return target.uid

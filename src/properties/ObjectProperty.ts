@@ -2,6 +2,7 @@ import { BaseObject } from '../components/BaseObjectProperties'
 import { DataObject } from '../components/DataObject'
 import { ObjectUri } from '../components/ObjectUri'
 import { BaseProperty, BasePropertyType } from './BaseProperty'
+import { Proxy } from '../components/types/ProxyConstructor'
 
 export interface ObjectPropertyType extends BasePropertyType {
    instanceOf?: Function | string | Object
@@ -9,7 +10,7 @@ export interface ObjectPropertyType extends BasePropertyType {
 
 export class ObjectProperty extends BaseProperty {
    static TYPE = 'object'
-   _value: BaseObject | undefined = undefined
+   _value: Proxy<BaseObject> | undefined = undefined
    _instanceOf: Function | string | Object
 
    constructor(config: ObjectPropertyType) {

@@ -17,8 +17,6 @@ export interface BaseObject {
    updatedAt?: number
    deletedBy?: User | ObjectUri
    deletedAt?: number
-   readonly toJSON: () => object
-   readonly core: BaseObjectCore
 }
 
 export const BaseObjectProperties: any = [

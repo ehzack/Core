@@ -10,6 +10,7 @@ import Payload, { Meta } from './types/Payload'
 import RepositoryClass from './types/RepositoryClass'
 import { BaseObject } from './BaseObjectProperties'
 import { Persisted } from './types/Persisted'
+import { Proxy } from './types/ProxyConstructor'
 
 const RESOURCE_GONE_ERROR = `The resource you are trying to access has been deleted.`
 
@@ -49,7 +50,7 @@ export default class BaseRepository<T extends BaseObject>
       return dataObject
    }
 
-   async create(obj: T, uid?: string) {
+   async create(obj: Proxy<T>, uid?: string) {
       const dataObject = obj.core.dataObject
 
       const savedObj = await this.backendAdapter.create(dataObject, uid)
@@ -83,7 +84,7 @@ export default class BaseRepository<T extends BaseObject>
       }
    }
 
-   async update(obj: T) {
+   async update(obj: Proxy<T>) {
       const dataObject = obj.core.dataObject
 
       const savedObj = await this.backendAdapter.update(dataObject)

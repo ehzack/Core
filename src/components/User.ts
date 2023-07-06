@@ -6,7 +6,7 @@ import { StringProperty } from '../properties/StringProperty'
 import * as htmlType from '../properties/types/PropertyHTMLType'
 import { BaseObjectProperties, BaseObject } from './BaseObjectProperties'
 import { Persisted } from './types/Persisted'
-import { EntityCore } from './Entity'
+import { Proxy } from './types/ProxyConstructor'
 
 export interface User extends BaseObject {
    firstname: string
@@ -97,7 +97,9 @@ export class UserCore extends BaseObjectCore {
    static PROPS_DEFINITION = UserProperties
    static COLLECTION = 'user'
 
-   static async factory(src: any = undefined): Promise<User | Persisted<User>> {
+   static async factory(
+      src: any = undefined
+   ): Promise<Proxy<User> | Persisted<User>> {
       return super.factory(src, UserCore)
    }
 

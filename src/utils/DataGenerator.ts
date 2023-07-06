@@ -2,6 +2,7 @@ import { Core } from '../Core'
 import { BaseObject } from '../components/BaseObjectProperties'
 import * as htmlType from '../properties/types/PropertyHTMLType'
 import { faker } from '@faker-js/faker'
+import { Proxy } from '../components/types/ProxyConstructor'
 
 /**
  * Generate data from model of object and save it in default backend
@@ -11,7 +12,7 @@ import { faker } from '@faker-js/faker'
  * @returns
  */
 export const DataGenerator = async <T extends BaseObject>(
-   model: T,
+   model: Proxy<T>,
    qty: number = 5,
    forcedValues: any = {}
 ): Promise<any> => {

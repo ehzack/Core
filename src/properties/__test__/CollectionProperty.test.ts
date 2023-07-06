@@ -3,7 +3,7 @@ import { DataGenerator } from '../../utils/DataGenerator'
 import { MockAdapter } from '../../backends'
 import { Core } from '../../Core'
 import { EntityCore } from '../../components/Entity'
-import { BaseObjectMethods } from '../../components/types/BaseObjectClass'
+import { Proxy } from '../../components/types/ProxyConstructor'
 
 Core.addBackend(new MockAdapter(), '@mock')
 Core.defaultBackend = '@mock'
@@ -11,7 +11,7 @@ Core.classRegistry['User'] = UserCore
 
 describe('Collection Property', () => {
    test('can retrieve user records matching relation', async () => {
-      const entity: BaseObjectMethods & Entity = await EntityCore.factory()
+      const entity: Proxy<Entity> = await EntityCore.factory()
       await entity.core.save()
 
       const user = await UserCore.factory()

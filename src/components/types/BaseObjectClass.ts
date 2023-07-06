@@ -1,11 +1,8 @@
+import { AbstractObjectClass } from './AbstractObjectClass'
 import { DataObjectClass } from './DataObjectClass'
 
-export interface BaseObjectClass {
+export interface BaseObjectClass extends AbstractObjectClass {
    dataObject: DataObjectClass<any>
    asReference(): any
-}
-
-export interface BaseObjectMethods {
-   toJSON: () => any
-   save: () => Promise<void>
+   save(): Promise<this>
 }
