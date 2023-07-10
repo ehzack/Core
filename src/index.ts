@@ -23,6 +23,8 @@ import { BaseObjectCore } from './components/BaseObjectCore'
 import { BaseObject, BaseObjectProperties } from './components/BaseObject'
 import { Proxy } from './components/types/ProxyConstructor'
 
+import { InjectMetaMiddleware } from './backends/middlewares/InjectMetaMiddleware'
+
 import RepositoryClass from './components/types/RepositoryClass'
 import AbstractRepository from './components/BaseRepository'
 
@@ -91,6 +93,7 @@ export {
    Limits,
    Sorting,
    SortAndLimit,
+   InjectMetaMiddleware,
    User,
    Proxy,
    UserRepository,
