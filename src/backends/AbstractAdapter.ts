@@ -1,9 +1,11 @@
+import { BackendAction } from '../Backend'
 import { BaseObjectCore } from '../components'
 import { DataObjectClass } from '../components/types/DataObjectClass'
 import { Filter } from './Filter'
 import { Filters } from './Filters'
 import { Query } from './Query'
 import { SortAndLimit } from './SortAndLimit'
+import Middleware from './middlewares/Middleware'
 
 /**
  * Default interface for a backend record
@@ -34,7 +36,7 @@ export interface BackendParameters {
    host?: string
    alias?: string
    mapping?: { [x: string]: any }
-   middlewares?: any[]
+   middlewares?: Middleware[]
    config?: any
    fixtures?: any
    softDelete?: boolean
@@ -65,7 +67,7 @@ export interface BackendInterface {
 export abstract class AbstractAdapter {
    protected _alias: string = ''
    protected _params: BackendParameters = {}
-   protected _middlewares: any[] = []
+   protected _middlewares: Middleware[] = []
 
    constructor(params: BackendParameters = {}) {
       this._alias = params.alias || ''
@@ -138,9 +140,12 @@ export abstract class AbstractAdapter {
       }
    }
 
-   async executeMiddlewares(dataObject: DataObjectClass<any>) {
+   async executeMiddlewares(
+      dataObject: DataObjectClass<any>,
+      action: BackendAction
+   ) {
       this._middlewares.forEach(
-         async (middleware) => await middleware.execute(dataObject)
+         async (middleware) => await middleware.execute(dataObject, action)
       )
 
       return dataObject

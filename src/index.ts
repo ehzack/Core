@@ -28,6 +28,9 @@ import { InjectMetaMiddleware } from './backends/middlewares/InjectMetaMiddlewar
 import RepositoryClass from './components/types/RepositoryClass'
 import AbstractRepository from './components/BaseRepository'
 
+import { BackendAction } from './Backend'
+import Middleware from './backends/middlewares/Middleware'
+
 import { User } from './components/User'
 import UserRepository from './components/UserRepository'
 
@@ -93,6 +96,7 @@ export {
    Limits,
    Sorting,
    SortAndLimit,
+   Middleware,
    InjectMetaMiddleware,
    User,
    Proxy,
