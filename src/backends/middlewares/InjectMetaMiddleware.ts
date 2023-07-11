@@ -25,7 +25,7 @@ export class InjectMetaMiddleware implements Middleware {
             dataObject.set('updatedAt', Date.now())
          case BackendAction.DELETE:
             dataObject.set('deletedBy', this._user)
-            dataObject.set('deleteddAt', Date.now())
+            dataObject.set('deletedAt', Date.now())
          default:
             break
       }

@@ -144,9 +144,8 @@ export abstract class AbstractAdapter {
       dataObject: DataObjectClass<any>,
       action: BackendAction
    ) {
-      this._middlewares.forEach(
-         async (middleware) => await middleware.execute(dataObject, action)
-      )
+      for (const middleware of this._middlewares)
+         await middleware.execute(dataObject, action)
 
       return dataObject
    }
