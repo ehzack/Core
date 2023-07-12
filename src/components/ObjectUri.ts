@@ -89,9 +89,9 @@ export class ObjectUri {
    }
 
    set path(path: string) {
-      if (this._path && this._path !== ObjectUri.DEFAULT) {
-         throw new Error(`Path value already set with '${this._path}'`)
-      }
+      // if (this._path && this._path !== ObjectUri.DEFAULT) {
+      //    throw new Error(`Path value already set with '${this._path}'`)
+      // }
       this._path = path
       // TODO manage paths to subcollection
       this._collection = path.split('/')[0]

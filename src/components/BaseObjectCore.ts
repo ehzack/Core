@@ -110,6 +110,9 @@ export class BaseObjectCore extends AbstractObject implements BaseObjectClass {
     * @returns
     */
    static async fromBackend<T>(path: string): Promise<Persisted<T>> {
+      if (!path.includes('/')) {
+         return this.factory(`${this.COLLECTION}/${path}`)
+      }
       return this.factory(path)
    }
 

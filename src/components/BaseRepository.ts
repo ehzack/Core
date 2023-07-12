@@ -105,8 +105,10 @@ export default class BaseRepository<T extends BaseObject>
          this.backendAdapter
       )) as unknown as Persisted<T>[]
 
+      const count = await this.backendAdapter.count(query)
+
       const meta: Meta = {
-         count: items.length,
+         count,
          updatedAt: new Date().getTime(),
       }
 

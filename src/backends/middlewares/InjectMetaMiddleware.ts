@@ -20,12 +20,15 @@ export class InjectMetaMiddleware implements Middleware {
          case BackendAction.CREATE:
             dataObject.set('createdBy', this._user)
             dataObject.set('createdAt', Date.now())
+            break
          case BackendAction.UPDATE:
             dataObject.set('updatedBy', this._user)
             dataObject.set('updatedAt', Date.now())
+            break
          case BackendAction.DELETE:
             dataObject.set('deletedBy', this._user)
             dataObject.set('deletedAt', Date.now())
+            break
          default:
             break
       }

@@ -62,9 +62,11 @@ export interface BackendInterface {
       filters: Filters | Filter[] | undefined,
       pagination: SortAndLimit | undefined
    ): Promise<DataObjectClass<any>[]>
+
+   count(query: Query<any>): Promise<number>
 }
 
-export abstract class AbstractAdapter {
+export abstract class AbstractAdapter implements BackendInterface {
    protected _alias: string = ''
    protected _params: BackendParameters = {}
    protected _middlewares: Middleware[] = []
@@ -80,6 +82,10 @@ export abstract class AbstractAdapter {
 
    getParam(key: BackendParametersKeys) {
       return this._params[key]
+   }
+
+   addMiddleware(middleware: Middleware) {
+      this._middlewares.push(middleware)
    }
 
    set alias(alias: string) {
@@ -128,6 +134,12 @@ export abstract class AbstractAdapter {
       )
    }
 
+   async count(query: Query<any>): Promise<number> {
+      return (
+         await this.find(await query.obj.daoFactory(), query.filters, undefined)
+      ).length
+   }
+
    abstract find(
       dataObject: DataObjectClass<any>,
       filters: Filters | Filter[] | undefined,
@@ -144,8 +156,9 @@ export abstract class AbstractAdapter {
       dataObject: DataObjectClass<any>,
       action: BackendAction
    ) {
-      for (const middleware of this._middlewares)
+      for (const middleware of this._middlewares) {
          await middleware.execute(dataObject, action)
+      }
 
       return dataObject
    }
