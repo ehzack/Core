@@ -10,7 +10,7 @@ export interface ObjectPropertyType extends BasePropertyType {
 
 export class ObjectProperty extends BaseProperty {
    static TYPE = 'object'
-   _value: Proxy<BaseObject> | undefined = undefined
+   _value: Proxy<BaseObject> | ObjectUri | undefined = undefined
    _instanceOf: Function | string | Object
 
    constructor(config: ObjectPropertyType) {
@@ -35,6 +35,10 @@ export class ObjectProperty extends BaseProperty {
    }
 
    toJSON() {
+      if (this._value instanceof ObjectUri) {
+         return this._value.toJSON()
+      }
+
       return this._value &&
          (this._value.core.dataObject || this._value instanceof DataObject)
          ? this._value.core.dataObject.toReference()

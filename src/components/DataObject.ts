@@ -7,6 +7,7 @@ import { BaseObject } from './BaseObject'
 import { Proxy } from './types/ProxyConstructor'
 import { ObjectUri } from './ObjectUri'
 import { DataObjectClass } from './types/DataObjectClass'
+import { BaseObjectCore } from './BaseObjectCore'
 
 export type CoreObject<T extends AbstractObject> = T
 export type Properties = { [x: string]: PropertyClassType }
@@ -248,16 +249,18 @@ export class DataObject implements DataObjectClass<any> {
                // ignore
                break
             case 'ObjectProperty':
-               const value: Proxy<BaseObject> | undefined = prop.val()
+               const value: Proxy<BaseObject> | ObjectUri | undefined =
+                  prop.val()
                Reflect.set(
                   data,
                   key,
                   value
-                     ? objectsAsReferences
+                     ? objectsAsReferences && !(value instanceof ObjectUri)
                         ? value.core.asReference() //toReference()
                         : value.toJSON()
                      : null
                )
+
                break
 
             default:
