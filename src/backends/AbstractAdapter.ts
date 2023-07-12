@@ -1,8 +1,11 @@
+import { BackendAction } from '../Backend'
+import { BaseObjectCore } from '../components'
 import { DataObjectClass } from '../components/types/DataObjectClass'
 import { Filter } from './Filter'
 import { Filters } from './Filters'
 import { Query } from './Query'
 import { SortAndLimit } from './SortAndLimit'
+import Middleware from './middlewares/Middleware'
 
 /**
  * Default interface for a backend record
@@ -33,7 +36,7 @@ export interface BackendParameters {
    host?: string
    alias?: string
    mapping?: { [x: string]: any }
-   middlewares?: any[]
+   middlewares?: Middleware[]
    config?: any
    fixtures?: any
    softDelete?: boolean
@@ -59,12 +62,14 @@ export interface BackendInterface {
       filters: Filters | Filter[] | undefined,
       pagination: SortAndLimit | undefined
    ): Promise<DataObjectClass<any>[]>
+
+   count(query: Query<any>): Promise<number>
 }
 
-export abstract class AbstractAdapter {
+export abstract class AbstractAdapter implements BackendInterface {
    protected _alias: string = ''
    protected _params: BackendParameters = {}
-   protected _middlewares: any[] = []
+   protected _middlewares: Middleware[] = []
 
    constructor(params: BackendParameters = {}) {
       this._alias = params.alias || ''
@@ -79,6 +84,10 @@ export abstract class AbstractAdapter {
       return this._params[key]
    }
 
+   addMiddleware(middleware: Middleware) {
+      this._middlewares.push(middleware)
+   }
+
    set alias(alias: string) {
       this._alias = alias
    }
@@ -88,7 +97,7 @@ export abstract class AbstractAdapter {
    }
 
    getCollection(dao: DataObjectClass<any>) {
-      return dao.uri.class.COLLECTION || dao.uri.class.name.toLowerCase()
+      return dao.uri.collection //|| dao.uri.class.name.toLowerCase() //class.COLLECTION
    }
 
    abstract create(
@@ -125,6 +134,12 @@ export abstract class AbstractAdapter {
       )
    }
 
+   async count(query: Query<any>): Promise<number> {
+      return (
+         await this.find(await query.obj.daoFactory(), query.filters, undefined)
+      ).length
+   }
+
    abstract find(
       dataObject: DataObjectClass<any>,
       filters: Filters | Filter[] | undefined,
@@ -137,10 +152,13 @@ export abstract class AbstractAdapter {
       }
    }
 
-   async executeMiddlewares(dataObject: DataObjectClass<any>) {
-      this._middlewares.forEach(
-         async (middleware) => await middleware.execute(dataObject)
-      )
+   async executeMiddlewares(
+      dataObject: DataObjectClass<any>,
+      action: BackendAction
+   ) {
+      for (const middleware of this._middlewares) {
+         await middleware.execute(dataObject, action)
+      }
 
       return dataObject
    }

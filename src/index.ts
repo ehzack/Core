@@ -19,10 +19,23 @@ import { AbstractObject } from './components/AbstractObject'
 import { ObjectUri } from './components/ObjectUri'
 import { DataObjectClass } from './components/types/DataObjectClass'
 import { DataObject } from './components/DataObject'
-import { BaseObject } from './components/BaseObject'
-import { BaseObjectProperties } from './components/BaseObjectProperties'
+import { BaseObjectCore } from './components/BaseObjectCore'
+import { BaseObject, BaseObjectProperties } from './components/BaseObject'
+import { Proxy } from './components/types/ProxyConstructor'
+
+import { InjectMetaMiddleware } from './backends/middlewares/InjectMetaMiddleware'
+
+import RepositoryClass from './components/types/RepositoryClass'
+import AbstractRepository from './components/BaseRepository'
+
+import { BackendAction } from './Backend'
+import Middleware from './backends/middlewares/Middleware'
+
 import { User } from './components/User'
+import UserRepository from './components/UserRepository'
+
 import { Entity } from './components/Entity'
+import EntityRepository from './components/EntityRepository'
 
 import {
    AbstractAdapter,
@@ -36,6 +49,14 @@ import {
    Sorting,
    SortAndLimit,
 } from './backends'
+
+import {
+   BadRequestError,
+   UnauthorizedError,
+   ForbiddenError,
+   NotFoundError,
+   GoneError,
+} from './common/ResourcesErrors'
 
 export {
    statuses,
@@ -57,12 +78,15 @@ export {
    StringProperty,
    StringPropertyType,
    AbstractAdapter,
+   RepositoryClass,
+   AbstractRepository,
    MockAdapter,
    ObjectUri,
    DataObjectClass,
    DataObject,
    AbstractObject,
    BaseObject,
+   BaseObjectCore,
    BaseObjectProperties,
    BackendParameters,
    BackendError,
@@ -72,6 +96,16 @@ export {
    Limits,
    Sorting,
    SortAndLimit,
+   Middleware,
+   InjectMetaMiddleware,
    User,
+   Proxy,
+   UserRepository,
    Entity,
+   EntityRepository,
+   BadRequestError,
+   UnauthorizedError,
+   ForbiddenError,
+   NotFoundError,
+   GoneError,
 }

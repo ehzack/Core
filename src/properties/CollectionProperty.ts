@@ -5,9 +5,10 @@ import { ObjectUri } from '../components/ObjectUri'
 import { Core } from '../Core'
 import { returnAs } from '../backends/Query'
 import { DataObjectClass } from '../components/types/DataObjectClass'
+import { BaseObjectCore } from '../components'
 
 export interface CollectionPropertyType extends BasePropertyType {
-   instanceOf?: Function | string | Object
+   instanceOf: typeof BaseObjectCore
    backend?: any
    parentKey?: string
 }
@@ -19,7 +20,7 @@ export class CollectionProperty extends BaseProperty {
       | Array<DataObjectClass<any>>
       | Array<ObjectUri>
       | undefined = undefined
-   protected _instanceOf: any
+   protected _instanceOf: typeof BaseObjectCore
    protected _backend: any
    protected _parentKey: string
    protected _query: Query<any>

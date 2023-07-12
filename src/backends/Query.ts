@@ -4,7 +4,10 @@ import { Sorting } from './Sorting'
 import { SortAndLimit } from './SortAndLimit'
 import { BackendInterface } from './AbstractAdapter'
 import { Core } from '../Core'
-import { AbstractObject } from '../components'
+import { DataObjectClass, ObjectUri } from '../components'
+import { Persisted } from '../components/types/Persisted'
+import { BaseObject } from '../components/BaseObject'
+import { BaseObjectCore } from '../components/BaseObjectCore'
 
 export const AS_OBJECTURIS = 'objectUris'
 export const AS_DATAOBJECTS = 'dataObjects'
@@ -16,7 +19,7 @@ export enum returnAs {
    AS_INSTANCES = 'classInstances',
 }
 
-export class Query<T extends typeof AbstractObject> {
+export class Query<T extends typeof BaseObjectCore> {
    protected _obj: T
    protected _params: any
    filters: Filter[]
@@ -78,25 +81,49 @@ export class Query<T extends typeof AbstractObject> {
       return new SortAndLimit(this.sortings, this.limits)
    }
 
+   async fetch(
+      backend: BackendInterface = Core.getBackend()
+   ): Promise<DataObjectClass<any>[]> {
+      return backend.query(this)
+   }
+
+   async fetchAsUri(
+      backend: BackendInterface = Core.getBackend()
+   ): Promise<ObjectUri[]> {
+      const result = await this.fetch(backend)
+
+      return await Promise.all(result.map((dao) => dao.uri))
+   }
+
+   async fetchAsInstances(
+      backend: BackendInterface = Core.getBackend()
+   ): Promise<Persisted<BaseObject>[]> {
+      const result = await this.fetch(backend)
+
+      const instances = []
+
+      for (const item of result) {
+         instances.push(this._obj.fromDataObject(item))
+      }
+
+      return instances
+   }
+
    async execute(
       as: returnAs = returnAs.AS_DATAOBJECTS,
       backend: BackendInterface = Core.getBackend()
-   ): Promise<any> { //</any><Array<T2> | Array<DataObject> | Array<ObjectUri>> {
+   ): Promise<DataObjectClass<any>[] | ObjectUri[] | Persisted<BaseObject>[]> {
+      //</any><Array<T2> | Array<DataObject> | Array<ObjectUri>> {
       try {
-         const result = await backend.query(this)
-
          switch (as) {
             case AS_DATAOBJECTS:
-               return result
+               return await this.fetch(backend)
 
             case AS_OBJECTURIS:
-               return await Promise.all(result.map((dao) => dao.uri))
+               return await this.fetchAsUri(backend)
 
             case AS_INSTANCES:
-               //console.log(this._obj)
-               return await Promise.all(
-                  result.map((dao) => Reflect.construct(this._obj, [dao]))
-               )
+               return await this.fetchAsInstances(backend)
 
             default:
                throw new Error(`Unknown output mode`)

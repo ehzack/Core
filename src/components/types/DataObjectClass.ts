@@ -23,4 +23,5 @@ export interface DataObjectClass<T extends DataObjectClass<any>> {
    clone(data?: any): Promise<T>
    toReference(): any
    toJSON(objectsAsReferences?: boolean): any
+   populateFromData(data: { [x: string]: unknown }): this
 }

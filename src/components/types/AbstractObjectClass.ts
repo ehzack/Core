@@ -1,7 +1,7 @@
 import { DataObjectClass } from './DataObjectClass'
 
 export interface AbstractObjectClass {
-   status: string
    dataObject: DataObjectClass<any>
    asReference(): any
+   val(val: string): any
 }

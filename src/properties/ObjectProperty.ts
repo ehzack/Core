@@ -1,7 +1,8 @@
+import { BaseObject } from '../components/BaseObject'
 import { DataObject } from '../components/DataObject'
 import { ObjectUri } from '../components/ObjectUri'
-import { BaseObjectClass } from '../components/types/BaseObjectClass'
 import { BaseProperty, BasePropertyType } from './BaseProperty'
+import { Proxy } from '../components/types/ProxyConstructor'
 
 export interface ObjectPropertyType extends BasePropertyType {
    instanceOf?: Function | string | Object
@@ -9,7 +10,7 @@ export interface ObjectPropertyType extends BasePropertyType {
 
 export class ObjectProperty extends BaseProperty {
    static TYPE = 'object'
-   _value: BaseObjectClass | undefined = undefined
+   _value: Proxy<BaseObject> | ObjectUri | undefined = undefined
    _instanceOf: Function | string | Object
 
    constructor(config: ObjectPropertyType) {
@@ -17,7 +18,7 @@ export class ObjectProperty extends BaseProperty {
       this._instanceOf = config.instanceOf || Object
    }
 
-   set(value: any) {
+   set(value: object) {
       if (
          value! instanceof ObjectUri &&
          value! instanceof DataObject &&
@@ -34,9 +35,13 @@ export class ObjectProperty extends BaseProperty {
    }
 
    toJSON() {
+      if (this._value instanceof ObjectUri) {
+         return this._value.toJSON()
+      }
+
       return this._value &&
-         (this._value.dataObject || this._value instanceof DataObject)
-         ? this._value.dataObject.toReference()
+         (this._value.core.dataObject || this._value instanceof DataObject)
+         ? this._value.core.dataObject.toReference()
          : null
    }
 }

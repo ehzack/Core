@@ -1,7 +1,7 @@
-import { BaseObject } from '../components'
+import { BaseObjectCore } from '../components'
 import { FilterOperatorType } from './FilterOperators'
 
-export type FilterValueType<T extends BaseObject> =
+export type FilterValueType<T extends BaseObjectCore> =
    | T
    | number
    | string

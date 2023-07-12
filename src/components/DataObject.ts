@@ -3,8 +3,11 @@ import { DataObjectProperties } from '../properties'
 import { Property } from '../properties/Property'
 import { PropertyClassType } from '../properties/types/PropertyClassType'
 import { AbstractObject } from './AbstractObject'
+import { BaseObject } from './BaseObject'
+import { Proxy } from './types/ProxyConstructor'
 import { ObjectUri } from './ObjectUri'
 import { DataObjectClass } from './types/DataObjectClass'
+import { BaseObjectCore } from './BaseObjectCore'
 
 export type CoreObject<T extends AbstractObject> = T
 export type Properties = { [x: string]: PropertyClassType }
@@ -71,15 +74,54 @@ export class DataObject implements DataObjectClass<any> {
     * Populate data object from instant data or backend query
     * @param data
     */
-   async populate(data: any = undefined): Promise<DataObject> {
+   async populate(
+      data: { name: string; [x: string]: unknown } | undefined = undefined
+   ): Promise<DataObject> {
       if (this._populated === false) {
          if (data) {
-            for (const key in data) {
-               if (Reflect.get(this._properties, key)) {
-                  Reflect.get(this._properties, key).set(data[key])
-               }
-            }
+            this.populateFromData(data)
          } else if (this.path !== '/' && this.path !== '') {
+            await this.populateFromBackend()
+         }
+         this._populated = true
+
+         if (Reflect.get(this._properties, 'name')) {
+            this.uri.label = this.val('name')
+         }
+      }
+
+      return this
+   }
+
+   /**
+    * Populate data object from instant data or backend query
+    * @param data
+    */
+   populateFromData(data: { [x: string]: unknown }): this {
+      if (this._populated === false) {
+         for (const key in data) {
+            if (Reflect.get(this._properties, key)) {
+               Reflect.get(this._properties, key).set(data[key])
+            }
+         }
+
+         this._populated = true
+
+         if (Reflect.get(this._properties, 'name')) {
+            this.uri.label = this.val('name')
+         }
+      }
+
+      return this
+   }
+
+   /**
+    * Populate data object from backend query
+    * @param data
+    */
+   async populateFromBackend(): Promise<DataObject> {
+      if (this._populated === false) {
+         if (this.path !== '/' && this.path !== '') {
             await Core.getBackend(this._objectUri.backend).read(this)
          }
          this._populated = true
@@ -207,16 +249,18 @@ export class DataObject implements DataObjectClass<any> {
                // ignore
                break
             case 'ObjectProperty':
-               const value = prop.val()
+               const value: Proxy<BaseObject> | ObjectUri | undefined =
+                  prop.val()
                Reflect.set(
                   data,
                   key,
                   value
-                     ? objectsAsReferences
-                        ? value.toReference()
+                     ? objectsAsReferences && !(value instanceof ObjectUri)
+                        ? value.core.asReference() //toReference()
                         : value.toJSON()
                      : null
                )
+
                break
 
             default:
@@ -229,7 +273,7 @@ export class DataObject implements DataObjectClass<any> {
 
    async read(): Promise<DataObjectClass<any>> {
       try {
-         return this.populate(await Core.getBackend().read(this))
+         return await Core.getBackend().read(this) //this.populate()
       } catch (err) {
          console.log((err as Error).message)
          throw new Error((err as Error).message)
@@ -258,9 +302,7 @@ export class DataObject implements DataObjectClass<any> {
     * @param param
     * @returns DataObject
     */
-   static async factory(
-      param: DataObjectParams | undefined = undefined
-   ): Promise<DataObject> {
+   static factory(param: DataObjectParams | undefined = undefined): DataObject {
       try {
          return new this(param)
       } catch (err) {
@@ -274,7 +316,12 @@ export class DataObject implements DataObjectClass<any> {
    async clone(data: any = {}): Promise<DataObject> {
       const cloned = await DataObject.factory()
       cloned.uri.class = this.uri.class
-      cloned.setProperties(this._properties)
+      cloned._populated = false
+
+      for (let property of Object.keys(this._properties)) {
+         cloned._properties[property] = this._properties[property].clone()
+      }
+
       if (data) {
          await cloned.populate(data)
       }

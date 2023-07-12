@@ -1,6 +1,5 @@
 import { DataObjectClass } from './types/DataObjectClass'
 import { DataObjectProperties } from '../properties/'
-import { Query } from '../backends/Query'
 
 export abstract class AbstractObject {
    static PROPS_DEFINITION: DataObjectProperties = []
@@ -65,9 +64,5 @@ export abstract class AbstractObject {
 
    async delete(): Promise<DataObjectClass<any>> {
       return await this._dataObject.delete()
-   }
-
-   static query() {
-      return new Query(this)
    }
 }

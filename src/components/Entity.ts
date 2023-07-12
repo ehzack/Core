@@ -1,4 +1,6 @@
+import { BaseObjectCore } from './BaseObjectCore'
 import { BaseObject } from './BaseObject'
+import { User, UserCore } from './User'
 import { EntityClass } from './types/EntityClass'
 import { CollectionProperty } from '../properties/CollectionProperty'
 import { StringProperty } from '../properties/StringProperty'
@@ -22,10 +24,27 @@ export const EntityProperties: any = [
    },
 ]
 
-export class Entity extends BaseObject implements EntityClass {
-   static PROPS_DEFINITION = EntityProperties
+export interface Entity extends BaseObject {
+   users: User
+}
+export class EntityCore extends BaseObjectCore implements EntityClass {
+   static COLLECTION = 'entity'
 
-   static async factory(src: any = undefined): Promise<Entity> {
-      return super.factory(src, Entity)
-   }
+   static PROPS_DEFINITION = [
+      {
+         // surcharge property minLength and htmlType
+         name: 'name',
+         type: StringProperty.TYPE,
+         mandatory: true,
+         minLength: 1,
+         //htmlType: htmlType.ORG,
+      },
+      {
+         name: 'users',
+         mandatory: true,
+         type: CollectionProperty.TYPE,
+         instanceOf: UserCore,
+         parentKey: 'entity',
+      },
+   ]
 }

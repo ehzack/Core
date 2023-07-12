@@ -1,13 +1,13 @@
 import { AbstractAdapter } from './backends/AbstractAdapter'
 import { DataObject } from './components/DataObject'
+import { User } from './components/User'
 import { DataObjectClass } from './components/types/DataObjectClass'
-import { UserClass } from './components/types/UserClass'
 
 export type BackendRegistry<T extends AbstractAdapter> = { [x: string]: T }
 
 export class Core {
    static defaultBackend = '@default'
-   static currentUser: UserClass
+   static currentUser: User
    static classRegistry: { [key: string]: any } = {}
    static logger = console.log
 

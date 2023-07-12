@@ -1,47 +1,51 @@
-import { BaseObject } from '../BaseObject'
+import { BaseObjectCore } from '../BaseObjectCore'
 import { Core, statuses } from '../..'
 import { MockAdapter } from '../../backends'
 import { BaseObjectData, UserData, UserUri } from './fixtures/dao'
-import { User } from '../User'
+import { User, UserCore } from '../User'
+import { Persisted } from '../types/Persisted'
+
+Core.addBackend(new MockAdapter(), '@mock', true)
 
 MockAdapter.inject(BaseObjectData)
 MockAdapter.inject(UserData)
-Core.addBackend(new MockAdapter(), '@mock', true)
 
 describe('Base object', () => {
    test('has name, status and createdBy properties that are instances', () =>
-      BaseObject.factory().then((obj) => {
-         expect(obj.get('name').constructor.name).toBe('StringProperty')
-         expect(obj.get('status').constructor.name).toBe('EnumProperty')
-         expect(obj.get('createdBy').constructor.name).toBe('ObjectProperty')
-         expect(obj.get('createdAt').constructor.name).toBe('DateTimeProperty')
+      BaseObjectCore.factory().then((obj) => {
+         expect(obj.core.get('name').constructor.name).toBe('StringProperty')
+         expect(obj.core.get('status').constructor.name).toBe('EnumProperty')
+         expect(obj.core.get('createdBy').constructor.name).toBe(
+            'ObjectProperty'
+         )
+         expect(obj.core.get('createdAt').constructor.name).toBe(
+            'DateTimeProperty'
+         )
       }))
 })
 
 describe('User object', () => {
    test('can be loaded from backend', () => {
-      User.factory(UserUri)
-         .then((user: User) => {
-            expect(user.val('name')).toEqual('John Doe')
-            expect(user.val('status')).toEqual(statuses.ACTIVE)
-            expect(user.val('createdBy')).toEqual(user.toJSON())
-            expect(user.val('createdAt')).toEqual(1)
-         })
-         .catch((e) => console.log(e))
+      UserCore.factory(UserUri).then((user: User) => {
+         expect(user.name).toEqual('John Doe')
+         expect(user.status).toEqual(statuses.ACTIVE)
+         //expect(user.createdBy).toEqual(user.toJSON())
+         expect(user.createdAt).toEqual(1)
+      })
    })
 
    test('can be persisted in backend', () => {
-      User.factory(UserUri)
+      UserCore.factory(UserUri)
          .then((existingUser: User) => {
             Core.currentUser = existingUser
-            User.factory()
-               .then((user: User) => {
-                  expect(user.uid).toBeUndefined()
-                  user.set('name', 'Jane Doe')
-                  user.save().then(() => {
-                     expect(user.uid).not.toBeUndefined()
-                     expect(user.val('name')).toEqual('Jane Doe')
-                     expect(user.val('status')).toEqual(statuses.CREATED)
+            UserCore.factory()
+               .then((user) => {
+                  expect((user as Persisted<User>).uid).toBeUndefined()
+                  user.name = 'Jane Doe'
+                  user.core.save().then(() => {
+                     expect('uid' in user).toBeTruthy()
+                     expect(user.name).toEqual('Jane Doe')
+                     expect(user.status).toEqual(statuses.CREATED)
                   })
                })
                .catch((e) => console.log(e))

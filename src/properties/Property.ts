@@ -8,6 +8,7 @@ import { StringProperty } from './StringProperty'
 import { NumberProperty } from './NumberProperty'
 import { ObjectProperty } from './ObjectProperty'
 import { CollectionProperty } from './CollectionProperty'
+import { ArrayProperty } from './ArrayProperty'
 
 export class Property {
    static TYPE_ANY = 'any'
@@ -51,7 +52,15 @@ export class Property {
             return new DateTimeProperty(params)
 
          case CollectionProperty.TYPE:
-            return new CollectionProperty(params)
+            if (!('instanceOf' in params)) {
+               throw new Error('Missing property instanceOf!')
+            }
+
+            return new CollectionProperty(params as any)
+
+         case ArrayProperty.TYPE:
+            return new ArrayProperty(params)
+
          default:
             throw new Error(`Unknown property type ${params.type}`)
       }
