@@ -2,13 +2,14 @@ import { DataObjectClass } from '../../components'
 import { BackendAction } from '../../Backend'
 import { User } from '../../components/User'
 import Middleware from './Middleware'
+import { Proxy } from '../../components/types/ProxyConstructor'
 
 export interface InjectMetaMiddlewareParams {
-   user: User
+   user: Proxy<User>
 }
 
 export class InjectMetaMiddleware implements Middleware {
-   protected _user: User
+   protected _user: Proxy<User>
 
    constructor(params: InjectMetaMiddlewareParams) {
       this._user = params.user
@@ -18,15 +19,15 @@ export class InjectMetaMiddleware implements Middleware {
       switch (action) {
          // add properties existence validation
          case BackendAction.CREATE:
-            dataObject.set('createdBy', this._user)
+            dataObject.set('createdBy', this._user.core.dataObject.uri)
             dataObject.set('createdAt', Date.now())
             break
          case BackendAction.UPDATE:
-            dataObject.set('updatedBy', this._user)
+            dataObject.set('updatedBy', this._user.core.dataObject.uri)
             dataObject.set('updatedAt', Date.now())
             break
          case BackendAction.DELETE:
-            dataObject.set('deletedBy', this._user)
+            dataObject.set('deletedBy', this._user.core.dataObject.uri)
             dataObject.set('deletedAt', Date.now())
             break
          default:

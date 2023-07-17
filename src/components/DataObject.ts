@@ -101,7 +101,22 @@ export class DataObject implements DataObjectClass<any> {
       if (this._populated === false) {
          for (const key in data) {
             if (Reflect.get(this._properties, key)) {
-               Reflect.get(this._properties, key).set(data[key])
+               const val = data[key]
+               if (
+                  val &&
+                  typeof val === 'object' &&
+                  'ref' in val &&
+                  typeof val.ref == 'string' &&
+                  'label' in val &&
+                  typeof val.label == 'string'
+               ) {
+                  const { ref, label } = val
+                  Reflect.get(this._properties, key).set(
+                     new ObjectUri(ref, label)
+                  )
+               } else {
+                  Reflect.get(this._properties, key).set(data[key])
+               }
             }
          }
 
