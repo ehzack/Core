@@ -32,7 +32,7 @@ import { Core } from '@quatrain/core'
 Core.addBackend(myAdapter, 'myDB', true)
 ```
 
-#### Create a model
+### Create a model
 
 ```ts
 import { BaseObjectCore } from '@quatrain/core'
@@ -62,7 +62,7 @@ export class CatCore extends BaseObjectCore {
 }
 ```
 
-#### Instantiate a model
+### Instantiate a model
 
 ```ts
 const catData: Cat = {
@@ -88,4 +88,37 @@ garfield.core.save()
 
 // Now, let's retrieve Garfield in the database
 const persistedGarfield = await CatCore.fromBackend('garfield')
+```
+
+### Using repositories
+
+You can use repositories as an alternative way to persist and retrieve models in your backend.
+
+This module provides a BaseRepository class that you can extend and override to apply your business logic when doing backend operations.
+
+Let's create a repository for our Cat model, that prevents us from deleting a cat.
+
+```ts
+import { Core, BackendInterface, BaseRepository } from '@quatrain/core'
+
+export default class CatRepository extends BaseRepository<Cat> {
+   constructor(backendAdapter: BackendInterface = Core.getBackend()) {
+      super(CatCore, backendAdapter)
+   }
+
+   async delete(uid: string) {
+      throw Error("Don't delete the cats!")
+   }
+}
+```
+
+Now, let's use our new CatRepository.
+
+```ts
+const repository = new CatRepository()
+
+repository.create(garfield)
+repository.read('garfield')
+repository.update(persistedGarfield)
+repository.delete('garfield') // Will throw "Don't delete the cats!"
 ```
