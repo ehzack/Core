@@ -11,14 +11,14 @@ and storage.
 
 ## How to install
 
-```javascript
+```bash
 yarn install @quatrain/core
 ```
 
 Quatrain Core comes with a built-in Mock backend adapter. Other adapters are available in
 different packages. For example, a Google Firestore adapter is available:
 
-```javascript
+```bash
 yarn install @quatrain/backend-firestore
 ```
 

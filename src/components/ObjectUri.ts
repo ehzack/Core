@@ -23,7 +23,7 @@ export class ObjectUri {
    constructor(str: string = '', label: string | undefined = '') {
       this._str = str
       this._label = label
-      if (str.indexOf(':') !== -1) {
+      if (str.includes(':')) {
          const [backend, path] = str.split(':')
          this._backend = backend || Core.defaultBackend
          this._path = path
