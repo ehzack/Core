@@ -1,5 +1,5 @@
 import { Core } from '../Core'
-import { DataObjectProperties } from '../properties'
+import { ArrayProperty, DataObjectProperties } from '../properties'
 import { Property } from '../properties/Property'
 import { PropertyClassType } from '../properties/types/PropertyClassType'
 import { AbstractObject } from './AbstractObject'
@@ -271,11 +271,21 @@ export class DataObject implements DataObjectClass<any> {
                   key,
                   value
                      ? objectsAsReferences && !(value instanceof ObjectUri)
-                        ? value.core.asReference() //toReference()
-                        : value.toJSON()
+                        ? value.core.asReference()
+                        : value.toJSON
+                        ? value.toJSON()
+                        : value
                      : null
                )
 
+               break
+
+            case 'BooleanProperty':
+               Reflect.set(data, key, Boolean(prop.val()))
+               break
+
+            case 'ArrayProperty':
+               Reflect.set(data, key, prop.val() || [])
                break
 
             default:
