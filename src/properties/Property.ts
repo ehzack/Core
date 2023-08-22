@@ -9,6 +9,7 @@ import { NumberProperty } from './NumberProperty'
 import { ObjectProperty } from './ObjectProperty'
 import { CollectionProperty } from './CollectionProperty'
 import { ArrayProperty } from './ArrayProperty'
+import { MapProperty } from './MapProperty'
 
 export class Property {
    static TYPE_ANY = 'any'
@@ -20,6 +21,7 @@ export class Property {
    static TYPE_HASH = 'hash'
    static TYPE_DATETIME = 'datetime'
    static TYPE_ARRAY = 'array'
+   static TYPE_MAP = 'map'
 
    static factory<P extends BasePropertyType>(
       params: P,
@@ -60,6 +62,9 @@ export class Property {
 
          case ArrayProperty.TYPE:
             return new ArrayProperty(params)
+
+         case MapProperty.TYPE:
+            return new MapProperty(params)
 
          default:
             throw new Error(`Unknown property type ${params.type}`)
