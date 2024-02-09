@@ -91,7 +91,7 @@ export class BaseProperty implements PropertyClassType {
    }
 
    val(transform: any = undefined): any {
-      return transform ? transform(this._value) : this._value
+      return transform ? transform(this._value) : this._value || this._defaultValue
    }
 
    protected _enable(value: boolean | undefined) {

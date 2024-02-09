@@ -101,7 +101,8 @@ export abstract class AbstractAdapter implements BackendInterface {
    }
 
    abstract create(
-      dataObject: DataObjectClass<any>
+      dataObject: DataObjectClass<any>,
+      desiredUid?: string | undefined
    ): Promise<DataObjectClass<any>>
 
    abstract read(

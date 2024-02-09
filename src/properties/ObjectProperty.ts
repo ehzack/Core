@@ -1,21 +1,73 @@
-import { BaseObject } from '../components/BaseObject'
 import { DataObject } from '../components/DataObject'
 import { ObjectUri } from '../components/ObjectUri'
 import { BaseProperty, BasePropertyType } from './BaseProperty'
-import { Proxy } from '../components/types/ProxyConstructor'
+import { returnAs } from '../backends/Query'
+import { AbstractObject, BaseObjectCore } from '../components'
+import { BaseObjectClass } from '../components/types/BaseObjectClass'
+import { Core } from '../Core'
 
 export interface ObjectPropertyType extends BasePropertyType {
-   instanceOf?: Function | string | Object
+   instanceOf: any //Function | string | Object
 }
 
 export class ObjectProperty extends BaseProperty {
    static TYPE = 'object'
-   _value: Proxy<BaseObject> | ObjectUri | undefined = undefined
-   _instanceOf: Function | string | Object
+   _value: BaseObjectClass | ObjectUri | undefined = undefined
+   _instanceOf: any //Function | string | Object
 
    constructor(config: ObjectPropertyType) {
       super(config)
-      this._instanceOf = config.instanceOf || Object
+      this._instanceOf = config.instanceOf
+   }
+
+   val(transform: string | undefined = undefined) {
+      if (typeof this._instanceOf === 'string') {
+         console.log(`Getting instance from string ${this._instanceOf}`)
+         this._instanceOf = Core.getClass(this._instanceOf)
+         //throw new Error(`Parameter 'instanceOf' was not properly setted`)
+      }
+
+      if (!this._value) {
+         return this._defaultValue
+      }
+      switch (transform) {
+         case returnAs.AS_DATAOBJECTS:
+            if (this._value instanceof DataObject) {
+               console.log(`Returning already existing dataObject`)
+               return this._value
+            } else if (this._value instanceof ObjectUri) {
+               console.log(`Converting objectUri -> dataObject`)
+               return DataObject.factory({
+                  properties: Reflect.get(this._instanceOf, 'PROPS_DEFINITION'),
+                  uri: this._value,
+               })
+            } else {
+               console.log(`Converting instance -> dataObject`)
+               return this._value.dataObject
+            }
+         case returnAs.AS_INSTANCES:
+            if (this._value instanceof DataObject) {
+               console.log(`Converting dataObject -> instance`)
+               return Reflect.construct(this._instanceOf, [this._value])
+            } else if (this._value instanceof ObjectUri) {
+               console.log('ObjectProperty', this)
+
+               console.log(`Converting objectUri -> dataObject -> instance`)
+               console.log(this._instanceOf)
+               const dao = DataObject.factory({
+                  properties: Reflect.get(this._instanceOf, 'PROPS_DEFINITION'),
+                  uri: this._value,
+               })
+               return Reflect.construct(this._instanceOf, [dao])
+            } else {
+               console.log(`Returning already existing instance`)
+               return this._value
+            }
+            return this._value
+         case returnAs.AS_OBJECTURIS:
+         default:
+            return this._value
+      }
    }
 
    set(value: object) {
@@ -40,8 +92,8 @@ export class ObjectProperty extends BaseProperty {
       }
 
       return this._value &&
-         (this._value.core.dataObject || this._value instanceof DataObject)
-         ? this._value.core.dataObject.toReference()
+         (this._value.dataObject || this._value instanceof DataObject)
+         ? this._value.dataObject.toReference()
          : null
    }
 }

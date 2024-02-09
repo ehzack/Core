@@ -4,6 +4,7 @@ import { ObjectUri } from './ObjectUri'
 import { AbstractObject } from './AbstractObject'
 import { BaseObjectCore } from './BaseObjectCore'
 import { BaseObjectProperties } from './BaseObject'
+import BaseRepository from './BaseRepository'
 import { UserCore, UserProperties } from './User'
 import { Entity } from './Entity'
 
@@ -14,6 +15,7 @@ export {
    ObjectUri,
    AbstractObject,
    BaseObjectCore,
+   BaseRepository,
    UserCore,
    Entity,
    BaseObjectProperties,

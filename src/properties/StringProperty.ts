@@ -1,9 +1,8 @@
 //import { Property } from './Property'
 import { BaseProperty, BasePropertyType } from './BaseProperty'
-import { PropertyHTMLType } from './types/PropertyHTMLType'
 
 export interface StringPropertyType extends BasePropertyType {
-   minLength?: number
+   minLength: number
    maxLength?: number
    allowSpaces?: boolean
    allowDigits?: boolean

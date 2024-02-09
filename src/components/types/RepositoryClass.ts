@@ -21,7 +21,7 @@ export default interface RepositoryClass<T extends BaseObject> {
     * @param uid
     * @returns
     */
-   read(uid: string): Promise<Persisted<T>>
+   read(uid: string): Promise<any> //Persisted<T>>
 
    /**
     * Updates a given object in the collction and returns it

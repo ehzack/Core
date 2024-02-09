@@ -18,30 +18,28 @@ const RESOURCE_GONE_ERROR = `The resource you are trying to access has been dele
  * CRUD methods for models/entities inheriting from BaseObject
  * Extend this by passing the typeof of the desired class to the constructor
  */
-export default class BaseRepository<T extends BaseObject>
-   implements RepositoryClass<T>
-{
-   protected model: typeof BaseObjectCore
+export default class BaseRepository<T extends BaseObject> {
+   //implements RepositoryClass<T>
+   protected _model: typeof BaseObjectCore
    backendAdapter: BackendInterface
 
    constructor(
       model: typeof BaseObjectCore,
       backendAdapter: BackendInterface = Core.getBackend()
    ) {
-      this.model = model
-
+      this._model = model
       this.backendAdapter = backendAdapter
    }
 
    protected async getDataObjectFromUid(
       uid: string
    ): Promise<DataObjectClass<any>> {
-      const collection = this.model.COLLECTION || this.model.name.toLowerCase()
+      const collection =
+         this._model.COLLECTION || this._model.name.toLowerCase()
 
       const path = `${collection}/${uid}`
-
-      const dataObject = await DataObject.factory({
-         properties: this.model.PROPS_DEFINITION,
+      const dataObject = DataObject.factory({
+         properties: this._model.PROPS_DEFINITION,
          uri: path,
       })
 
@@ -50,22 +48,23 @@ export default class BaseRepository<T extends BaseObject>
       return dataObject
    }
 
-   async create(obj: Proxy<T>, uid?: string) {
-      const dataObject = obj.core.dataObject
-
-      const savedObj = await this.backendAdapter.create(dataObject, uid)
-
-      return this.model.fromDataObject(savedObj) as Persisted<T>
+   async create<B extends BaseObjectCore>(obj: B, uid?: string) {
+      const savedObj = await this.backendAdapter.create(obj.dataObject, uid)
+      return this._model.fromDataObject(savedObj) //as Persisted<T>
    }
 
-   async read(uid: string) {
+   async read(key: string) {
+      const uid =
+         key.indexOf('/') !== -1 ? key.substring(key.lastIndexOf('/')+1) : key
+
       try {
          const dataObject = await this.getDataObjectFromUid(uid)
 
          const response = await this.backendAdapter.read(dataObject)
 
-         const obj = this.model.fromDataObject(response) as Persisted<T>
+         const obj = this._model.fromDataObject(response)
 
+         // TODO should be moved to the backend middleware
          if (obj.status === statuses.DELETED) {
             throw new GoneError(RESOURCE_GONE_ERROR)
          }
@@ -89,7 +88,7 @@ export default class BaseRepository<T extends BaseObject>
 
       const savedObj = await this.backendAdapter.update(dataObject)
 
-      return this.model.fromDataObject(savedObj) as Persisted<T>
+      return this._model.fromDataObject(savedObj) as Persisted<T>
    }
 
    async delete(uid: string) {

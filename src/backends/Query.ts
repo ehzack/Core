@@ -17,6 +17,7 @@ export enum returnAs {
    AS_OBJECTURIS = 'objectUris',
    AS_DATAOBJECTS = 'dataObjects',
    AS_INSTANCES = 'classInstances',
+   AS_IS = 'asIs',
 }
 
 export class Query<T extends typeof BaseObjectCore> {
@@ -112,7 +113,8 @@ export class Query<T extends typeof BaseObjectCore> {
    async execute(
       as: returnAs = returnAs.AS_DATAOBJECTS,
       backend: BackendInterface = Core.getBackend()
-   ): Promise<DataObjectClass<any>[] | ObjectUri[] | Persisted<BaseObject>[]> {
+   ): Promise<any[]> {
+      //<DataObjectClass<any>[] | ObjectUri[] | Persisted<BaseObject>[]> {
       //</any><Array<T2> | Array<DataObject> | Array<ObjectUri>> {
       try {
          switch (as) {

@@ -1,5 +1,6 @@
 export const CREATED = 'created'
 export const PENDING = 'pending'
+export const QUEUED = 'queued'
 export const ACTIVE = 'active'
 export const ERROR = 'error'
 export const TEST = 'test'

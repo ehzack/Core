@@ -1,12 +1,12 @@
 import { DataObjectClass } from '../components/types/DataObjectClass'
 import { BaseProperty, BasePropertyType } from './BaseProperty'
-import { BooleanProperty } from './BooleanProperty'
-import { DateTimeProperty } from './DateTimeProperty'
-import { EnumProperty } from './EnumProperty'
-import { HashProperty } from './HashProperty'
-import { StringProperty } from './StringProperty'
-import { NumberProperty } from './NumberProperty'
-import { ObjectProperty } from './ObjectProperty'
+import { BooleanProperty, BooleanPropertyType } from './BooleanProperty'
+import { DateTimeProperty, DateTimePropertyType } from './DateTimeProperty'
+import { EnumProperty, EnumPropertyType } from './EnumProperty'
+import { HashProperty, HashPropertyType } from './HashProperty'
+import { StringProperty, StringPropertyType } from './StringProperty'
+import { NumberProperty, NumberPropertyType } from './NumberProperty'
+import { ObjectProperty, ObjectPropertyType } from './ObjectProperty'
 import { CollectionProperty } from './CollectionProperty'
 import { ArrayProperty } from './ArrayProperty'
 import { MapProperty } from './MapProperty'
@@ -23,8 +23,14 @@ export class Property {
    static TYPE_ARRAY = 'array'
    static TYPE_MAP = 'map'
 
-   static factory<P extends BasePropertyType>(
-      params: P,
+   static factory(
+      params: ObjectPropertyType &
+         StringPropertyType &
+         NumberPropertyType &
+         EnumPropertyType &
+         BooleanPropertyType &
+         HashPropertyType &
+         DateTimePropertyType,
       parent: DataObjectClass<any>
    ) {
       params.parent = parent

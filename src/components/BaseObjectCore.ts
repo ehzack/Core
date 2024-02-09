@@ -61,10 +61,7 @@ export class BaseObjectCore extends AbstractObject implements BaseObjectClass {
     * @param child
     * @returns
     */
-   static fromObject<T extends BaseObject>(
-      src: T,
-      child: any = this
-   ): Proxy<T> {
+   static fromObject<T extends BaseObject>(src: T, child: any = this): any {
       const dao = this.fillProperties(child)
 
       dao.uri = new ObjectUri(
@@ -78,7 +75,7 @@ export class BaseObjectCore extends AbstractObject implements BaseObjectClass {
 
       const obj = new this(dao)
 
-      return obj.toProxy() as Proxy<T>
+      return obj //.toProxy() as Proxy<T>
    }
 
    static async factory(
@@ -121,12 +118,16 @@ export class BaseObjectCore extends AbstractObject implements BaseObjectClass {
     * @param dao
     * @returns
     */
-   static fromDataObject<T extends BaseObject>(dao: DataObjectClass<any>): T {
+   static fromDataObject<T extends BaseObject>(dao: DataObjectClass<any>): any {
       const obj = new this(dao)
 
-      return obj.toProxy()
+      return obj //.toProxy()
    }
 
+   /**
+    * Wrap instance into proxy to get access to properties
+    * @returns Proxy
+    */
    protected toProxy<T extends BaseObject>() {
       return new ProxyConstructor<this, Proxy<T>>(this, {
          get: (target, prop) => {
@@ -174,6 +175,7 @@ export class BaseObjectCore extends AbstractObject implements BaseObjectClass {
    }
 
    asReference() {
+      console.log(this._dataObject.toReference())
       return this._dataObject.toReference()
    }
 

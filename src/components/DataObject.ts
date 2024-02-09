@@ -1,13 +1,12 @@
 import { Core } from '../Core'
-import { ArrayProperty, DataObjectProperties } from '../properties'
+import { DataObjectProperties, ObjectProperty } from '../properties'
 import { Property } from '../properties/Property'
 import { PropertyClassType } from '../properties/types/PropertyClassType'
 import { AbstractObject } from './AbstractObject'
-import { BaseObject } from './BaseObject'
-import { Proxy } from './types/ProxyConstructor'
 import { ObjectUri } from './ObjectUri'
 import { DataObjectClass } from './types/DataObjectClass'
 import { BaseObjectCore } from './BaseObjectCore'
+import { returnAs } from '../backends/Query'
 
 export type CoreObject<T extends AbstractObject> = T
 export type Properties = { [x: string]: PropertyClassType }
@@ -33,6 +32,8 @@ export class DataObject implements DataObjectClass<any> {
    protected _properties: Properties = {}
    protected _persisted: boolean = false
    protected _populated: boolean = false
+
+   protected _proxied: any
 
    /**
     * Has data been modified since last backend operation?
@@ -62,6 +63,26 @@ export class DataObject implements DataObjectClass<any> {
    protected _init(properties: any[]) {
       properties.forEach((prop) => {
          this._properties[prop.name] = Property.factory(prop, this)
+      })
+   }
+
+   /**
+    * Wrap instance into proxy to get access to properties
+    * @returns Proxy
+    */
+   public asProxy() {
+      return new Proxy(this, {
+         get: (target, prop) => {
+            return target.val(prop as string)
+         },
+         set(target, prop, newValue) {
+            if (prop === 'uid' || prop === 'core') {
+               throw new Error(`Property '${prop}' is readonly`)
+            }
+
+            target.set(prop as string, newValue)
+            return true
+         },
       })
    }
 
@@ -233,9 +254,9 @@ export class DataObject implements DataObjectClass<any> {
     * @param key string
     * @returns any
     */
-   val(key: string) {
+   val(key: string, transform: string | undefined = undefined) {
       if (this.has(key)) {
-         return Reflect.get(this._properties, key).val()
+         return Reflect.get(this._properties, key).val(transform)
       } else {
          throw new Error(`Unknown property '${key}'`)
       }
@@ -264,14 +285,13 @@ export class DataObject implements DataObjectClass<any> {
                // ignore
                break
             case 'ObjectProperty':
-               const value: Proxy<BaseObject> | ObjectUri | undefined =
-                  prop.val()
+               const value: BaseObjectCore | ObjectUri | undefined = prop.val()
                Reflect.set(
                   data,
                   key,
                   value
                      ? objectsAsReferences && !(value instanceof ObjectUri)
-                        ? value.core.asReference()
+                        ? value.asReference()
                         : value.toJSON
                         ? value.toJSON()
                         : value

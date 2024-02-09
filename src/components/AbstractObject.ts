@@ -16,6 +16,11 @@ export abstract class AbstractObject {
       this._dataObject = dao
    }
 
+   /**
+    * Return property object matching key
+    * @param key string
+    * @returns
+    */
    get(key: string) {
       return this._dataObject.get(key)
    }
@@ -47,6 +52,10 @@ export abstract class AbstractObject {
 
    get dataObject() {
       return this._dataObject
+   }
+
+   get _() {
+      return this._dataObject.asProxy()
    }
 
    get uri() {

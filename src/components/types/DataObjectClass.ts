@@ -1,4 +1,4 @@
-//import { DataObjectParams } from '../DataObject'
+import { returnAs } from '../../backends/Query'
 import { ObjectUri } from '../ObjectUri'
 
 export interface DataObjectClass<T extends DataObjectClass<any>> {
@@ -24,4 +24,5 @@ export interface DataObjectClass<T extends DataObjectClass<any>> {
    toReference(): any
    toJSON(objectsAsReferences?: boolean): any
    populateFromData(data: { [x: string]: unknown }): this
+   asProxy(): any
 }

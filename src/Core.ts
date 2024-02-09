@@ -11,6 +11,9 @@ export class Core {
    static classRegistry: { [key: string]: any } = {}
    static logger = console.log
 
+   // How timestamp are formatted
+   static timestamp = () => (new Date().toISOString())
+
    protected static _backends: BackendRegistry<any> = {}
 
    static definition(key: string) {
@@ -43,6 +46,14 @@ export class Core {
       }
    }
 
+   static addClass(name: string, obj: any) {
+      Core.classRegistry[name] = obj
+   }
+
+   static getClass(name: string) {
+      return Core.classRegistry[name]
+   }
+
    /**
     * Returns the class to use for a data object
     * This is currently just a stub that will be implemented from config in the future
@@ -65,4 +76,6 @@ export class Core {
    ): void {
       Core.logger(`${Date.now()} - [${src}] ${message}`)
    }
+
+   static getObject() {}
 }

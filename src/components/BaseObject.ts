@@ -39,6 +39,8 @@ export const BaseObjectProperties: any = [
       ],
       defaultValue: statuses.CREATED,
    },
+   // the following properties may be optionally
+   // populated with a backend middleware
    {
       name: 'createdBy',
       type: ObjectProperty.TYPE,

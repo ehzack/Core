@@ -51,7 +51,7 @@ export class ObjectUri {
          }
          this._label = label || this._uid
       } else {
-         throw new Error('Path parts number must be 1 or even')
+         throw new Error(`Path parts number must be 1 or even, received: '${str}'`)
       }
    }
 

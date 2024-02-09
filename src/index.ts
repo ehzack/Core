@@ -26,7 +26,7 @@ import { Proxy } from './components/types/ProxyConstructor'
 import { InjectMetaMiddleware } from './backends/middlewares/InjectMetaMiddleware'
 
 import RepositoryClass from './components/types/RepositoryClass'
-import AbstractRepository from './components/BaseRepository'
+import BaseRepository from './components/BaseRepository'
 
 import { BackendAction } from './Backend'
 import Middleware from './backends/middlewares/Middleware'
@@ -79,7 +79,6 @@ export {
    StringPropertyType,
    AbstractAdapter,
    RepositoryClass,
-   AbstractRepository,
    MockAdapter,
    ObjectUri,
    DataObjectClass,
@@ -89,6 +88,7 @@ export {
    BaseObjectCore,
    BaseObjectProperties,
    BackendParameters,
+   BaseRepository,
    BackendError,
    Query,
    Filter,
