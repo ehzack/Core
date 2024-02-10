@@ -5,7 +5,7 @@ import {
 } from './AbstractAdapter'
 import { MockAdapter } from './MockAdapter'
 import { BackendError } from './BackendError'
-import { Query } from './Query'
+import { Query, QueryResultType, QueryMetaType } from './Query'
 import { Filter } from './Filter'
 import { Filters } from './Filters'
 import { Sorting } from './Sorting'
@@ -19,6 +19,8 @@ export {
    BackendError,
    MockAdapter,
    Query,
+   QueryResultType,
+   QueryMetaType,
    Filter,
    Filters,
    Sorting,

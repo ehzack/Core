@@ -26,7 +26,8 @@
    "scripts": {
       "test": "tsc && jest --verbose",
       "build": "tsc --watch",
-      "push": "yarn version --patch --no-git-tag-version ; yarn publish --access public",
+      "patch": "yarn version --patch --no-git-tag-version",
+      "push": "yarn publish --access public",
       "prepublish": "tsc"
    }
 }

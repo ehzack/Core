@@ -3,7 +3,7 @@ import { BaseObjectCore } from '../components'
 import { DataObjectClass } from '../components/types/DataObjectClass'
 import { Filter } from './Filter'
 import { Filters } from './Filters'
-import { Query } from './Query'
+import { Query, QueryResultType } from './Query'
 import { SortAndLimit } from './SortAndLimit'
 import Middleware from './middlewares/Middleware'
 
@@ -61,9 +61,7 @@ export interface BackendInterface {
       dataObject: DataObjectClass<any>,
       filters: Filters | Filter[] | undefined,
       pagination: SortAndLimit | undefined
-   ): Promise<DataObjectClass<any>[]>
-
-   count(query: Query<any>): Promise<number>
+   ): Promise<QueryResultType<any>>
 }
 
 export abstract class AbstractAdapter implements BackendInterface {
@@ -127,7 +125,7 @@ export abstract class AbstractAdapter implements BackendInterface {
     * @param query
     * @returns Array
     */
-   async query(query: Query<any>): Promise<DataObjectClass<any>[]> {
+   async query(query: Query<any>): Promise<QueryResultType> {
       return await this.find(
          await query.obj.daoFactory(),
          query.filters,
@@ -135,17 +133,11 @@ export abstract class AbstractAdapter implements BackendInterface {
       )
    }
 
-   async count(query: Query<any>): Promise<number> {
-      return (
-         await this.find(await query.obj.daoFactory(), query.filters, undefined)
-      ).length
-   }
-
    abstract find(
       dataObject: DataObjectClass<any>,
       filters: Filters | Filter[] | undefined,
       pagination: SortAndLimit | undefined
-   ): Promise<DataObjectClass<any>[]>
+   ): Promise<QueryResultType<any>>
 
    log(message: string) {
       if (this._params['debug'] === true) {

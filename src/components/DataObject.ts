@@ -7,6 +7,7 @@ import { ObjectUri } from './ObjectUri'
 import { DataObjectClass } from './types/DataObjectClass'
 import { BaseObjectCore } from './BaseObjectCore'
 import { returnAs } from '../backends/Query'
+import { NotFoundError } from '../common/ResourcesErrors'
 
 export type CoreObject<T extends AbstractObject> = T
 export type Properties = { [x: string]: PropertyClassType }
@@ -231,11 +232,10 @@ export class DataObject implements DataObjectClass<any> {
     * @returns BaseProperty
     */
    get(key: string) {
-      try {
-         return this._properties[key]
-      } catch (err) {
-         throw new Error((err as Error).message)
+      if (!Reflect.has(this._properties, key)) {
+         throw new NotFoundError(`No property matching key ${key}`)
       }
+      return Reflect.get(this._properties, key)
    }
 
    set(key: string, val: any) {

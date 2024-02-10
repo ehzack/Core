@@ -5,13 +5,25 @@ import { SortAndLimit } from './SortAndLimit'
 import { BackendInterface } from './AbstractAdapter'
 import { Core } from '../Core'
 import { DataObjectClass, ObjectUri } from '../components'
-import { Persisted } from '../components/types/Persisted'
-import { BaseObject } from '../components/BaseObject'
 import { BaseObjectCore } from '../components/BaseObjectCore'
 
 export const AS_OBJECTURIS = 'objectUris'
 export const AS_DATAOBJECTS = 'dataObjects'
 export const AS_INSTANCES = 'classInstances'
+
+export type QueryMetaType = {
+   count: number
+   offset: number
+   batch: number
+   executionTime: string | number
+   sortField?: string
+   sortOrder?: 'asc' | 'desc'
+}
+
+export type QueryResultType<T> = {
+   items: Array<T>
+   meta: QueryMetaType
+}
 
 export enum returnAs {
    AS_OBJECTURIS = 'objectUris',
@@ -26,6 +38,7 @@ export class Query<T extends typeof BaseObjectCore> {
    filters: Filter[]
    sortings: Sorting[]
    limits: Limits
+   meta: any
 
    constructor(obj: T, params: { [x: string]: any } = {}) {
       this._obj = obj
@@ -33,6 +46,7 @@ export class Query<T extends typeof BaseObjectCore> {
       this.filters = []
       this.sortings = []
       this.limits = new Limits()
+      this.meta = {}
    }
 
    get obj() {
@@ -40,12 +54,13 @@ export class Query<T extends typeof BaseObjectCore> {
    }
 
    where(param: Filter | string, value: any = null, operator: any = 'equals') {
+      console.log(`received value`, value)
       if (typeof param == 'object') {
          this.filters.push(param)
       } else {
          if (operator === 'equals' && Array.isArray(value)) {
             // auto-convert operator if value is an array
-            operator = 'containsAny'
+            operator = 'contains' // Any'
          }
          this.filters.push(new Filter(param, value, operator))
       }
@@ -84,26 +99,26 @@ export class Query<T extends typeof BaseObjectCore> {
 
    async fetch(
       backend: BackendInterface = Core.getBackend()
-   ): Promise<DataObjectClass<any>[]> {
+   ): Promise<QueryResultType> {
       return backend.query(this)
    }
 
    async fetchAsUri(
       backend: BackendInterface = Core.getBackend()
-   ): Promise<ObjectUri[]> {
+   ): Promise<QueryResultType<ObjectUri> {
       const result = await this.fetch(backend)
 
-      return await Promise.all(result.map((dao) => dao.uri))
+      return await Promise.all(result.items.map((dao) => dao.uri))
    }
 
    async fetchAsInstances(
       backend: BackendInterface = Core.getBackend()
-   ): Promise<Persisted<BaseObject>[]> {
+   ): Promise<QueryResultType<T>> {
       const result = await this.fetch(backend)
 
       const instances = []
 
-      for (const item of result) {
+      for (const item of result.items) {
          instances.push(this._obj.fromDataObject(item))
       }
 
@@ -113,7 +128,7 @@ export class Query<T extends typeof BaseObjectCore> {
    async execute(
       as: returnAs = returnAs.AS_DATAOBJECTS,
       backend: BackendInterface = Core.getBackend()
-   ): Promise<any[]> {
+   ): Promise<QueryResultType> {
       //<DataObjectClass<any>[] | ObjectUri[] | Persisted<BaseObject>[]> {
       //</any><Array<T2> | Array<DataObject> | Array<ObjectUri>> {
       try {

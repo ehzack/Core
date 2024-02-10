@@ -175,7 +175,6 @@ export class BaseObjectCore extends AbstractObject implements BaseObjectClass {
    }
 
    asReference() {
-      console.log(this._dataObject.toReference())
       return this._dataObject.toReference()
    }
 
