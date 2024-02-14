@@ -24,9 +24,10 @@ export const EntityProperties: any = [
    },
 ]
 
-export interface Entity extends BaseObjectCore {
+export interface Entity extends BaseObject {
    users: User
 }
+
 export class EntityCore extends BaseObjectCore implements EntityClass {
    static COLLECTION = 'entities'
 
