@@ -1,18 +1,18 @@
 import { AbstractAdapter } from './backends/AbstractAdapter'
 import { DataObject } from './components/DataObject'
-import { User } from './components/User'
+import { UserCore } from './components/User'
 import { DataObjectClass } from './components/types/DataObjectClass'
 
 export type BackendRegistry<T extends AbstractAdapter> = { [x: string]: T }
 
 export class Core {
    static defaultBackend = '@default'
-   static currentUser: User
+   static userClass = UserCore
    static classRegistry: { [key: string]: any } = {}
-   static logger = console.log
+   static logger = console
 
    // How timestamp are formatted
-   static timestamp = () => (new Date().toISOString())
+   static timestamp = () => new Date().toISOString()
 
    protected static _backends: BackendRegistry<any> = {}
 
@@ -66,16 +66,18 @@ export class Core {
    /**
     * Log message using defined logger
     * This is currently just a stub that will be implemented from config in the future
-    * @param message string
+    * @param message string | object
     * @param level string
     */
    static log(
-      message: string,
+      message: any,
       src: string = 'Core',
       level: string = 'NOTICE'
    ): void {
-      Core.logger(`${Date.now()} - [${src}] ${message}`)
+      Core.logger.log(
+         `${Date.now()} - [${src}] ${
+            typeof message === 'string' ? message : JSON.stringify(message)
+         }`
+      )
    }
-
-   static getObject() {}
 }

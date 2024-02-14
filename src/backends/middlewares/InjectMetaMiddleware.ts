@@ -1,6 +1,6 @@
 import { DataObjectClass } from '../../components'
 import { BackendAction } from '../../Backend'
-import { User, UserCore } from '../../components/User'
+import { UserCore } from '../../components/User'
 import Middleware from './Middleware'
 
 export interface InjectMetaMiddlewareParams {

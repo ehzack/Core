@@ -4,11 +4,11 @@ import { DateTimeProperty, EnumProperty, ObjectProperty } from '../properties'
 import { HashProperty } from '../properties/HashProperty'
 import { StringProperty } from '../properties/StringProperty'
 import * as htmlType from '../properties/types/PropertyHTMLType'
-import { BaseObjectProperties, BaseObject } from './BaseObject'
-import { Persisted } from './types/Persisted'
-import { Proxy } from './types/ProxyConstructor'
+import { BaseObject, BaseObjectProperties } from './BaseObject'
+import { EntityCore } from './Entity'
 
 export interface User extends BaseObject {
+   name: string
    firstname: string
    lastname: string
    gender?: 'male' | 'female' | 'nonbinary'
@@ -32,7 +32,6 @@ export const UserProperties: any = [
       name: 'name',
       type: StringProperty.TYPE,
       minLength: 0,
-      fullSearch: true,
       htmlType: htmlType.NAME,
    },
    {
@@ -41,6 +40,7 @@ export const UserProperties: any = [
       type: StringProperty.TYPE,
       minLength: 1,
       maxLength: 100,
+      fullSearch: true,
       htmlType: htmlType.GIVEN_NAME,
       onChange,
    },
@@ -50,6 +50,7 @@ export const UserProperties: any = [
       type: StringProperty.TYPE,
       minLength: 1,
       maxLength: 100,
+      fullSearch: true,
       htmlType: htmlType.FAMILY_NAME,
       onChange,
    },
@@ -89,7 +90,7 @@ export const UserProperties: any = [
       name: 'entity',
       mandatory: false,
       type: ObjectProperty.TYPE,
-      instanceOf: BaseObjectCore,
+      instanceOf: EntityCore,
    },
 ]
 
@@ -99,7 +100,7 @@ export class UserCore extends BaseObjectCore {
 
    static async factory(
       src: any = undefined
-   ): Promise<Proxy<User> | Persisted<User>> {
+   ): Promise<UserCore> {
       return super.factory(src, UserCore)
    }
 }

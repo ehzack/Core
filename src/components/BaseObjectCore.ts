@@ -75,7 +75,7 @@ export class BaseObjectCore extends AbstractObject implements BaseObjectClass {
 
       const obj = new this(dao)
 
-      return obj //.toProxy() as Proxy<T>
+      return obj
    }
 
    static async factory(

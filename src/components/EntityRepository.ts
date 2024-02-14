@@ -1,5 +1,5 @@
 import { Core } from '../Core'
-import { BackendInterface } from '../backends'
+import { BackendInterface } from '../backends/types/BackendInterface'
 import BaseRepository from './BaseRepository'
 import { Entity, EntityCore } from './Entity'
 

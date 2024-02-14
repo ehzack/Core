@@ -60,6 +60,15 @@ export class HashProperty extends StringProperty {
       return hash
    }
 
+   /**
+    * Never return the password which is hashed anyway
+    * @param transform
+    * @returns
+    */
+   get(transform?: string | undefined): string | undefined {
+      return
+   }
+
    set(value: string) {
       return super.set(this._hash(value))
    }

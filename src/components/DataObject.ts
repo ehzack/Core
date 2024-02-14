@@ -1,12 +1,11 @@
 import { Core } from '../Core'
-import { DataObjectProperties, ObjectProperty } from '../properties'
+import { DataObjectProperties } from '../properties'
 import { Property } from '../properties/Property'
 import { PropertyClassType } from '../properties/types/PropertyClassType'
 import { AbstractObject } from './AbstractObject'
 import { ObjectUri } from './ObjectUri'
 import { DataObjectClass } from './types/DataObjectClass'
 import { BaseObjectCore } from './BaseObjectCore'
-import { returnAs } from '../backends/Query'
 import { NotFoundError } from '../common/ResourcesErrors'
 
 export type CoreObject<T extends AbstractObject> = T
@@ -90,6 +89,13 @@ export class DataObject implements DataObjectClass<any> {
    public setProperties(properties: Properties) {
       // TODO check if doable
       this._properties = properties
+   }
+
+   public addProperty(property: PropertyClassType) {
+      if (Object.keys(this._properties).includes(property.name)) {
+         throw new Error(`Property ${name} already exists`)
+      }
+      this._properties[property.name] = property
    }
 
    /**
@@ -264,7 +270,7 @@ export class DataObject implements DataObjectClass<any> {
 
    toJSON(objectsAsReferences = false): { [x: string]: any } {
       return {
-         ...(this._uid && { uid: this._uid }),
+         ...(this.uri && { uid: this.uri.uid, path: this.uri.path }),
          ...this._dataToJSON(objectsAsReferences),
       }
    }

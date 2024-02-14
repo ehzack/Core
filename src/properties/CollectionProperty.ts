@@ -1,5 +1,5 @@
 import { BaseProperty, BasePropertyType } from './BaseProperty'
-import { Query } from '../backends/Query'
+import { Query, QueryResultType } from '../backends/Query'
 import { Filter } from '../backends/Filter'
 import { ObjectUri } from '../components/ObjectUri'
 import { Core } from '../Core'
@@ -73,7 +73,7 @@ export class CollectionProperty extends BaseProperty {
 
    async val(
       transform: returnAs = returnAs.AS_DATAOBJECTS
-   ): Promise<Array<any> | Array<DataObjectClass<any>> | Array<ObjectUri>> {
+   ): Promise<QueryResultType<any>> {
       return await this.get().execute(transform, this._backend)
    }
 

@@ -1,14 +1,16 @@
-import { AbstractAdapter, BackendInterface } from './AbstractAdapter'
+import { Core } from '../Core'
 import { ObjectUri } from '../components/ObjectUri'
-import { BackendRecordType } from './AbstractAdapter'
-import { Filter } from './Filter'
-import { Filters } from './Filters'
-import { SortAndLimit } from './SortAndLimit'
 import { DataObjectClass } from '../components/types/DataObjectClass'
 import { faker } from '@faker-js/faker'
 import { BackendError } from './BackendError'
 import { NotFoundError } from '../common/ResourcesErrors'
-import { DataObject } from '../components'
+import { QueryResultType } from './Query'
+import { Filter } from './Filter'
+import { Filters } from './Filters'
+import { SortAndLimit } from './SortAndLimit'
+import { AbstractAdapter } from './AbstractAdapter'
+import { BackendInterface } from './types/BackendInterface'
+import { BackendRecordType } from '../Backend'
 
 export class MockAdapter extends AbstractAdapter implements BackendInterface {
    protected static _fixtures: any = {}
@@ -135,14 +137,14 @@ export class MockAdapter extends AbstractAdapter implements BackendInterface {
       dataObject: DataObjectClass<any>,
       filters: Filters | Filter[] | undefined = undefined,
       pagination: SortAndLimit | undefined = undefined
-   ): Promise<DataObjectClass<any>[]> {
+   ): Promise<QueryResultType<DataObjectClass<any>>> {
       const limit = pagination?.limits.batch || 1e10
-      let result: DataObjectClass<any>[] = []
+      let items: DataObjectClass<any>[] = []
       const collection = this.getCollection(dataObject)
       // TODO filter only records matchinf collection
       for (let key in MockAdapter.getFixtures()) {
          let keep = true
-         if (key.startsWith(`${collection}/`) && result.length <= limit) {
+         if (key.startsWith(`${collection}/`) && items.length <= limit) {
             const dao = await dataObject.clone(MockAdapter.getFixture(key))
 
             if (filters) {
@@ -193,13 +195,13 @@ export class MockAdapter extends AbstractAdapter implements BackendInterface {
 
             if (keep) {
                dao.uri = new ObjectUri(key)
-               result.push(dao)
+               items.push(dao)
             }
          }
       }
 
       if (pagination && pagination.sortings.length > 0) {
-         result = result.sort(
+         items = items.sort(
             (a: DataObjectClass<any>, b: DataObjectClass<any>) =>
                Number(
                   a.val(pagination.sortings[0].prop) >
@@ -208,6 +210,14 @@ export class MockAdapter extends AbstractAdapter implements BackendInterface {
          )
       }
 
-      return result
+      return {
+         items,
+         meta: {
+            count: 100,
+            offset: pagination?.limits.offset || 0,
+            batch: pagination?.limits.batch || 10,
+            executionTime: Core.timestamp(),
+         },
+      }
    }
 }

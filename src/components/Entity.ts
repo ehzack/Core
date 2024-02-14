@@ -1,5 +1,5 @@
 import { BaseObjectCore } from './BaseObjectCore'
-import { BaseObject } from './BaseObject'
+import { BaseObject, BaseObjectProperties } from './BaseObject'
 import { User, UserCore } from './User'
 import { EntityClass } from './types/EntityClass'
 import { CollectionProperty } from '../properties/CollectionProperty'
@@ -24,20 +24,21 @@ export const EntityProperties: any = [
    },
 ]
 
-export interface Entity extends BaseObject {
+export interface Entity extends BaseObjectCore {
    users: User
 }
 export class EntityCore extends BaseObjectCore implements EntityClass {
-   static COLLECTION = 'entity'
+   static COLLECTION = 'entities'
 
    static PROPS_DEFINITION = [
+      ...BaseObjectProperties,
       {
          // surcharge property minLength and htmlType
          name: 'name',
          type: StringProperty.TYPE,
          mandatory: true,
          minLength: 1,
-         //htmlType: htmlType.ORG,
+         htmlType: htmlType.ORG,
       },
       {
          name: 'users',

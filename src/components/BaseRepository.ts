@@ -1,16 +1,13 @@
 import { Core } from '../Core'
 import * as statuses from '../statuses'
-import { BackendInterface } from '../backends/AbstractAdapter'
-import { Query } from '../backends/Query'
+import { Query, QueryResultType } from '../backends/Query'
 import { GoneError, NotFoundError } from '../common/ResourcesErrors'
 import { BaseObjectCore } from './BaseObjectCore'
 import { DataObject } from './DataObject'
 import { DataObjectClass } from './types/DataObjectClass'
-import Payload, { Meta } from './types/Payload'
-import RepositoryClass from './types/RepositoryClass'
 import { BaseObject } from './BaseObject'
 import { Persisted } from './types/Persisted'
-import { Proxy } from './types/ProxyConstructor'
+import { BackendInterface } from '../backends/types/BackendInterface'
 
 const RESOURCE_GONE_ERROR = `The resource you are trying to access has been deleted.`
 
@@ -55,7 +52,7 @@ export default class BaseRepository<T extends BaseObject> {
 
    async read(key: string) {
       const uid =
-         key.indexOf('/') !== -1 ? key.substring(key.lastIndexOf('/')+1) : key
+         key.indexOf('/') !== -1 ? key.substring(key.lastIndexOf('/') + 1) : key
 
       try {
          const dataObject = await this.getDataObjectFromUid(uid)
@@ -83,36 +80,24 @@ export default class BaseRepository<T extends BaseObject> {
       }
    }
 
-   async update(obj: Proxy<T>) {
-      const dataObject = obj.core.dataObject
+   async update(obj: BaseObjectCore) {
+      const dataObject = obj.dataObject
 
       const savedObj = await this.backendAdapter.update(dataObject)
 
-      return this._model.fromDataObject(savedObj) as Persisted<T>
+      return this._model.fromDataObject(savedObj)
    }
 
+   /**
+    * delete object in its backend
+    * @param uid string
+    */
    async delete(uid: string) {
       const dataObject = await this.getDataObjectFromUid(uid)
-
-      await this.backendAdapter.delete(dataObject)
+      return await this.backendAdapter.delete(dataObject)
    }
 
-   async query(
-      query: Query<typeof BaseObjectCore>
-   ): Promise<Payload<Persisted<T>>> {
-      const items = (await query.fetchAsInstances(
-         this.backendAdapter
-      )) as unknown as Persisted<T>[]
-
-      const count = await this.backendAdapter.count(query)
-
-      const meta: Meta = {
-         count,
-         updatedAt: new Date().getTime(),
-      }
-
-      const payload: Payload<Persisted<T>> = { items, meta }
-
-      return payload
+   async query(query: Query<any>): Promise<QueryResultType<T>> {
+      return await query.fetchAsInstances(this.backendAdapter)
    }
 }

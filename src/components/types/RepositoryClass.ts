@@ -1,4 +1,4 @@
-import { BackendInterface } from '../../backends/AbstractAdapter'
+import { BackendInterface } from '../../backends/types/BackendInterface'
 import { Query } from '../../backends/Query'
 import { BaseObjectCore } from '../BaseObjectCore'
 import { BaseObject } from '../BaseObject'

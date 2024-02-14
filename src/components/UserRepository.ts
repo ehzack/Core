@@ -1,5 +1,6 @@
-import { BackendInterface, Query } from '../backends'
-import { NotFoundError, UnauthorizedError } from '../common/ResourcesErrors'
+import { Query } from '../backends'
+import { BackendInterface } from '../backends/types/BackendInterface'
+import { NotFoundError } from '../common/ResourcesErrors'
 import BaseRepository from './BaseRepository'
 import { User, UserCore } from './User'
 

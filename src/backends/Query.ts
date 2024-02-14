@@ -2,7 +2,7 @@ import { Filter } from './Filter'
 import { Limits } from './Limits'
 import { Sorting } from './Sorting'
 import { SortAndLimit } from './SortAndLimit'
-import { BackendInterface } from './AbstractAdapter'
+import { BackendInterface } from './types/BackendInterface'
 import { Core } from '../Core'
 import { DataObjectClass, ObjectUri } from '../components'
 import { BaseObjectCore } from '../components/BaseObjectCore'
@@ -99,36 +99,36 @@ export class Query<T extends typeof BaseObjectCore> {
 
    async fetch(
       backend: BackendInterface = Core.getBackend()
-   ): Promise<QueryResultType> {
+   ): Promise<QueryResultType<DataObjectClass<any>>> {
       return backend.query(this)
    }
 
    async fetchAsUri(
       backend: BackendInterface = Core.getBackend()
-   ): Promise<QueryResultType<ObjectUri> {
-      const result = await this.fetch(backend)
+   ): Promise<QueryResultType<ObjectUri>> {
+      const { items, meta } = await this.fetch(backend)
 
-      return await Promise.all(result.items.map((dao) => dao.uri))
+      return { items: await Promise.all(items.map((dao) => dao.uri)), meta }
    }
 
    async fetchAsInstances(
       backend: BackendInterface = Core.getBackend()
    ): Promise<QueryResultType<T>> {
-      const result = await this.fetch(backend)
+      const { items, meta } = await this.fetch(backend)
 
       const instances = []
 
-      for (const item of result.items) {
+      for (const item of items) {
          instances.push(this._obj.fromDataObject(item))
       }
 
-      return instances
+      return { items: instances, meta }
    }
 
    async execute(
       as: returnAs = returnAs.AS_DATAOBJECTS,
       backend: BackendInterface = Core.getBackend()
-   ): Promise<QueryResultType> {
+   ): Promise<QueryResultType<any>> {
       //<DataObjectClass<any>[] | ObjectUri[] | Persisted<BaseObject>[]> {
       //</any><Array<T2> | Array<DataObject> | Array<ObjectUri>> {
       try {

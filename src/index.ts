@@ -24,11 +24,12 @@ import { BaseObject, BaseObjectProperties } from './components/BaseObject'
 import { Proxy } from './components/types/ProxyConstructor'
 
 import { InjectMetaMiddleware } from './backends/middlewares/InjectMetaMiddleware'
+import { InjectKeywordsMiddleware } from './backends/middlewares/InjectKeywordsMiddleware'
 
 import RepositoryClass from './components/types/RepositoryClass'
 import BaseRepository from './components/BaseRepository'
 
-import { BackendAction } from './Backend'
+import { BackendAction, BackendParameters, BackendParametersKeys, BackendRecordType } from './Backend'
 import Middleware from './backends/middlewares/Middleware'
 
 import { User } from './components/User'
@@ -41,8 +42,9 @@ import {
    AbstractAdapter,
    MockAdapter,
    BackendError,
-   BackendParameters,
    Query,
+   QueryMetaType,
+   QueryResultType,
    Filter,
    Filters,
    Limits,
@@ -88,9 +90,14 @@ export {
    BaseObjectCore,
    BaseObjectProperties,
    BackendParameters,
+   BackendParametersKeys,
+   BackendRecordType,
+   BackendAction,
    BaseRepository,
    BackendError,
    Query,
+   QueryMetaType,
+   QueryResultType,
    Filter,
    Filters,
    Limits,
@@ -98,6 +105,7 @@ export {
    SortAndLimit,
    Middleware,
    InjectMetaMiddleware,
+   InjectKeywordsMiddleware,
    User,
    Proxy,
    UserRepository,

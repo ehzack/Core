@@ -1,4 +1,4 @@
-import { returnAs } from '../../backends/Query'
+import { PropertyClassType } from '../../properties/types/PropertyClassType'
 import { ObjectUri } from '../ObjectUri'
 
 export interface DataObjectClass<T extends DataObjectClass<any>> {
@@ -8,8 +8,9 @@ export interface DataObjectClass<T extends DataObjectClass<any>> {
    path: any
    class: any
    properties: any
-   //factory(param?: DataObjectParams): Promise<T>
+
    setProperties(properties: any): void
+   addProperty(property: PropertyClassType): void
    populate(data?: any): Promise<T>
    isPopulated(): boolean
    isPersisted(): boolean

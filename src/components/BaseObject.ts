@@ -11,11 +11,11 @@ export interface BaseObject {
    name: string
    status: string
    createdBy?: User | ObjectUri
-   createdAt?: number
+   createdAt?: number | string
    updatedBy?: User | ObjectUri
-   updatedAt?: number
+   updatedAt?: number | string
    deletedBy?: User | ObjectUri
-   deletedAt?: number
+   deletedAt?: number | string
 }
 
 export const BaseObjectProperties: any = [

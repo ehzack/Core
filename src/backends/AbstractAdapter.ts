@@ -1,68 +1,15 @@
-import { BackendAction } from '../Backend'
-import { BaseObjectCore } from '../components'
+import {
+   BackendAction,
+   BackendParameters,
+   BackendParametersKeys,
+} from '../Backend'
 import { DataObjectClass } from '../components/types/DataObjectClass'
+import { BackendInterface } from './types/BackendInterface'
 import { Filter } from './Filter'
 import { Filters } from './Filters'
 import { Query, QueryResultType } from './Query'
 import { SortAndLimit } from './SortAndLimit'
 import Middleware from './middlewares/Middleware'
-
-/**
- * Default interface for a backend record
- */
-export interface BackendRecordType {
-   uid: string | undefined
-   path: string | undefined
-   [key: string]: any
-}
-
-/**
- * Backend Parameters acceptable keys
- */
-export type BackendParametersKeys =
-   | 'host'
-   | 'alias'
-   | 'mapping'
-   | 'middlewares'
-   | 'config'
-   | 'fixtures'
-   | 'softDelete'
-   | 'debug'
-
-/**
- * Backend parameters interface
- */
-export interface BackendParameters {
-   host?: string
-   alias?: string
-   mapping?: { [x: string]: any }
-   middlewares?: Middleware[]
-   config?: any
-   fixtures?: any
-   softDelete?: boolean
-   debug?: boolean
-}
-
-export interface BackendInterface {
-   create(
-      dataObject: DataObjectClass<any>,
-      desiredUid: string | undefined
-   ): Promise<DataObjectClass<any>>
-
-   read(param: string | DataObjectClass<any>): Promise<DataObjectClass<any>>
-
-   update(dataObject: DataObjectClass<any>): Promise<DataObjectClass<any>>
-
-   delete(dataObject: DataObjectClass<any>): Promise<DataObjectClass<any>>
-
-   query(query: Query<any>): Promise<DataObjectClass<any>[]>
-
-   find(
-      dataObject: DataObjectClass<any>,
-      filters: Filters | Filter[] | undefined,
-      pagination: SortAndLimit | undefined
-   ): Promise<QueryResultType<any>>
-}
 
 export abstract class AbstractAdapter implements BackendInterface {
    protected _alias: string = ''
@@ -125,7 +72,9 @@ export abstract class AbstractAdapter implements BackendInterface {
     * @param query
     * @returns Array
     */
-   async query(query: Query<any>): Promise<QueryResultType> {
+   async query(
+      query: Query<any>
+   ): Promise<QueryResultType<DataObjectClass<any>>> {
       return await this.find(
          await query.obj.daoFactory(),
          query.filters,
