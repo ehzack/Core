@@ -1,18 +1,27 @@
 {
-   "name": "core",
-   "description": "Core objects for business apps monorepo",
+   "name": "@quatrain/core",
+   "version": "1.0.0-beta3",
+   "description": "Core objects for business apps",
+   "main": "lib/index.js",
+   "types": "lib/index.d.ts",
+   "files": [
+      "lib/",
+      "README.md"
+   ],
    "author": "Quatrain Développement SAS <developers@quatrain.com>",
    "license": "MIT",
    "devDependencies": {
-      "@types/node": "^20.8.7",
-      "ts-node": "^10.9.1",
       "@tsconfig/recommended": "^1.0.1",
       "@types/jest": "^27.0.3",
       "jest": "^27.4.7",
       "jest-node-exports-resolver": "^1.1.6",
       "trace-unhandled": "^2.0.1",
       "ts-jest": "^27.1.2",
-      "typescript": "^5.2.2"
+      "ts-node": "^10.4.0",
+      "typescript": "^5.1.5"
+   },
+   "dependencies": {
+      "@faker-js/faker": "^7.6.0"
    },
    "scripts": {
       "test": "tsc && jest --verbose",
@@ -20,9 +29,5 @@
       "patch": "yarn version --patch --no-git-tag-version",
       "push": "yarn publish --access public",
       "prepublish": "tsc"
-   },
-   "private": true,
-   "workspaces": [
-      "packages/*"
-   ]
+   }
 }

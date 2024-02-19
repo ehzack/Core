@@ -1,0 +1,13 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.UNKNOWN = exports.DONE = exports.COMPLETED = exports.DELETED = exports.DELETABLE = exports.ERROR = exports.ACTIVE = exports.PROCESSING = exports.PENDING = exports.CREATED = void 0;
+exports.CREATED = 'created';
+exports.PENDING = 'pending';
+exports.PROCESSING = 'processing';
+exports.ACTIVE = 'active';
+exports.ERROR = 'error';
+exports.DELETABLE = 'deletable';
+exports.DELETED = 'deleted';
+exports.COMPLETED = 'completed';
+exports.DONE = 'done';
+exports.UNKNOWN = 'unknown';
