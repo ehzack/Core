@@ -1,6 +1,6 @@
 {
   "name": "@quatrain/auth-firebase",
-  "version": "0.0.1",
+  "version": "1.0.0-beta1",
   "license": "MIT",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
