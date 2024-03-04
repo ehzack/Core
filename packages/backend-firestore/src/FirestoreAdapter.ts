@@ -130,7 +130,7 @@ export class FirestoreAdapter extends AbstractAdapter {
       const parts = path.split('/')
       if (parts.length < 2 || parts.length % 2 !== 0) {
          throw new BackendError(
-            `path parts number should be even, received: '${path}'`
+            `[FSA] path parts number should be even, received: '${path}'`
          )
       }
 
@@ -139,7 +139,7 @@ export class FirestoreAdapter extends AbstractAdapter {
       const snapshot = await getFirestore().doc(path).get()
 
       if (!snapshot.exists) {
-         throw new NotFoundError(`No document matches path '${path}'`)
+         throw new NotFoundError(`[FSA] No document matches path '${path}'`)
       }
 
       dataObject.populate(snapshot.data())
@@ -166,7 +166,7 @@ export class FirestoreAdapter extends AbstractAdapter {
             )
          ) {
             throw new BackendError(
-               `DataObject has parent but parent is not persisted`
+               `[FSA] DataObject has parent but parent is not persisted`
             )
          }
          fullPath = `${dataObject.get('parent')._value._path}/`
@@ -271,7 +271,7 @@ export class FirestoreAdapter extends AbstractAdapter {
 
          if (!collection) {
             throw new BackendError(
-               `Can't find collection matching object to query`
+               `[FSA] Can't find collection matching object to query`
             )
          }
 
@@ -310,7 +310,7 @@ export class FirestoreAdapter extends AbstractAdapter {
                if (filter.prop === 'keywords') {
                   if (!this.hasMiddleware(InjectKeywordsMiddleware.name)) {
                      throw new BackendError(
-                        `Can't query using 'keywords' field if '${InjectKeywordsMiddleware.name}' is not attached`
+                        `[FSA] Can't query using 'keywords' field if '${InjectKeywordsMiddleware.name}' is not attached`
                      )
                   }
                   realOperator = operatorsMap.containsAll
@@ -320,7 +320,7 @@ export class FirestoreAdapter extends AbstractAdapter {
                   !dataObject.has(filter.prop)
                ) {
                   throw new BackendError(
-                     `No such property '${filter.prop}' on object'`
+                     `[FSA] No such property '${filter.prop}' on object'`
                   )
                } else if (filter.prop === AbstractAdapter.PKEY_IDENTIFIER) {
                   realProp = FieldPath.documentId()

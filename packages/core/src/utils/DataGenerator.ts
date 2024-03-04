@@ -1,8 +1,7 @@
 import { Core } from '../Core'
-import { BaseObject } from '../components/BaseObject'
 import * as htmlType from '../properties/types/PropertyHTMLType'
 import { faker } from '@faker-js/faker'
-import { Proxy } from '../components/types/ProxyConstructor'
+import { AbstractObject } from '../components'
 
 /**
  * Generate data from model of object and save it in default backend
@@ -11,17 +10,18 @@ import { Proxy } from '../components/types/ProxyConstructor'
  * @param forcedValues
  * @returns
  */
-export const DataGenerator = async <T extends BaseObject>(
-   model: Proxy<T>,
+export const DataGenerator = async <T extends AbstractObject>(
+   model: T,
    qty: number = 5,
    forcedValues: any = {}
 ): Promise<any> => {
    const promises: any = []
    Core.log(`Starting to create ${qty} ${model.constructor.name} records`)
    for (let i = 0; i < qty; i++) {
-      const dao = await model.core.dataObject.clone() //model.dataObject.toJSON())
+      const dao = await model.dataObject.clone()
 
       Object.keys(dao.properties).forEach((key) => {
+         console.log(`Getting property for '${key}'`)
          const property = dao.get(key)
 
          if (forcedValues[key]) {

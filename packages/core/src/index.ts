@@ -40,7 +40,7 @@ import Middleware from './backends/middlewares/Middleware'
 import { UserType, User } from './components/User'
 import UserRepository from './components/UserRepository'
 
-import { Entity } from './components/Entity'
+import { EntityType, Entity } from './components/Entity'
 import EntityRepository from './components/EntityRepository'
 
 import { AuthAction, AuthParameters, AuthParametersKeys } from './Auth'
@@ -129,6 +129,7 @@ export {
    Proxy,
    UserRepository,
    Entity,
+   EntityType,
    EntityRepository,
    BadRequestError,
    UnauthorizedError,

@@ -1,5 +1,5 @@
 {
-   "name": "core",
+   "name": "pawnee",
    "description": "Core objects for business apps monorepo",
    "author": "Quatrain Développement SAS <developers@quatrain.com>",
    "license": "MIT",

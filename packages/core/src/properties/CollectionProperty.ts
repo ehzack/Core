@@ -28,8 +28,9 @@ export class CollectionProperty extends BaseProperty {
 
    constructor(config: CollectionPropertyType) {
       super(config)
+      console.log(config)
       if (!config.instanceOf) {
-         throw new Error('Parameter instanceOf is mandatory')
+         throw new Error(`Parameter 'instanceOf' is mandatory`)
       }
       this._instanceOf =
          typeof config.instanceOf === 'string'

@@ -247,7 +247,7 @@ export class DataObject implements DataObjectClass<any> {
     */
    get(key: string) {
       if (!Reflect.has(this._properties, key)) {
-         throw new NotFoundError(`No property matching key ${key}`)
+         throw new NotFoundError(`No property matching key '${key}'`)
       }
       return Reflect.get(this._properties, key)
    }

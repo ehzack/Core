@@ -1,16 +1,14 @@
-import { Core, DataObject, Entity, User, utils, Proxy } from '@quatrain/core'
+import { Core, DataObject, Entity, User, utils } from '@quatrain/core'
 import { FirestoreAdapter } from '../FirestoreAdapter'
-import { UserCore } from '@quatrain/core/lib/components'
-import { EntityCore } from '@quatrain/core/lib/components/Entity'
 
-process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080'
+process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:4141'
 
 export const setup = () => {
    Core.addBackend(
       new FirestoreAdapter({
          config: {
             projectId: 'quatrain-core-firestore-admin-adapter-test',
-            databaseURL: 'http://127.0.0.1:8080',
+            databaseURL: 'http://127.0.0.1:4141',
          },
       }),
       '@default'
@@ -20,29 +18,25 @@ export const setup = () => {
 }
 
 export const createUser = async () => {
-   const user = await UserCore.factory()
-   user.firstname = 'John'
-   user.lastname = 'Doe'
-   user.email = 'john@doe.com'
-   user.password = 'azerty'
+   const user = await User.factory()
+   user._.firstname = 'John'
+   user._.lastname = 'Doe'
+   user._.email = 'john@doe.com'
+   user._.password = 'azerty'
 
    return user
 }
 
 export const createEntity = async (forcedValues: any = {}) => {
-   const res = await utils.DataGenerator(
-      await EntityCore.factory(),
-      1,
-      forcedValues
-   )
+   //const res = await utils.DataGenerator(Entity, 1, forcedValues)
+   const entity = await Entity.factory()
+   entity._.name = 'ACME Inc.'
 
-   //console.log(res)
-
-   return EntityCore.factory(res[0])
+   return entity
 }
 
 export const createUsers = (
-   userModel: Proxy<User>,
+   userModel: User,
    qty: number = 5,
    forcedValues: any = {}
 ): Promise<DataObject[]> => utils.DataGenerator(userModel, qty, forcedValues)
