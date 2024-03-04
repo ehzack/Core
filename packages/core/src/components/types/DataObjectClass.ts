@@ -8,6 +8,7 @@ export interface DataObjectClass<T extends DataObjectClass<any>> {
    path: any
    class: any
    properties: any
+   parentProp: string | undefined
 
    setProperties(properties: any): void
    addProperty(property: PropertyClassType): void

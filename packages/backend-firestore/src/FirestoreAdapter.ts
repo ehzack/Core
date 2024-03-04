@@ -16,6 +16,7 @@ import {
    statuses,
    InjectKeywordsMiddleware,
 } from '@quatrain/core'
+import { CollectionHierarchy } from '@quatrain/core/lib/backends'
 
 // do not convert to import as it is not yet supported
 import { getApps, initializeApp } from 'firebase-admin/app'
@@ -24,6 +25,8 @@ import {
    Query,
    CollectionGroup,
    WhereFilterOp,
+   FieldPath,
+   FieldValue,
 } from 'firebase-admin/firestore'
 
 export interface Reference {
@@ -53,6 +56,34 @@ export class FirestoreAdapter extends AbstractAdapter {
       }
    }
 
+   protected _buildPath(dataObject: DataObjectClass<any>, uid?: string) {
+      const collection = this.getCollection(dataObject)
+      if (!collection) {
+         throw new BackendError(
+            `[FSA] Can't define record path without a collection name`
+         )
+      }
+
+      let path = `${collection}/${
+         dataObject.uid || uid || getFirestore().collection(collection).doc().id
+      }`
+
+      if (
+         this._params.hierarchy &&
+         this._params.hierarchy[collection] ===
+            CollectionHierarchy.SUBCOLLECTION &&
+         dataObject.parentProp &&
+         dataObject.has(dataObject.parentProp) &&
+         dataObject.val(dataObject.parentProp)
+      ) {
+         path = `${dataObject.val(dataObject.parentProp).path}/${path}`
+      }
+
+      Core.log(`[FSA] Record path is '${path}'`)
+
+      return path
+   }
+
    /**
     * Create record in backend
     * @param dataObject DataObject instance to persist in backend
@@ -69,38 +100,15 @@ export class FirestoreAdapter extends AbstractAdapter {
                   `Data object already has an uid and can't be created`
                )
             }
-            let fullPath = ''
-            if (dataObject.has('parent')) {
-               // if data contains a parent, it acts as a base path
-               if (
-                  !(
-                     dataObject.get('parent')._value &&
-                     dataObject.get('parent')._value._path
-                  )
-               ) {
-                  throw new BackendError(
-                     `DataObject has parent but parent is not persisted`
-                  )
-               }
-               fullPath = `${dataObject.get('parent')._value._path}/`
-            }
 
-            const collection = this.getCollection(dataObject)
+            const data = dataObject.toJSON(true)
 
-            fullPath += collection
+            const path = this._buildPath(dataObject, desiredUid)
 
             // execute middlewares
             await this.executeMiddlewares(dataObject, BackendAction.CREATE)
 
-            const data = dataObject.toJSON(true)
-
-            const uid =
-               desiredUid || getFirestore().collection(fullPath).doc().id
-
-            const path = `${fullPath}/${uid}`
-
-            const ref = getFirestore().doc(path)
-            await ref.create(data)
+            await getFirestore().doc(path).create(data)
 
             dataObject.uri.path = path
             dataObject.uri.label = data && Reflect.get(data, 'name')
@@ -244,142 +252,168 @@ export class FirestoreAdapter extends AbstractAdapter {
     * @param dataObject
     * @param filters
     * @param pagination
+    * @params parent
     * @returns
     */
    async find(
       dataObject: DataObjectClass<any>,
       filters: Filters | Filter[] | undefined = undefined,
-      pagination: SortAndLimit | undefined = undefined
+      pagination: SortAndLimit | undefined = undefined,
+      parent: any = undefined
    ): Promise<QueryResultType<DataObjectClass<any>>> {
-      let fullPath = ''
-      if (dataObject.path !== ObjectUri.DEFAULT) {
-         fullPath = `${dataObject.path}/`
-      }
-      const collection = this.getCollection(dataObject)
+      try {
+         //  use parent path to start fullPath, if available
+         let fullPath = parent ? `${parent.path}/` : ''
+         if (dataObject.path && dataObject.path !== ObjectUri.DEFAULT) {
+            fullPath += `${dataObject.path}/`
+         }
+         const collection = this.getCollection(dataObject)
 
-      if (!collection) {
-         throw new BackendError(
-            `Can't find collection matching object to query`
+         if (!collection) {
+            throw new BackendError(
+               `Can't find collection matching object to query`
+            )
+         }
+
+         fullPath += collection
+
+         Core.log(
+            `[FSA] Query on ${
+               dataObject.has('parent') ? 'sub' : ''
+            }collection '${fullPath}'`
          )
-      }
 
-      fullPath += collection
+         let hasFilters = false
+         let query: Query | CollectionGroup
+         if (
+            this._params.hierarchy &&
+            this._params.hierarchy[collection] ===
+               CollectionHierarchy.SUBCOLLECTION &&
+            collection.split('/').length > 1 // no collectiongroup on a sub collection
+         ) {
+            Core.log(`[FSA] Using collectionGroup()`)
+            query = getFirestore().collectionGroup(collection)
+         } else {
+            query = getFirestore().collection(fullPath)
+         }
 
-      Core.log(`[FSA] Query on collection '${collection}'`)
+         if (filters instanceof Filters) {
+            hasFilters = true
+         } else if (Array.isArray(filters)) {
+            // list of filters objects
+            filters.forEach((filter) => {
+               let realProp: any = filter.prop
+               let realOperator: WhereFilterOp
+               let realValue = filter.value
 
-      let hasFilters = false
-      let query: Query | CollectionGroup
-      if (dataObject.has('parent')) {
-         query = getFirestore().collectionGroup(collection)
-      } else {
-         query = getFirestore().collection(fullPath)
-      }
-
-      if (filters instanceof Filters) {
-         hasFilters = true
-      } else if (Array.isArray(filters)) {
-         // list of filters objects
-         filters.forEach((filter) => {
-            let realProp = filter.prop
-            let realOperator: WhereFilterOp
-            let realValue = filter.value
-
-            // Process text search firestore-mode
-            if (filter.prop === 'keywords') {
-               if (!this.hasMiddleware(InjectKeywordsMiddleware.name)) {
+               // Process text search firestore-mode
+               if (filter.prop === 'keywords') {
+                  if (!this.hasMiddleware(InjectKeywordsMiddleware.name)) {
+                     throw new BackendError(
+                        `Can't query using 'keywords' field if '${InjectKeywordsMiddleware.name}' is not attached`
+                     )
+                  }
+                  realOperator = operatorsMap.containsAll
+                  realValue = String(filter.value).toLowerCase()
+               } else if (
+                  filter.prop !== AbstractAdapter.PKEY_IDENTIFIER &&
+                  !dataObject.has(filter.prop)
+               ) {
                   throw new BackendError(
-                     `Can't query using 'keywords' field if '${InjectKeywordsMiddleware.name}' is not attached`
+                     `No such property '${filter.prop}' on object'`
+                  )
+               } else if (filter.prop === AbstractAdapter.PKEY_IDENTIFIER) {
+                  realProp = FieldPath.documentId()
+                  realOperator = operatorsMap[filter.operator]
+               } else {
+                  const property = dataObject.get(filter.prop)
+
+                  if (property.constructor.name === 'ObjectProperty') {
+                     realProp = `${filter.prop}.ref`
+
+                     if (filter.value instanceof ObjectUri) {
+                        realValue = filter.value.path
+                     } else {
+                        realValue =
+                           (filter.value &&
+                              filter.value.uri &&
+                              filter.value.uri.path) ||
+                           filter.value
+                     }
+                  }
+
+                  realOperator = operatorsMap[filter.operator]
+               }
+
+               query = query.where(realProp, realOperator, realValue)
+
+               Core.log(
+                  `[FSA] Filter added: ${realProp} ${realOperator} ${realValue}`
+               )
+            })
+         }
+
+         const countSnapshot = await query.count().get()
+
+         if (pagination) {
+            pagination?.sortings.forEach((sorting: Sorting) => {
+               query = query.orderBy(sorting.prop, sorting.order)
+            })
+            query = query.offset(pagination.limits.offset || 0)
+            if (pagination?.limits.batch !== -1) {
+               query = query.limit(pagination.limits.batch)
+            }
+         }
+
+         const snapshot = await query.get()
+
+         const meta: QueryMetaType = {
+            count: countSnapshot.data().count,
+            offset: pagination?.limits.offset || 0,
+            batch: pagination?.limits.batch || 20,
+            sortField: pagination?.sortings[0].prop,
+            executionTime: Core.timestamp(),
+         }
+
+         const items: DataObjectClass<any>[] = []
+
+         for (const doc of snapshot.docs) {
+            const { keywords, ...payload } = doc.data()
+
+            const newDataObject: DataObjectClass<any> = await dataObject.clone({
+               ...payload,
+            })
+
+            let newDataObjectUri = ``
+            if (newDataObject.has('parent')) {
+               // if data contains a parent, it acts as a base path
+               if (
+                  !(
+                     newDataObject.val('parent') &&
+                     newDataObject.val('parent').path
+                  )
+               ) {
+                  throw new BackendError(
+                     `DataObject has parent but parent is not persisted`
                   )
                }
-               realOperator = operatorsMap['containsAll']
-               realValue = String(filter.value).toLowerCase()
-            } else if (!dataObject.has(filter.prop)) {
-               throw new BackendError(
-                  `No such property '${filter.prop}' on object'`
-               )
-            } else {
-               const property = dataObject.get(filter.prop)
-
-               if (property.constructor.name === 'ObjectProperty') {
-                  realProp = `${filter.prop}.ref`
-
-                  if (filter.value instanceof ObjectUri) {
-                     realValue = filter.value.path
-                  } else {
-                     realValue =
-                        (filter.value &&
-                           filter.value.uri &&
-                           filter.value.uri.path) ||
-                        filter.value
-                  }
-               }
-
-               realOperator = operatorsMap[filter.operator]
+               newDataObjectUri = `${newDataObject.get('parent')._value._path}/`
             }
-            query = query.where(realProp, realOperator, realValue)
 
-            Core.log(`filter added: ${realProp} ${realOperator} ${realValue}`)
-         })
-      }
+            newDataObjectUri += `${this.getCollection(dataObject)}/${doc.id}`
 
-      const countSnapshot = await query.count().get()
+            newDataObject.uri = new ObjectUri(
+               newDataObjectUri,
+               newDataObject.val('name')
+            )
+            this.executeMiddlewares(newDataObject, BackendAction.READ)
 
-      if (pagination) {
-         pagination.sortings.forEach((sorting: Sorting) => {
-            query = query.orderBy(sorting.prop, sorting.order)
-         })
-         query = query.offset(pagination.limits.offset || 0)
-         if (pagination.limits.batch !== -1) {
-            query = query.limit(pagination.limits.batch)
-         }
-      }
-
-      const snapshot = await query.get()
-
-      const meta: QueryMetaType = {
-         count: countSnapshot.data().count,
-         offset: pagination?.limits.offset || 0,
-         batch: pagination?.limits.batch || 20,
-         sortField: pagination?.sortings[0].prop,
-         executionTime: Core.timestamp(),
-      }
-
-      const items: DataObjectClass<any>[] = []
-
-      for (const doc of snapshot.docs) {
-         const { keywords, ...payload } = doc.data()
-
-         const newDataObject: DataObjectClass<any> = await dataObject.clone({
-            ...payload,
-         })
-
-         let newDataObjectUri = ``
-         if (newDataObject.has('parent')) {
-            // if data contains a parent, it acts as a base path
-            if (
-               !(
-                  newDataObject.get('parent')._value &&
-                  newDataObject.get('parent')._value._path
-               )
-            ) {
-               throw new BackendError(
-                  `DataObject has parent but parent is not persisted`
-               )
-            }
-            newDataObjectUri = `${newDataObject.get('parent')._value._path}/`
+            items.push(newDataObject)
          }
 
-         newDataObjectUri += `${this.getCollection(dataObject)}/${doc.id}`
-
-         newDataObject.uri = new ObjectUri(
-            newDataObjectUri,
-            newDataObject.val('name')
-         )
-         this.executeMiddlewares(newDataObject, BackendAction.READ)
-
-         items.push(newDataObject)
+         return { items, meta }
+      } catch (err) {
+         throw new BackendError((err as Error).message)
       }
-
-      return { items, meta }
    }
 }

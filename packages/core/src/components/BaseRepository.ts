@@ -45,17 +45,36 @@ export default class BaseRepository<T extends BaseObject> {
       return dataObject
    }
 
+   protected async getDataObjectFromPath(
+      path: string
+   ): Promise<DataObjectClass<any>> {
+      const dataObject = DataObject.factory({
+         properties: this._model.PROPS_DEFINITION,
+         uri: path,
+      })
+
+      dataObject.uid = path.substring(path.lastIndexOf('/') + 1)
+
+      return dataObject
+   }
+
    async create<B extends BaseObjectCore>(obj: B, uid?: string) {
       const savedObj = await this.backendAdapter.create(obj.dataObject, uid)
-      return this._model.fromDataObject(savedObj) //as Persisted<T>
+      return this._model.fromDataObject(savedObj)
    }
 
    async read(key: string) {
-      const uid =
-         key.indexOf('/') !== -1 ? key.substring(key.lastIndexOf('/') + 1) : key
-
       try {
-         const dataObject = await this.getDataObjectFromUid(uid)
+         let dataObject
+         if (key.split('/').length <= 2) {
+            const uid =
+               key.indexOf('/') !== -1
+                  ? key.substring(key.lastIndexOf('/') + 1)
+                  : key
+            dataObject = await this.getDataObjectFromUid(uid)
+         } else {
+            dataObject = await this.getDataObjectFromPath(key)
+         }
 
          const response = await this.backendAdapter.read(dataObject)
 

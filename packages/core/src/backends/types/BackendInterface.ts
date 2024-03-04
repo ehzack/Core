@@ -21,6 +21,7 @@ export interface BackendInterface {
    find(
       dataObject: DataObjectClass<any>,
       filters: Filters | Filter[] | undefined,
-      pagination: SortAndLimit | undefined
+      pagination: SortAndLimit | undefined,
+      parent: any
    ): Promise<QueryResultType<DataObjectClass<any>>>
 }

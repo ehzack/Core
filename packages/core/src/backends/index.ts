@@ -1,7 +1,8 @@
 import { AbstractAdapter } from './AbstractAdapter'
 import { MockAdapter } from './MockAdapter'
 import { BackendError } from './BackendError'
-import { BackendInterface} from './types/BackendInterface';
+import { BackendInterface } from './types/BackendInterface'
+import * as CollectionHierarchy from './types/CollectionHierarchy'
 import { Query, QueryResultType, QueryMetaType } from './Query'
 import { Filter } from './Filter'
 import { Filters } from './Filters'
@@ -22,4 +23,5 @@ export {
    Sorting,
    Limits,
    SortAndLimit,
+   CollectionHierarchy,
 }

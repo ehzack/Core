@@ -9,6 +9,7 @@ import { BaseObjectCore } from './BaseObjectCore'
 import { NotFoundError } from '../common/ResourcesErrors'
 
 export type CoreObject<T extends AbstractObject> = T
+
 export type Properties = { [x: string]: PropertyClassType }
 
 export interface DataObjectFactoryType {
@@ -19,6 +20,7 @@ export interface DataObjectFactoryType {
 export interface DataObjectParams {
    uri?: string | ObjectUri
    properties: DataObjectProperties
+   parentProp?: string
 }
 
 /**
@@ -32,6 +34,7 @@ export class DataObject implements DataObjectClass<any> {
    protected _properties: Properties = {}
    protected _persisted: boolean = false
    protected _populated: boolean = false
+   protected _parentProp: string | undefined
 
    protected _proxied: any
 
@@ -51,6 +54,7 @@ export class DataObject implements DataObjectClass<any> {
          } else {
             this._objectUri = params.uri
          }
+         this._parentProp = params.parentProp
       } else {
          this._objectUri = new ObjectUri()
       }
@@ -226,6 +230,10 @@ export class DataObject implements DataObjectClass<any> {
    get class(): any {
       // TODO get class type
       return this.uri.class
+   }
+
+   get parentProp() {
+      return this._parentProp
    }
 
    has(key: string) {

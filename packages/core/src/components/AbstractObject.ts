@@ -7,6 +7,9 @@ export abstract class AbstractObject {
    // Which name to use in backend as table/collection identifer
    static COLLECTION: string | undefined
 
+   // which property handles relation to parent
+   static PARENT_PROP: string | undefined
+
    // Which property's value to use in backend as label for object reference
    static LABEL_KEY = 'name'
 

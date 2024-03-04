@@ -1,4 +1,4 @@
-import Middleware from "./backends/middlewares/Middleware"
+import Middleware from './backends/middlewares/Middleware'
 
 export enum BackendAction {
    CREATE = 'create',
@@ -35,6 +35,7 @@ export type BackendParametersKeys =
 export interface BackendParameters {
    host?: string
    alias?: string
+   hierarchy?: { [collection: string]: any }
    mapping?: { [x: string]: any }
    middlewares?: Middleware[]
    config?: any

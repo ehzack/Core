@@ -34,15 +34,15 @@ export enum returnAs {
 
 export class Query<T extends typeof BaseObjectCore> {
    protected _obj: T
-   protected _params: any
+   protected _parent: T | undefined
    filters: Filter[]
    sortings: Sorting[]
    limits: Limits
    meta: any
 
-   constructor(obj: T, params: { [x: string]: any } = {}) {
+   constructor(obj: T, parent: T | undefined = undefined) {
       this._obj = obj
-      this._params = params // just in case
+      this._parent = parent
       this.filters = []
       this.sortings = []
       this.limits = new Limits()
@@ -53,8 +53,19 @@ export class Query<T extends typeof BaseObjectCore> {
       return this._obj
    }
 
+   get parent(): T | undefined {
+      return this._parent
+   }
+
+   /**
+    * Declare query parent record
+    * This may be need in some NoSQL backend to query subcollections
+    */
+   set parent(parent: T) {
+      this._parent = parent
+   }
+
    where(param: Filter | string, value: any = null, operator: any = 'equals') {
-      console.log(`received value`, value)
       if (typeof param == 'object') {
          this.filters.push(param)
       } else {

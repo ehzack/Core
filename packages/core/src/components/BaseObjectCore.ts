@@ -32,7 +32,10 @@ export class BaseObjectCore extends AbstractObject implements BaseObjectClass {
          }
       })
 
-      const dao = DataObject.factory({ properties: base })
+      const dao = DataObject.factory({
+         properties: base,
+         parentProp: this.PARENT_PROP,
+      })
       dao.uri.class = child
 
       return dao
@@ -178,10 +181,19 @@ export class BaseObjectCore extends AbstractObject implements BaseObjectClass {
       return this._dataObject.toReference()
    }
 
-   query() {
-      return new Query(this.constructor.prototype)
+   /**
+    * Create a query based on given class where parent is current instance
+    * @param obj
+    * @returns Query
+    */
+   query(obj: any) {
+      return new Query(obj, this)
    }
 
+   /**
+    * Create a query based on current class
+    * @returns Query
+    */
    static query() {
       return new Query(this)
    }

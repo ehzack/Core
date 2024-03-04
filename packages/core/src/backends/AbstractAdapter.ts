@@ -13,6 +13,8 @@ import Middleware from './middlewares/Middleware'
 import { BackendError } from './BackendError'
 
 export abstract class AbstractAdapter implements BackendInterface {
+   static PKEY_IDENTIFIER: any = 'id'
+
    protected _alias: string = ''
    protected _params: BackendParameters = {}
    protected _middlewares: Middleware[] = []
@@ -20,6 +22,7 @@ export abstract class AbstractAdapter implements BackendInterface {
    constructor(params: BackendParameters = {}) {
       this._alias = params.alias || ''
       this._middlewares = params.middlewares || []
+      this._params = params
    }
 
    setParam(key: BackendParametersKeys, value: any) {
@@ -32,7 +35,9 @@ export abstract class AbstractAdapter implements BackendInterface {
 
    addMiddleware(middleware: Middleware) {
       if (this.hasMiddleware(middleware.constructor.name)) {
-         throw new BackendError(`Middleware '${middleware.constructor.name}' is already attached`)
+         throw new BackendError(
+            `Middleware '${middleware.constructor.name}' is already attached`
+         )
       }
       this._middlewares.push(middleware)
    }
@@ -62,7 +67,7 @@ export abstract class AbstractAdapter implements BackendInterface {
    }
 
    getCollection(dao: DataObjectClass<any>) {
-      return dao.uri.collection //|| dao.uri.class.name.toLowerCase() //class.COLLECTION
+      return dao.uri.collection
    }
 
    abstract create(
@@ -95,17 +100,22 @@ export abstract class AbstractAdapter implements BackendInterface {
    async query(
       query: Query<any>
    ): Promise<QueryResultType<DataObjectClass<any>>> {
+      const dao: DataObjectClass<any> = await query.obj.daoFactory()
+      if (query.parent) {
+      }
       return await this.find(
-         await query.obj.daoFactory(),
+         dao,
          query.filters,
-         query.sortAndLimit
+         query.sortAndLimit,
+         query.parent
       )
    }
 
    abstract find(
       dataObject: DataObjectClass<any>,
       filters: Filters | Filter[] | undefined,
-      pagination: SortAndLimit | undefined
+      pagination: SortAndLimit | undefined,
+      parent: any
    ): Promise<QueryResultType<any>>
 
    log(message: string) {
