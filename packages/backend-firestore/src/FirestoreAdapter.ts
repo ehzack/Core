@@ -19,15 +19,14 @@ import {
 import { CollectionHierarchy } from '@quatrain/core/lib/backends'
 
 // do not convert to import as it is not yet supported
-import { getApps, initializeApp } from 'firebase-admin/app'
+import { getApps, initializeApp } from 'firebase-admin/lib/app'
 import {
    getFirestore,
    Query,
    CollectionGroup,
    WhereFilterOp,
    FieldPath,
-   FieldValue,
-} from 'firebase-admin/firestore'
+} from 'firebase-admin/lib/firestore'
 
 export interface Reference {
    ref: string

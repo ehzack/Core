@@ -1,5 +1,6 @@
 import { Core, DataObject, Entity, User, utils } from '@quatrain/core'
 import { FirestoreAdapter } from '../FirestoreAdapter'
+import { CollectionHierarchy } from '@quatrain/core/lib/backends'
 
 process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:4141'
 
@@ -10,6 +11,7 @@ export const setup = () => {
             projectId: 'quatrain-core-firestore-admin-adapter-test',
             databaseURL: 'http://127.0.0.1:4141',
          },
+         hierarchy: { alerts: CollectionHierarchy.SUBCOLLECTION },
       }),
       '@default'
    )
