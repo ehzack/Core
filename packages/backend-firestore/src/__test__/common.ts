@@ -1,4 +1,4 @@
-import { Core, DataObject, Entity, User, utils } from '@quatrain/core'
+import { Core, Entity, User, utils } from '@quatrain/core'
 import { FirestoreAdapter } from '../FirestoreAdapter'
 import { CollectionHierarchy } from '@quatrain/core/lib/backends'
 
@@ -20,19 +20,20 @@ export const setup = () => {
 }
 
 export const createUser = async () => {
-   const user = await User.factory()
-   user._.firstname = 'John'
-   user._.lastname = 'Doe'
-   user._.email = 'john@doe.com'
-   user._.password = 'azerty'
+   const user = await User.factory({
+      firstname: 'John',
+      lastname: 'Doe',
+      name: 'John Doe',
+      email: 'john@doe.com',
+      password: 'azerty',
+   })
 
    return user
 }
 
 export const createEntity = async (forcedValues: any = {}) => {
    //const res = await utils.DataGenerator(Entity, 1, forcedValues)
-   const entity = await Entity.factory()
-   entity._.name = 'ACME Inc.'
+   const entity = await Entity.factory({ name: 'ACME Inc.' })
 
    return entity
 }
@@ -41,4 +42,4 @@ export const createUsers = (
    userModel: User,
    qty: number = 5,
    forcedValues: any = {}
-): Promise<DataObject[]> => utils.DataGenerator(userModel, qty, forcedValues)
+): Promise<User[]> => utils.DataGenerator(userModel, qty, forcedValues)

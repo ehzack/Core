@@ -31,7 +31,7 @@ export default {
    // ],
 
    // Indicates which provider should be used to instrument code for coverage
-   coverageProvider: 'v8',
+   // coverageProvider: 'v8',
 
    // A list of reporter names that Jest uses when writing coverage reports
    // coverageReporters: [
@@ -122,7 +122,7 @@ export default {
    // ],
 
    // Allows you to use a custom runner instead of Jest's default test runner
-   runner: "jest-serial-runner",
+   runner: 'jest-serial-runner',
 
    // The paths to modules that run some code to configure or set up the testing environment before each test
    setupFiles: ['trace-unhandled/register'],
