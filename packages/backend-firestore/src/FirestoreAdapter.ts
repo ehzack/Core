@@ -370,7 +370,10 @@ export class FirestoreAdapter extends AbstractAdapter {
             count: countSnapshot.data().count,
             offset: pagination?.limits.offset || 0,
             batch: pagination?.limits.batch || 20,
-            sortField: pagination?.sortings[0].prop,
+            sortField:
+               pagination && pagination.sortings[0]
+                  ? pagination.sortings[0].prop
+                  : undefined,
             executionTime: Core.timestamp(),
          }
 

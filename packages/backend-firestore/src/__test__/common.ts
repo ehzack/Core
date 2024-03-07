@@ -1,6 +1,7 @@
-import { Core, Entity, User, utils } from '@quatrain/core'
+import { Core, Entity, User } from '@quatrain/core'
 import { FirestoreAdapter } from '../FirestoreAdapter'
 import { CollectionHierarchy } from '@quatrain/core/lib/backends'
+import { faker } from '@faker-js/faker'
 
 process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:4141'
 
@@ -38,8 +39,26 @@ export const createEntity = async (forcedValues: any = {}) => {
    return entity
 }
 
-export const createUsers = (
-   userModel: User,
-   qty: number = 5,
-   forcedValues: any = {}
-): Promise<User[]> => utils.DataGenerator(userModel, qty, forcedValues)
+export const createUsers = async (qty: number = 5, forcedValues: any = {}) => {
+   const users: Array<User> = []
+   for (let i = 0; i < qty; i++) {
+      const firstname = forcedValues.firstname || faker.name.firstName()
+      const lastname = forcedValues.lastname || faker.name.lastName()
+
+      const user = await User.factory({
+         firstname: firstname,
+         lastname: lastname,
+         name: forcedValues.name || `${firstname} ${lastname}`,
+         email:
+            forcedValues.email || faker.helpers.unique(faker.internet.email),
+         password: forcedValues.password || 'password',
+         entity: forcedValues.entity || undefined,
+      })
+
+      await Core.getBackend().create(user.dataObject)
+
+      users.push(user)
+   }
+
+   return users
+}

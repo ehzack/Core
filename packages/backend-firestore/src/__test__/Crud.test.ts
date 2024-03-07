@@ -7,7 +7,7 @@ let user: User
 let fUserAlert: fAlert
 
 beforeAll(async () => {
-   user = (await createUser()) as User
+   user = await createUser()
    await backend.create(user.dataObject)
 
    fUserAlert = await fAlert.factory({
