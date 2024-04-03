@@ -1,0 +1,40 @@
+{
+  "name": "@quatrain/backend-postgres",
+  "version": "0.9.0",
+  "license": "MIT",
+  "description": "Backend adapter for Postgres",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "files": [
+    "lib/",
+    "README.md"
+  ],
+  "author": "Quatrain Développement SAS <developers@quatrain.com>",
+  "peerDependencies": {
+    "@quatrain/core": "^1.0.0-beta2"
+  },
+  "dependencies": {
+    "pg": "^8.11.3",
+    "postgres": "^3.4.4"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^7.6.0",
+    "@tsconfig/recommended": "^1.0.1",
+    "@types/jest": "^27.0.3",
+    "@types/pg": "^8.11.4",
+    "jest": "^27.4.7",
+    "jest-node-exports-resolver": "^1.1.6",
+    "jest-serial-runner": "^1.2.1",
+    "trace-unhandled": "^2.0.1",
+    "ts-jest": "^27.1.2",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.1.5"
+  },
+  "scripts": {
+    "pretest": "tsc",
+    "test-ci": "jest --runInBand",
+    "build": "tsc --watch",
+    "prepush": "tsc",
+    "push": "yarn publish --access public"
+  }
+}
