@@ -5,7 +5,7 @@ export interface BooleanPropertyType extends BasePropertyType {}
 export class BooleanProperty extends BaseProperty {
    static TYPE = 'boolean'
 
-   set(value: boolean) {
-      return super.set(value)
+   set(value: boolean, setChanged = true) {
+      return super.set(value, setChanged)
    }
 }

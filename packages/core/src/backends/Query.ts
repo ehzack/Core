@@ -40,7 +40,7 @@ export class Query<T extends typeof BaseObjectCore> {
    limits: Limits
    meta: any
 
-   constructor(obj: T, parent: T | undefined = undefined) {
+   constructor(obj: T, parent?: T) {
       this._obj = obj
       this._parent = parent
       this.filters = []
@@ -61,7 +61,7 @@ export class Query<T extends typeof BaseObjectCore> {
     * Declare query parent record
     * This may be need in some NoSQL backend to query subcollections
     */
-   set parent(parent: T) {
+   set parent(parent: T | undefined) {
       this._parent = parent
    }
 
@@ -138,7 +138,7 @@ export class Query<T extends typeof BaseObjectCore> {
 
    async execute(
       as: returnAs = returnAs.AS_DATAOBJECTS,
-      backend: BackendInterface = Core.getBackend()
+      backend: BackendInterface = Core.getBackend(this._obj.DEFAULT_BACKEND)
    ): Promise<QueryResultType<any>> {
       //<DataObjectClass<any>[] | ObjectUri[] | Persisted<BaseObject>[]> {
       //</any><Array<T2> | Array<DataObject> | Array<ObjectUri>> {

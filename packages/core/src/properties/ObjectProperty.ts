@@ -69,7 +69,7 @@ export class ObjectProperty extends BaseProperty {
       }
    }
 
-   set(value: object) {
+   set(value: object, setChanged = true) {
       if (
          value! instanceof ObjectUri &&
          value! instanceof DataObject &&
@@ -82,7 +82,7 @@ export class ObjectProperty extends BaseProperty {
          )
       }
 
-      return super.set(value)
+      return super.set(value, setChanged)
    }
 
    toJSON() {

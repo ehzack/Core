@@ -11,6 +11,7 @@ import { Query, QueryResultType } from './Query'
 import { SortAndLimit } from './SortAndLimit'
 import Middleware from './middlewares/Middleware'
 import { BackendError } from './BackendError'
+import { MiddlewareParams } from './middlewares/types/MiddlewareParams'
 
 export abstract class AbstractAdapter implements BackendInterface {
    static PKEY_IDENTIFIER: any = 'id'
@@ -126,10 +127,11 @@ export abstract class AbstractAdapter implements BackendInterface {
 
    async executeMiddlewares(
       dataObject: DataObjectClass<any>,
-      action: BackendAction
+      action: BackendAction,
+      params?: MiddlewareParams
    ) {
       for (const middleware of this._middlewares) {
-         await middleware.execute(dataObject, action)
+         await middleware.execute(dataObject, action, params)
       }
 
       return dataObject

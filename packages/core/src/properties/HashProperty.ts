@@ -69,8 +69,8 @@ export class HashProperty extends StringProperty {
       return
    }
 
-   set(value: string) {
-      return super.set(this._hash(value))
+   set(value: string, setChanged = true) {
+      return super.set(this._hash(value), setChanged)
    }
 
    compare(value: string): boolean {

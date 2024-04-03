@@ -51,7 +51,7 @@ export class StringProperty extends BaseProperty {
       }
    }
 
-   set(value: any) {
+   set(value: any, setChanged = true) {
       if (value !== null && value !== undefined) {
          if (
             this._allows.includes(StringProperty.ALLOW_DIGITS) === false &&
@@ -90,7 +90,7 @@ export class StringProperty extends BaseProperty {
             throw new Error(`${this._name}: value '${value}' is too long`)
          }
       }
-      return super.set(value)
+      return super.set(value, setChanged)
    }
 
    get(transform: string | undefined = undefined) {

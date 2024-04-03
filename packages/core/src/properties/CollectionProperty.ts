@@ -54,8 +54,8 @@ export class CollectionProperty extends BaseProperty {
       return query
    }
 
-   set(value: Array<any>) {
-      return super.set(value)
+   set(value: Array<any>, setChanged = true) {
+      return super.set(value, setChanged)
    }
 
    /**

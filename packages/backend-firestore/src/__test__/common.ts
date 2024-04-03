@@ -32,9 +32,9 @@ export const createUser = async () => {
    return user
 }
 
-export const createEntity = async (forcedValues: any = {}) => {
-   //const res = await utils.DataGenerator(Entity, 1, forcedValues)
-   const entity = await Entity.factory({ name: 'ACME Inc.' })
+export const createEntity = async () => {
+   const entity = await Entity.factory()
+   entity._.name = 'ACME Inc.'
 
    return entity
 }

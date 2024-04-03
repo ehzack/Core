@@ -25,6 +25,7 @@ export const BaseObjectProperties: any = [
       type: StringProperty.TYPE,
       minLength: 1,
       maxLength: 100,
+      fullSearch: true,
       htmlType: htmlType.NAME,
    },
    {

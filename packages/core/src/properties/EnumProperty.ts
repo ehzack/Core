@@ -13,12 +13,12 @@ export class EnumProperty extends BaseProperty {
       this._values = config.values || []
    }
 
-   set(value: string) {
+   set(value: string, setChanged = true) {
       if (value !== null && !this._values.includes(value)) {
          throw new Error(`Value '${value}' is not acceptable`)
       }
 
-      return super.set(value)
+      return super.set(value, setChanged)
    }
 
    get values() {

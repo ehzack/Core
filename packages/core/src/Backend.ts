@@ -41,5 +41,6 @@ export interface BackendParameters {
    config?: any
    fixtures?: any
    softDelete?: boolean
+   useNativeForeignKeys?: boolean
    debug?: boolean
 }

@@ -42,7 +42,7 @@ export class ArrayProperty extends BaseProperty {
       return this._maxLength
    }
 
-   set(value: Array<any>) {
+   set(value: Array<any>, setChanged = true) {
       if (!Array.isArray(value)) {
          throw new Error(`value ${JSON.stringify(value)} is not an array`)
       }
@@ -71,7 +71,7 @@ export class ArrayProperty extends BaseProperty {
          throw new Error(`Numbers are not allowed in value`)
       }
 
-      return super.set(value)
+      return super.set(value, setChanged)
    }
 
    get(transform: Function | undefined = undefined) {

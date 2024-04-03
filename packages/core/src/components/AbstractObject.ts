@@ -10,6 +10,8 @@ export abstract class AbstractObject {
    // which property handles relation to parent
    static PARENT_PROP: string | undefined
 
+   static DEFAULT_BACKEND: string = 'default'
+
    // Which property's value to use in backend as label for object reference
    static LABEL_KEY = 'name'
 

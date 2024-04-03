@@ -58,7 +58,7 @@ export class NumberProperty extends BaseProperty {
       }
    }
 
-   set(value: number) {
+   set(value: number, setChanged = true) {
       if (this._sign === NumberProperty.TYPE_UNSIGNED && value < 0) {
          throw new Error(`Value must be unsigned`)
       }
@@ -75,7 +75,7 @@ export class NumberProperty extends BaseProperty {
          value = Math.floor(value)
       }
 
-      return super.set(value)
+      return super.set(value, setChanged)
    }
 
    val(transform: string | undefined = undefined) {

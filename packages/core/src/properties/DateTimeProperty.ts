@@ -13,8 +13,8 @@ export class DateTimeProperty extends BaseProperty {
       this._timezone = config.timezone || 'Z'
    }
 
-   set(value: string | Date) {
-      return super.set(value)
+   set(value: string | Date, setChanged = true) {
+      return super.set(value, setChanged)
    }
 
    get timezone() {

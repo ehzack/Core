@@ -1,5 +1,5 @@
 import { Core } from '../Core'
-import { DataObjectProperties } from '../properties'
+import { DataObjectProperties, DateTimeProperty } from '../properties'
 import { Property } from '../properties/Property'
 import { PropertyClassType } from '../properties/types/PropertyClassType'
 import { AbstractObject } from './AbstractObject'
@@ -7,6 +7,7 @@ import { ObjectUri } from './ObjectUri'
 import { DataObjectClass } from './types/DataObjectClass'
 import { BaseObjectCore } from './BaseObjectCore'
 import { NotFoundError } from '../common/ResourcesErrors'
+import { toJSONParams } from './types/toJSONParams'
 
 export type CoreObject<T extends AbstractObject> = T
 
@@ -95,9 +96,29 @@ export class DataObject implements DataObjectClass<any> {
       this._properties = properties
    }
 
+   /**
+    * Return a map of all propoerties or only those matching the provided type
+    * @param type
+    * @returns
+    */
+   public getProperties(type?: string) {
+      if (type) {
+         const matches = {}
+         for (let k of Object.keys(this._properties)) {
+            if (this._properties[k].constructor.name === type) {
+               Reflect.set(matches, k, this._properties[k])
+            }
+         }
+
+         return matches
+      }
+
+      return this._properties
+   }
+
    public addProperty(property: PropertyClassType) {
       if (Object.keys(this._properties).includes(property.name)) {
-         throw new Error(`Property ${name} already exists`)
+         throw new Error(`Property ${property.name} already exists`)
       }
       this._properties[property.name] = property
    }
@@ -144,10 +165,11 @@ export class DataObject implements DataObjectClass<any> {
                ) {
                   const { ref, label } = val
                   Reflect.get(this._properties, key).set(
-                     new ObjectUri(ref, label)
+                     new ObjectUri(ref, label),
+                     false
                   )
                } else {
-                  Reflect.get(this._properties, key).set(data[key])
+                  Reflect.get(this._properties, key).set(data[key], false)
                }
             }
          }
@@ -189,7 +211,7 @@ export class DataObject implements DataObjectClass<any> {
       return this._persisted
    }
 
-   get properties() {
+   get properties(): Properties {
       return this._properties
    }
 
@@ -276,10 +298,24 @@ export class DataObject implements DataObjectClass<any> {
       }
    }
 
-   toJSON(objectsAsReferences = false): { [x: string]: any } {
+   toJSON(params: boolean | toJSONParams = false): { [x: string]: any } {
+      let objectsAsReferences: boolean = false,
+         withoutURIData: boolean = false,
+         ignoreUnchanged: boolean = false,
+         converters: any = {}
+
+      if (typeof params === 'object') {
+         // Any missing parameter should resolve to false
+         objectsAsReferences = Boolean(params.objectsAsReferences)
+         withoutURIData = Boolean(params.withoutURIData)
+         ignoreUnchanged = Boolean(params.ignoreUnchanged)
+         converters = params.converters
+      }
+
       return {
-         ...(this.uri && { uid: this.uri.uid, path: this.uri.path }),
-         ...this._dataToJSON(objectsAsReferences),
+         ...(!withoutURIData &&
+            this.uri && { uid: this.uri.uid, path: this.uri.path }),
+         ...this._dataToJSON(objectsAsReferences, ignoreUnchanged, converters),
       }
    }
 
@@ -290,10 +326,17 @@ export class DataObject implements DataObjectClass<any> {
       }
    }
 
-   protected _dataToJSON(objectsAsReferences = false) {
+   protected _dataToJSON(
+      objectsAsReferences = false,
+      ignoreUnchanged = false,
+      converters = {}
+   ) {
       const data = {}
       Object.keys(this._properties).forEach((key: string) => {
-         const prop: any = Reflect.get(this._properties, key)
+         const prop = Reflect.get(this._properties, key)
+         if (ignoreUnchanged && prop.hasChanged === false) return
+
+         console.log(prop.constructor.name);
          switch (prop.constructor.name) {
             case 'CollectionProperty':
                // ignore
@@ -322,8 +365,17 @@ export class DataObject implements DataObjectClass<any> {
                Reflect.set(data, key, prop.val() || [])
                break
 
+            case 'DateTimeProperty':
+               Reflect.set(
+                  data,
+                  key,
+                  prop.val(Reflect.get(converters, 'datetime')) || null
+               )
+               break
+
             default:
                Reflect.set(data, key, prop.val() || null)
+               break
          }
       })
 

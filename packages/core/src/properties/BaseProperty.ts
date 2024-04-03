@@ -22,6 +22,7 @@ export class BaseProperty implements PropertyClassType {
    static EVENT_ONDELETE = 'onDelete'
 
    protected _parent: DataObjectClass<any> | undefined
+   protected _id: string
    protected _name: string
    protected _value: any = undefined
    protected _mandatory: boolean = false
@@ -29,17 +30,20 @@ export class BaseProperty implements PropertyClassType {
    protected _allows: String[] = []
    protected _htmlType: PropertyHTMLType = 'off'
    protected _defaultValue: any
+   protected _hasChanged: boolean
    protected _events: {
       [key: EventTypes]: Function
    } = {}
 
    constructor(config: BasePropertyType) {
       this._parent = config.parent
+      this._id = config.id || config.name.toLowerCase()
       this._name = config.name
       this._protected = config.protected || false
       this._mandatory = config.mandatory || false
       this._defaultValue = config.defaultValue
       this._value = config.defaultValue
+      this._hasChanged = false
       this._htmlType = config.htmlType || 'off'
       if (typeof config.onChange === 'function') {
          this._events.onChange = config.onChange
@@ -70,7 +74,11 @@ export class BaseProperty implements PropertyClassType {
       return this._htmlType
    }
 
-   set(value: any) {
+   get hasChanged() {
+      return this._hasChanged
+   }
+
+   set(value: any, setChanged: boolean = true) {
       if (
          this._value !== undefined &&
          this._value !== null &&
@@ -81,7 +89,12 @@ export class BaseProperty implements PropertyClassType {
             `Value '${this._name}' already defined as '${this._value}' and protected from change`
          )
       }
-      this._value = value
+
+      if (value !== this._value) {
+         console.log(this.name, value, this._value)
+         this._value = value
+         this._hasChanged = setChanged
+      }
 
       if (this._events[BaseProperty.EVENT_ONCHANGE]) {
          this._events[BaseProperty.EVENT_ONCHANGE](this._parent)
@@ -91,7 +104,10 @@ export class BaseProperty implements PropertyClassType {
    }
 
    val(transform: any = undefined): any {
-      return transform ? transform(this._value) : this._value || this._defaultValue
+      console.log(transform && transform(this._value), typeof transform);
+      return typeof transform === 'function'
+         ? transform(this._value)
+         : this._value || this._defaultValue
    }
 
    protected _enable(value: boolean | undefined) {

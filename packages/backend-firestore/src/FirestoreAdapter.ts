@@ -26,7 +26,7 @@ import {
    CollectionGroup,
    WhereFilterOp,
    FieldPath,
-} from 'firebase-admin/lib/firestore'
+} from 'firebase-admin/firestore'
 
 export interface Reference {
    ref: string
@@ -354,9 +354,11 @@ export class FirestoreAdapter extends AbstractAdapter {
 
          const countSnapshot = await query.count().get()
 
+         let sortField: string[] = []
          if (pagination) {
             pagination?.sortings.forEach((sorting: Sorting) => {
                query = query.orderBy(sorting.prop, sorting.order)
+               sortField.push(`${sorting.prop} ${sorting.order}`)
             })
             query = query.offset(pagination.limits.offset || 0)
             if (pagination?.limits.batch !== -1) {
@@ -370,10 +372,7 @@ export class FirestoreAdapter extends AbstractAdapter {
             count: countSnapshot.data().count,
             offset: pagination?.limits.offset || 0,
             batch: pagination?.limits.batch || 20,
-            sortField:
-               pagination && pagination.sortings[0]
-                  ? pagination.sortings[0].prop
-                  : undefined,
+            sortField: sortField.join(', '),
             executionTime: Core.timestamp(),
          }
 
