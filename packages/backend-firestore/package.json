@@ -1,6 +1,6 @@
 {
   "name": "@quatrain/backend-firestore",
-  "version": "1.0.0-beta7",
+  "version": "1.0.0-beta8",
   "license": "MIT",
   "description": "Backend adapter for Firestore",
   "main": "lib/index.js",

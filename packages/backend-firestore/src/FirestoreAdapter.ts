@@ -19,7 +19,7 @@ import {
 import { CollectionHierarchy } from '@quatrain/core/lib/backends'
 
 // do not convert to import as it is not yet supported
-import { getApps, initializeApp } from 'firebase-admin/lib/app'
+import { getApps, initializeApp } from 'firebase-admin/app'
 import {
    getFirestore,
    Query,
@@ -357,8 +357,10 @@ export class FirestoreAdapter extends AbstractAdapter {
          let sortField: string[] = []
          if (pagination) {
             pagination?.sortings.forEach((sorting: Sorting) => {
-               query = query.orderBy(sorting.prop, sorting.order)
-               sortField.push(`${sorting.prop} ${sorting.order}`)
+               if (sorting.prop || sorting.order) {
+                  query = query.orderBy(sorting.prop, sorting.order)
+                  sortField.push(`${sorting.prop} ${sorting.order}`)
+               }
             })
             query = query.offset(pagination.limits.offset || 0)
             if (pagination?.limits.batch !== -1) {
