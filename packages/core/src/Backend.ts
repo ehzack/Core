@@ -5,6 +5,7 @@ export enum BackendAction {
    READ = 'read',
    UPDATE = 'update',
    DELETE = 'delete',
+   WRITE = 'write',
 }
 
 /**

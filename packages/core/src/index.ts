@@ -72,6 +72,8 @@ import {
    GoneError,
 } from './common/ResourcesErrors'
 
+import { AbstractCloudWrapper } from './wrappers/cloud/AbstractCloudWrapper'
+
 export {
    statuses,
    utils,
@@ -136,4 +138,5 @@ export {
    ForbiddenError,
    NotFoundError,
    GoneError,
+   AbstractCloudWrapper,
 }

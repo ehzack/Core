@@ -100,12 +100,12 @@ export class FirestoreAdapter extends AbstractAdapter {
                )
             }
 
-            const data = dataObject.toJSON(true)
-
             const path = this._buildPath(dataObject, desiredUid)
 
             // execute middlewares
             await this.executeMiddlewares(dataObject, BackendAction.CREATE)
+
+            const data = dataObject.toJSON(true)
 
             await getFirestore().doc(path).create(data)
 
