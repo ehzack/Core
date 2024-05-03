@@ -1,4 +1,4 @@
-import Middleware from './authentication/middlewares/Middleware'
+import Middleware from './authentication/middlewares/AuthMiddleware'
 
 export enum AuthAction {
    SIGNIN = 'signin',

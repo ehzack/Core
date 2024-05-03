@@ -21,7 +21,7 @@ export class ObjectProperty extends BaseProperty {
 
    val(transform: string | undefined = undefined) {
       if (typeof this._instanceOf === 'string') {
-         console.log(`Getting instance from string ${this._instanceOf}`)
+         //console.log(`Getting instance from string ${this._instanceOf}`)
          this._instanceOf = Core.getClass(this._instanceOf)
          //throw new Error(`Parameter 'instanceOf' was not properly setted`)
       }
@@ -49,10 +49,10 @@ export class ObjectProperty extends BaseProperty {
                console.log(`Converting dataObject -> instance`)
                return Reflect.construct(this._instanceOf, [this._value])
             } else if (this._value instanceof ObjectUri) {
-               console.log('ObjectProperty', this)
+               // console.log('ObjectProperty', this)
 
                console.log(`Converting objectUri -> dataObject -> instance`)
-               console.log(this._instanceOf)
+               // console.log(this._instanceOf)
                const dao = DataObject.factory({
                   properties: Reflect.get(this._instanceOf, 'PROPS_DEFINITION'),
                   uri: this._value,
@@ -62,7 +62,6 @@ export class ObjectProperty extends BaseProperty {
                console.log(`Returning already existing instance`)
                return this._value
             }
-            return this._value
          case returnAs.AS_OBJECTURIS:
          default:
             return this._value

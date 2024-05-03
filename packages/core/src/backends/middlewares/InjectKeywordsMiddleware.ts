@@ -1,11 +1,11 @@
 import { DataObjectClass } from '../../components'
 import { BackendAction } from '../../Backend'
-import Middleware from './Middleware'
+import BackendMiddleware from './Middleware'
 import { ArrayProperty } from '../../properties'
 
 export interface InjectKeywordsMiddlewareParams {}
 
-export class InjectKeywordsMiddleware implements Middleware {
+export class InjectKeywordsMiddleware implements BackendMiddleware {
    execute(dataObject: DataObjectClass<any>, action: BackendAction) {
       if (!dataObject.has('keywords')) {
          dataObject.addProperty(new ArrayProperty({ name: 'keywords' }))

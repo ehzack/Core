@@ -1,7 +1,7 @@
 import { DataObjectClass } from '../../components'
 import { BackendAction } from '../../Backend'
 import { User } from '../../components/User'
-import Middleware from './Middleware'
+import BackendMiddleware from './Middleware'
 import { Core } from '../../Core'
 import { MiddlewareParams } from './types/MiddlewareParams'
 
@@ -9,7 +9,7 @@ export interface InjectMetaMiddlewareParams {
    user: User
 }
 
-export class InjectMetaMiddleware implements Middleware {
+export class InjectMetaMiddleware implements BackendMiddleware {
    protected _user: User
 
    constructor(params: InjectMetaMiddlewareParams) {

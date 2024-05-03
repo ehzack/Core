@@ -336,7 +336,7 @@ export class DataObject implements DataObjectClass<any> {
          const prop = Reflect.get(this._properties, key)
          if (ignoreUnchanged && prop.hasChanged === false) return
 
-         console.log(prop.constructor.name);
+      //   console.log(prop.constructor.name);
          switch (prop.constructor.name) {
             case 'CollectionProperty':
                // ignore

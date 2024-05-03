@@ -5,13 +5,14 @@ import { User } from './components/User'
 import { DataObjectClass } from './components/types/DataObjectClass'
 
 export type BackendRegistry<T extends AbstractAdapter> = { [x: string]: T }
+export interface AuthAdapter extends AbstractAuthAdapter {}
 
 export class Core {
    static defaultBackend = '@default'
    static userClass = User
    static classRegistry: { [key: string]: any } = {}
    static logger = console
-   static auth: AbstractAuthAdapter
+   static auth: AuthAdapter | AbstractAuthAdapter
 
    // How timestamp are formatted
    static timestamp = () => new Date().toISOString()

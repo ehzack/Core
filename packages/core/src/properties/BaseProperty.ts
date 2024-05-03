@@ -91,7 +91,7 @@ export class BaseProperty implements PropertyClassType {
       }
 
       if (value !== this._value) {
-         console.log(this.name, value, this._value)
+         // console.log(this.name, value, this._value)
          this._value = value
          this._hasChanged = setChanged
       }
@@ -104,7 +104,7 @@ export class BaseProperty implements PropertyClassType {
    }
 
    val(transform: any = undefined): any {
-      console.log(transform && transform(this._value), typeof transform);
+     // console.log(transform && transform(this._value), typeof transform);
       return typeof transform === 'function'
          ? transform(this._value)
          : this._value || this._defaultValue

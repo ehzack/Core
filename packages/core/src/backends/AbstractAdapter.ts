@@ -9,16 +9,18 @@ import { Filter } from './Filter'
 import { Filters } from './Filters'
 import { Query, QueryResultType } from './Query'
 import { SortAndLimit } from './SortAndLimit'
-import Middleware from './middlewares/Middleware'
+import BackendMiddleware from './middlewares/Middleware'
 import { BackendError } from './BackendError'
 import { MiddlewareParams } from './middlewares/types/MiddlewareParams'
+
+interface BM extends BackendMiddleware {}
 
 export abstract class AbstractAdapter implements BackendInterface {
    static PKEY_IDENTIFIER: any = 'id'
 
    protected _alias: string = ''
    protected _params: BackendParameters = {}
-   protected _middlewares: Middleware[] = []
+   protected _middlewares: BM[] = []
 
    constructor(params: BackendParameters = {}) {
       this._alias = params.alias || ''
@@ -34,7 +36,7 @@ export abstract class AbstractAdapter implements BackendInterface {
       return this._params[key]
    }
 
-   addMiddleware(middleware: Middleware) {
+   addMiddleware(middleware: BM) {
       if (this.hasMiddleware(middleware.constructor.name)) {
          throw new BackendError(
             `Middleware '${middleware.constructor.name}' is already attached`
