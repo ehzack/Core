@@ -1,6 +1,6 @@
 {
   "name": "@quatrain/cloudwrapper-firebase",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "license": "MIT",
   "description": "Cloud Wrapper adapter for Firebase",
   "main": "lib/index.js",
