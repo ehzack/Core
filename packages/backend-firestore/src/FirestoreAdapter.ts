@@ -48,6 +48,8 @@ const operatorsMap: { [x: string]: WhereFilterOp } = {
 }
 
 export class FirestoreAdapter extends AbstractAdapter {
+   static PKEY_IDENTIFIER = FieldPath.documentId()
+
    constructor(params: BackendParameters = {}) {
       super(params)
       if (getApps().length === 0) {
@@ -62,6 +64,8 @@ export class FirestoreAdapter extends AbstractAdapter {
             `[FSA] Can't define record path without a collection name`
          )
       }
+
+      // define document path
 
       let path = `${collection}/${
          dataObject.uid || uid || getFirestore().collection(collection).doc().id
@@ -357,7 +361,7 @@ export class FirestoreAdapter extends AbstractAdapter {
          let sortField: string[] = []
          if (pagination) {
             pagination?.sortings.forEach((sorting: Sorting) => {
-               if (sorting.prop || sorting.order) {
+               if (sorting.prop && sorting.order) {
                   query = query.orderBy(sorting.prop, sorting.order)
                   sortField.push(`${sorting.prop} ${sorting.order}`)
                }

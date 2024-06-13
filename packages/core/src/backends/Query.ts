@@ -65,7 +65,7 @@ export class Query<T extends typeof BaseObjectCore> {
       this._parent = parent
    }
 
-   where(param: Filter | string, value: any = null, operator: any = 'equals') {
+   where(param: Filter | string | any, value: any = null, operator: any = 'equals') {
       if (typeof param == 'object') {
          this.filters.push(param)
       } else {

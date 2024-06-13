@@ -50,15 +50,20 @@ export class ObjectUri {
             i += 2
          }
          this._label = label || this._uid
-      } else {
-         throw new Error(`Path parts number must be 1 or even, received: '${str}'`)
+      } else if (parts[parts.length - 1].indexOf('.') === -1) {
+         // if the last part is not a filenma with extension, throw error
+         throw new Error(
+            `Path parts number must be 1 or even, received: '${str}'`
+         )
       }
    }
 
    set class(objClass: any) {
       this._objClass = objClass
       if (objClass) {
-         this._collection = objClass.COLLECTION || objClass.name && objClass.name.toLowerCase()
+         this._collection =
+            objClass.COLLECTION ||
+            (objClass.name && objClass.name.toLowerCase())
       } else {
          this._collection = undefined
       }

@@ -31,6 +31,15 @@ describe('Object Uri', () => {
       expect(uri.label).toBe('a label')
    })
 
+   test('uri points to file', () => {
+      const uri = new ObjectUri('collection/uid/file.ext', 'a file')
+      expect(uri.path).toBe('collection/uid')
+      expect(uri.literal).toBe('collection/uid/file.ext')
+      expect(uri.collection).toBe('collection')
+      expect(uri.uid).toBe('file.ext')
+      expect(uri.label).toBe('a file')
+   })
+
    test('uri without collection', () => {
       const uri = new ObjectUri('uid')
       expect(uri.backend).toBe('@default')
