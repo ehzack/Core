@@ -2,7 +2,7 @@ import { BaseObjectCore } from '../BaseObjectCore'
 import { Core, statuses } from '../..'
 import { MockAdapter } from '../../backends'
 import { BaseObjectData, UserData, UserUri } from './fixtures/dao'
-import { User, UserCore } from '../User'
+import { User } from '../User'
 import { Persisted } from '../types/Persisted'
 
 Core.addBackend(new MockAdapter(), '@mock', true)
@@ -26,26 +26,25 @@ describe('Base object', () => {
 
 describe('User object', () => {
    test('can be loaded from backend', () => {
-      UserCore.factory(UserUri).then((user: User) => {
-         expect(user.name).toEqual('John Doe')
-         expect(user.status).toEqual(statuses.ACTIVE)
+      User.factory(UserUri).then((user: User) => {
+         expect(user._.name).toEqual('John Doe')
+         expect(user._.status).toEqual(statuses.ACTIVE)
          //expect(user.createdBy).toEqual(user.toJSON())
-         expect(user.createdAt).toEqual(1)
+         expect(user._.createdAt).toEqual(1)
       })
    })
 
    test('can be persisted in backend', () => {
-      UserCore.factory(UserUri)
+      User.factory(UserUri)
          .then((existingUser: User) => {
-            Core.currentUser = existingUser
-            UserCore.factory()
+            User.factory()
                .then((user) => {
-                  expect((user as Persisted<User>).uid).toBeUndefined()
-                  user.name = 'Jane Doe'
-                  user.core.save().then(() => {
+                  expect(user.uid).toBeUndefined()
+                  user._.name = 'Jane Doe'
+                  user.save().then(() => {
                      expect('uid' in user).toBeTruthy()
-                     expect(user.name).toEqual('Jane Doe')
-                     expect(user.status).toEqual(statuses.CREATED)
+                     expect(user._.name).toEqual('Jane Doe')
+                     expect(user._.status).toEqual(statuses.CREATED)
                   })
                })
                .catch((e) => console.log(e))

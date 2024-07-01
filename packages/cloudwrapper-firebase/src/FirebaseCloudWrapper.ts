@@ -11,11 +11,12 @@ import {
    onDocumentUpdated,
    onDocumentDeleted,
 } from 'firebase-functions/v2/firestore'
-import { setGlobalOptions } from 'firebase-functions/v2'
+import { CloudFunction, setGlobalOptions } from 'firebase-functions/v2'
+import { onObjectFinalized } from 'firebase-functions/v2/storage'
 import { AbstractCloudWrapper, BackendAction, Core } from '@quatrain/core'
 
 export type FirebaseParams = {
-   region?: string
+   region?: string[]
    useEmulator?: boolean
    projectId?: string
    serviceAccount?: string
@@ -28,7 +29,7 @@ export class FirebaseCloudWrapper extends AbstractCloudWrapper {
       super(params)
       const { useEmulator, region } = params
       if (useEmulator === false && region) {
-         setGlobalOptions({ region })
+         setGlobalOptions({ region: region.join(',') })
       }
    }
 
@@ -46,7 +47,11 @@ export class FirebaseCloudWrapper extends AbstractCloudWrapper {
       )
    }
 
-   databaseTrigger(func: any, eventType: BackendAction, rule: string = '') {
+   databaseTrigger(
+      func: any,
+      eventType: BackendAction,
+      rule: string = ''
+   ): CloudFunction<any> {
       this._initialize()
       switch (eventType) {
          case BackendAction.CREATE:
@@ -62,10 +67,15 @@ export class FirebaseCloudWrapper extends AbstractCloudWrapper {
       }
    }
 
-   // getConfig(key?:string) {
-   //    const config = functions.config()
-   //    return key ? config[key] : config
-   // }
+   storageTrigger(func: any, eventType: BackendAction) {
+      this._initialize()
+      switch (eventType) {
+         case BackendAction.CREATE:
+            return onObjectFinalized(async (object: any) => await func(object))
+         default:
+            throw new Error(`Unknown event type '${eventType}'`)
+      }
+   }
 
    protected _initialize() {
       if (this._isInitialized === false) {

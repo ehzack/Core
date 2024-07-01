@@ -13,12 +13,14 @@ export class ObjectUri {
    protected _collection: string | undefined = undefined
    protected _label: string | undefined = ''
    protected _objClass: any
+   protected _parent: ObjectUri | undefined
 
    /**
     * create object uri from string:
     * ex: 'xyz', '@backend:xyz', 'collection/xyz', '@backend:collection/xyz'
     * some backends will need a collection or table name, some may deduct it from object
-    * @param str
+    * @param str partial or full resource path
+    * @param label optional label to describe path
     */
    constructor(str: string = '', label: string | undefined = '') {
       this._str = str
@@ -31,9 +33,13 @@ export class ObjectUri {
          this._path = str
       }
       const parts = this._path.split(ObjectUri.DEFAULT)
-      if (parts.length === 1) {
+      const isFilePath = parts[parts.length - 1].indexOf('.') !== -1
+
+      if (isFilePath) {
+         this._uid = parts[parts.length - 1]
+      } else if (parts.length === 1) {
          // It is allowed to only give the uid part of the uri
-         // provided that collection will be injected by another mean
+         // provided that collection will be injected by another means
          this._uid = parts[0].length > 0 ? parts[0] : undefined
          this._collection = ObjectUri.MISSING_COLLECTION
          this._pairs.push(
@@ -41,17 +47,17 @@ export class ObjectUri {
          )
          this._label = label || this._uid
       } else if (parts.length % 2 === 0) {
-         // General case is a path containing pairs of collection/uid
-         let i = 0
-         while (i < parts.length) {
-            this._collection = parts[i]
-            this._uid = parts[i + 1]
-            this._pairs.push(`${parts[i]}${ObjectUri.DEFAULT}${parts[i + 1]}`)
-            i += 2
+         this._path = parts.slice(parts.length - 2).join(ObjectUri.DEFAULT)
+         this._uid = parts[parts.length - 1]
+         this._collection = parts[parts.length - 2]
+         if (parts.length > 2) {
+            this._parent = new ObjectUri(
+               parts.slice(0, parts.length - 2).join(ObjectUri.DEFAULT)
+            )
          }
          this._label = label || this._uid
-      } else if (parts[parts.length - 1].indexOf('.') === -1) {
-         // if the last part is not a filenma with extension, throw error
+      } else if (!isFilePath) {
+         // if the last part is not a filename with extension, throw error
          throw new Error(
             `Path parts number must be 1 or even, received: '${str}'`
          )
@@ -81,6 +87,10 @@ export class ObjectUri {
       return this._path
    }
 
+   get parent() {
+      return this._parent
+   }
+
    set label(label: string | undefined) {
       this._label = label
    }
@@ -90,7 +100,9 @@ export class ObjectUri {
    }
 
    get literal() {
-      return `${this._backend}:${this._pairs.join(ObjectUri.DEFAULT)}`
+      return this._str.includes(':')
+         ? this._str
+         : `${this._backend}:${this._str}`
    }
 
    set path(path: string) {

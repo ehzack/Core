@@ -1,5 +1,5 @@
 import { Core } from '../Core'
-import { DataObjectProperties, DateTimeProperty } from '../properties'
+import { DataObjectProperties } from '../properties'
 import { Property } from '../properties/Property'
 import { PropertyClassType } from '../properties/types/PropertyClassType'
 import { AbstractObject } from './AbstractObject'
