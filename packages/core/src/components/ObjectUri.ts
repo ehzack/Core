@@ -83,7 +83,23 @@ export class ObjectUri {
       return this._backend
    }
 
+   /**
+    * Returns the full path of the resource
+    * including optional parents' path
+    * @returns string
+    */
    get path() {
+      return this._parent
+         ? `${this._parent.path}${ObjectUri.DEFAULT}${this._path}`
+         : this._path
+   }
+
+   /**
+    * Returns the own path of the resource
+    * without the optional parents' paths
+    * @returns string
+    */
+   get ownPath() {
       return this._path
    }
 
@@ -99,6 +115,11 @@ export class ObjectUri {
       return this._label
    }
 
+   /**
+    * Return the full path litteral
+    * including the backend alias
+    * @returns string
+    */
    get literal() {
       return this._str.includes(':')
          ? this._str

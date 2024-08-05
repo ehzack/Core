@@ -9,6 +9,7 @@ export interface AuthAdapter extends AbstractAuthAdapter {}
 
 export class Core {
    static defaultBackend = '@default'
+   static defaultStorage = '@default'
    static userClass = User
    static classRegistry: { [key: string]: any } = {}
    static logger = console
@@ -18,6 +19,8 @@ export class Core {
    static timestamp = () => new Date().toISOString()
 
    protected static _backends: BackendRegistry<any> = {}
+
+   protected static _storages: BackendRegistry<any> = {}
 
    static definition(key: string) {
       return {
@@ -46,6 +49,27 @@ export class Core {
          return this._backends[alias]
       } else {
          throw new Error(`Unknown backend alias: '${alias}'`)
+      }
+   }
+
+   static addStorage(
+      backend: AbstractAdapter,
+      alias: string,
+      setDefault: boolean = false
+   ) {
+      Core._storages[alias] = backend
+      if (setDefault) {
+         Core.defaultStorage = alias
+      }
+   }
+
+   static getStorage<T extends AbstractAdapter>(
+      alias: string = this.defaultStorage
+   ): T {
+      if (this._storages[alias]) {
+         return this._storages[alias]
+      } else {
+         throw new Error(`Unknown storage alias: '${alias}'`)
       }
    }
 

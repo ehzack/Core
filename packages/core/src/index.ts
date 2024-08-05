@@ -72,6 +72,14 @@ import {
    GoneError,
 } from './common/ResourcesErrors'
 
+import { AbstractStorageAdapter } from './storages/AbstractStorageAdapter'
+import { FileType } from './storages/types/FileType'
+import { BlobType } from './storages/types/BlobType'
+import { BlobMediaType } from './storages/types/BlobMediaType'
+import { StorageAdapterInterface } from './storages/StorageAdapterInterface'
+import { FileResponseLink } from './storages/types/FileResponseLink'
+import { FileResponseUrl } from './storages/types/FileResponseUrl'
+
 import { AbstractCloudWrapper } from './wrappers/cloud/AbstractCloudWrapper'
 
 export {
@@ -138,5 +146,14 @@ export {
    ForbiddenError,
    NotFoundError,
    GoneError,
+   // Storage components
+   FileType,
+   BlobType,
+   BlobMediaType,
+   StorageAdapterInterface,
+   AbstractStorageAdapter,
+   FileResponseLink,
+   FileResponseUrl,
+   // Cloud Wrappers components
    AbstractCloudWrapper,
 }

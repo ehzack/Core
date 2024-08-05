@@ -15,11 +15,7 @@
       "typescript": "^5.2.2"
    },
    "scripts": {
-      "test": "tsc && jest --verbose",
-      "build": "lage build",
-      "patch": "yarn version --patch --no-git-tag-version",
-      "push": "yarn publish --access public",
-      "prepublish": "tsc"
+      "test": "tsc && jest --verbose"
    },
    "private": true,
    "workspaces": [
