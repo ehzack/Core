@@ -1,6 +1,6 @@
 {
    "name": "@quatrain/storage-google",
-   "version": "0.1.0",
+   "version": "0.2.0",
    "description": "Storage adapter for Google Cloud Storage",
    "main": "lib/index.js",
    "types": "lib/index.d.ts",
