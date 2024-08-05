@@ -1,6 +1,6 @@
 {
    "name": "@quatrain/storage-google",
-   "version": "0.2.0",
+   "version": "0.3.0",
    "description": "Storage adapter for Google Cloud Storage",
    "main": "lib/index.js",
    "types": "lib/index.d.ts",
@@ -12,7 +12,9 @@
    "license": "MIT",
    "devDependencies": {
       "@tsconfig/recommended": "^1.0.1",
+      "@types/fs-extra": "^11.0.4",
       "@types/jest": "^27.0.3",
+      "@types/object-hash": "^3.0.6",
       "jest": "^27.4.7",
       "jest-node-exports-resolver": "^1.1.6",
       "trace-unhandled": "^2.0.1",
