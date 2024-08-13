@@ -1,6 +1,6 @@
 {
   "name": "@quatrain/cloudwrapper-supabase",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "license": "MIT",
   "description": "Cloud Wrapper adapter for Supabase",
   "main": "lib/index.js",
