@@ -1,86 +1,73 @@
-import { initializeApp } from 'firebase-admin/app'
-import { credential } from 'firebase-admin'
 import {
-   HttpsFunction,
-   HttpsOptions,
-   onRequest,
-} from 'firebase-functions/v2/https'
+   AbstractCloudWrapper,
+   DatabaseTriggerType,
+   BackendAction,
+   Core,
+} from '@quatrain/core'
 import {
-   onDocumentWritten,
-   onDocumentCreated,
-   onDocumentUpdated,
-   onDocumentDeleted,
-} from 'firebase-functions/v2/firestore'
-import { setGlobalOptions } from 'firebase-functions/v2'
-import { AbstractCloudWrapper, BackendAction, Core } from '@quatrain/core'
+   createClient,
+   SupabaseClient,
+   RealtimeChannel,
+} from '@supabase/supabase-js'
 
-export type FirebaseParams = {
-   region?: string
+export type SupabaseParams = {
    useEmulator?: boolean
-   projectId?: string
-   serviceAccount?: string
+   url?: string
+   key?: string
+}
+
+export const eventMap = {
+   [BackendAction.CREATE]: 'INSERT',
+   [BackendAction.UPDATE]: 'UPDATE',
+   [BackendAction.DELETE]: 'DELETE',
 }
 
 export class SupabaseCloudWrapper extends AbstractCloudWrapper {
+   protected _supabaseClient: SupabaseClient | undefined
+   protected _realtimeClient: RealtimeChannel | undefined
    protected _isInitialized = false
 
-   constructor(params: FirebaseParams) {
+   constructor(params: SupabaseParams) {
       super(params)
-      const { useEmulator, region } = params
-      if (useEmulator === false && region) {
-         setGlobalOptions({ region })
-      }
    }
 
-   httpsTrigger(
-      func: any,
-      params: HttpsOptions = { memory: '4GiB', timeoutSeconds: 500 }
-   ): HttpsFunction {
+   // httpsTrigger(
+   //    func: any,
+   //    params: HttpsOptions = { memory: '4GiB', timeoutSeconds: 500 }
+   // ): HttpsFunction {
+   //    this._initialize()
+   //    return onRequest(
+   //       {
+   //          concurrency: 500,
+   //          ...params,
+   //       },
+   //       func
+   //    )
+   // }
+
+   databaseTrigger(trigger: DatabaseTriggerType) {
       this._initialize()
-      return onRequest(
+      this._realtimeClient?.on(
+         'postgres_changes',
          {
-            concurrency: 500,
-            ...params,
+            event: Reflect.get(eventMap, trigger.event),
+            schema: 'public',
+            table: trigger.model,
          },
-         func
+         async ({ old: before, new: after, ...context }) =>
+            await trigger.script({ before, after, context })
       )
    }
 
-   databaseTrigger(func: any, eventType: BackendAction, rule: string = '') {
-      this._initialize()
-      switch (eventType) {
-         case BackendAction.CREATE:
-            return onDocumentCreated(rule, func)
-         case BackendAction.UPDATE:
-            return onDocumentUpdated(rule, func)
-         case BackendAction.DELETE:
-            return onDocumentDeleted(rule, func)
-         case BackendAction.WRITE:
-            return onDocumentWritten(rule, func)
-         default:
-            throw new Error(`Unknown event type '${eventType}'`)
-      }
+   triggersEnable() {
+      this._realtimeClient?.subscribe()
    }
-
-   // getConfig(key?:string) {
-   //    const config = functions.config()
-   //    return key ? config[key] : config
-   // }
 
    protected _initialize() {
       if (this._isInitialized === false) {
-         const { projectId, serviceAccount } = this._params
-         Core.log(`[SCW] Firebase App init for project ${projectId}`)
-         //if (this._params.useEmulator === true) {
-         // if emulator is active, we need a service account to access storage functions
-         // @see bin/setServiceAccountPath.sh
-         const config = {
-            ...(serviceAccount && {
-               credential: credential.cert(require(serviceAccount)),
-            }),
-            ...(projectId && { projectId }),
-         }
-         initializeApp(config)
+         Core.log(`[SPB] Supabase App init`)
+         this._supabaseClient = createClient(this._params.url, this._params.key)
+         this._realtimeClient = this._supabaseClient.channel('table-db-changes')
          this._isInitialized = true
       }
    }

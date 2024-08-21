@@ -64,6 +64,9 @@ export default class BaseRepository<T extends BaseObject> {
    }
 
    async read(key: string) {
+      if (!key) {
+         throw new Error(`Missing key value in ${this.constructor.name}`)
+      }
       try {
          let dataObject
          if (key.split('/').length <= 2) {

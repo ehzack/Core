@@ -13,7 +13,12 @@ import {
 } from 'firebase-functions/v2/firestore'
 import { CloudFunction, setGlobalOptions } from 'firebase-functions/v2'
 import { onObjectFinalized } from 'firebase-functions/v2/storage'
-import { AbstractCloudWrapper, BackendAction, Core } from '@quatrain/core'
+import {
+   AbstractCloudWrapper,
+   DatabaseTriggerType,
+   BackendAction,
+   Core,
+} from '@quatrain/core'
 
 export type FirebaseParams = {
    region?: string[]
@@ -47,15 +52,11 @@ export class FirebaseCloudWrapper extends AbstractCloudWrapper {
       )
    }
 
-   databaseTrigger(
-      func: any,
-      eventType: BackendAction,
-      rule: string = ''
-   ): CloudFunction<any> {
+   databaseTrigger(trigger: DatabaseTriggerType): CloudFunction<any> {
       this._initialize()
-      switch (eventType) {
+      switch (trigger.eventType) {
          case BackendAction.CREATE:
-            return onDocumentCreated(rule, func)
+            return onDocumentCreated(trigger., trigger.script)
          case BackendAction.UPDATE:
             return onDocumentUpdated(rule, func)
          case BackendAction.DELETE:
@@ -63,7 +64,7 @@ export class FirebaseCloudWrapper extends AbstractCloudWrapper {
          case BackendAction.WRITE:
             return onDocumentWritten(rule, func)
          default:
-            throw new Error(`Unknown event type '${eventType}'`)
+            throw new Error(`Unknown event type '${trigger.eventType}'`)
       }
    }
 

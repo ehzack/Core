@@ -13,6 +13,10 @@ import hash from 'object-hash'
 import { Readable } from 'stream'
 
 export class GoogleStorageAdapter extends AbstractStorageAdapter {
+   getDriver() {
+      return admin.storage()
+   }
+
    async download(file: FileType, path: string) {
       const bucket = admin.storage().bucket(file.bucket)
       await bucket.file(file.ref).download({ destination: path })

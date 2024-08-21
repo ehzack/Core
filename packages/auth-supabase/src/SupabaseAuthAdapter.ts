@@ -51,7 +51,11 @@ export class SupabaseAuthAdapter extends AbstractAuthAdapter {
    }
 
    async getAuthToken(bearer: string) {
-      return this._client.auth.getUser(bearer)
+      const token = await this._client.auth.getUser(bearer)
+      if (token.data && token.data.user) {
+         return token.data.user
+      }
+      throw new Error('Unable to retrieve auth token from Supabase')
    }
 
    async signup(login: string, password: string) {}

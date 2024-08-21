@@ -29,7 +29,7 @@ const operatorsMap: { [x: string]: string } = {
    contains: 'in',
    notContains: 'not-in',
    containsAll: 'array-contains',
-   containsAny: 'array-contains-any',
+   containsAny: 'any',
 }
 
 export class PostgresAdapter extends AbstractAdapter {
@@ -71,9 +71,13 @@ export class PostgresAdapter extends AbstractAdapter {
          this._params['useNativeForeignKeys'] &&
          this._params['useNativeForeignKeys'] === true
       ) {
-         data.forEach((key: string) => {
-            if (typeof data[key] === 'object' && data[key].ref) {
-               data.key = data[key].ref.split('/').pop()
+         data.forEach((el: any, key: number) => {
+            if (
+               typeof el === 'object' &&
+               el !== null &&
+               Reflect.has(el, 'ref')
+            ) {
+               data[key] = el.ref.split('/').pop()
             }
          })
       }
@@ -105,25 +109,22 @@ export class PostgresAdapter extends AbstractAdapter {
                useDateFormat: true,
             })
 
-            const data = dataObject.toJSON({ withoutURIData: false })
+            const data = dataObject.toJSON({ withoutURIData: true })
 
             let query = `INSERT INTO ${dataObject.uri.collection} (id`
             let values = `VALUES ($1`
-            let count = 2
-            Object.keys(data).forEach((key) => {
-               if (data[key] !== null) {
-                  query += `, ${key.toLowerCase()}`
-                  values += `, $${count++}`
-               }
+            Object.keys(data).forEach((key, i) => {
+               query += `, ${key.toLowerCase()}`
+               values += `, $${i + 2}`
             })
-
             query += `) `
             values += `)`
 
             Core.log(`[PGA] ${query}${values}`)
-            await this._connect()
-            const pgData = [uid, ...this._prepareData(data)]
-            await this._connection?.query(`${query}${values}`, pgData)
+
+            const pgData = [uid, ...this._prepareData(data, false)]
+
+            await (await this._connect()).query(`${query}${values}`, pgData)
 
             dataObject.uri.path = `${dataObject.uri.collection}/${uid}`
             dataObject.uri.label = data && Reflect.get(data, 'name')
@@ -167,7 +168,7 @@ export class PostgresAdapter extends AbstractAdapter {
 
       dataObject.populate(result?.rows[0])
 
-      this.executeMiddlewares(dataObject, BackendAction.READ)
+      //this.executeMiddlewares(dataObject, BackendAction.READ)
 
       return dataObject
    }
@@ -210,8 +211,8 @@ export class PostgresAdapter extends AbstractAdapter {
       query += ` WHERE id = '${dataObject.uid}'`
 
       Core.log(`[PGA] ${query}`)
-      await this._connect()
-      await this._connection?.query(query, pgData)
+
+      await (await this._connect()).query(query, pgData)
 
       return dataObject
    }
@@ -256,6 +257,23 @@ export class PostgresAdapter extends AbstractAdapter {
    }
 
    /**
+    * Convert array into SQL expression
+    * @param from Array of strings or numbers
+    * @returns string
+    */
+   protected _array2String(from: any[]) {
+      let str = ''
+      from.forEach((elem: string | Number, i) => {
+         if (i > 0) {
+            str += ','
+         }
+         str += `'${elem}'`
+      })
+
+      return `(${str})`
+   }
+
+   /**
     * Execute a query on a collection
     * @param dataObject
     * @param filters
@@ -283,7 +301,7 @@ export class PostgresAdapter extends AbstractAdapter {
             )
          }
 
-         Core.log(`[PGA] Query on ${collection}`)
+         Core.log(`[PGA] Preparing query on '${collection}'`)
 
          let hasFilters = false
          const query: string[] = []
@@ -341,11 +359,22 @@ export class PostgresAdapter extends AbstractAdapter {
                   realOperator = operatorsMap[filter.operator]
                }
 
-               query.push(
-                  `${realProp} ${realOperator} ${
-                     realValue !== undefined ? `'${realValue}'` : ''
-                  }`
-               )
+               if (filter.operator === operatorsMap['containsAny']) {
+                  // Use 'containsAny' for queries in arrays which query structure is weird
+                  query.push(`'${realValue}'=ANY(${realProp})`)
+               } else {
+                  query.push(
+                     `${realProp} ${realOperator} ${
+                        realValue !== undefined
+                           ? `${
+                                Array.isArray(realValue)
+                                   ? this._array2String(realValue)
+                                   : `'${realValue}'`
+                             }`
+                           : ''
+                     }`
+                  )
+               }
 
                Core.log(
                   `[PGA] Filter added: ${realProp} ${realOperator} ${realValue}`
@@ -353,12 +382,14 @@ export class PostgresAdapter extends AbstractAdapter {
             })
          }
 
-         Core.log(`[PGA] ${query.join(' ')}`)
+         Core.log(`[PGA] SQL ${query.join(' ')}`)
 
-         await this._connect()
-         const countSnapshot = await this._connection?.query(
+         const connection = await this._connect()
+         const countSnapshot = await connection.query(
             `${query.join(' ').replace('*', 'COUNT(*) as total')}`
          )
+
+         Core.log(`[PGA] Counting records ${countSnapshot.rows[0].total}`)
 
          let sortField: string[] = []
          if (pagination) {
@@ -373,20 +404,22 @@ export class PostgresAdapter extends AbstractAdapter {
             }
             query.push(`OFFSET ${pagination.limits.offset || 0}`)
          }
+         Core.log(`[PGA] Full SQL ${query.join(' ')}`)
 
-         const result = await this._connection?.query(`${query.join(' ')}`)
+         const result = await connection.query(`${query.join(' ')}`)
 
          const meta: QueryMetaType = {
-            count: countSnapshot?.rows[0].total,
+            count: parseInt(countSnapshot.rows[0].total),
             offset: pagination?.limits.offset || 0,
             batch: pagination?.limits.batch || 20,
             sortField: sortField.join(', '),
             executionTime: Core.timestamp(),
+            debug: { sql: query.join(' ') },
          }
 
          const items: DataObjectClass<any>[] = []
 
-         for (const doc of result?.rows || []) {
+         for (const doc of result.rows || []) {
             const newDataObject: DataObjectClass<any> = await dataObject.clone({
                ...doc,
             })
@@ -420,7 +453,12 @@ export class PostgresAdapter extends AbstractAdapter {
 
          return { items, meta }
       } catch (err) {
-         throw new BackendError((err as Error).message)
+         console.log(err)
+         throw new BackendError(
+            `Query failed for '${dataObject.class.name}': ${
+               (err as Error).message
+            }`
+         )
       }
    }
 }

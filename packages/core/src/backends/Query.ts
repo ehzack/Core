@@ -18,6 +18,7 @@ export type QueryMetaType = {
    executionTime: string | number
    sortField?: string
    sortOrder?: 'asc' | 'desc'
+   debug?: any
 }
 
 export type QueryResultType<T> = {
@@ -65,13 +66,17 @@ export class Query<T extends typeof BaseObjectCore> {
       this._parent = parent
    }
 
-   where(param: Filter | string | any, value: any = null, operator: any = 'equals') {
+   where(
+      param: Filter | string | any,
+      value: any = null,
+      operator: any = 'equals'
+   ) {
       if (typeof param == 'object') {
          this.filters.push(param)
       } else {
          if (operator === 'equals' && Array.isArray(value)) {
             // auto-convert operator if value is an array
-            operator = 'contains' // Any'
+            operator = 'contains'
          }
          this.filters.push(new Filter(param, value, operator))
       }
@@ -140,8 +145,6 @@ export class Query<T extends typeof BaseObjectCore> {
       as: returnAs = returnAs.AS_DATAOBJECTS,
       backend: BackendInterface = Core.getBackend(this._obj.DEFAULT_BACKEND)
    ): Promise<QueryResultType<any>> {
-      //<DataObjectClass<any>[] | ObjectUri[] | Persisted<BaseObject>[]> {
-      //</any><Array<T2> | Array<DataObject> | Array<ObjectUri>> {
       try {
          switch (as) {
             case AS_DATAOBJECTS:

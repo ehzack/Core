@@ -5,6 +5,8 @@ import { StorageAdapterInterface } from './StorageAdapterInterface'
 
 export abstract class AbstractStorageAdapter implements StorageAdapterInterface {
 
+    abstract getDriver(): any
+
     abstract create(
         file: FileType,
         stream: Readable

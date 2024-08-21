@@ -80,6 +80,7 @@ import { StorageAdapterInterface } from './storages/StorageAdapterInterface'
 import { FileResponseLink } from './storages/types/FileResponseLink'
 import { FileResponseUrl } from './storages/types/FileResponseUrl'
 
+import { DatabaseTriggerType } from './wrappers/cloud/types/DatabaseTriggerType'
 import { AbstractCloudWrapper } from './wrappers/cloud/AbstractCloudWrapper'
 
 export {
@@ -155,5 +156,6 @@ export {
    FileResponseLink,
    FileResponseUrl,
    // Cloud Wrappers components
+   DatabaseTriggerType,
    AbstractCloudWrapper,
 }

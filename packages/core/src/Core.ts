@@ -8,6 +8,8 @@ export type BackendRegistry<T extends AbstractAdapter> = { [x: string]: T }
 export interface AuthAdapter extends AbstractAuthAdapter {}
 
 export class Core {
+   static storage = require('node-persist')
+   static storagePrefix = 'core'
    static defaultBackend = '@default'
    static defaultStorage = '@default'
    static userClass = User
@@ -29,6 +31,16 @@ export class Core {
             mandatory: true,
          },
       }
+   }
+
+   static async addConfig(key: string, value: any) {
+      await this.storage.init(/* options ... */)
+      await this.storage.set(`${this.storagePrefix}_${key}`, value)
+   }
+
+   static async getConfig(key: string) {
+      await this.storage.init(/* options ... */)
+      return await this.storage.get(`${this.storagePrefix}_${key}`)
    }
 
    static addBackend(

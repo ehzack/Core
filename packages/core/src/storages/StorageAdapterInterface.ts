@@ -5,6 +5,7 @@ import { FileType } from "./types/FileType"
  * These are the public functions that any storage interface must expose
  */
 export interface StorageAdapterInterface {
+  getDriver(): any
   create(file: FileType, stream: Readable,): Promise<FileType>
   delete(file: FileType): Promise<Boolean>,
   stream(file: FileType, res: any): Promise<any>,
