@@ -3,6 +3,7 @@ import { BlobType } from './types/BlobType'
 import { BlobMediaType } from './types/BlobMediaType'
 import { FileResponseLink } from './types/FileResponseLink'
 import { FileResponseUrl } from './types/FileResponseUrl'
+import { DownloadFileMeta } from './types/DownloadFileMetaType'
 import { StorageAdapterInterface } from './StorageAdapterInterface'
 import { AbstractStorageAdapter } from './AbstractStorageAdapter'
 
@@ -12,6 +13,7 @@ export {
    BlobMediaType,
    FileResponseLink,
    FileResponseUrl,
+   DownloadFileMeta,
    StorageAdapterInterface,
    AbstractStorageAdapter,
 }

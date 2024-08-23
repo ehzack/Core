@@ -1,10 +1,14 @@
 import { AbstractAuthAdapter } from './authentication'
 import { AbstractAdapter } from './backends/AbstractAdapter'
+import { AbstractStorageAdapter } from './storages'
 import { DataObject } from './components/DataObject'
 import { User } from './components/User'
 import { DataObjectClass } from './components/types/DataObjectClass'
 
 export type BackendRegistry<T extends AbstractAdapter> = { [x: string]: T }
+export type StorageBackendRegistry<T extends AbstractStorageAdapter> = {
+   [x: string]: T
+}
 export interface AuthAdapter extends AbstractAuthAdapter {}
 
 export class Core {
@@ -22,7 +26,7 @@ export class Core {
 
    protected static _backends: BackendRegistry<any> = {}
 
-   protected static _storages: BackendRegistry<any> = {}
+   protected static _storages: StorageBackendRegistry<any> = {}
 
    static definition(key: string) {
       return {
@@ -34,12 +38,16 @@ export class Core {
    }
 
    static async addConfig(key: string, value: any) {
-      await this.storage.init(/* options ... */)
+      if (!this.storage.set) {
+         await this.storage.init()
+      }
       await this.storage.set(`${this.storagePrefix}_${key}`, value)
    }
 
    static async getConfig(key: string) {
-      await this.storage.init(/* options ... */)
+      if (!this.storage.get) {
+         await this.storage.init()
+      }
       return await this.storage.get(`${this.storagePrefix}_${key}`)
    }
 
@@ -65,7 +73,7 @@ export class Core {
    }
 
    static addStorage(
-      backend: AbstractAdapter,
+      backend: AbstractStorageAdapter,
       alias: string,
       setDefault: boolean = false
    ) {
@@ -75,7 +83,7 @@ export class Core {
       }
    }
 
-   static getStorage<T extends AbstractAdapter>(
+   static getStorage<T extends AbstractStorageAdapter>(
       alias: string = this.defaultStorage
    ): T {
       if (this._storages[alias]) {

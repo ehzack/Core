@@ -79,6 +79,7 @@ import { BlobMediaType } from './storages/types/BlobMediaType'
 import { StorageAdapterInterface } from './storages/StorageAdapterInterface'
 import { FileResponseLink } from './storages/types/FileResponseLink'
 import { FileResponseUrl } from './storages/types/FileResponseUrl'
+import { DownloadFileMeta } from './storages/types/DownloadFileMetaType'
 
 import { DatabaseTriggerType } from './wrappers/cloud/types/DatabaseTriggerType'
 import { AbstractCloudWrapper } from './wrappers/cloud/AbstractCloudWrapper'
@@ -155,6 +156,7 @@ export {
    AbstractStorageAdapter,
    FileResponseLink,
    FileResponseUrl,
+   DownloadFileMeta,
    // Cloud Wrappers components
    DatabaseTriggerType,
    AbstractCloudWrapper,

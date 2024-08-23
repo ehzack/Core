@@ -1,6 +1,7 @@
 import admin from 'firebase-admin'
 import {
    AbstractStorageAdapter,
+   DownloadFileMeta,
    FileType,
    FileResponseUrl,
    FileResponseLink,
@@ -17,11 +18,22 @@ export class GoogleStorageAdapter extends AbstractStorageAdapter {
       return admin.storage()
    }
 
-   async download(file: FileType, path: string) {
+   async download(file: FileType, meta: DownloadFileMeta) {
       const bucket = admin.storage().bucket(file.bucket)
-      await bucket.file(file.ref).download({ destination: path })
+      if (meta.onlyContent) {
+         return (await bucket.file(file.ref).download())[0]
+      }
+      await bucket.file(file.ref).download({ destination: meta.path })
 
-      return path
+      return meta.path
+   }
+
+   async copy(file: FileType, destFile: FileType) {
+      admin
+         .storage()
+         .bucket(file.bucket)
+         .file(file.ref)
+         .copy(admin.storage().bucket(destFile.bucket).file(destFile.ref))
    }
 
    async create(File: FileType, stream: Readable): Promise<FileType> {

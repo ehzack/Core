@@ -1,47 +1,44 @@
 import { Readable } from 'stream'
 import { FileType } from './types/FileType'
 import { StorageAdapterInterface } from './StorageAdapterInterface'
+import { DownloadFileMeta } from './types/DownloadFileMetaType'
 //import { APIResponseLink, ResponsePublicUrl } from './types'
 
-export abstract class AbstractStorageAdapter implements StorageAdapterInterface {
+export abstract class AbstractStorageAdapter
+   implements StorageAdapterInterface
+{
+   abstract getDriver(): any
 
-    abstract getDriver(): any
+   abstract create(file: FileType, stream: Readable): Promise<FileType>
 
-    abstract create(
-        file: FileType,
-        stream: Readable
-    ): Promise<FileType>
+   abstract download(file: FileType, path: DownloadFileMeta): Promise<any>
 
-    abstract download(file: FileType, path: string): Promise<string>
+   abstract copy(file: FileType, destFile: FileType): Promise<any>
 
-    abstract getUrl(
-        file: FileType,
-        expiresIn?: number,
-        action?: string,
-        extra?: any
-    ): Promise<any>
+   abstract getUrl(
+      file: FileType,
+      expiresIn?: number,
+      action?: string,
+      extra?: any
+   ): Promise<any>
 
-    abstract delete(
-        file: FileType,
-    ): Promise<Boolean>
+   abstract delete(file: FileType): Promise<Boolean>
 
-    abstract stream(
-        file: FileType,
-        res: any
-    ): Promise<any>
+   abstract stream(file: FileType, res: any): Promise<any>
 
+   abstract getUploadUrl(filePath: FileType, expiresIn?: number): Promise<any>
 
-    abstract getUploadUrl(
-        filePath: FileType,
-        expiresIn?: number
-    ): Promise<any>
+   abstract getReadable(file: FileType): Promise<Readable>
 
+   abstract generateThumbnail(file: FileType, sizes: number[]): Promise<any>
 
-    abstract getReadable(file: FileType): Promise<Readable>
+   abstract generateImageThumbnail(
+      file: FileType,
+      sizes: number[]
+   ): Promise<any>
 
-    abstract generateThumbnail(file: FileType, sizes: number[]): Promise<any>
-
-    abstract generateImageThumbnail(file: FileType, sizes: number[]): Promise<any>
-
-    abstract generateVideoThumbnail(file: FileType, sizes: number[]): Promise<any>
+   abstract generateVideoThumbnail(
+      file: FileType,
+      sizes: number[]
+   ): Promise<any>
 }
