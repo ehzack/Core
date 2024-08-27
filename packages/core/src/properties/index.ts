@@ -9,6 +9,7 @@ import { BooleanProperty, BooleanPropertyType } from './BooleanProperty'
 import { DateTimeProperty, DateTimePropertyType } from './DateTimeProperty'
 import { ObjectProperty, ObjectPropertyType } from './ObjectProperty'
 import { MapProperty, MapPropertyType } from './MapProperty'
+import { FileProperty, FilePropertyType } from './FileProperty'
 import {
    CollectionProperty,
    CollectionPropertyType,
@@ -37,6 +38,8 @@ export {
    HashPropertyType,
    MapProperty,
    MapPropertyType,
+   FileProperty,
+   FilePropertyType,
    CollectionProperty,
    CollectionPropertyType,
 }

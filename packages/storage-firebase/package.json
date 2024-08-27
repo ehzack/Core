@@ -1,7 +1,7 @@
 {
-   "name": "@quatrain/storage-google",
+   "name": "@quatrain/storage-firebase",
    "version": "0.3.0",
-   "description": "Storage adapter for Google Cloud Storage",
+   "description": "Storage adapter for Firebase Storage",
    "main": "lib/index.js",
    "types": "lib/index.d.ts",
    "files": [
@@ -24,9 +24,9 @@
    },
    "dependencies": {
       "@quatrain/core": "^1.0.0-beta13",
-      "firebase-admin": "^12.2.0",
+      "firebase-admin": "^12.4.0",
       "fs-extra": "^11.2.0",
-      "sharp": "^0.33.4"
+      "sharp": "^0.33.5"
    },
    "scripts": {
       "test": "tsc && jest --verbose",

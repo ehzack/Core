@@ -2,11 +2,20 @@ import { Readable } from 'stream'
 import { FileType } from './types/FileType'
 import { StorageAdapterInterface } from './StorageAdapterInterface'
 import { DownloadFileMeta } from './types/DownloadFileMetaType'
+import { StorageParameters } from '../Storage'
 //import { APIResponseLink, ResponsePublicUrl } from './types'
 
 export abstract class AbstractStorageAdapter
    implements StorageAdapterInterface
 {
+   protected _alias: string = ''
+   protected _params: StorageParameters = {}
+
+   constructor(params: StorageParameters = {}) {
+      this._alias = params.alias || ''
+      this._params = params
+   }
+
    abstract getDriver(): any
 
    abstract create(file: FileType, stream: Readable): Promise<FileType>

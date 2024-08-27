@@ -54,7 +54,7 @@ export class AwsStorageAdapter extends AbstractStorageAdapter {
    }
 
    async getReadable(file: FileType): Promise<Readable> {
-      console.log('GET Readable :', file)
+      Core.log('GET Readable :', file)
       const command = new GetObjectCommand({
          Bucket: file.bucket || awsS3.s3Bucket,
          Key: file.ref,

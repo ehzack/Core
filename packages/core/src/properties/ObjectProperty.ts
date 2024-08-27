@@ -19,11 +19,13 @@ export class ObjectProperty extends BaseProperty {
       this._instanceOf = config.instanceOf
    }
 
+   get instanceOf() {
+      return this._instanceOf
+   }
+
    val(transform: string | undefined = undefined) {
       if (typeof this._instanceOf === 'string') {
-         //console.log(`Getting instance from string ${this._instanceOf}`)
          this._instanceOf = Core.getClass(this._instanceOf)
-         //throw new Error(`Parameter 'instanceOf' was not properly setted`)
       }
 
       if (!this._value) {

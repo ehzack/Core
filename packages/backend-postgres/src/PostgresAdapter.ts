@@ -15,6 +15,7 @@ import {
    NotFoundError,
    statuses,
    StringProperty,
+   Property,
 } from '@quatrain/core'
 import { randomUUID } from 'crypto'
 import { Client } from 'pg'
@@ -77,7 +78,11 @@ export class PostgresAdapter extends AbstractAdapter {
                el !== null &&
                Reflect.has(el, 'ref')
             ) {
-               data[key] = el.ref.split('/').pop()
+               const resourcePart = el.ref.split('/').pop()
+               if (resourcePart.indexOf('.') === -1) {
+                  // convert reference for database objects only
+                  data[key] = el.ref.split('/').pop()
+               }
             }
          })
       }
@@ -111,6 +116,7 @@ export class PostgresAdapter extends AbstractAdapter {
 
             const data = dataObject.toJSON({ withoutURIData: true })
 
+            console.log('json data', data)
             let query = `INSERT INTO ${dataObject.uri.collection} (id`
             let values = `VALUES ($1`
             Object.keys(data).forEach((key, i) => {
@@ -123,6 +129,8 @@ export class PostgresAdapter extends AbstractAdapter {
             Core.log(`[PGA] ${query}${values}`)
 
             const pgData = [uid, ...this._prepareData(data, false)]
+
+            console.log('pg data', pgData)
 
             await (await this._connect()).query(`${query}${values}`, pgData)
 
@@ -154,19 +162,17 @@ export class PostgresAdapter extends AbstractAdapter {
 
       Core.log(`[PGA] Getting document ${path}`)
 
-      await this._connect()
-
       const query = `SELECT * FROM ${parts[0]} WHERE id = '${parts[1]}'`
 
       Core.log(`[PGA] ${query}`)
 
-      const result = await this._connection?.query(query)
+      const result = await (await this._connect()).query(query)
 
-      if (result?.rowCount === 0) {
+      if (result.rowCount === 0) {
          throw new NotFoundError(`[PGA] No document matches path '${path}'`)
       }
 
-      dataObject.populate(result?.rows[0])
+      dataObject.populate(result.rows[0])
 
       //this.executeMiddlewares(dataObject, BackendAction.READ)
 
@@ -304,8 +310,41 @@ export class PostgresAdapter extends AbstractAdapter {
          Core.log(`[PGA] Preparing query on '${collection}'`)
 
          let hasFilters = false
+         const alias = 'coll'
          const query: string[] = []
-         query.push(`SELECT * FROM ${collection}`)
+         const fields: string[] = [`${alias}.id`]
+         const caseMap = {}
+
+         query.push(`SELECT * FROM ${collection} AS coll`)
+
+         // prepare joins
+         Object.keys(dataObject.properties).forEach((prop) => {
+            const lcProp = prop.toLowerCase()
+            Reflect.set(caseMap, lcProp, prop)
+            if (
+               dataObject.properties[prop].constructor.name === 'ObjectProperty'
+            ) {
+               Core.log(
+                  `Adding join table for property ${prop} instance of ${dataObject.properties[prop].instanceOf}`
+               )
+               const joinAlias = `${prop.toLowerCase()}_table`
+               const table =
+                  this._params.mapping &&
+                  this._params.mapping[dataObject.properties[prop].instanceOf]
+                     ? this._params.mapping[
+                          dataObject.properties[prop].instanceOf
+                       ]
+                     : dataObject.properties[prop].instanceOf.toLowerCase()
+               query.push(
+                  `LEFT JOIN ${table} AS ${joinAlias} ON ${joinAlias}.id = coll.${prop.toLowerCase()}`
+               )
+               fields.push(
+                  `json_build_object('ref', CONCAT('${table}/', ${alias}.${lcProp}), 'path', CONCAT('${table}/', ${alias}.${lcProp}), 'label', ${joinAlias}.name || '') AS ${prop}`
+               )
+            } else {
+               fields.push(`${alias}.${prop.toLowerCase()} AS ${prop}`)
+            }
+         })
 
          if (filters instanceof Filters) {
             hasFilters = true
@@ -344,10 +383,14 @@ export class PostgresAdapter extends AbstractAdapter {
                   const property = dataObject.get(filter.prop)
 
                   if (property.constructor.name === 'ObjectProperty') {
-                     realProp = `${filter.prop}.ref`
-
                      if (filter.value instanceof ObjectUri) {
                         realValue = filter.value.path
+                     } else if (
+                        filter.value &&
+                        typeof filter.value === 'object' &&
+                        filter.value.ref
+                     ) {
+                        realValue = filter.value.ref.split('/')[1]
                      } else {
                         realValue =
                            (filter.value &&
@@ -364,7 +407,7 @@ export class PostgresAdapter extends AbstractAdapter {
                   query.push(`'${realValue}'=ANY(${realProp})`)
                } else {
                   query.push(
-                     `${realProp} ${realOperator} ${
+                     `${alias}.${realProp} ${realOperator} ${
                         realValue !== undefined
                            ? `${
                                 Array.isArray(realValue)
@@ -396,7 +439,7 @@ export class PostgresAdapter extends AbstractAdapter {
             pagination?.sortings.forEach((sorting: Sorting, i) => {
                query.push(i == 0 ? `ORDER BY` : ',')
 
-               query.push(`${sorting.prop} ${sorting.order}`)
+               query.push(`${alias}.${sorting.prop} ${sorting.order}`)
                sortField.push(`${sorting.prop} ${sorting.order}`)
             })
             if (pagination?.limits.batch !== -1) {
@@ -404,9 +447,11 @@ export class PostgresAdapter extends AbstractAdapter {
             }
             query.push(`OFFSET ${pagination.limits.offset || 0}`)
          }
-         Core.log(`[PGA] Full SQL ${query.join(' ')}`)
 
-         const result = await connection.query(`${query.join(' ')}`)
+         const literal = `${query.join(' ').replace('*', fields.join(', '))}`
+         Core.log(`[PGA] Full SQL ${literal}`)
+
+         const result = await connection.query(`${literal}`)
 
          const meta: QueryMetaType = {
             count: parseInt(countSnapshot.rows[0].total),
@@ -419,10 +464,17 @@ export class PostgresAdapter extends AbstractAdapter {
 
          const items: DataObjectClass<any>[] = []
 
-         for (const doc of result.rows || []) {
+         for (let doc of result.rows || []) {
+            Object.keys(caseMap).forEach((field) => {
+               Reflect.set(doc, Reflect.get(caseMap, field), doc[field])
+            //   Reflect.deleteProperty(doc, field)
+            })
             const newDataObject: DataObjectClass<any> = await dataObject.clone({
                ...doc,
             })
+
+            console.log(doc)
+            console.log(dataObject.toJSON())
 
             let newDataObjectUri = ``
             if (newDataObject.has('parent')) {
@@ -446,7 +498,7 @@ export class PostgresAdapter extends AbstractAdapter {
                newDataObjectUri,
                newDataObject.val('name')
             )
-            this.executeMiddlewares(newDataObject, BackendAction.READ)
+            // this.executeMiddlewares(newDataObject, BackendAction.READ)
 
             items.push(newDataObject)
          }

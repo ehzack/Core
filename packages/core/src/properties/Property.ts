@@ -10,6 +10,7 @@ import { ObjectProperty, ObjectPropertyType } from './ObjectProperty'
 import { CollectionProperty } from './CollectionProperty'
 import { ArrayProperty } from './ArrayProperty'
 import { MapProperty } from './MapProperty'
+import { FileProperty, FilePropertyType } from './FileProperty'
 
 export class Property {
    static TYPE_ANY = 'any'
@@ -22,6 +23,7 @@ export class Property {
    static TYPE_DATETIME = 'datetime'
    static TYPE_ARRAY = 'array'
    static TYPE_MAP = 'map'
+   static TYPE_FILE = 'file'
 
    static factory(
       params: ObjectPropertyType &
@@ -30,7 +32,8 @@ export class Property {
          EnumPropertyType &
          BooleanPropertyType &
          HashPropertyType &
-         DateTimePropertyType,
+         DateTimePropertyType &
+         FilePropertyType,
       parent: DataObjectClass<any>
    ) {
       params.parent = parent
@@ -71,6 +74,9 @@ export class Property {
 
          case MapProperty.TYPE:
             return new MapProperty(params)
+
+         case FileProperty.TYPE:
+            return new FileProperty(params)
 
          default:
             throw new Error(`Unknown property type ${params.type}`)

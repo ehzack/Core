@@ -1,10 +1,13 @@
-import admin from 'firebase-admin'
+import { initializeApp, cert, getApps } from 'firebase-admin/app'
+import { getStorage } from 'firebase-admin/storage'
 import {
+   StorageParameters,
    AbstractStorageAdapter,
    DownloadFileMeta,
    FileType,
    FileResponseUrl,
    FileResponseLink,
+   Core,
 } from '@quatrain/core'
 import sharp from 'sharp'
 import { join } from 'path'
@@ -13,13 +16,29 @@ import fs from 'fs-extra'
 import hash from 'object-hash'
 import { Readable } from 'stream'
 
-export class GoogleStorageAdapter extends AbstractStorageAdapter {
+export class FirebaseStorageAdapter extends AbstractStorageAdapter {
+   constructor(params: StorageParameters = {}) {
+      super(params)
+      if (getApps().length === 0) {
+         let credential = undefined
+         if (this._params.config && this._params.config.credential) {
+            const key = require(this._params.config.credential)
+            credential = cert(key)
+         }
+         Core.log(`[FBSA] Firebase Storage Adapter initialized`)
+         initializeApp({
+            credential,
+         //   storageBucket: 'totalymage-staging.appspot.com',
+         })
+      }
+   }
+
    getDriver() {
-      return admin.storage()
+      return getStorage()
    }
 
    async download(file: FileType, meta: DownloadFileMeta) {
-      const bucket = admin.storage().bucket(file.bucket)
+      const bucket = getStorage().bucket(file.bucket)
       if (meta.onlyContent) {
          return (await bucket.file(file.ref).download())[0]
       }
@@ -29,20 +48,19 @@ export class GoogleStorageAdapter extends AbstractStorageAdapter {
    }
 
    async copy(file: FileType, destFile: FileType) {
-      admin
-         .storage()
+      getStorage()
          .bucket(file.bucket)
          .file(file.ref)
-         .copy(admin.storage().bucket(destFile.bucket).file(destFile.ref))
+         .copy(getStorage().bucket(destFile.bucket).file(destFile.ref))
    }
 
    async create(File: FileType, stream: Readable): Promise<FileType> {
-      const file = admin.storage().bucket(File.bucket).file(File.ref)
+      const file = getStorage().bucket(File.bucket).file(File.ref)
       const writeStream = file.createWriteStream({})
       const pipelineFinished = await new Promise((resolve, reject) => {
          stream
             .pipe(writeStream)
-            .on('error', (error) => {
+            .on('error', (error: unknown) => {
                reject(error)
             })
             .on('finish', () => {
@@ -63,8 +81,7 @@ export class GoogleStorageAdapter extends AbstractStorageAdapter {
       var expires = new Date()
       expires.setSeconds(expires.getSeconds() + expiresIn)
 
-      const [file] = await admin
-         .storage()
+      const [file] = await getStorage()
          .bucket(fileData.bucket)
          .file(fileData.ref)
          .getSignedUrl({
@@ -81,13 +98,13 @@ export class GoogleStorageAdapter extends AbstractStorageAdapter {
 
    async delete(file: FileType) {
       const { bucket, ref } = file
-      console.log(`${bucket} Removing linked file '${ref}' in `)
+      Core.log(`${bucket} Removing linked file '${ref}' in `)
 
       try {
-         await admin.storage().bucket(bucket).file(ref).delete()
+         await getStorage().bucket(bucket).file(ref).delete()
          return true
       } catch (err) {
-         console.log(
+         Core.log(
             ` Error while removing linked file '${ref}': ${
                (err as Error).message
             }`
@@ -97,8 +114,7 @@ export class GoogleStorageAdapter extends AbstractStorageAdapter {
    }
 
    async stream(file: FileType, res: any) {
-      const bucket = admin.storage().bucket()
-
+      const bucket = getStorage().bucket()
       return bucket.file(file.ref).createReadStream().pipe(res)
    }
 
@@ -120,8 +136,8 @@ export class GoogleStorageAdapter extends AbstractStorageAdapter {
    }
 
    async getReadable(file: FileType): Promise<Readable> {
-      console.log('Get readable of file', file.ref)
-      const fileRef = admin.storage().bucket(file.bucket).file(file.ref)
+      Core.log('[GSA] Get readable of file', file.ref)
+      const fileRef = getStorage().bucket(file.bucket).file(file.ref)
       const [exists] = await fileRef.exists()
 
       if (!exists) {
@@ -158,7 +174,7 @@ export class GoogleStorageAdapter extends AbstractStorageAdapter {
       const workingDir = join(tmpdir(), 'videothumbs')
       await fs.ensureDir(workingDir)
 
-      const bucket = admin.storage().bucket(file.bucket)
+      const bucket = getStorage().bucket(file.bucket)
       const extension = name.split('.').pop()
       const tmpFilePath = join(workingDir, hash(name)) + `.${extension}`
 
@@ -213,7 +229,7 @@ export class GoogleStorageAdapter extends AbstractStorageAdapter {
 
       await fs.ensureDir(workingDir)
 
-      const bucket = admin.storage().bucket(file.bucket)
+      const bucket = getStorage().bucket(file.bucket)
 
       try {
          await fs.ensureDir(workingDir)

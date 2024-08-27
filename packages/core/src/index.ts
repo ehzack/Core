@@ -72,6 +72,7 @@ import {
    GoneError,
 } from './common/ResourcesErrors'
 
+import { StorageParameters, StorageParametersKeys } from './Storage'
 import { AbstractStorageAdapter } from './storages/AbstractStorageAdapter'
 import { FileType } from './storages/types/FileType'
 import { BlobType } from './storages/types/BlobType'
@@ -149,6 +150,8 @@ export {
    NotFoundError,
    GoneError,
    // Storage components
+   StorageParameters,
+   StorageParametersKeys,
    FileType,
    BlobType,
    BlobMediaType,
