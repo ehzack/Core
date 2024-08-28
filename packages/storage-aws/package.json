@@ -1,6 +1,6 @@
 {
    "name": "@quatrain/storage-aws",
-   "version": "0.1.0",
+   "version": "0.2.0",
    "description": "Storage adapter for Amazon Web Services",
    "main": "lib/index.js",
    "types": "lib/index.d.ts",
