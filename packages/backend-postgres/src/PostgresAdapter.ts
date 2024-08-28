@@ -467,14 +467,11 @@ export class PostgresAdapter extends AbstractAdapter {
          for (let doc of result.rows || []) {
             Object.keys(caseMap).forEach((field) => {
                Reflect.set(doc, Reflect.get(caseMap, field), doc[field])
-            //   Reflect.deleteProperty(doc, field)
+               //   Reflect.deleteProperty(doc, field)
             })
             const newDataObject: DataObjectClass<any> = await dataObject.clone({
                ...doc,
             })
-
-            console.log(doc)
-            console.log(dataObject.toJSON())
 
             let newDataObjectUri = ``
             if (newDataObject.has('parent')) {

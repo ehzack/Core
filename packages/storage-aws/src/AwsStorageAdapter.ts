@@ -3,73 +3,142 @@ import {
    Core,
    FileType,
    FileResponseLink,
+   FileResponseUrl,
+   StorageParameters,
+   DownloadFileMeta,
 } from '@quatrain/core'
-import * as awsS3 from './s3'
 import sharp from 'sharp'
 import { join } from 'path'
 import { tmpdir } from 'os'
 import fs from 'fs-extra'
 import hash from 'object-hash'
 import { Readable, Stream } from 'stream'
-import { GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { createReadStream, createWriteStream } from 'fs'
-
-const streamToBuffer = async (stream: Stream): Promise<Buffer> => {
-   return new Promise<Buffer>((resolve, reject) => {
-      const _buf: any[] = []
-
-      stream.on('data', (chunk) => _buf.push(chunk))
-      stream.on('end', () => resolve(Buffer.concat(_buf)))
-      stream.on('error', (err) => reject(err))
-   })
-}
+import {
+   S3Client,
+   PutObjectCommand,
+   GetObjectCommand,
+   DeleteObjectCommand,
+   CopyObjectCommand,
+} from '@aws-sdk/client-s3'
 
 export class AwsStorageAdapter extends AbstractStorageAdapter {
+   protected _client: S3Client
+
+   constructor(params: StorageParameters) {
+      super(params)
+
+      const config = {
+         region: this._params.config.region,
+         credentials: {
+            accessKeyId: this._params.config.accesskey,
+            secretAccessKey: this._params.config.secret,
+         },
+      }
+
+      this._client = new S3Client(config)
+      Core.log(`[ASA] AWS Storage Adapter initialized`)
+   }
+
    getDriver() {
-      return awsS3.s3Client
+      return this._client
+   }
+
+   async streamToBuffer(stream: Stream): Promise<Buffer> {
+      return new Promise<Buffer>((resolve, reject) => {
+         const _buf: any[] = []
+
+         stream.on('data', (chunk) => _buf.push(chunk))
+         stream.on('end', () => resolve(Buffer.concat(_buf)))
+         stream.on('error', (err) => reject(err))
+      })
    }
 
    async create(file: FileType, stream: Readable): Promise<FileType> {
       const input = {
-         Bucket: file.bucket || awsS3.s3Bucket,
+         Bucket: file.bucket || this._params.config.bucket,
          Key: file.ref,
-         Body: await streamToBuffer(stream),
+         Body: await this.streamToBuffer(stream),
          ContentType: file.contentType,
       }
       Core.log(`Uploading ${file.ref} to ${file.bucket}`)
 
       const command = new PutObjectCommand(input)
-      await awsS3.s3Client.send(command)
+      await this._client?.send(command)
 
       return file
    }
 
+   async copy(file: FileType, destFile: FileType) {
+      const command = new CopyObjectCommand({
+         CopySource: file.ref,
+         Bucket: destFile.ref,
+         Key: 'NEW_OBJECT_KEY',
+      })
+
+      try {
+         const response = await this._client.send(command)
+         console.log(response)
+      } catch (err) {
+         console.error(err)
+      }
+   }
+
    async getUrl(file: FileType, expiresIn = 3600) {
-      return await awsS3.getPublicUrl(file, expiresIn)
+      //   return await awsS3.getPublicUrl(file, expiresIn)
+
+      const command = new GetObjectCommand({
+         Bucket: file.bucket,
+         Key: file.ref,
+      })
+      const url = await getSignedUrl(this._client, command, { expiresIn })
+      return { url, expiresIn }
    }
 
    async delete(file: FileType) {
-      return !!(await awsS3.deleteFile(file))
+      // return !!(await awsS3.deleteFile(file))
+      const command = new DeleteObjectCommand({
+         Bucket: file.bucket,
+         Key: file.ref,
+      })
+
+      const data = await this._client?.send(command)
+      Core.log('Success. Object deleted.')
+
+      return true
    }
 
    async getReadable(file: FileType): Promise<Readable> {
-      Core.log('GET Readable :', file)
+      Core.log('GET Readable :', file.ref)
       const command = new GetObjectCommand({
-         Bucket: file.bucket || awsS3.s3Bucket,
+         Bucket: file.bucket || this._params.config.bucket,
          Key: file.ref,
       })
-      const item = await awsS3.s3Client.send(command)
+      const item = await this._client?.send(command)
+      const ByteArray: any = await item?.Body?.transformToByteArray()
+      const buffer = Buffer.from(ByteArray, 'base64')
+      const readable = new Readable()
+      readable.push(buffer)
+      readable.push(null)
+
+      return readable
+   }
+
+   async stream(file: FileType, res: any) {
+      //return awsS3.streamFile(file, res)
+      const command = new GetObjectCommand({
+         Bucket: file.bucket,
+         Key: file.ref,
+      })
+      const item = await this._client.send(command)
       const ByteArray: any = await item.Body?.transformToByteArray()
       const buffer = Buffer.from(ByteArray, 'base64')
       const readable = new Readable()
       readable.push(buffer)
       readable.push(null)
-      return readable
-   }
 
-   async stream(file: FileType, res: any) {
-      return awsS3.streamFile(file, res)
+      return readable.pipe(res)
    }
 
    async generateVideoThumbnail(file: FileType, sizes: number[]): Promise<any> {
@@ -82,7 +151,7 @@ export class AwsStorageAdapter extends AbstractStorageAdapter {
       const extension = name.split('.').pop()
       const tmpFilePath = join(workingDir, hash(name)) + `.${extension}`
 
-      await this.download(file, tmpFilePath)
+      await this.download(file, { path: tmpFilePath })
       const bucketDir = name.substring(0, name.lastIndexOf('/'))
 
       const pspawn = require('child-process-promise').spawn
@@ -116,11 +185,11 @@ export class AwsStorageAdapter extends AbstractStorageAdapter {
 
                const Body = createReadStream(thumbPath)
                const command = new PutObjectCommand({
-                  Bucket: file.bucket || awsS3.s3Bucket,
+                  Bucket: file.bucket || this._params.config.s3Bucket,
                   Key: join(bucketDir, `${thumbName}.png`),
                   Body,
                })
-               return awsS3.s3Client.send(command)
+               return this._client?.send(command)
             })
          )
       } catch (e) {
@@ -130,13 +199,13 @@ export class AwsStorageAdapter extends AbstractStorageAdapter {
       return thumbnails
    }
 
-   async download(file: FileType, path: string) {
+   async download(file: FileType, meta: DownloadFileMeta) {
       const stream: Readable = await this.getReadable(file)
       await new Promise((res) =>
-         stream.pipe(createWriteStream(path)).on('close', res)
+         stream.pipe(createWriteStream(meta.path)).on('close', res)
       )
 
-      return path
+      return meta.path
    }
 
    async generateImageThumbnail(file: FileType, sizes: number[]): Promise<any> {
@@ -145,7 +214,7 @@ export class AwsStorageAdapter extends AbstractStorageAdapter {
       const workingDir = join(tmpdir(), 'thumbs')
 
       const extension = name.split('.').pop().toLowerCase()
-      const tmpFilePath = join(workingDir, hash(name)) + `.${extension}`
+      const path = join(workingDir, hash(name)) + `.${extension}`
 
       await fs.ensureDir(workingDir)
 
@@ -154,32 +223,32 @@ export class AwsStorageAdapter extends AbstractStorageAdapter {
 
          // get File directory
          const bucketDir = name.substring(0, name.lastIndexOf('/'))
-         await this.download(file, tmpFilePath)
+         await this.download(file, { path })
 
          const uploadPromises = sizes.map(async (size) => {
             const thumbName = `thumb${size}`
             const thumbPath = join(workingDir, thumbName) + `.${extension}`
-            await sharp(tmpFilePath)
+            await sharp(path)
                .resize(size, size, {
                   fit: 'contain',
                   background: { r: 255, g: 255, b: 255, alpha: 1 },
                })
                .toFile(thumbPath)
             thumbnails[thumbName] = join(bucketDir, thumbName) + `.${extension}`
-            console.log(`Generating ${size} thumbnail for ${name}`)
+            Core.log(`Generating ${size} thumbnail for ${name}`)
 
             const Body = createReadStream(thumbPath)
             const command = new PutObjectCommand({
-               Bucket: file.bucket || awsS3.s3Bucket,
+               Bucket: file.bucket || this._params.config.bucket,
                Key: join(bucketDir, thumbName) + `.${extension}`,
                Body,
             })
-            return awsS3.s3Client.send(command)
+            return this._client.send(command)
          })
          await Promise.all(uploadPromises)
          await fs.remove(workingDir)
       } catch (err) {
-         console.log(
+         Core.log(
             `Thumbnail generation for ${file.name} failed with error: ${err}`
          )
       }
@@ -245,12 +314,12 @@ export class AwsStorageAdapter extends AbstractStorageAdapter {
       expiresIn = 3600
    ): Promise<FileResponseLink> {
       const input = {
-         Bucket: file.bucket || awsS3.s3Bucket,
+         Bucket: file.bucket || this._params.config.bucket,
          Key: file.ref,
       }
       const command = new PutObjectCommand(input)
 
-      const url = await getSignedUrl(awsS3.s3Client, command, { expiresIn })
+      const url = await getSignedUrl(this._client, command, { expiresIn })
 
       return {
          href: url,

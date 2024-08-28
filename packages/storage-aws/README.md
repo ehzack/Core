@@ -1,0 +1,1 @@
+# Quatrain Amazon Storage Adapter
