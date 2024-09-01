@@ -280,7 +280,7 @@ export class FirestoreAdapter extends AbstractAdapter {
          }
 
          fullPath += collection
-
+         console.log({ fullPath, collection })
          Core.log(
             `[FSA] Query on ${
                dataObject.has('parent') ? 'sub' : ''

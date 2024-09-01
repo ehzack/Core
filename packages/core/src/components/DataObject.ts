@@ -238,7 +238,6 @@ export class DataObject implements DataObjectClass<any> {
    get data(): any {
       return this._properties
    }
-
    set uri(uri: ObjectUri) {
       this._objectUri = uri
       if (this._objectUri.collection !== ObjectUri.MISSING_COLLECTION) {
@@ -257,6 +256,9 @@ export class DataObject implements DataObjectClass<any> {
 
    get parentProp() {
       return this._parentProp
+   }
+   set parentProp(str) {
+      this._parentProp = str
    }
 
    has(key: string) {
@@ -343,7 +345,6 @@ export class DataObject implements DataObjectClass<any> {
                // ignore
                break
             case 'ObjectProperty':
-               console.log('ON ObjectProperty ', prop.val())
                const value: BaseObjectCore | ObjectUri | undefined = prop.val()
                Reflect.set(
                   data,
