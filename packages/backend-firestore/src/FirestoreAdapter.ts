@@ -190,7 +190,8 @@ export class FirestoreAdapter extends AbstractAdapter {
    }
 
    async delete(
-      dataObject: DataObjectClass<any>
+      dataObject: DataObjectClass<any>,
+      hardDelete = false
    ): Promise<DataObjectClass<any>> {
       if (dataObject.uid === undefined) {
          throw new BackendError('Dataobject has no uid')
@@ -199,7 +200,7 @@ export class FirestoreAdapter extends AbstractAdapter {
       // execute middlewares
       await this.executeMiddlewares(dataObject, BackendAction.DELETE)
 
-      if (this._params.softDelete === true) {
+      if (this._params.softDelete === true && hardDelete === false) {
          dataObject.set('status', statuses.DELETED)
          await getFirestore().doc(dataObject.path).update(dataObject.toJSON())
       } else {
@@ -292,7 +293,7 @@ export class FirestoreAdapter extends AbstractAdapter {
             this._params.hierarchy &&
             this._params.hierarchy[collection] ===
                CollectionHierarchy.SUBCOLLECTION &&
-            collection.split('/').length > 1 // no collectiongroup on a sub collection
+            fullPath.split('/').length === 1 // no collectiongroup on a sub collection
          ) {
             Core.log(`[FSA] Using collectionGroup()`)
             query = getFirestore().collectionGroup(collection)
@@ -390,24 +391,25 @@ export class FirestoreAdapter extends AbstractAdapter {
             const newDataObject: DataObjectClass<any> = await dataObject.clone({
                ...payload,
             })
-
-            let newDataObjectUri = ``
-            if (newDataObject.has('parent')) {
+            let newDataObjectUri = `${this.getCollection(dataObject)}/${doc.id}`
+            if (
+               dataObject.parentProp &&
+               newDataObject.has(dataObject.parentProp) &&
+               newDataObject.val(dataObject.parentProp)
+            ) {
                // if data contains a parent, it acts as a base path
                if (
                   !(
-                     newDataObject.val('parent') &&
-                     newDataObject.val('parent').path
+                     newDataObject.val(dataObject.parentProp) &&
+                     newDataObject.val(dataObject.parentProp).path
                   )
                ) {
                   throw new BackendError(
                      `DataObject has parent but parent is not persisted`
                   )
                }
-               newDataObjectUri = `${newDataObject.get('parent')._value._path}/`
+               newDataObjectUri = doc.ref.path
             }
-
-            newDataObjectUri += `${this.getCollection(dataObject)}/${doc.id}`
 
             newDataObject.uri = new ObjectUri(
                newDataObjectUri,
