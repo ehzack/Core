@@ -164,11 +164,17 @@ export class DataObject implements DataObjectClass<any> {
                   typeof val.label == 'string'
                ) {
                   const { ref, label } = val
+
                   Reflect.get(this._properties, key).set(
                      new ObjectUri(ref, label),
                      false
                   )
-               } else {
+               }
+               //  else if (key===this._parentProp) {
+               //    const parent:BaseObjectCore = data[key]
+               //    Reflect.get(this._properties, key).set(data[key], false)
+               // }
+               else {
                   Reflect.get(this._properties, key).set(data[key], false)
                }
             }
@@ -336,12 +342,13 @@ export class DataObject implements DataObjectClass<any> {
          const prop = Reflect.get(this._properties, key)
          if (ignoreUnchanged && prop.hasChanged === false) return
 
-      //   console.log(prop.constructor.name);
+         //   console.log(prop.constructor.name);
          switch (prop.constructor.name) {
             case 'CollectionProperty':
                // ignore
                break
             case 'ObjectProperty':
+               console.log('ON ObjectProperty ', prop.val())
                const value: BaseObjectCore | ObjectUri | undefined = prop.val()
                Reflect.set(
                   data,
