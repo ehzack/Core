@@ -169,12 +169,7 @@ export class DataObject implements DataObjectClass<any> {
                      new ObjectUri(ref, label),
                      false
                   )
-               }
-               //  else if (key===this._parentProp) {
-               //    const parent:BaseObjectCore = data[key]
-               //    Reflect.get(this._properties, key).set(data[key], false)
-               // }
-               else {
+               } else {
                   Reflect.get(this._properties, key).set(data[key], false)
                }
             }
