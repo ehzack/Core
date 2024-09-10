@@ -1,16 +1,18 @@
 import { Readable } from 'stream'
 import { FileType } from './types/FileType'
-import { DownloadFileMeta } from './types/DownloadFileMetaType'
+import { DownloadFileMetaType } from './types/DownloadFileMetaType'
 
 /**
- * These are the public functions that any storage interface must expose
+ * These are the public functions that any storage adapter must expose
  */
 export interface StorageAdapterInterface {
    getDriver(): any
    create(file: FileType, stream: Readable): Promise<FileType>
+   copy(file: FileType, destFile: FileType): Promise<any>
+   move(file: FileType, destFile: FileType): Promise<any>
    delete(file: FileType): Promise<Boolean>
    stream(file: FileType, res: any): Promise<any>
-   download(file: FileType, path: DownloadFileMeta): Promise<string>
+   download(file: FileType, path: DownloadFileMetaType): Promise<string>
    getUrl(
       file: FileType,
       expiresIn?: number,

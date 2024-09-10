@@ -1,7 +1,7 @@
 {
-   "name": "@quatrain/storage-aws",
-   "version": "0.2.0",
-   "description": "Storage adapter for Amazon Web Services",
+   "name": "@quatrain/queue-gcp",
+   "version": "0.1.0",
+   "description": "Queue adapter for Google Cloud Platform PubSub",
    "main": "lib/index.js",
    "types": "lib/index.d.ts",
    "files": [
@@ -12,7 +12,9 @@
    "license": "MIT",
    "devDependencies": {
       "@tsconfig/recommended": "^1.0.1",
+      "@types/fs-extra": "^11.0.4",
       "@types/jest": "^27.0.3",
+      "@types/object-hash": "^3.0.6",
       "jest": "^27.4.7",
       "jest-node-exports-resolver": "^1.1.6",
       "trace-unhandled": "^2.0.1",
@@ -21,11 +23,9 @@
       "typescript": "^5.1.5"
    },
    "dependencies": {
-      "@aws-sdk/client-s3": "^3.337.0",
-      "@aws-sdk/s3-request-presigner": "^3.342.0",
+      "@google-cloud/pubsub": "^4.7.0",
       "@quatrain/core": "^1.0.0-beta13",
-      "fs-extra": "^11.2.0",
-      "sharp": "^0.33.4"
+      "@quatrain/queue": "^0.1.0"
    },
    "scripts": {
       "test": "tsc && jest --verbose",

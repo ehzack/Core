@@ -1,7 +1,7 @@
 {
-   "name": "@quatrain/storage-firebase",
-   "version": "0.4.1",
-   "description": "Storage adapter for Firebase Storage",
+   "name": "@quatrain/queue-amqp",
+   "version": "0.1.0",
+   "description": "Queue adapter for AMQP compatible queue",
    "main": "lib/index.js",
    "types": "lib/index.d.ts",
    "files": [
@@ -23,9 +23,9 @@
       "typescript": "^5.1.5"
    },
    "dependencies": {
+      "@cloudamqp/amqp-client": "^3.1.1",
       "@quatrain/core": "^1.0.0-beta13",
-      "firebase-admin": "^12.4.0",
-      "fs-extra": "^11.2.0"
+      "@quatrain/queue": "^0.1.0"
    },
    "scripts": {
       "test": "tsc && jest --verbose",

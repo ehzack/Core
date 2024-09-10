@@ -1,4 +1,4 @@
-export interface DownloadFileMeta {
+export interface DownloadFileMetaType {
   path: string
   onlyContent?: boolean
 }

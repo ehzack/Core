@@ -1,4 +1,4 @@
-export type FileResponseLink = {
+export type FileResponseLinkType = {
   href: string
   type: 'PUT' | 'POST' | 'GET'
   accept: string

@@ -1,4 +1,4 @@
-export type FileResponseUrl = {
+export type FileResponseUrlType = {
   url: string,
   expiresIn: number
 }

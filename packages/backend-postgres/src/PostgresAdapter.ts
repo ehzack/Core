@@ -116,7 +116,7 @@ export class PostgresAdapter extends AbstractAdapter {
 
             const data = dataObject.toJSON({ withoutURIData: true })
 
-            console.log('json data', data)
+            // console.log('json data', data)
             let query = `INSERT INTO ${dataObject.uri.collection} (id`
             let values = `VALUES ($1`
             Object.keys(data).forEach((key, i) => {
@@ -130,7 +130,7 @@ export class PostgresAdapter extends AbstractAdapter {
 
             const pgData = [uid, ...this._prepareData(data, false)]
 
-            console.log('pg data', pgData)
+            // console.log('pg data', pgData)
 
             await (await this._connect()).query(`${query}${values}`, pgData)
 

@@ -1,21 +1,17 @@
 import { AbstractAuthAdapter } from './authentication'
 import { AbstractAdapter } from './backends/AbstractAdapter'
-import { AbstractStorageAdapter } from './storages'
 import { DataObject } from './components/DataObject'
 import { User } from './components/User'
 import { DataObjectClass } from './components/types/DataObjectClass'
 
 export type BackendRegistry<T extends AbstractAdapter> = { [x: string]: T }
-export type StorageBackendRegistry<T extends AbstractStorageAdapter> = {
-   [x: string]: T
-}
+
 export interface AuthAdapter extends AbstractAuthAdapter {}
 
 export class Core {
    static storage = require('node-persist')
    static storagePrefix = 'core'
    static defaultBackend = '@default'
-   static defaultStorage = '@default'
    static userClass = User
    static classRegistry: { [key: string]: any } = {}
    static logger = console
@@ -25,8 +21,6 @@ export class Core {
    static timestamp = () => new Date().toISOString()
 
    protected static _backends: BackendRegistry<any> = {}
-
-   protected static _storages: StorageBackendRegistry<any> = {}
 
    static definition(key: string) {
       return {
@@ -69,27 +63,6 @@ export class Core {
          return this._backends[alias]
       } else {
          throw new Error(`Unknown backend alias: '${alias}'`)
-      }
-   }
-
-   static addStorage(
-      backend: AbstractStorageAdapter,
-      alias: string,
-      setDefault: boolean = false
-   ) {
-      Core._storages[alias] = backend
-      if (setDefault) {
-         Core.defaultStorage = alias
-      }
-   }
-
-   static getStorage<T extends AbstractStorageAdapter>(
-      alias: string = this.defaultStorage
-   ): T {
-      if (this._storages[alias]) {
-         return this._storages[alias]
-      } else {
-         throw new Error(`Unknown storage alias: '${alias}'`)
       }
    }
 
