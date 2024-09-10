@@ -14,7 +14,10 @@ export interface BackendInterface {
 
    update(dataObject: DataObjectClass<any>): Promise<DataObjectClass<any>>
 
-   delete(dataObject: DataObjectClass<any>): Promise<DataObjectClass<any>>
+   delete(
+      dataObject: DataObjectClass<any>,
+      hardDelete?: boolean
+   ): Promise<DataObjectClass<any>>
 
    query(query: Query<any>): Promise<QueryResultType<DataObjectClass<any>>>
 

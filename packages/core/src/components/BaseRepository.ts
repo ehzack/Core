@@ -33,8 +33,12 @@ export default class BaseRepository<T extends BaseObject> {
    ): Promise<DataObjectClass<any>> {
       const collection =
          this._model.COLLECTION || this._model.name.toLowerCase()
+      let path = `${collection}/${uid}`
 
-      const path = `${collection}/${uid}`
+      if (uid.split('/').length > 2) {
+         path = uid
+      }
+
       const dataObject = DataObject.factory({
          properties: this._model.PROPS_DEFINITION,
          uri: path,
@@ -95,7 +99,7 @@ export default class BaseRepository<T extends BaseObject> {
          }
 
          if (e instanceof NotFoundError) {
-            throw new NotFoundError('[Repository] ' + (e as Error).message)
+            return null
          }
 
          throw e
@@ -103,7 +107,7 @@ export default class BaseRepository<T extends BaseObject> {
    }
 
    async update(obj: BaseObjectCore) {
-      const dataObject = obj.dataObject
+      const dataObject = obj.dataObject || obj
 
       const savedObj = await this.backendAdapter.update(dataObject)
 
@@ -114,9 +118,9 @@ export default class BaseRepository<T extends BaseObject> {
     * delete object in its backend
     * @param uid string
     */
-   async delete(uid: string) {
+   async delete(uid: string, hardDelete = false) {
       const dataObject = await this.getDataObjectFromUid(uid)
-      return await this.backendAdapter.delete(dataObject)
+      return await this.backendAdapter.delete(dataObject, hardDelete)
    }
 
    async query(query: Query<any>): Promise<QueryResultType<T>> {

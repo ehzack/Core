@@ -164,6 +164,7 @@ export class DataObject implements DataObjectClass<any> {
                   typeof val.label == 'string'
                ) {
                   const { ref, label } = val
+
                   Reflect.get(this._properties, key).set(
                      new ObjectUri(ref, label),
                      false
@@ -237,7 +238,6 @@ export class DataObject implements DataObjectClass<any> {
    get data(): any {
       return this._properties
    }
-
    set uri(uri: ObjectUri) {
       this._objectUri = uri
       if (this._objectUri.collection !== ObjectUri.MISSING_COLLECTION) {
@@ -256,6 +256,9 @@ export class DataObject implements DataObjectClass<any> {
 
    get parentProp() {
       return this._parentProp
+   }
+   set parentProp(str) {
+      this._parentProp = str
    }
 
    has(key: string) {
@@ -336,7 +339,7 @@ export class DataObject implements DataObjectClass<any> {
          const prop = Reflect.get(this._properties, key)
          if (ignoreUnchanged && prop.hasChanged === false) return
 
-      //   console.log(prop.constructor.name);
+         //   console.log(prop.constructor.name);
          switch (prop.constructor.name) {
             case 'CollectionProperty':
                // ignore

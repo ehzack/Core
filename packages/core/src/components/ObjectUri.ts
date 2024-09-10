@@ -160,7 +160,7 @@ export class ObjectUri {
     */
    toReference() {
       return {
-         ref: this._path,
+         ref: this.path,
          uri: this._literal,
          label: this._label,
       }
@@ -169,7 +169,7 @@ export class ObjectUri {
    toJSON() {
       return {
          backend: this._backend,
-         ref: this._path,
+         ref: this.path,
          label: this._label || '',
       }
    }
