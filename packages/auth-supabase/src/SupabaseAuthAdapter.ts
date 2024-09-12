@@ -33,19 +33,20 @@ export class SupabaseAuthAdapter extends AbstractAuthAdapter {
             password,
             disabled = false,
          } = user._
-         const authData = {
-            uid: user.uid,
-            email,
-            phoneNumber,
-            password,
-            disabled,
-            displayName,
-         }
-         Core.log(`[SAA] Adding user '${displayName}'`)
-         // const userRecord = await getAuth().createUser(authData)
 
-         return // userRecord.uid
+         Core.log(`[SAA] Adding user '${displayName}'`)
+         const { data, error } = await this._client.auth.signUp({
+            email,
+            password,
+         })
+
+         if(error) {
+            throw new Error(error)
+         }
+
+         return data.user
       } catch (err) {
+         console.log(err)
          throw new AuthenticationError((err as Error).message)
       }
    }

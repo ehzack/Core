@@ -43,6 +43,9 @@ export class ArrayProperty extends BaseProperty {
    }
 
    set(value: Array<any>, setChanged = true) {
+      if (value === null) {
+         value = []
+      }
       if (!Array.isArray(value)) {
          throw new Error(`value ${JSON.stringify(value)} is not an array`)
       }

@@ -402,7 +402,7 @@ export class PostgresAdapter extends AbstractAdapter {
                   realOperator = operatorsMap[filter.operator]
                }
 
-               if (filter.operator === operatorsMap['containsAny']) {
+               if (realOperator === operatorsMap['containsAny']) {
                   // Use 'containsAny' for queries in arrays which query structure is weird
                   query.push(`'${realValue}'=ANY(${realProp})`)
                } else {
