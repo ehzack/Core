@@ -1,10 +1,10 @@
+import { User } from '@quatrain/core'
 import {
+   Auth,
    AbstractAuthAdapter,
-   Core,
-   User,
    AuthenticationError,
    AuthParameters,
-} from '@quatrain/core'
+} from '@quatrain/auth'
 import { createClient } from '@supabase/supabase-js'
 
 // Create a single supabase client for interacting with your database
@@ -34,13 +34,13 @@ export class SupabaseAuthAdapter extends AbstractAuthAdapter {
             disabled = false,
          } = user._
 
-         Core.log(`[SAA] Adding user '${displayName}'`)
+         Auth.log(`[SAA] Adding user '${displayName}'`)
          const { data, error } = await this._client.auth.signUp({
             email,
             password,
          })
 
-         if(error) {
+         if (error) {
             throw new Error(error)
          }
 
@@ -64,11 +64,11 @@ export class SupabaseAuthAdapter extends AbstractAuthAdapter {
    async signout(user: User): Promise<any> {}
 
    async update(user: User, updatable: any): Promise<any> {
-      console.log('auth data to update', JSON.stringify(updatable))
+      Auth.log('auth data to update', JSON.stringify(updatable))
 
       try {
          if (Object.keys(updatable).length > 0) {
-            console.log(`Updating ${updatable.displayName} Auth record`)
+            Auth.log(`Updating ${updatable.displayName} Auth record`)
             // await getAuth().updateUser(user.uid, updatable)
          }
       } catch (e) {}

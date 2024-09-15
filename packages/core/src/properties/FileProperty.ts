@@ -1,9 +1,6 @@
-import { DataObject } from '../components/DataObject'
 import { ObjectUri } from '../components/ObjectUri'
 import { BaseProperty, BasePropertyType } from './BaseProperty'
-import { returnAs } from '../backends/Query'
 import { BaseObjectClass } from '../components/types/BaseObjectClass'
-import { Core } from '../Core'
 
 export interface FilePropertyType extends BasePropertyType {
 }

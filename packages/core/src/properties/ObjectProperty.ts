@@ -1,9 +1,16 @@
 import { DataObject } from '../components/DataObject'
 import { ObjectUri } from '../components/ObjectUri'
 import { BaseProperty, BasePropertyType } from './BaseProperty'
-import { returnAs } from '../backends/Query'
 import { BaseObjectClass } from '../components/types/BaseObjectClass'
 import { Core } from '../Core'
+
+// TODO move in types
+export enum returnAs {
+   AS_OBJECTURIS = 'objectUris',
+   AS_DATAOBJECTS = 'dataObjects',
+   AS_INSTANCES = 'classInstances',
+   AS_IS = 'asIs',
+}
 
 export interface ObjectPropertyType extends BasePropertyType {
    instanceOf: any //Function | string | Object

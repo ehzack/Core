@@ -1,22 +1,23 @@
 import {
-   AbstractAdapter,
    DataObjectClass,
+   ObjectUri,
+   NotFoundError,
+   statuses,
+   StringProperty,
+} from '@quatrain/core'
+import {
+   Backend,
+   AbstractBackendAdapter,
    BackendAction,
    BackendParameters,
    BackendError,
-   ObjectUri,
    QueryMetaType,
    QueryResultType,
    Filters,
    Filter,
    SortAndLimit,
    Sorting,
-   Core,
-   NotFoundError,
-   statuses,
-   StringProperty,
-   Property,
-} from '@quatrain/core'
+} from '@quatrain/backend'
 import { randomUUID } from 'crypto'
 import { Client } from 'pg'
 
@@ -33,7 +34,7 @@ const operatorsMap: { [x: string]: string } = {
    containsAny: 'any',
 }
 
-export class PostgresAdapter extends AbstractAdapter {
+export class PostgresAdapter extends AbstractBackendAdapter {
    protected _connection: undefined | Client
 
    constructor(params: BackendParameters = {}) {
@@ -93,6 +94,7 @@ export class PostgresAdapter extends AbstractAdapter {
    /**
     * Create record in backend
     * @param dataObject DataObject instance to persist in backend
+    * @param desiredUid Desired unique ID for record
     * @returns DataObject
     */
    async create(
@@ -126,7 +128,7 @@ export class PostgresAdapter extends AbstractAdapter {
             query += `) `
             values += `)`
 
-            Core.log(`[PGA] ${query}${values}`)
+            Backend.log(`[PGA] ${query}${values}`)
 
             const pgData = [uid, ...this._prepareData(data, false)]
 
@@ -137,14 +139,14 @@ export class PostgresAdapter extends AbstractAdapter {
             dataObject.uri.path = `${dataObject.uri.collection}/${uid}`
             dataObject.uri.label = data && Reflect.get(data, 'name')
 
-            Core.log(
+            Backend.log(
                `[PGA] Saved object "${data.name}" at path ${dataObject.path}`
             )
 
             resolve(dataObject)
          } catch (err) {
             console.log(err)
-            Core.log((err as Error).message)
+            Backend.log((err as Error).message)
             reject(new BackendError((err as Error).message))
          }
       })
@@ -160,11 +162,11 @@ export class PostgresAdapter extends AbstractAdapter {
          )
       }
 
-      Core.log(`[PGA] Getting document ${path}`)
+      Backend.log(`[PGA] Getting document ${path}`)
 
       const query = `SELECT * FROM ${parts[0]} WHERE id = '${parts[1]}'`
 
-      Core.log(`[PGA] ${query}`)
+      Backend.log(`[PGA] ${query}`)
 
       const result = await (await this._connect()).query(query)
 
@@ -186,7 +188,7 @@ export class PostgresAdapter extends AbstractAdapter {
          throw Error('DataObject has no uid')
       }
 
-      Core.log(`[PGA] updating document ${dataObject.path}`)
+      Backend.log(`[PGA] updating document ${dataObject.path}`)
 
       // execute middlewares
       await this.executeMiddlewares(dataObject, BackendAction.UPDATE)
@@ -216,7 +218,7 @@ export class PostgresAdapter extends AbstractAdapter {
 
       query += ` WHERE id = '${dataObject.uid}'`
 
-      Core.log(`[PGA] ${query}`)
+      Backend.log(`[PGA] ${query}`)
 
       await (await this._connect()).query(query, pgData)
 
@@ -257,7 +259,7 @@ export class PostgresAdapter extends AbstractAdapter {
    }
 
    async deleteCollection(collection: string, batchSize = 500): Promise<void> {
-      Core.log(`Deleting all records from collection '${collection}'`)
+      Backend.log(`Deleting all records from collection '${collection}'`)
       await this._connect()
       await this._connection?.query(`TRUNCATE TABLE ${collection}`)
    }
@@ -307,7 +309,7 @@ export class PostgresAdapter extends AbstractAdapter {
             )
          }
 
-         Core.log(`[PGA] Preparing query on '${collection}'`)
+         Backend.log(`[PGA] Preparing query on '${collection}'`)
 
          let hasFilters = false
          const alias = 'coll'
@@ -324,7 +326,7 @@ export class PostgresAdapter extends AbstractAdapter {
             if (
                dataObject.properties[prop].constructor.name === 'ObjectProperty'
             ) {
-               Core.log(
+               Backend.log(
                   `Adding join table for property ${prop} instance of ${dataObject.properties[prop].instanceOf}`
                )
                const joinAlias = `${prop.toLowerCase()}_table`
@@ -370,13 +372,13 @@ export class PostgresAdapter extends AbstractAdapter {
                   realProp += ')'
                   realValue = undefined
                } else if (
-                  filter.prop !== AbstractAdapter.PKEY_IDENTIFIER &&
+                  filter.prop !== AbstractBackendAdapter.PKEY_IDENTIFIER &&
                   !dataObject.has(filter.prop)
                ) {
                   throw new BackendError(
                      `[PGA] No such property '${filter.prop}' on object'`
                   )
-               } else if (filter.prop === AbstractAdapter.PKEY_IDENTIFIER) {
+               } else if (filter.prop === AbstractBackendAdapter.PKEY_IDENTIFIER) {
                   realProp = 'id'
                   realOperator = operatorsMap[filter.operator]
                } else {
@@ -419,20 +421,20 @@ export class PostgresAdapter extends AbstractAdapter {
                   )
                }
 
-               Core.log(
+               Backend.log(
                   `[PGA] Filter added: ${realProp} ${realOperator} ${realValue}`
                )
             })
          }
 
-         Core.log(`[PGA] SQL ${query.join(' ')}`)
+         Backend.log(`[PGA] SQL ${query.join(' ')}`)
 
          const connection = await this._connect()
          const countSnapshot = await connection.query(
             `${query.join(' ').replace('*', 'COUNT(*) as total')}`
          )
 
-         Core.log(`[PGA] Counting records ${countSnapshot.rows[0].total}`)
+         Backend.log(`[PGA] Counting records ${countSnapshot.rows[0].total}`)
 
          let sortField: string[] = []
          if (pagination) {
@@ -449,7 +451,7 @@ export class PostgresAdapter extends AbstractAdapter {
          }
 
          const literal = `${query.join(' ').replace('*', fields.join(', '))}`
-         Core.log(`[PGA] Full SQL ${literal}`)
+         Backend.log(`[PGA] Full SQL ${literal}`)
 
          const result = await connection.query(`${literal}`)
 
@@ -458,7 +460,7 @@ export class PostgresAdapter extends AbstractAdapter {
             offset: pagination?.limits.offset || 0,
             batch: pagination?.limits.batch || 20,
             sortField: sortField.join(', '),
-            executionTime: Core.timestamp(),
+            executionTime: Backend.timestamp(),
             debug: { sql: query.join(' ') },
          }
 

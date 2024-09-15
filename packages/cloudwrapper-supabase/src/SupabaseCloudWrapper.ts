@@ -1,9 +1,9 @@
 import {
+   CloudWrapper,
    AbstractCloudWrapper,
    DatabaseTriggerType,
-   BackendAction,
-   Core,
-} from '@quatrain/core'
+} from '@quatrain/cloudwrapper'
+import { BackendAction } from '@quatrain/backend'
 import {
    createClient,
    SupabaseClient,
@@ -65,7 +65,7 @@ export class SupabaseCloudWrapper extends AbstractCloudWrapper {
 
    protected _initialize() {
       if (this._isInitialized === false) {
-         Core.log(`[SPB] Supabase App init`)
+         CloudWrapper.log(`Supabase App init`)
          this._supabaseClient = createClient(this._params.url, this._params.key)
          this._realtimeClient = this._supabaseClient.channel('table-db-changes')
          this._isInitialized = true

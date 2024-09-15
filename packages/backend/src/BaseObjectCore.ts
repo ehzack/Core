@@ -2,13 +2,13 @@ import {
    ObjectUri,
    DataObjectClass,
    DataObject,
+   AbstractObject,
    BaseObjectProperties,
    BaseObject,
-} from '../'
-import { AbstractObject } from './AbstractObject'
+} from '@quatrain/core'
+import { Query } from './Query'
 
-export class BaseObjectCore extends AbstractObject {
-   // implements BaseObjectClass {
+export class BaseObjectCore extends AbstractObject { // implements BaseObjectClass {
    static PROPS_DEFINITION: any /*DataObjectProperties*/ = BaseObjectProperties
 
    static getProperty(key: string) {
@@ -178,5 +178,22 @@ export class BaseObjectCore extends AbstractObject {
 
    asReference() {
       return this._dataObject.toReference()
+   }
+
+   /**
+    * Create a query based on given class where parent is current instance
+    * @param obj
+    * @returns Query
+    */
+   query(obj: any) {
+      return new Query(obj, this)
+   }
+
+   /**
+    * Create a query based on current class
+    * @returns Query
+    */
+   static query() {
+      return new Query(this)
    }
 }

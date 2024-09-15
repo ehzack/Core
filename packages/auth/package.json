@@ -1,8 +1,8 @@
 {
-  "name": "@quatrain/backend-postgres",
-  "version": "0.9.3",
+  "name": "@quatrain/auth",
+  "version": "1.0.0",
   "license": "MIT",
-  "description": "Backend adapter for Postgres",
+  "description": "Auth adapters commons",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "files": [
@@ -13,16 +13,11 @@
   "peerDependencies": {
     "@quatrain/core": "^1.0.0-beta2"
   },
-  "dependencies": {
-    "@quatrain/backend": "^1.0.0",
-    "pg": "^8.11.3",
-    "postgres": "^3.4.4"
-  },
   "devDependencies": {
     "@faker-js/faker": "^7.6.0",
+    "@firebase/rules-unit-testing": "^2.0.7",
     "@tsconfig/recommended": "^1.0.1",
     "@types/jest": "^27.0.3",
-    "@types/pg": "^8.11.4",
     "jest": "^27.4.7",
     "jest-node-exports-resolver": "^1.1.6",
     "jest-serial-runner": "^1.2.1",
@@ -33,6 +28,7 @@
   },
   "scripts": {
     "pretest": "tsc",
+    "test": "clear && firebase emulators:exec 'jest -i --verbose --silent=false'",
     "test-ci": "jest --runInBand",
     "build": "tsc --watch",
     "prepush": "tsc",

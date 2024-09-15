@@ -1,19 +1,14 @@
 import { initializeApp, cert, getApps } from 'firebase-admin/app'
 import { getStorage } from 'firebase-admin/storage'
 import {
+   Storage,
    StorageParameters,
    AbstractStorageAdapter,
-   DownloadFileMeta,
+   DownloadFileMetaType,
    FileType,
-   FileResponseUrl,
-   FileResponseLink,
-   Core,
-} from '@quatrain/core'
-import sharp from 'sharp'
-import { join } from 'path'
-import { tmpdir } from 'os'
-import fs from 'fs-extra'
-import hash from 'object-hash'
+   FileResponseUrlType,
+   FileResponseLinkType,
+} from '@quatrain/storage'
 import { Readable } from 'stream'
 
 export class FirebaseStorageAdapter extends AbstractStorageAdapter {
@@ -25,11 +20,8 @@ export class FirebaseStorageAdapter extends AbstractStorageAdapter {
             const key = require(this._params.config.credential)
             credential = cert(key)
          }
-         Core.log(`[FBSA] Firebase Storage Adapter initialized`)
-         initializeApp({
-            credential,
-         //   storageBucket: 'totalymage-staging.appspot.com',
-         })
+         Storage.log(`[FBSA] Firebase Storage Adapter initialized`)
+         initializeApp({ credential })
       }
    }
 
@@ -37,7 +29,7 @@ export class FirebaseStorageAdapter extends AbstractStorageAdapter {
       return getStorage()
    }
 
-   async download(file: FileType, meta: DownloadFileMeta) {
+   async download(file: FileType, meta: DownloadFileMetaType) {
       const bucket = getStorage().bucket(file.bucket)
       if (meta.onlyContent) {
          return (await bucket.file(file.ref).download())[0]
@@ -52,6 +44,13 @@ export class FirebaseStorageAdapter extends AbstractStorageAdapter {
          .bucket(file.bucket)
          .file(file.ref)
          .copy(getStorage().bucket(destFile.bucket).file(destFile.ref))
+   }
+
+   async move(file: FileType, destFile: FileType) {
+      getStorage()
+         .bucket(file.bucket)
+         .file(file.ref)
+         .move(getStorage().bucket(destFile.bucket).file(destFile.ref))
    }
 
    async create(File: FileType, stream: Readable): Promise<FileType> {
@@ -77,7 +76,7 @@ export class FirebaseStorageAdapter extends AbstractStorageAdapter {
       expiresIn: number = 7200,
       action?: string,
       extra?: any
-   ): Promise<FileResponseUrl> {
+   ): Promise<FileResponseUrlType> {
       var expires = new Date()
       expires.setSeconds(expires.getSeconds() + expiresIn)
 
@@ -98,13 +97,13 @@ export class FirebaseStorageAdapter extends AbstractStorageAdapter {
 
    async delete(file: FileType) {
       const { bucket, ref } = file
-      Core.log(`${bucket} Removing linked file '${ref}' in `)
+      Storage.log(`${bucket} Removing linked file '${ref}' in `)
 
       try {
          await getStorage().bucket(bucket).file(ref).delete()
          return true
       } catch (err) {
-         Core.log(
+         Storage.log(
             ` Error while removing linked file '${ref}': ${
                (err as Error).message
             }`
@@ -121,7 +120,7 @@ export class FirebaseStorageAdapter extends AbstractStorageAdapter {
    async getUploadUrl(
       file: FileType,
       duration: number = 3600
-   ): Promise<FileResponseLink> {
+   ): Promise<FileResponseLinkType> {
       const { url, expiresIn } = await this.getUrl(file, duration, 'write', {
          version: 'v4',
          virtualHostedStyle: true,
@@ -136,7 +135,7 @@ export class FirebaseStorageAdapter extends AbstractStorageAdapter {
    }
 
    async getReadable(file: FileType): Promise<Readable> {
-      Core.log('[GSA] Get readable of file', file.ref)
+      Storage.log('[GSA] Get readable of file', file.ref)
       const fileRef = getStorage().bucket(file.bucket).file(file.ref)
       const [exists] = await fileRef.exists()
 
@@ -148,13 +147,13 @@ export class FirebaseStorageAdapter extends AbstractStorageAdapter {
       const pipelineFinished = await new Promise((resolve, reject) => {
          fileStream.on('data', (chunk: any) => {
             fileContents = Buffer.concat([fileContents, chunk])
-            console.log(`Received chunk with ${chunk.length} bytes`)
+            Storage.log(`Received chunk with ${chunk.length} bytes`)
          })
          fileStream.on('error', (error: any) => {
-            console.error('Error reading file stream:', error)
+            Storage.log('Error reading file stream:', error)
          })
          fileStream.on('end', () => {
-            console.log('File stream ended.')
+            Storage.log('File stream ended.')
 
             resolve('File stream ended.')
          })
@@ -165,155 +164,5 @@ export class FirebaseStorageAdapter extends AbstractStorageAdapter {
       const FileReadable = Readable.from(fileContents)
       console.log('FileReadable length :', FileReadable.readableLength)
       return FileReadable
-   }
-
-   async generateVideoThumbnail(file: FileType, sizes: number[]): Promise<any> {
-      const name = file.name || file.ref
-      const thumbnails: any = {}
-
-      const workingDir = join(tmpdir(), 'videothumbs')
-      await fs.ensureDir(workingDir)
-
-      const bucket = getStorage().bucket(file.bucket)
-      const extension = name.split('.').pop()
-      const tmpFilePath = join(workingDir, hash(name)) + `.${extension}`
-
-      await bucket.file(name).download({ destination: tmpFilePath })
-      const bucketDir = name.substring(0, name.lastIndexOf('/'))
-
-      const pspawn = require('child-process-promise').spawn
-
-      try {
-         await Promise.all(
-            sizes.map(async (size) => {
-               const locatThmbFilePath = `${tmpFilePath}.thumb${size}.png`
-               await pspawn('ffmpeg', [
-                  '-i',
-                  tmpFilePath,
-                  '-vframes',
-                  '1',
-                  '-an',
-                  '-s',
-                  `${size}x${Math.ceil(size * 0.7)}`,
-                  '-ss',
-                  '1',
-                  locatThmbFilePath,
-               ])
-               const thumbName = `thumb${size}`
-               const thumbPath = join(workingDir, thumbName) + `.png`
-               await sharp(locatThmbFilePath)
-                  .resize(size, size, {
-                     fit: 'contain',
-                     background: { r: 255, g: 255, b: 255, alpha: 1 },
-                  })
-                  .toFile(thumbPath)
-               await bucket.upload(thumbPath, {
-                  destination: join(bucketDir, `${thumbName}.png`),
-               })
-               thumbnails[thumbName] = join(bucketDir, `${thumbName}.png`)
-            })
-         )
-      } catch (e) {
-         console.error(e)
-      }
-
-      return thumbnails
-   }
-
-   async generateImageThumbnail(file: FileType, sizes: number[]): Promise<any> {
-      const name = file.name || file.ref
-      const thumbnails: any = {}
-      const workingDir = join(tmpdir(), 'thumbs')
-      const extension = name.split('.').pop().toLowerCase()
-      const tmpFilePath = join(workingDir, hash(name)) + `.${extension}`
-
-      await fs.ensureDir(workingDir)
-
-      const bucket = getStorage().bucket(file.bucket)
-
-      try {
-         await fs.ensureDir(workingDir)
-
-         // get File directory
-         const bucketDir = name.substring(0, name.lastIndexOf('/'))
-         await bucket.file(name).download({ destination: tmpFilePath })
-
-         const uploadPromises = sizes.map(async (size) => {
-            const thumbName = `thumb${size}`
-            const thumbPath = join(workingDir, thumbName) + `.${extension}`
-            await sharp(tmpFilePath)
-               .resize(size, size, {
-                  fit: 'contain',
-                  background: { r: 255, g: 255, b: 255, alpha: 1 },
-               })
-               .toFile(thumbPath)
-            thumbnails[thumbName] = join(bucketDir, thumbName) + `.${extension}`
-            console.log(`Generating ${size} thumbnail for ${name}`)
-            return bucket.upload(thumbPath, {
-               destination: join(bucketDir, thumbName) + `.${extension}`,
-            })
-         })
-         await Promise.all(uploadPromises)
-         await fs.remove(workingDir)
-      } catch (err) {
-         console.log(
-            `Thumbnail generation for ${file.name} failed with error: ${err}`
-         )
-      }
-
-      return thumbnails
-   }
-
-   async generateThumbnail(file: FileType, sizes: number[]): Promise<any> {
-      const [type] = file.contentType
-         ? file.contentType.split('/')
-         : 'application/octet-stream'
-      let thumbnails: any = {}
-
-      try {
-         // generate thumbnail
-         switch (type) {
-            case 'image':
-               thumbnails = {
-                  ...thumbnails,
-                  ...(await this.generateImageThumbnail(file, sizes)),
-               }
-               break
-
-            case 'video':
-               thumbnails = {
-                  ...thumbnails,
-                  ...(await this.generateVideoThumbnail(file, sizes)),
-               }
-               break
-
-            case 'application':
-               console.log(`Processing possible missed image: ${file.ref}`)
-               if (
-                  file &&
-                  file.ref &&
-                  file?.ref.split('.').pop()?.toLowerCase() === 'jpg'
-               ) {
-                  thumbnails = {
-                     ...thumbnails,
-                     ...(await this.generateImageThumbnail(file, sizes)),
-                  }
-               }
-               break
-
-            default:
-               console.log(
-                  `${file.name} type (${file.contentType}) can't be thumbnailed!`
-               )
-               break
-         }
-      } catch (err) {
-         console.log(err)
-         console.log(
-            `Thumbnail generation for ${file.ref} failed with error: ${err}`
-         )
-      }
-
-      return thumbnails
    }
 }

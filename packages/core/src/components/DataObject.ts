@@ -1,13 +1,12 @@
-import { Core } from '../Core'
 import { DataObjectProperties } from '../properties'
 import { Property } from '../properties/Property'
 import { PropertyClassType } from '../properties/types/PropertyClassType'
 import { AbstractObject } from './AbstractObject'
 import { ObjectUri } from './ObjectUri'
 import { DataObjectClass } from './types/DataObjectClass'
-import { BaseObjectCore } from './BaseObjectCore'
 import { NotFoundError } from '../common/ResourcesErrors'
 import { toJSONParams } from './types/toJSONParams'
+import { BaseObjectCore } from './BaseObjectCore'
 
 export type CoreObject<T extends AbstractObject> = T
 
@@ -33,8 +32,8 @@ export class DataObject implements DataObjectClass<any> {
    protected _objectUri: ObjectUri
    protected _uid: string | undefined = undefined
    protected _properties: Properties = {}
-   protected _persisted: boolean = false
    protected _populated: boolean = false
+   protected _persisted: boolean = false
    protected _parentProp: string | undefined
 
    protected _proxied: any
@@ -69,6 +68,10 @@ export class DataObject implements DataObjectClass<any> {
       properties.forEach((prop) => {
          this._properties[prop.name] = Property.factory(prop, this)
       })
+   }
+
+      isPersisted() {
+      return this._persisted
    }
 
    /**
@@ -133,8 +136,8 @@ export class DataObject implements DataObjectClass<any> {
       if (this._populated === false) {
          if (data) {
             this.populateFromData(data)
-         } else if (this.path !== '/' && this.path !== '') {
-            await this.populateFromBackend()
+            // } else if (this.path !== '/' && this.path !== '') {
+            //    await this.populateFromBackend()
          }
          this._populated = true
 
@@ -185,31 +188,8 @@ export class DataObject implements DataObjectClass<any> {
       return this
    }
 
-   /**
-    * Populate data object from backend query
-    * @param data
-    */
-   async populateFromBackend(): Promise<DataObject> {
-      if (this._populated === false) {
-         if (this.path !== '/' && this.path !== '') {
-            await Core.getBackend(this._objectUri.backend).read(this)
-         }
-         this._populated = true
-
-         if (Reflect.get(this._properties, 'name')) {
-            this.uri.label = this.val('name')
-         }
-      }
-
-      return this
-   }
-
    isPopulated() {
       return this._populated
-   }
-
-   isPersisted() {
-      return this._persisted
    }
 
    get properties(): Properties {
@@ -238,10 +218,11 @@ export class DataObject implements DataObjectClass<any> {
    get data(): any {
       return this._properties
    }
+
    set uri(uri: ObjectUri) {
       this._objectUri = uri
       if (this._objectUri.collection !== ObjectUri.MISSING_COLLECTION) {
-         this._persisted = true
+         //  this._persisted = true
       }
    }
 
@@ -386,28 +367,21 @@ export class DataObject implements DataObjectClass<any> {
    }
 
    async read(): Promise<DataObjectClass<any>> {
-      try {
-         return await Core.getBackend().read(this) //this.populate()
-      } catch (err) {
-         console.log((err as Error).message)
-         throw new Error((err as Error).message)
-      }
+      throw new Error(
+         `This is just a stub, please use DataObject from @quatrain/backend to persist`
+      )
    }
 
    save(): Promise<DataObjectClass<any>> {
-      const backend = Core.getBackend(this.backend || Core.defaultBackend)
-      this._persisted = true
-      this._modified = false
-
-      return this.uid ? backend.update(this) : backend.create(this)
+      throw new Error(
+         `This is just a stub, please use DataObject from @quatrain/backend to persist`
+      )
    }
 
    async delete(): Promise<DataObjectClass<any>> {
-      const backend = Core.getBackend(this.backend || Core.defaultBackend)
-      this._persisted = false
-      this._modified = false
-
-      return await backend.delete(this)
+      throw new Error(
+         `This is just a stub, please use DataObject from @quatrain/backend to persist`
+      )
    }
 
    /**

@@ -1,26 +1,16 @@
-import { AbstractAuthAdapter } from './authentication'
-import { AbstractAdapter } from './backends/AbstractAdapter'
 import { DataObject } from './components/DataObject'
 import { User } from './components/User'
 import { DataObjectClass } from './components/types/DataObjectClass'
 
-export type BackendRegistry<T extends AbstractAdapter> = { [x: string]: T }
-
-export interface AuthAdapter extends AbstractAuthAdapter {}
-
 export class Core {
    static storage = require('node-persist')
    static storagePrefix = 'core'
-   static defaultBackend = '@default'
    static userClass = User
    static classRegistry: { [key: string]: any } = {}
    static logger = console
-   static auth: AuthAdapter | AbstractAuthAdapter
 
    // How timestamp are formatted
    static timestamp = () => new Date().toISOString()
-
-   protected static _backends: BackendRegistry<any> = {}
 
    static definition(key: string) {
       return {
@@ -43,27 +33,6 @@ export class Core {
          await this.storage.init()
       }
       return await this.storage.get(`${this.storagePrefix}_${key}`)
-   }
-
-   static addBackend(
-      backend: AbstractAdapter,
-      alias: string,
-      setDefault: boolean = false
-   ) {
-      Core._backends[alias] = backend
-      if (setDefault) {
-         Core.defaultBackend = alias
-      }
-   }
-
-   static getBackend<T extends AbstractAdapter>(
-      alias: string = this.defaultBackend
-   ): T {
-      if (this._backends[alias]) {
-         return this._backends[alias]
-      } else {
-         throw new Error(`Unknown backend alias: '${alias}'`)
-      }
    }
 
    static addClass(name: string, obj: any) {

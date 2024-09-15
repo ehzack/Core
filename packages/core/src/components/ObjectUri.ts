@@ -1,5 +1,3 @@
-import { Core } from '../Core'
-
 export class ObjectUri {
    static DEFAULT = '/'
    static MISSING_COLLECTION = '_?_'
@@ -7,7 +5,7 @@ export class ObjectUri {
    protected _str: string
    protected _pairs: Array<string> = []
    protected _literal: string = ''
-   protected _backend: string = Core.defaultBackend
+   protected _backend: string | undefined
    protected _path: string = ObjectUri.DEFAULT
    protected _uid: string | undefined = undefined
    protected _collection: string | undefined = undefined
@@ -27,7 +25,7 @@ export class ObjectUri {
       this._label = label
       if (str.includes(':')) {
          const [backend, path] = str.split(':')
-         this._backend = backend || Core.defaultBackend
+         this._backend = backend
          this._path = path
       } else {
          this._path = str

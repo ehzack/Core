@@ -9,6 +9,6 @@
       "resolveJsonModule": true,
       "strict": true
    },
-   "include": ["packages/core/src"],
+   "include": ["src"],
    "exclude": ["node_modules", "**/__test__", "**/*.spec.ts"]
 }

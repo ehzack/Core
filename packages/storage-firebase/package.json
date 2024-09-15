@@ -24,6 +24,7 @@
    },
    "dependencies": {
       "@quatrain/core": "^1.0.0-beta13",
+      "@quatrain/storage": "^0.1.1",
       "firebase-admin": "^12.4.0",
       "fs-extra": "^11.2.0"
    },
