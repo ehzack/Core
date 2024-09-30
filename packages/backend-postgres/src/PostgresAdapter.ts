@@ -17,6 +17,7 @@ import {
    Filter,
    SortAndLimit,
    Sorting,
+   BaseObjectCore,
 } from '@quatrain/backend'
 import { randomUUID } from 'crypto'
 import { Client } from 'pg'
@@ -321,14 +322,17 @@ export class PostgresAdapter extends AbstractBackendAdapter {
 
          // prepare joins
          Object.keys(dataObject.properties).forEach((prop) => {
-            const lcProp = prop.toLowerCase()
+            const lcProp = `${prop.toLowerCase()}`
             Reflect.set(caseMap, lcProp, prop)
             if (
-               dataObject.properties[prop].constructor.name === 'ObjectProperty'
+               dataObject.properties[prop].constructor.name ===
+                  'ObjectProperty' &&
+               dataObject.properties[prop].instanceOf
             ) {
                Backend.log(
                   `Adding join table for property ${prop} instance of ${dataObject.properties[prop].instanceOf}`
                )
+
                const joinAlias = `${prop.toLowerCase()}_table`
                const table =
                   this._params.mapping &&
@@ -336,7 +340,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
                      ? this._params.mapping[
                           dataObject.properties[prop].instanceOf
                        ]
-                     : dataObject.properties[prop].instanceOf.toLowerCase()
+                     : dataObject.properties[prop].instanceOf.COLLECTION
                query.push(
                   `LEFT JOIN ${table} AS ${joinAlias} ON ${joinAlias}.id = coll.${prop.toLowerCase()}`
                )
@@ -378,7 +382,9 @@ export class PostgresAdapter extends AbstractBackendAdapter {
                   throw new BackendError(
                      `[PGA] No such property '${filter.prop}' on object'`
                   )
-               } else if (filter.prop === AbstractBackendAdapter.PKEY_IDENTIFIER) {
+               } else if (
+                  filter.prop === AbstractBackendAdapter.PKEY_IDENTIFIER
+               ) {
                   realProp = 'id'
                   realOperator = operatorsMap[filter.operator]
                } else {
@@ -407,6 +413,11 @@ export class PostgresAdapter extends AbstractBackendAdapter {
                if (realOperator === operatorsMap['containsAny']) {
                   // Use 'containsAny' for queries in arrays which query structure is weird
                   query.push(`'${realValue}'=ANY(${realProp})`)
+               } else if (
+                  realOperator === operatorsMap['equals'] &&
+                  realValue === 'null'
+               ) {
+                  query.push(`${alias}.${realProp} is null`)
                } else {
                   query.push(
                      `${alias}.${realProp} ${realOperator} ${
