@@ -1,4 +1,4 @@
 export interface QueueParameters {
-  topic: string
+  topic?: string
   config?: any
 }

@@ -25,11 +25,11 @@ export class Storage extends Core {
    protected static _storages: StorageBackendRegistry<any> = {}
 
    static addStorage(
-      backend: AbstractStorageAdapter,
+      adapter: AbstractStorageAdapter,
       alias: string,
       setDefault: boolean = false
    ) {
-      this._storages[alias] = backend
+      this._storages[alias] = adapter
       if (setDefault) {
          this.defaultStorage = alias
       }

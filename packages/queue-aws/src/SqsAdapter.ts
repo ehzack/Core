@@ -1,8 +1,7 @@
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs'
-import { Core } from '@quatrain/core'
-import { AbstractQueueAdapter, QueueParameters } from '@quatrain/queue'
+import { Queue, AbstractQueueAdapter, QueueParameters } from '@quatrain/queue'
 
-export class SqsQueueAdapter extends AbstractQueueAdapter {
+export class SqsAdapter extends AbstractQueueAdapter {
    constructor(params: QueueParameters) {
       super(params)
       const { accesskey, secret, region } = params.config || {}
@@ -23,10 +22,14 @@ export class SqsQueueAdapter extends AbstractQueueAdapter {
          QueueUrl: `https://sqs.${this._params.config.region}.amazonaws.com/${this._params.config.accountid}/${topic}`,
       }
 
-      Core.log(`[SQS] Sending message to ${params.QueueUrl}`)
+      Queue.log(`[SQS] Sending message to ${params.QueueUrl}`)
       const command = new SendMessageCommand(params)
       const response = await this._client.send(command)
 
       return response.MessageId
+   }
+
+   listen(topic: string) {
+      throw new Error(`Unavailable method on this adapter`)
    }
 }

@@ -449,11 +449,13 @@ export class PostgresAdapter extends AbstractBackendAdapter {
 
          let sortField: string[] = []
          if (pagination) {
-            pagination?.sortings.forEach((sorting: Sorting, i) => {
+            pagination.sortings.forEach((sorting: Sorting, i) => {
                query.push(i == 0 ? `ORDER BY` : ',')
 
                query.push(`${alias}.${sorting.prop} ${sorting.order}`)
-               sortField.push(`${sorting.prop} ${sorting.order}`)
+               if (sorting.prop !== undefined) {
+                  sortField.push(`${sorting.prop} ${sorting.order}`)
+               }
             })
             if (pagination?.limits.batch !== -1) {
                query.push(`LIMIT ${pagination.limits.batch}`)
