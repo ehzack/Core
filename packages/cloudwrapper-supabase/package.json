@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@quatrain/backend": "^1.0.1",
-    "@quatrain/cloudwrapper": "^1.0.1",
+    "@quatrain/cloudwrapper": "^1.0.0",
     "@quatrain/core": "^1.0.0-beta16",
     "@supabase/supabase-js": "^2.45.1"
   },
