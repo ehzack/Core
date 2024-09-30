@@ -8,7 +8,8 @@ import {
 } from '@quatrain/core'
 import { Query } from './Query'
 
-export class BaseObjectCore extends AbstractObject { // implements BaseObjectClass {
+export class BaseObjectCore extends AbstractObject {
+   // implements BaseObjectClass {
    static PROPS_DEFINITION: any /*DataObjectProperties*/ = BaseObjectProperties
 
    static getProperty(key: string) {
