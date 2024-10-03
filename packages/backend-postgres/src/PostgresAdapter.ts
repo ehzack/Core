@@ -345,10 +345,10 @@ export class PostgresAdapter extends AbstractBackendAdapter {
                   `LEFT JOIN ${table} AS ${joinAlias} ON ${joinAlias}.id = coll.${prop.toLowerCase()}`
                )
                fields.push(
-                  `json_build_object('ref', CONCAT('${table}/', ${alias}.${lcProp}), 'path', CONCAT('${table}/', ${alias}.${lcProp}), 'label', ${joinAlias}.name || '') AS ${prop}`
+                  `json_build_object('ref', CONCAT('${table}/', ${alias}.${lcProp}), 'path', CONCAT('${table}/', ${alias}.${lcProp}), 'label', ${joinAlias}.name || '') AS "${prop}"`
                )
             } else {
-               fields.push(`${alias}.${prop.toLowerCase()} AS ${prop}`)
+               fields.push(`${alias}.${prop.toLowerCase()} AS "${prop}"`)
             }
          })
 
@@ -511,7 +511,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
                newDataObject.val('name')
             )
             // this.executeMiddlewares(newDataObject, BackendAction.READ)
-
+            console.log(`[PGA] Returning dataObject ${newDataObject}`)
             items.push(newDataObject)
          }
 
