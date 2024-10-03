@@ -510,6 +510,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
                newDataObjectUri,
                newDataObject.val('name')
             )
+
             // this.executeMiddlewares(newDataObject, BackendAction.READ)
             console.log(`[PGA] Returning dataObject ${newDataObject}`)
             items.push(newDataObject)
