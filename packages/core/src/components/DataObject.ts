@@ -70,7 +70,7 @@ export class DataObject implements DataObjectClass<any> {
       })
    }
 
-      isPersisted() {
+   isPersisted() {
       return this._persisted
    }
 
@@ -161,6 +161,7 @@ export class DataObject implements DataObjectClass<any> {
                if (
                   val &&
                   typeof val === 'object' &&
+                  !val.hasOwnProperty('bucket') &&
                   'ref' in val &&
                   typeof val.ref == 'string' &&
                   'label' in val &&
