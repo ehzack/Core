@@ -361,7 +361,6 @@ export class PostgresAdapter extends AbstractBackendAdapter {
                let realProp: any = filter.prop
                let realOperator: string
                let realValue = filter.value
-
                if (filter.prop === 'keywords') {
                   realProp = '('
                   realOperator = ''
@@ -403,7 +402,8 @@ export class PostgresAdapter extends AbstractBackendAdapter {
                         realValue =
                            (filter.value &&
                               filter.value.uri &&
-                              filter.value.uri.path) ||
+                              filter.value.uri.path &&
+                              filter.value.uri.path.split('/')[1]) ||
                            filter.value
                      }
                   }
