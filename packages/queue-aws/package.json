@@ -1,6 +1,6 @@
 {
    "name": "@quatrain/queue-aws",
-   "version": "0.1.1",
+   "version": "0.1.2",
    "description": "Queue adapter for AWS SQS",
    "main": "lib/index.js",
    "types": "lib/index.d.ts",
