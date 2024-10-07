@@ -1,10 +1,5 @@
-import {
-   ObjectUri,
-   DataObjectClass,
-   DataObject,
-   BaseObjectProperties,
-   BaseObject,
-} from '../'
+import { ObjectUri, DataObjectClass, DataObject } from '../'
+import { BaseObject, BaseObjectProperties } from './BaseObject'
 import { AbstractObject } from './AbstractObject'
 
 export class BaseObjectCore extends AbstractObject {

@@ -1,4 +1,4 @@
-import { User } from '@quatrain/core'
+import { User } from '@quatrain/backend'
 import {
    Auth,
    AbstractAuthAdapter,
@@ -15,7 +15,13 @@ export class SupabaseAuthAdapter extends AbstractAuthAdapter {
       super(params)
       this._client = createClient(
          params.config.supabaseUrl,
-         params.config.supabaseKey
+         params.config.supabaseKey,
+         {
+            auth: {
+               autoRefreshToken: false,
+               persistSession: false,
+            },
+         }
       )
    }
 
@@ -31,16 +37,17 @@ export class SupabaseAuthAdapter extends AbstractAuthAdapter {
             email,
             phone: phoneNumber,
             password,
-            disabled = false,
+            //disabled = false,
          } = user._
 
          Auth.log(`[SAA] Adding user '${displayName}'`)
-         const { data, error } = await this._client.auth.signUp({
+         const { data, error } = await this._client.auth.admin.createUser({
             email,
             password,
          })
 
          if (error) {
+            console.log(error)
             throw new Error(error)
          }
 
@@ -69,7 +76,11 @@ export class SupabaseAuthAdapter extends AbstractAuthAdapter {
       try {
          if (Object.keys(updatable).length > 0) {
             Auth.log(`Updating ${updatable.displayName} Auth record`)
-            // await getAuth().updateUser(user.uid, updatable)
+            const { data, error } =
+               await this._client.auth.admin.updateUserById(user.uid, updatable)
+            if (error !== null) {
+               Auth.log(error)
+            }
          }
       } catch (e) {}
    }
@@ -78,7 +89,7 @@ export class SupabaseAuthAdapter extends AbstractAuthAdapter {
       // return await getAuth().deleteUser(user.uid)
    }
    async setCustomUserClaims(id: string, claims: any) {
-      const { data, error } = await this._client.auth.updateUserById(id, claims)
+      const { data, error } = await this._client.auth.admin.updateUserById(id, claims)
 
       if (error) {
          throw new Error(error)

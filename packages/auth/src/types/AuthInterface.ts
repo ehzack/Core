@@ -1,5 +1,4 @@
 import { User } from '@quatrain/core'
-import { QueryResultType, Filter, Filters, SortAndLimit } from '@quatrain/backend'
 
 export interface AuthInterface {
    register(user: User): Promise<any>
@@ -13,9 +12,4 @@ export interface AuthInterface {
    delete(user: User): Promise<any>
 
    getAuthToken(token: string): any
-
-   // find(
-   //    filters: Filters | Filter[] | undefined,
-   //    pagination: SortAndLimit | undefined
-   // ): Promise<QueryResultType<User>>
 }

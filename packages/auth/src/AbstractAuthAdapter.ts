@@ -1,8 +1,9 @@
 import { AuthParameters, AuthParametersKeys } from './Auth'
-import { User } from '@quatrain/core'
+import { User } from '@quatrain/backend'
 import { AuthInterface } from './types/AuthInterface'
 
 export abstract class AbstractAuthAdapter implements AuthInterface {
+   static UserClass = User
    protected _alias: string = ''
    protected _params: AuthParameters = {}
 
@@ -37,4 +38,6 @@ export abstract class AbstractAuthAdapter implements AuthInterface {
    abstract delete(user: User): Promise<any>
 
    abstract getAuthToken(token: string): any
+
+   abstract setCustomUserClaims(id: string, claims: any): any
 }

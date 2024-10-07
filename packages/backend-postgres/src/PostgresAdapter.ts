@@ -66,7 +66,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
     */
    protected _prepareData(data: any, filterNulls = true) {
       if (filterNulls) {
-         data = Object.values(data).filter((v) => v !== null)
+         data = Object.values(data).filter((v) => v !== null && v !== '')
       } else {
          data = Object.values(data)
       }
@@ -201,7 +201,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
          converters: { datetime: (ts: number) => ts / 1000 },
       })
 
-      const pgData = this._prepareData(data, false)
+      const pgData = this._prepareData(data, true)
 
       let query = `UPDATE ${dataObject.uri.collection} SET `
       let i = 1
