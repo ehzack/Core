@@ -37,7 +37,7 @@ export abstract class AbstractObject {
       if (prop) {
          return prop.val()
       } else {
-         throw new Error(`${key} is not a valid property`)
+         return null
       }
    }
 
@@ -63,6 +63,9 @@ export abstract class AbstractObject {
 
    get uri() {
       return this._dataObject.uri
+   }
+   has(key: string) {
+      return Reflect.has(this._dataObject.properties, key)
    }
 
    toJSON() {

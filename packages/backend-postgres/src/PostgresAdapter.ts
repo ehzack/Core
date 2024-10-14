@@ -351,7 +351,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
                   `LEFT JOIN ${table} AS ${joinAlias} ON ${joinAlias}.id = coll.${prop.toLowerCase()}`
                )
                fields.push(
-                  `json_build_object('ref', CONCAT('${table}/', ${alias}.${lcProp}), 'path', CONCAT('${table}/', ${alias}.${lcProp}), 'label', ${joinAlias}.name || '') AS ${prop}`
+                  `CASE WHEN ${alias}.${lcProp} IS NOT NULL THEN json_build_object('ref', CONCAT('${table}/', ${alias}.${lcProp}), 'path', CONCAT('${table}/', ${alias}.${lcProp}), 'label', ${joinAlias}.name || '') ELSE NULL  END AS ${prop} `
                )
             } else {
                fields.push(`${alias}.${prop.toLowerCase()} AS ${prop}`)
@@ -376,7 +376,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
                      (rp, j) =>
                         (realProp += `${
                            j > 0 ? ' OR ' : ''
-                        }${rp.toLowerCase()} ILIKE '${realValue}'`)
+                        }${alias}.${rp.toLowerCase()} ILIKE '${realValue}'`)
                   )
                   realProp += ')'
                   realValue = undefined
@@ -418,7 +418,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
 
                if (realOperator === operatorsMap['containsAny']) {
                   // Use 'containsAny' for queries in arrays which query structure is weird
-                  query.push(`'${realValue}'=ANY(${realProp})`)
+                  query.push(`'${realValue}'=ANY(${alias}.${realProp})`)
                } else if (
                   realOperator === operatorsMap['equals'] &&
                   realValue === 'null'
@@ -426,7 +426,9 @@ export class PostgresAdapter extends AbstractBackendAdapter {
                   query.push(`${alias}.${realProp} is null`)
                } else {
                   query.push(
-                     `${alias}.${realProp} ${realOperator} ${
+                     `${
+                        filter.prop === 'keywords' ? '' : `${alias}.`
+                     }${realProp} ${realOperator} ${
                         realValue !== undefined
                            ? `${
                                 Array.isArray(realValue)
