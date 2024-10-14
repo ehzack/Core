@@ -5,12 +5,9 @@ import { Sorting } from './Sorting'
 import { SortAndLimit } from './SortAndLimit'
 import { BackendInterface } from './types/BackendInterface'
 import { OperatorKeys } from './types/Operators'
-import {
-   DataObjectClass,
-   ObjectUri,
-   BaseObjectCore,
-   returnAs,
-} from '@quatrain/core'
+import { DataObjectClass } from './types/DataObjectClass'
+import { BaseObjectCore } from './BaseObjectCore'
+import { ObjectUri, returnAs } from '@quatrain/core'
 
 export const AS_OBJECTURIS = 'objectUris'
 export const AS_DATAOBJECTS = 'dataObjects'

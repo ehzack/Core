@@ -1,11 +1,11 @@
 import {
    ObjectUri,
-   DataObjectClass,
-   AbstractObject,
    BaseObjectProperties,
    BaseObject,
 } from '@quatrain/core'
+import { AbstractObject } from './AbstractObject'
 import { Query } from './Query'
+import { DataObjectClass } from './types/DataObjectClass'
 import { DataObject } from './DataObject'
 
 export class BaseObjectCore extends AbstractObject {
@@ -126,56 +126,6 @@ export class BaseObjectCore extends AbstractObject {
 
       return obj //.toProxy()
    }
-
-   /**
-    * Wrap instance into proxy to get access to properties
-    * @returns Proxy
-    */
-   // protected toProxy<T extends BaseObject>() {
-   //    return new ProxyConstructor<this, Proxy<T>>(this, {
-   //       get: (target, prop) => {
-   //          if (prop === 'uid') {
-   //             return target.uid
-   //          }
-
-   //          if (prop === 'uri') {
-   //             return target.uri
-   //          }
-
-   //          if (prop == 'toJSON') {
-   //             return target.toJSON
-   //          }
-
-   //          if (prop == 'save') {
-   //             return target.save
-   //          }
-
-   //          if (prop == 'constructor') {
-   //             return target.constructor
-   //          }
-
-   //          if (prop === 'core') {
-   //             return target
-   //          }
-
-   //          // i don't know why and i shouldn't have to wonder why
-   //          // but everything crashes unless we do this terribleness
-   //          if (prop == 'then') {
-   //             return
-   //          }
-
-   //          return target.val(prop as string)
-   //       },
-   //       set(target, prop, newValue) {
-   //          if (prop === 'uid' || prop === 'core') {
-   //             throw new Error(`Property '${prop}' is readonly`)
-   //          }
-
-   //          target.set(prop as string, newValue)
-   //          return true
-   //       },
-   //    })
-   // }
 
    asReference() {
       return this._dataObject.toReference()

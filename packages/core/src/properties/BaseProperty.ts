@@ -83,9 +83,6 @@ export class BaseProperty implements PropertyClassType {
    }
 
    set(value: any, setChanged: boolean = true) {
-      if (setChanged === true) {
-         console.log(`changing value of ${this.name} with ${value}`)
-      }
       if (
          this._value !== undefined &&
          this._value !== null &&

@@ -1,16 +1,31 @@
 import {
-   CollectionPropertyType,
+   BaseProperty,
+   BasePropertyType,
    Core,
-   CollectionProperty as CPCore,
+   ObjectUri,
    returnAs,
 } from '@quatrain/core'
 import { Backend } from './Backend'
 import { Filter } from './Filter'
 import { Query, QueryResultType } from './Query'
 import { BaseObjectCore } from './BaseObjectCore'
+import { DataObjectClass } from './types/DataObjectClass'
 
-export class CollectionProperty extends CPCore {
+export interface CollectionPropertyType extends BasePropertyType {
+   instanceOf: typeof BaseObjectCore
+   backend?: any
+   parentKey?: string
+}
+
+export class CollectionProperty extends BaseProperty {
+   static TYPE = 'collection'
+   protected _value:
+      | Array<any>
+      | Array<DataObjectClass<any>>
+      | Array<ObjectUri>
+      | undefined = undefined
    protected _instanceOf: typeof BaseObjectCore
+   protected _parentKey: string
    protected _backend: any
    protected _query: Query<any>
    protected _filters: Filter[] | Filter | undefined = undefined

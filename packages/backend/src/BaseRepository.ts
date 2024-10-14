@@ -1,12 +1,7 @@
-import {
-   GoneError,
-   NotFoundError,
-   BaseObjectCore,
-   DataObject,
-   DataObjectClass,
-   BaseObject,
-   statuses
-} from '@quatrain/core'
+import { BaseObject, GoneError, NotFoundError, statuses } from '@quatrain/core'
+import { DataObjectClass } from './types/DataObjectClass'
+import { DataObject } from './DataObject'
+import { BaseObjectCore } from './BaseObjectCore'
 import { Query, QueryResultType } from './Query'
 import { BackendInterface } from './types/BackendInterface'
 import { Backend } from './Backend'
@@ -108,7 +103,7 @@ export class BaseRepository<T extends BaseObject> {
       }
    }
 
-   async update(obj: BaseObjectCore) {
+   async update<B extends BaseObjectCore>(obj: B) {
       const dataObject = obj.dataObject || obj
 
       const savedObj = await this.backendAdapter.update(dataObject)

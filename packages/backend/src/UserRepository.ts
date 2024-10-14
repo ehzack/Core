@@ -4,8 +4,6 @@ import { BaseRepository } from './BaseRepository'
 import { UserType, NotFoundError } from '@quatrain/core'
 import { User } from './User'
 
-const UNAUTHORIZED_ERROR = `Wrong password or email`
-
 export class UserRepository extends BaseRepository<UserType> {
    constructor(backendAdapter?: BackendInterface) {
       super(User, backendAdapter)

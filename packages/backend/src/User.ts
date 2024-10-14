@@ -1,5 +1,15 @@
 import { BaseObjectCore } from './BaseObjectCore'
-import { UserProperties } from '@quatrain/core'
+import { BaseObject, UserProperties } from '@quatrain/core'
+
+export interface UserType extends BaseObject {
+   name: string
+   firstname: string
+   lastname: string
+   gender?: 'male' | 'female' | 'nonbinary'
+   birthday?: Date
+   password: string
+   email: string
+}
 
 export class User extends BaseObjectCore {
    static PROPS_DEFINITION = UserProperties

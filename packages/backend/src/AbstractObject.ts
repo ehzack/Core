@@ -1,8 +1,12 @@
 import { DataObjectClass } from './types/DataObjectClass'
-import { DataObjectProperties } from '../properties'
+import { DataObjectProperties } from '@quatrain/core'
 
 export abstract class AbstractObject {
    static PROPS_DEFINITION: DataObjectProperties = []
+
+   static DEFAULT_BACKEND: string = 'default'
+
+   protected _dataObject: DataObjectClass<any>
 
    // Which name to use in backend as table/collection identifer
    static COLLECTION: string | undefined
@@ -12,8 +16,6 @@ export abstract class AbstractObject {
 
    // Which property's value to use in backend as label for object reference
    static LABEL_KEY = 'name'
-
-   protected _dataObject: DataObjectClass<any>
 
    constructor(dao: DataObjectClass<any>) {
       this._dataObject = dao
@@ -41,10 +43,6 @@ export abstract class AbstractObject {
       }
    }
 
-   get backend() {
-      return this._dataObject.backend
-   }
-
    get path(): string {
       return this._dataObject.path
    }
@@ -67,5 +65,18 @@ export abstract class AbstractObject {
 
    toJSON() {
       return typeof this.uri === 'string' ? this.uri : this.uri?.toJSON()
+   }
+
+   get backend() {
+      return this._dataObject.backend
+   }
+
+   async save(): Promise<this> {
+      await this._dataObject.save()
+      return this
+   }
+
+   async delete(): Promise<DataObjectClass<any>> {
+      return await this._dataObject.delete()
    }
 }

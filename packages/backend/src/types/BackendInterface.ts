@@ -1,4 +1,4 @@
-import { DataObjectClass } from '@quatrain/core'
+import { DataObjectClass } from './DataObjectClass'
 import { Filter } from '../Filter'
 import { Filters } from '../Filters'
 import { Query, QueryResultType } from '../Query'

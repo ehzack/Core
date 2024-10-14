@@ -204,12 +204,12 @@ export class PostgresAdapter extends AbstractBackendAdapter {
       })
 
       const pgData = this._prepareData(data, true)
+      console.log(pgData)
 
       let query = `UPDATE ${dataObject.uri.collection?.toLowerCase()} SET `
       let i = 1
       Object.keys(dataObject.properties).forEach((key) => {
          const prop = dataObject.get(key)
-         console.log(prop.name, prop.hasChanged)
          if (prop.hasChanged === true) {
             query += `${i > 1 ? ', ' : ''}${key.toLowerCase()} = `
             if (prop.constructor.name === 'DateTimeProperty') {

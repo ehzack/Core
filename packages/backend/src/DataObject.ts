@@ -1,10 +1,8 @@
-import {
-   DataObject as CoreDO,
-   ObjectUri,
-} from '@quatrain/core'
+import { DataObject as CoreDO, ObjectUri } from '@quatrain/core'
 import { BaseObjectCore } from './BaseObjectCore'
 import { Backend } from './Backend'
 import { DataObjectClass } from './types/DataObjectClass'
+import { DataObjectParams } from '@quatrain/core/lib/components/DataObject'
 
 /**
  * Data objects constitute the agnostic glue between objects and backends.
@@ -128,6 +126,23 @@ export class DataObject extends CoreDO implements DataObjectClass<any> {
       })
 
       return data
+   }
+
+   /**
+    * Data object must be created from factory in order for async-loaded data to be available
+    * @param className
+    * @param param
+    * @returns DataObject
+    */
+   static factory(param: DataObjectParams | undefined = undefined): DataObject {
+      try {
+         return new this(param)
+      } catch (err) {
+         console.log(err)
+         throw new Error(
+            `Unable to build data object: ${(err as Error).message}`
+         )
+      }
    }
 
    async read(): Promise<DataObjectClass<any>> {
