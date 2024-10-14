@@ -1,4 +1,5 @@
-import { Core,  ObjectUri, DataObjectClass } from '@quatrain/core'
+import { Core, ObjectUri } from '@quatrain/core'
+import { DataObjectClass } from './types/DataObjectClass'
 import { faker } from '@faker-js/faker'
 import { BackendError } from './BackendError'
 import { NotFoundError } from './NotFoundError'
@@ -10,7 +11,10 @@ import { AbstractBackendAdapter } from './AbstractBackendAdapter'
 import { BackendInterface } from './types/BackendInterface'
 import { BackendRecordType } from './Backend'
 
-export class MockAdapter extends AbstractBackendAdapter implements BackendInterface {
+export class MockAdapter
+   extends AbstractBackendAdapter
+   implements BackendInterface
+{
    protected static _fixtures: any = {}
 
    /**

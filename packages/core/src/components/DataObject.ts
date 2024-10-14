@@ -33,7 +33,6 @@ export class DataObject implements DataObjectClass<any> {
    protected _uid: string | undefined = undefined
    protected _properties: Properties = {}
    protected _populated: boolean = false
-   protected _persisted: boolean = false
    protected _parentProp: string | undefined
 
    protected _proxied: any
@@ -68,10 +67,6 @@ export class DataObject implements DataObjectClass<any> {
       properties.forEach((prop) => {
          this._properties[prop.name] = Property.factory(prop, this)
       })
-   }
-
-   isPersisted() {
-      return this._persisted
    }
 
    /**

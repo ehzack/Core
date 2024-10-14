@@ -1,5 +1,5 @@
 import { Core, DataObjectClass, User } from '@quatrain/core'
-import { BackendAction } from '../Backend'
+import { Backend, BackendAction } from '../Backend'
 import BackendMiddleware from './Middleware'
 import { MiddlewareParams } from './types/MiddlewareParams'
 
@@ -14,9 +14,16 @@ export class InjectMetaMiddleware implements BackendMiddleware {
       this._user = params.user
    }
 
-   execute(dataObject: DataObjectClass<any>, action: BackendAction, params?: MiddlewareParams) {
-      Core.log(`[MDW] Executing Middleware ${this.constructor.name}`)
-      const date =  params && params.useDateFormat ? (new Date()).toISOString() : Date.now()
+   execute(
+      dataObject: DataObjectClass<any>,
+      action: BackendAction,
+      params?: MiddlewareParams
+   ) {
+      Backend.log(
+         `[MDW] Executing Middleware ${this.constructor.name} for ${action} event`
+      )
+      const date =
+         params && params.useDateFormat ? new Date().toISOString() : Date.now()
       switch (action) {
          // add properties existence validation
          case BackendAction.CREATE:

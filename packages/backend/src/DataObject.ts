@@ -1,21 +1,32 @@
-import { DataObject as CoreDO, DataObjectClass, ObjectUri } from '@quatrain/core'
+import {
+   DataObject as CoreDO,
+   ObjectUri,
+} from '@quatrain/core'
 import { BaseObjectCore } from './BaseObjectCore'
 import { Backend } from './Backend'
+import { DataObjectClass } from './types/DataObjectClass'
 
 /**
  * Data objects constitute the agnostic glue between objects and backends.
  * They handle data and identifiers in a protected registry
  * This is what backends and objects manipulate, oblivious of the other.
  */
-export class DataObject extends CoreDO {
-
+export class DataObject extends CoreDO implements DataObjectClass<any> {
    protected _proxied: any
 
-   /**
-    * Constructor is protected, use factory() instead
-    * @param params object of parameters
-    */
+   protected _persisted: boolean = false
 
+   isPersisted(set = false) {
+      if (set === true) {
+         // Reset all properties 'hasChanged' flags, typically after object was saved
+         Object.keys(this.properties).forEach((key) => {
+            Reflect.set(this.properties[key], 'hasChanged', false)
+         })
+         this._persisted = true
+      }
+
+      return this._persisted
+   }
 
    /**
     * Populate data object from instant data or backend query
@@ -121,14 +132,14 @@ export class DataObject extends CoreDO {
 
    async read(): Promise<DataObjectClass<any>> {
       try {
-         return await Backend.getBackend().read(this) //this.populate()
+         return await Backend.getBackend().read(this)
       } catch (err) {
          console.log((err as Error).message)
          throw new Error((err as Error).message)
       }
    }
 
-   save(): Promise<DataObjectClass<any>> {
+   async save(): Promise<DataObjectClass<any>> {
       const backend = Backend.getBackend(this.backend || Backend.defaultBackend)
       this._persisted = true
       this._modified = false

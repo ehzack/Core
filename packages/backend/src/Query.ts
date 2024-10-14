@@ -4,6 +4,7 @@ import { Limits } from './Limits'
 import { Sorting } from './Sorting'
 import { SortAndLimit } from './SortAndLimit'
 import { BackendInterface } from './types/BackendInterface'
+import { OperatorKeys } from './types/Operators'
 import {
    DataObjectClass,
    ObjectUri,
@@ -14,17 +15,7 @@ import {
 export const AS_OBJECTURIS = 'objectUris'
 export const AS_DATAOBJECTS = 'dataObjects'
 export const AS_INSTANCES = 'classInstances'
-export type OperatorKeys =
-   | 'equals'
-   | 'notEquals'
-   | 'greater'
-   | 'greaterOrEquals'
-   | 'lower'
-   | 'lowerOrEquals'
-   | 'contains'
-   | 'notContains'
-   | 'containsAll'
-   | 'containsAny'
+
 export type QueryMetaType = {
    count: number
    offset: number
@@ -76,14 +67,14 @@ export class Query<T extends typeof BaseObjectCore> {
    where(
       param: Filter | string | any,
       value: any = null,
-      operator: OperatorKeys = 'equals'
+      operator: OperatorKeys = OperatorKeys.equals
    ) {
       if (typeof param == 'object') {
          this.filters.push(param)
       } else {
-         if (operator === 'equals' && Array.isArray(value)) {
+         if (operator === OperatorKeys.equals && Array.isArray(value)) {
             // auto-convert operator if value is an array
-            operator = 'contains'
+            operator = OperatorKeys.contains
          }
          this.filters.push(new Filter(param, value, operator))
       }

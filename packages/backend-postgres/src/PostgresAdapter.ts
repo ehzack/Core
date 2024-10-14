@@ -1,11 +1,11 @@
 import {
-   DataObjectClass,
    ObjectUri,
    NotFoundError,
    statuses,
    StringProperty,
 } from '@quatrain/core'
 import {
+   DataObjectClass,
    Backend,
    AbstractBackendAdapter,
    BackendAction,
@@ -17,7 +17,6 @@ import {
    Filter,
    SortAndLimit,
    Sorting,
-   BaseObjectCore,
 } from '@quatrain/backend'
 import { randomUUID } from 'crypto'
 import { Client } from 'pg'
@@ -120,7 +119,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
             const data = dataObject.toJSON({ withoutURIData: true })
 
             // console.log('json data', data)
-            let query = `INSERT INTO ${dataObject.uri.collection} (id`
+            let query = `INSERT INTO ${dataObject.uri.collection?.toLowerCase()} (id`
             let values = `VALUES ($1`
             Object.keys(data).forEach((key, i) => {
                query += `, ${key.toLowerCase()}`
@@ -133,12 +132,11 @@ export class PostgresAdapter extends AbstractBackendAdapter {
 
             const pgData = [uid, ...this._prepareData(data, false)]
 
-            // console.log('pg data', pgData)
-
             await (await this._connect()).query(`${query}${values}`, pgData)
 
             dataObject.uri.path = `${dataObject.uri.collection}/${uid}`
             dataObject.uri.label = data && Reflect.get(data, 'name')
+            dataObject.isPersisted(true)
 
             Backend.log(
                `[PGA] Saved object "${data.name}" at path ${dataObject.path}`
@@ -175,9 +173,13 @@ export class PostgresAdapter extends AbstractBackendAdapter {
          throw new NotFoundError(`[PGA] No document matches path '${path}'`)
       }
 
-      dataObject.populate(result.rows[0])
+      let doc = result.rows[0]
 
-      //this.executeMiddlewares(dataObject, BackendAction.READ)
+      Object.keys(dataObject.properties).forEach((field) => {
+         Reflect.set(doc, field, doc[field.toLowerCase()])
+      })
+
+      dataObject.populate(result.rows[0])
 
       return dataObject
    }
@@ -203,18 +205,20 @@ export class PostgresAdapter extends AbstractBackendAdapter {
 
       const pgData = this._prepareData(data, true)
 
-      let query = `UPDATE ${dataObject.uri.collection} SET `
+      let query = `UPDATE ${dataObject.uri.collection?.toLowerCase()} SET `
       let i = 1
       Object.keys(dataObject.properties).forEach((key) => {
          const prop = dataObject.get(key)
-         if (!prop.hasChanged) return
-         query += `${i > 1 ? ', ' : ''}${key.toLowerCase()} = `
-         if (prop.constructor.name === 'DateTimeProperty') {
-            query += `to_timestamp($${i})`
-         } else {
-            query += `$${i}`
+         console.log(prop.name, prop.hasChanged)
+         if (prop.hasChanged === true) {
+            query += `${i > 1 ? ', ' : ''}${key.toLowerCase()} = `
+            if (prop.constructor.name === 'DateTimeProperty') {
+               query += `to_timestamp($${i})`
+            } else {
+               query += `$${i}`
+            }
+            i++
          }
-         i++
       })
 
       query += ` WHERE id = '${dataObject.uid}'`
@@ -222,6 +226,8 @@ export class PostgresAdapter extends AbstractBackendAdapter {
       Backend.log(`[PGA] ${query}`)
 
       await (await this._connect()).query(query, pgData)
+
+      dataObject.isPersisted(true)
 
       return dataObject
    }
@@ -318,7 +324,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
          const fields: string[] = [`${alias}.id`]
          const caseMap = {}
 
-         query.push(`SELECT * FROM ${collection} AS coll`)
+         query.push(`SELECT * FROM ${collection.toLowerCase()} AS coll`)
 
          // prepare joins
          Object.keys(dataObject.properties).forEach((prop) => {

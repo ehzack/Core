@@ -1,12 +1,12 @@
 import {
    ObjectUri,
    DataObjectClass,
-   DataObject,
    AbstractObject,
    BaseObjectProperties,
    BaseObject,
 } from '@quatrain/core'
 import { Query } from './Query'
+import { DataObject } from './DataObject'
 
 export class BaseObjectCore extends AbstractObject {
    // implements BaseObjectClass {

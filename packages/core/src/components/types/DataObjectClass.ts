@@ -16,14 +16,11 @@ export interface DataObjectClass<T extends DataObjectClass<any>> {
    addProperty(property: PropertyClassType): void
    populate(data?: any): Promise<T>
    isPopulated(): boolean
-   isPersisted(): boolean
+//   isPersisted(): boolean
    has(key: string): boolean
    get(key: string): any
    set(key: string, val: any): any
    val(key: string): any
-   read(): Promise<T>
-   save(): Promise<T>
-   delete(): Promise<T>
    clone(data?: any): Promise<T>
    toReference(): any
    toJSON(params?: boolean | toJSONParams): any

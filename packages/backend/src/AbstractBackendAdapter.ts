@@ -3,7 +3,7 @@ import {
    BackendParameters,
    BackendParametersKeys,
 } from './Backend'
-import { DataObjectClass } from '@quatrain/core'
+import { DataObjectClass } from './types/DataObjectClass'
 import { BackendInterface } from './types/BackendInterface'
 import { Filter } from './Filter'
 import { Filters } from './Filters'

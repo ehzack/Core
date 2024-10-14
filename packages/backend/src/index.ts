@@ -12,6 +12,7 @@ import { Filters } from './Filters'
 import { Sorting } from './Sorting'
 import { Limits } from './Limits'
 import { SortAndLimit } from './SortAndLimit'
+import { DataObjectClass } from './types/DataObjectClass'
 import { DataObject } from './DataObject'
 import { CollectionProperty } from './CollectionProperty'
 import { User } from './User'
@@ -45,6 +46,7 @@ export {
    SortAndLimit,
    CollectionHierarchy,
    CollectionProperty,
+   DataObjectClass,
    DataObject,
    User,
    UserRepository,
