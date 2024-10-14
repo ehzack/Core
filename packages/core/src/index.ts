@@ -25,11 +25,9 @@ import {
 import { ArrayProperty, ArrayPropertyType } from './properties/ArrayProperty'
 import { AbstractObject } from './components/AbstractObject'
 import { ObjectUri } from './components/ObjectUri'
-import {
-   DataObjectClass,
-   DataObjectProperties,
-} from './components/types/DataObjectClass'
+import { DataObjectClass } from './components/types/DataObjectClass'
 import { DataObject } from './components/DataObject'
+import { DataObjectProperties } from './properties'
 import { BaseObjectCore } from './components/BaseObjectCore'
 import { BaseObject, BaseObjectProperties } from './components/BaseObject'
 import { Proxy } from './components/types/ProxyConstructor'
