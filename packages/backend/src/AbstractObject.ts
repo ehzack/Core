@@ -43,6 +43,10 @@ export abstract class AbstractObject {
       }
    }
 
+   has(key: string) {
+      return Reflect.has(this._dataObject.properties, key)
+   }
+
    get path(): string {
       return this._dataObject.path
    }

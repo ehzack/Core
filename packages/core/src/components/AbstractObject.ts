@@ -64,6 +64,7 @@ export abstract class AbstractObject {
    get uri() {
       return this._dataObject.uri
    }
+   
    has(key: string) {
       return Reflect.has(this._dataObject.properties, key)
    }
