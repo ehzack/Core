@@ -1,8 +1,8 @@
 import { Query } from './Query'
 import { BackendInterface } from './types/BackendInterface'
 import { BaseRepository } from './BaseRepository'
-import { UserType, NotFoundError } from '@quatrain/core'
-import { User } from './User'
+import { NotFoundError } from '@quatrain/core'
+import { User, UserType } from './User'
 
 export class UserRepository extends BaseRepository<UserType> {
    constructor(backendAdapter?: BackendInterface) {

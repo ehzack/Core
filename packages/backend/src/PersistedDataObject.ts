@@ -1,15 +1,16 @@
 import { DataObject as CoreDO, ObjectUri } from '@quatrain/core'
-import { BaseObjectCore } from './BaseObjectCore'
+import { PersistedBaseObject } from './PersistedBaseObject'
 import { Backend } from './Backend'
 import { DataObjectClass } from './types/DataObjectClass'
 import { DataObjectParams } from '@quatrain/core/lib/components/DataObject'
+import { Persisted } from './types/Persisted'
 
 /**
  * Data objects constitute the agnostic glue between objects and backends.
  * They handle data and identifiers in a protected registry
  * This is what backends and objects manipulate, oblivious of the other.
  */
-export class DataObject extends CoreDO implements DataObjectClass<any> {
+export class PersistedDataObject extends CoreDO implements Persisted {
    protected _proxied: any
 
    protected _persisted: boolean = false
@@ -32,7 +33,7 @@ export class DataObject extends CoreDO implements DataObjectClass<any> {
     */
    async populate(
       data: { name: string; [x: string]: unknown } | undefined = undefined
-   ): Promise<DataObject> {
+   ): Promise<PersistedDataObject> {
       if (this._populated === false) {
          if (data) {
             this.populateFromData(data)
@@ -53,7 +54,7 @@ export class DataObject extends CoreDO implements DataObjectClass<any> {
     * Populate data object from backend query
     * @param data
     */
-   async populateFromBackend(): Promise<DataObject> {
+   async populateFromBackend(): Promise<PersistedDataObject> {
       if (this._populated === false) {
          if (this.path !== '/' && this.path !== '') {
             await Backend.getBackend(this._objectUri.backend).read(this)
@@ -88,7 +89,7 @@ export class DataObject extends CoreDO implements DataObjectClass<any> {
                // ignore
                break
             case 'ObjectProperty':
-               const value: BaseObjectCore | ObjectUri | undefined = prop.val()
+               const value: PersistedBaseObject | ObjectUri | undefined = prop.val()
                Reflect.set(
                   data,
                   key,
@@ -134,7 +135,7 @@ export class DataObject extends CoreDO implements DataObjectClass<any> {
     * @param param
     * @returns DataObject
     */
-   static factory(param: DataObjectParams | undefined = undefined): DataObject {
+   static factory(param: DataObjectParams | undefined = undefined): PersistedDataObject {
       try {
          return new this(param)
       } catch (err) {
@@ -143,6 +144,10 @@ export class DataObject extends CoreDO implements DataObjectClass<any> {
             `Unable to build data object: ${(err as Error).message}`
          )
       }
+   }
+
+   has(key: string) {
+      return Reflect.has(this._properties, key)
    }
 
    async read(): Promise<DataObjectClass<any>> {

@@ -1,7 +1,7 @@
-import { BaseObject, GoneError, NotFoundError, statuses } from '@quatrain/core'
+import { BaseObjectType, GoneError, NotFoundError, statuses } from '@quatrain/core'
 import { DataObjectClass } from './types/DataObjectClass'
-import { DataObject } from './DataObject'
-import { BaseObjectCore } from './BaseObjectCore'
+import { PersistedDataObject } from './PersistedDataObject'
+import { PersistedBaseObject } from './PersistedBaseObject'
 import { Query, QueryResultType } from './Query'
 import { BackendInterface } from './types/BackendInterface'
 import { Backend } from './Backend'
@@ -12,13 +12,13 @@ const RESOURCE_GONE_ERROR = `The resource you are trying to access has been dele
  * CRUD methods for models/entities inheriting from BaseObject
  * Extend this by passing the typeof of the desired class to the constructor
  */
-export class BaseRepository<T extends BaseObject> {
+export class BaseRepository<T extends BaseObjectType> {
    //implements RepositoryClass<T>
-   protected _model: typeof BaseObjectCore
+   protected _model: typeof PersistedBaseObject
    backendAdapter: BackendInterface
 
    constructor(
-      model: typeof BaseObjectCore,
+      model: typeof PersistedBaseObject,
       backendAdapter: BackendInterface = Backend.getBackend()
    ) {
       this._model = model
@@ -36,7 +36,7 @@ export class BaseRepository<T extends BaseObject> {
          path = uid
       }
 
-      const dataObject = DataObject.factory({
+      const dataObject = PersistedDataObject.factory({
          properties: this._model.PROPS_DEFINITION,
          uri: path,
       })
@@ -49,7 +49,7 @@ export class BaseRepository<T extends BaseObject> {
    protected async getDataObjectFromPath(
       path: string
    ): Promise<DataObjectClass<any>> {
-      const dataObject = DataObject.factory({
+      const dataObject = PersistedDataObject.factory({
          properties: this._model.PROPS_DEFINITION,
          uri: path,
       })
@@ -59,7 +59,7 @@ export class BaseRepository<T extends BaseObject> {
       return dataObject
    }
 
-   async create<B extends BaseObjectCore>(obj: B, uid?: string) {
+   async create<B extends PersistedBaseObject>(obj: B, uid?: string) {
       const savedObj = await this.backendAdapter.create(obj.dataObject, uid)
       return this._model.fromDataObject(savedObj)
    }
@@ -103,7 +103,7 @@ export class BaseRepository<T extends BaseObject> {
       }
    }
 
-   async update<B extends BaseObjectCore>(obj: B) {
+   async update<B extends PersistedBaseObject>(obj: B) {
       const dataObject = obj.dataObject || obj
 
       const savedObj = await this.backendAdapter.update(dataObject)

@@ -3,9 +3,10 @@ import { AbstractBackendAdapter } from './AbstractBackendAdapter'
 import { MockAdapter } from './MockAdapter'
 import { BackendError } from './BackendError'
 import { BackendInterface } from './types/BackendInterface'
-import { BaseObjectCore } from './BaseObjectCore'
+import { PersistedBaseObject } from './PersistedBaseObject'
 import { BaseRepository } from './BaseRepository'
 import * as CollectionHierarchy from './types/CollectionHierarchy'
+import { OperatorKeys } from './types/OperatorsKeys'
 import { Query, QueryResultType, QueryMetaType } from './Query'
 import { Filter } from './Filter'
 import { Filters } from './Filters'
@@ -13,7 +14,7 @@ import { Sorting } from './Sorting'
 import { Limits } from './Limits'
 import { SortAndLimit } from './SortAndLimit'
 import { DataObjectClass } from './types/DataObjectClass'
-import { DataObject } from './DataObject'
+import { PersistedDataObject } from './PersistedDataObject'
 import { CollectionProperty } from './CollectionProperty'
 import { User } from './User'
 import { UserRepository } from './UserRepository'
@@ -31,11 +32,12 @@ export {
    BackendAction,
    BackendParameters,
    BackendInterface,
-   BaseObjectCore,
+   PersistedBaseObject,
    BaseRepository,
    AbstractBackendAdapter,
    BackendError,
    MockAdapter,
+   OperatorKeys,
    Query,
    QueryResultType,
    QueryMetaType,
@@ -47,7 +49,7 @@ export {
    CollectionHierarchy,
    CollectionProperty,
    DataObjectClass,
-   DataObject,
+   PersistedDataObject,
    User,
    UserRepository,
    InjectKeywordsMiddleware,

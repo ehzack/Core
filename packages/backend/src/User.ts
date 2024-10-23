@@ -1,7 +1,7 @@
-import { BaseObjectCore } from './BaseObjectCore'
-import { BaseObject, UserProperties } from '@quatrain/core'
+import { PersistedBaseObject } from './PersistedBaseObject'
+import { BaseObjectType, UserProperties } from '@quatrain/core'
 
-export interface UserType extends BaseObject {
+export interface UserType extends BaseObjectType {
    name: string
    firstname: string
    lastname: string
@@ -11,7 +11,7 @@ export interface UserType extends BaseObject {
    email: string
 }
 
-export class User extends BaseObjectCore {
+export class User extends PersistedBaseObject {
    static PROPS_DEFINITION = UserProperties
    static COLLECTION = 'user'
 

@@ -6,7 +6,8 @@ import { ObjectUri } from './ObjectUri'
 import { DataObjectClass } from './types/DataObjectClass'
 import { NotFoundError } from '../common/ResourcesErrors'
 import { toJSONParams } from './types/toJSONParams'
-import { BaseObjectCore } from './BaseObjectCore'
+import { BaseObject } from './BaseObject'
+import { DataObjectType } from './types/DataObjectType'
 
 export type CoreObject<T extends AbstractObject> = T
 
@@ -28,7 +29,7 @@ export interface DataObjectParams {
  * They handle data and identifiers in a protected registry
  * This is what backends and objects manipulate, oblivious of the other.
  */
-export class DataObject implements DataObjectClass<any> {
+export class DataObject implements DataObjectType {
    protected _objectUri: ObjectUri
    protected _uid: string | undefined = undefined
    protected _properties: Properties = {}
@@ -192,9 +193,9 @@ export class DataObject implements DataObjectClass<any> {
       return this._properties
    }
 
-   get backend() {
-      return this._objectUri ? this._objectUri.backend : undefined
-   }
+   // get backend() {
+   //    return this._objectUri ? this._objectUri.backend : undefined
+   // }
 
    get path() {
       return this._objectUri ? this._objectUri.path : ''
@@ -322,7 +323,7 @@ export class DataObject implements DataObjectClass<any> {
                // ignore
                break
             case 'ObjectProperty':
-               const value: BaseObjectCore | ObjectUri | undefined = prop.val()
+               const value: BaseObject | ObjectUri | undefined = prop.val()
                Reflect.set(
                   data,
                   key,
@@ -362,23 +363,23 @@ export class DataObject implements DataObjectClass<any> {
       return data
    }
 
-   async read(): Promise<DataObjectClass<any>> {
-      throw new Error(
-         `This is just a stub, please use DataObject from @quatrain/backend to persist`
-      )
-   }
+   // async read(): Promise<DataObjectClass<any>> {
+   //    throw new Error(
+   //       `This is just a stub, please use DataObject from @quatrain/backend to persist`
+   //    )
+   // }
 
-   save(): Promise<DataObjectClass<any>> {
-      throw new Error(
-         `This is just a stub, please use DataObject from @quatrain/backend to persist`
-      )
-   }
+   // save(): Promise<DataObjectClass<any>> {
+   //    throw new Error(
+   //       `This is just a stub, please use DataObject from @quatrain/backend to persist`
+   //    )
+   // }
 
-   async delete(): Promise<DataObjectClass<any>> {
-      throw new Error(
-         `This is just a stub, please use DataObject from @quatrain/backend to persist`
-      )
-   }
+   // async delete(): Promise<DataObjectClass<any>> {
+   //    throw new Error(
+   //       `This is just a stub, please use DataObject from @quatrain/backend to persist`
+   //    )
+   // }
 
    /**
     * Data object must be created from factory in order for async-loaded data to be available

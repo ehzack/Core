@@ -1,20 +1,32 @@
-import { ObjectUri, DataObjectClass, DataObject } from '../'
-import { BaseObject, BaseObjectProperties } from './BaseObject'
-import { AbstractObject } from './AbstractObject'
+import {
+   ObjectUri,
+   BaseObjectProperties,
+   BaseObject,
+   BaseObjectType,
+} from '@quatrain/core'
+import { Query } from './Query'
+import { DataObjectClass } from './types/DataObjectClass'
+import { PersistedDataObject } from './PersistedDataObject'
 
-export class BaseObjectCore extends AbstractObject {
-   // implements BaseObjectClass {
+export class PersistedBaseObject extends BaseObject {
    static PROPS_DEFINITION: any /*DataObjectProperties*/ = BaseObjectProperties
 
+   protected _dataObject: DataObjectClass<any>
+
+   constructor(dao: DataObjectClass<any>) {
+      super(dao)
+      this._dataObject = dao
+   }
+
    static getProperty(key: string) {
-      return BaseObjectCore.PROPS_DEFINITION.find(
+      return PersistedBaseObject.PROPS_DEFINITION.find(
          (prop: any) => prop.name === key
       )
    }
 
    static fillProperties(child: any = this) {
       // merge base properties with additional or redefined ones
-      const base = [...BaseObjectCore.PROPS_DEFINITION]
+      const base = [...PersistedBaseObject.PROPS_DEFINITION]
 
       child.PROPS_DEFINITION.forEach((property: any) => {
          // manage parent properties potential redeclaration
@@ -26,7 +38,7 @@ export class BaseObjectCore extends AbstractObject {
          }
       })
 
-      const dao = DataObject.factory({
+      const dao = PersistedDataObject.factory({
          properties: base,
          parentProp: this.PARENT_PROP,
       })
@@ -58,7 +70,7 @@ export class BaseObjectCore extends AbstractObject {
     * @param child
     * @returns
     */
-   static fromObject<T extends BaseObject>(src: T, child: any = this): any {
+   static fromObject<T extends BaseObjectType>(src: T, child: any = this): any {
       const dao = this.fillProperties(child)
 
       dao.uri = new ObjectUri(
@@ -76,7 +88,7 @@ export class BaseObjectCore extends AbstractObject {
    }
 
    static async factory(
-      src: string | ObjectUri | BaseObject | undefined = undefined,
+      src: string | ObjectUri | undefined = undefined,
       child: any = this
    ): Promise<any> {
       try {
@@ -121,57 +133,37 @@ export class BaseObjectCore extends AbstractObject {
       return obj //.toProxy()
    }
 
-   /**
-    * Wrap instance into proxy to get access to properties
-    * @returns Proxy
-    */
-   // protected toProxy<T extends BaseObject>() {
-   //    return new ProxyConstructor<this, Proxy<T>>(this, {
-   //       get: (target, prop) => {
-   //          if (prop === 'uid') {
-   //             return target.uid
-   //          }
-
-   //          if (prop === 'uri') {
-   //             return target.uri
-   //          }
-
-   //          if (prop == 'toJSON') {
-   //             return target.toJSON
-   //          }
-
-   //          if (prop == 'save') {
-   //             return target.save
-   //          }
-
-   //          if (prop == 'constructor') {
-   //             return target.constructor
-   //          }
-
-   //          if (prop === 'core') {
-   //             return target
-   //          }
-
-   //          // i don't know why and i shouldn't have to wonder why
-   //          // but everything crashes unless we do this terribleness
-   //          if (prop == 'then') {
-   //             return
-   //          }
-
-   //          return target.val(prop as string)
-   //       },
-   //       set(target, prop, newValue) {
-   //          if (prop === 'uid' || prop === 'core') {
-   //             throw new Error(`Property '${prop}' is readonly`)
-   //          }
-
-   //          target.set(prop as string, newValue)
-   //          return true
-   //       },
-   //    })
-   // }
-
    asReference() {
       return this._dataObject.toReference()
+   }
+
+   /**
+    * Create a query based on given class where parent is current instance
+    * @param obj
+    * @returns Query
+    */
+   query(obj: any) {
+      return new Query(obj, this)
+   }
+
+   /**
+    * Create a query based on current class
+    * @returns Query
+    */
+   static query() {
+      return new Query(this)
+   }
+
+   get dataObject() {
+      return this._dataObject
+   }
+
+   async save(): Promise<this> {
+      await this._dataObject.save()
+      return this
+   }
+
+   async delete(): Promise<DataObjectClass<any>> {
+      return await this._dataObject.delete()
    }
 }

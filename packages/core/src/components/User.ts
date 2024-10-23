@@ -1,14 +1,14 @@
-import { BaseObjectCore } from './BaseObjectCore'
+import { BaseObject} from './BaseObject'
 import { DataObjectClass } from './types/DataObjectClass'
 import { DateTimeProperty, EnumProperty, ObjectProperty } from '../properties'
 import { HashProperty } from '../properties/HashProperty'
 import { StringProperty } from '../properties/StringProperty'
 import * as htmlType from '../properties/types/PropertyHTMLType'
-import { BaseObject, BaseObjectProperties } from './BaseObject'
+import { BaseObjectProperties } from './BaseObjectProperties'
 import { Entity } from './Entity'
+import { BaseObjectType } from './types/BaseObjectType'
 
-export interface UserType extends BaseObject {
-   name: string
+export interface UserType extends BaseObjectType {
    firstname: string
    lastname: string
    gender?: 'male' | 'female' | 'nonbinary'
@@ -101,13 +101,11 @@ export const UserProperties: any = [
    },
 ]
 
-export class User extends BaseObjectCore {
+export class User extends BaseObject {
    static PROPS_DEFINITION = UserProperties
    static COLLECTION = 'user'
 
-   static async factory(
-      src: any = undefined
-   ): Promise<User> {
+   static async factory(src: any = undefined): Promise<User> {
       return super.factory(src, User)
    }
 }

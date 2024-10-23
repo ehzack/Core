@@ -41,8 +41,8 @@ export abstract class AbstractObject {
       }
    }
 
-   get backend() {
-      return this._dataObject.backend
+   has(key: string) {
+      return Reflect.has(this._dataObject.properties, key)
    }
 
    get path(): string {
@@ -63,10 +63,6 @@ export abstract class AbstractObject {
 
    get uri() {
       return this._dataObject.uri
-   }
-   
-   has(key: string) {
-      return Reflect.has(this._dataObject.properties, key)
    }
 
    toJSON() {

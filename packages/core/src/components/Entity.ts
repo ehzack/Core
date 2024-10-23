@@ -1,15 +1,16 @@
-import { BaseObjectCore } from './BaseObjectCore'
-import { BaseObject, BaseObjectProperties } from './BaseObject'
+import { BaseObject } from './BaseObject'
+import { BaseObjectProperties } from './BaseObjectProperties'
 //import { User } from './User'
 //import { CollectionProperty } from '../properties/CollectionProperty'
 import { StringProperty } from '../properties/StringProperty'
 import * as htmlType from '../properties/types/PropertyHTMLType'
+import { BaseObjectType } from './types/BaseObjectType'
 
-export interface EntityType extends BaseObject {
+export interface EntityType extends BaseObjectType {
    //   users?: User[]
 }
 
-export class Entity extends BaseObjectCore {
+export class Entity extends BaseObject {
    static COLLECTION = 'entities'
 
    static PROPS_DEFINITION = [

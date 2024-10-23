@@ -1,7 +1,7 @@
-import { BaseObjectCore } from '@quatrain/core'
 import { FilterOperatorType } from './FilterOperators'
+import { PersistedBaseObject } from './PersistedBaseObject'
 
-export type FilterValueType<T extends BaseObjectCore> =
+export type FilterValueType<T extends PersistedBaseObject> =
    | T
    | number
    | string

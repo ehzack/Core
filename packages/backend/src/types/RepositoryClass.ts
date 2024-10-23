@@ -1,6 +1,6 @@
 import { BackendInterface } from './BackendInterface'
 import { Query } from '../Query'
-import { BaseObjectCore } from '../BaseObjectCore'
+import { PersistedBaseObject } from '../PersistedBaseObject'
 import { BaseObject } from '@quatrain/core'
 import Payload from './Payload'
 
@@ -40,5 +40,5 @@ export default interface RepositoryClass<T extends BaseObject> {
     * @param query
     * @returns
     */
-   query(query: Query<typeof BaseObjectCore>): Promise<Payload<T>>
+   query(query: Query<typeof PersistedBaseObject>): Promise<Payload<T>>
 }

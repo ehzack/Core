@@ -28,8 +28,9 @@ import { ObjectUri } from './components/ObjectUri'
 import { DataObjectClass } from './components/types/DataObjectClass'
 import { DataObject } from './components/DataObject'
 import { DataObjectProperties } from './properties'
-import { BaseObjectCore } from './components/BaseObjectCore'
-import { BaseObject, BaseObjectProperties } from './components/BaseObject'
+import { BaseObject } from './components/BaseObject'
+import { BaseObjectProperties } from './components/BaseObjectProperties'
+import { BaseObjectType } from './components/types/BaseObjectType'
 import { Proxy } from './components/types/ProxyConstructor'
 
 import { UserType, User, UserProperties } from './components/User'
@@ -71,8 +72,8 @@ export {
    DataObject,
    DataObjectProperties,
    AbstractObject,
+   BaseObjectType,
    BaseObject,
-   BaseObjectCore,
    BaseObjectProperties,
    User,
    UserType,

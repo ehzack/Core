@@ -2,10 +2,10 @@ import { BaseProperty, BasePropertyType } from './BaseProperty'
 import { ObjectUri } from '../components/ObjectUri'
 import { Core } from '../Core'
 import { DataObjectClass } from '../components/types/DataObjectClass'
-import { BaseObjectCore } from '../'
+import { BaseObject } from '../components/BaseObject'
 
 export interface CollectionPropertyType extends BasePropertyType {
-   instanceOf: typeof BaseObjectCore
+   instanceOf: typeof BaseObject
    backend?: any
    parentKey?: string
 }
@@ -17,7 +17,7 @@ export class CollectionProperty extends BaseProperty {
       | Array<DataObjectClass<any>>
       | Array<ObjectUri>
       | undefined = undefined
-   protected _instanceOf: typeof BaseObjectCore
+   protected _instanceOf: typeof BaseObject
    protected _parentKey: string
 
    constructor(config: CollectionPropertyType) {

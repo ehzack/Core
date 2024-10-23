@@ -4,9 +4,9 @@ import { Limits } from './Limits'
 import { Sorting } from './Sorting'
 import { SortAndLimit } from './SortAndLimit'
 import { BackendInterface } from './types/BackendInterface'
-import { OperatorKeys } from './types/Operators'
+import { OperatorKeys } from './types/OperatorsKeys'
 import { DataObjectClass } from './types/DataObjectClass'
-import { BaseObjectCore } from './BaseObjectCore'
+import { PersistedBaseObject } from './PersistedBaseObject'
 import { ObjectUri, returnAs } from '@quatrain/core'
 
 export const AS_OBJECTURIS = 'objectUris'
@@ -28,7 +28,7 @@ export type QueryResultType<T> = {
    meta: QueryMetaType
 }
 
-export class Query<T extends typeof BaseObjectCore> {
+export class Query<T extends typeof PersistedBaseObject> {
    protected _obj: T
    protected _parent: T | undefined
    filters: Filter[]
@@ -138,7 +138,7 @@ export class Query<T extends typeof BaseObjectCore> {
 
    async execute(
       as: returnAs = returnAs.AS_DATAOBJECTS,
-      backend: BackendInterface = Backend.getBackend(this._obj.DEFAULT_BACKEND)
+      backend: BackendInterface = Backend.getBackend()
    ): Promise<QueryResultType<any>> {
       try {
          switch (as) {

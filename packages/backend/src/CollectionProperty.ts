@@ -8,11 +8,11 @@ import {
 import { Backend } from './Backend'
 import { Filter } from './Filter'
 import { Query, QueryResultType } from './Query'
-import { BaseObjectCore } from './BaseObjectCore'
+import { PersistedBaseObject } from './PersistedBaseObject'
 import { DataObjectClass } from './types/DataObjectClass'
 
 export interface CollectionPropertyType extends BasePropertyType {
-   instanceOf: typeof BaseObjectCore
+   instanceOf: typeof PersistedBaseObject
    backend?: any
    parentKey?: string
 }
@@ -24,7 +24,7 @@ export class CollectionProperty extends BaseProperty {
       | Array<DataObjectClass<any>>
       | Array<ObjectUri>
       | undefined = undefined
-   protected _instanceOf: typeof BaseObjectCore
+   protected _instanceOf: typeof PersistedBaseObject
    protected _parentKey: string
    protected _backend: any
    protected _query: Query<any>
