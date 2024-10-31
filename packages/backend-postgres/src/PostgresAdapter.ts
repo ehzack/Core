@@ -29,7 +29,7 @@ const operatorsMap: { [x: string]: string } = {
    lower: '<',
    lowerOrEquals: '>',
    contains: 'in',
-   notContains: 'not-in',
+   notContains: 'not in',
    containsAll: 'array-contains',
    containsAny: 'any',
 }

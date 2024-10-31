@@ -275,7 +275,7 @@ export class DataObject implements DataObjectType {
       if (this.has(key)) {
          return Reflect.get(this._properties, key).val(transform)
       } else {
-         throw new Error(`Unknown property '${key}'`)
+         return undefined
       }
    }
 
