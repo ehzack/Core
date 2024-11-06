@@ -66,7 +66,24 @@ export class SupabaseAuthAdapter extends AbstractAuthAdapter {
       throw new Error('Unable to retrieve auth token from Supabase')
    }
 
-   async signup(login: string, password: string) {}
+   async revokeAuthToken(token: string) {
+      // Careful, this only delete tokens on client side, not on server side
+      const { error } = await this._client.auth.signOut()
+   }
+
+   async signup(login: string, password: string) {
+      const { data, error } = await this._client.auth.signInWithPassword({
+         email: login,
+         password,
+      })
+
+      if (error !== null) {
+         Auth.log(error)
+         return false
+      }
+
+      return { user: data.user, session: data.session }
+   }
 
    async signout(user: User): Promise<any> {}
 
@@ -89,7 +106,10 @@ export class SupabaseAuthAdapter extends AbstractAuthAdapter {
       // return await getAuth().deleteUser(user.uid)
    }
    async setCustomUserClaims(id: string, claims: any) {
-      const { data, error } = await this._client.auth.admin.updateUserById(id, claims)
+      const { data, error } = await this._client.auth.admin.updateUserById(
+         id,
+         claims
+      )
 
       if (error) {
          throw new Error(error)

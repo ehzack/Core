@@ -34,6 +34,9 @@ const operatorsMap: { [x: string]: string } = {
    containsAny: 'any',
 }
 
+/**
+ * https://en.wikipedia.org/wiki/List_of_SQL_reserved_words
+ */
 export class PostgresAdapter extends AbstractBackendAdapter {
    protected _connection: undefined | Client
 

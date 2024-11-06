@@ -39,5 +39,7 @@ export abstract class AbstractAuthAdapter implements AuthInterface {
 
    abstract getAuthToken(token: string): any
 
+   abstract revokeAuthToken(token: string): any
+
    abstract setCustomUserClaims(id: string, claims: any): any
 }
