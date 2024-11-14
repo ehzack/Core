@@ -1,0 +1,39 @@
+{
+   "name": "@quatrain/worker",
+   "version": "0.1.0",
+   "description": "Worker helpers",
+   "main": "lib/index.js",
+   "types": "lib/index.d.ts",
+   "files": [
+      "lib/",
+      "README.md"
+   ],
+   "author": "Quatrain Développement SAS <developers@quatrain.com>",
+   "license": "MIT",
+   "devDependencies": {
+      "@tsconfig/recommended": "^1.0.1",
+      "@types/fs-extra": "^11.0.4",
+      "@types/jest": "^27.0.3",
+      "@types/node": "^22.9.0",
+      "@types/object-hash": "^3.0.6",
+      "jest": "^27.4.7",
+      "jest-node-exports-resolver": "^1.1.6",
+      "trace-unhandled": "^2.0.1",
+      "ts-jest": "^27.1.2",
+      "ts-node": "^10.4.0",
+      "typescript": "^5.1.5"
+   },
+   "dependencies": {
+      "@quatrain/core": "^1.1.1",
+      "axios": "^1.7.7",
+      "fs-extra": "^11.2.0",
+      "node-fetch": "^3.3.2"
+   },
+   "scripts": {
+      "test": "tsc && jest --verbose",
+      "build": "tsc --watch",
+      "patch": "yarn version --patch --no-git-tag-version",
+      "push": "yarn publish --access public",
+      "prepublish": "tsc"
+   }
+}
