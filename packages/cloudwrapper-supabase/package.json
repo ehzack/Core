@@ -22,6 +22,7 @@
   "devDependencies": {
     "@tsconfig/recommended": "^1.0.1",
     "@types/jest": "^27.0.3",
+    "@types/node": "^22.10.1",
     "jest": "^27.4.7",
     "jest-node-exports-resolver": "^1.1.6",
     "jest-serial-runner": "^1.2.1",
@@ -36,5 +37,10 @@
     "build": "tsc --watch",
     "prepush": "tsc",
     "push": "yarn publish --access public"
+  },
+  "resolutions": {
+    "@quatrain/backend": "portal:/Users/crapougnax/Library/Mobile Documents/com~apple~CloudDocs/QUATRAIN/CODE/Core/packages/backend",
+    "@quatrain/cloudwrapper": "portal:/Users/crapougnax/Library/Mobile Documents/com~apple~CloudDocs/QUATRAIN/CODE/Core/packages/cloudwrapper",
+    "@quatrain/core": "portal:/Users/crapougnax/Library/Mobile Documents/com~apple~CloudDocs/QUATRAIN/CODE/Core/packages/core"
   }
 }

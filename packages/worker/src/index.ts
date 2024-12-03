@@ -1,3 +1,4 @@
 import { Worker } from './Worker'
+import { FileSystem } from './FileSystem'
 
-export { Worker }
+export { Worker, FileSystem }

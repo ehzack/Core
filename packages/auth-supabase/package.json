@@ -14,12 +14,12 @@
   },
   "dependencies": {
     "@quatrain/auth": "^1.0.0",
-    "@supabase/supabase-js": "^2.42.4"
+    "@supabase/supabase-js": "^2.45.1"
   },
   "devDependencies": {
-    "@faker-js/faker": "^7.6.0",
     "@tsconfig/recommended": "^1.0.1",
     "@types/jest": "^27.0.3",
+    "@types/node": "^22.10.1",
     "jest": "^27.4.7",
     "jest-node-exports-resolver": "^1.1.6",
     "jest-serial-runner": "^1.2.1",

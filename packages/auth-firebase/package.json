@@ -13,12 +13,13 @@
     "@quatrain/core": "^1.0.0-beta2"
   },
   "dependencies": {
-    "firebase-admin": "^12.0.0"
+    "firebase-admin": "^13.0.1"
   },
   "devDependencies": {
     "@faker-js/faker": "^7.6.0",
     "@tsconfig/recommended": "^1.0.1",
     "@types/jest": "^27.0.3",
+    "@types/node": "^22.10.1",
     "jest": "^27.4.7",
     "jest-node-exports-resolver": "^1.1.6",
     "jest-serial-runner": "^1.2.1",

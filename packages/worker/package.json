@@ -1,7 +1,7 @@
 {
    "name": "@quatrain/worker",
    "version": "0.1.0",
-   "description": "Worker helpers",
+   "description": "Container Worker helpers",
    "main": "lib/index.js",
    "types": "lib/index.d.ts",
    "files": [
