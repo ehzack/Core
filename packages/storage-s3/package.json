@@ -29,7 +29,8 @@
    },
    "scripts": {
       "test": "tsc && jest --verbose",
-      "build": "tsc --watch",
+      "build": "tsc",
+      "wbuild": "tsc --watch",
       "patch": "yarn version --patch --no-git-tag-version",
       "push": "yarn publish --access public",
       "prepublish": "tsc"

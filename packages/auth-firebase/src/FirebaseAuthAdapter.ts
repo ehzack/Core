@@ -1,10 +1,10 @@
+import { User } from '@quatrain/backend'
 import {
+   Auth,
    AbstractAuthAdapter,
-   Core,
-   User,
    AuthenticationError,
    AuthParameters,
-} from '@quatrain/core'
+} from '@quatrain/auth'
 import { CreateRequest, UpdateRequest, getAuth } from 'firebase-admin/auth'
 import { getApps, initializeApp } from 'firebase-admin/app'
 
@@ -38,7 +38,7 @@ export class FirebaseAuthAdapter extends AbstractAuthAdapter {
             disabled,
             displayName,
          }
-         Core.log(`[FAA] Adding user '${displayName}'`)
+         Auth.log(`[FAA] Adding user '${displayName}'`)
          const userRecord = await getAuth().createUser(authData)
 
          return userRecord.uid
@@ -56,11 +56,11 @@ export class FirebaseAuthAdapter extends AbstractAuthAdapter {
    async signout(user: User): Promise<any> {}
 
    async update(user: User, updatable: UpdateRequest): Promise<any> {
-      console.log('auth data to update', JSON.stringify(updatable))
+      Auth.log('auth data to update', JSON.stringify(updatable))
 
       try {
          if (Object.keys(updatable).length > 0) {
-            console.log(`Updating ${updatable.displayName} Auth record`)
+            Auth.log(`Updating ${updatable.displayName} Auth record`)
             await getAuth().updateUser(user.uid, updatable)
          }
       } catch (e) {}
@@ -69,4 +69,8 @@ export class FirebaseAuthAdapter extends AbstractAuthAdapter {
    async delete(user: User): Promise<any> {
       return await getAuth().deleteUser(user.uid)
    }
+
+   async revokeAuthToken(token: string) {}
+
+   async setCustomUserClaims(id: string, claims: any) {}
 }

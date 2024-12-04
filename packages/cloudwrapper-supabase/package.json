@@ -34,7 +34,8 @@
   "scripts": {
     "pretest": "tsc",
     "test-ci": "jest --runInBand",
-    "build": "tsc --watch",
+    "build": "tsc",
+    "wbuild": "tsc --watch",
     "prepush": "tsc",
     "push": "yarn publish --access public"
   },

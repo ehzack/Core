@@ -32,7 +32,8 @@
     "pretest": "tsc",
     "test": "clear && firebase emulators:exec 'jest -i --verbose'",
     "test-ci": "jest --runInBand",
-    "build": "tsc --watch",
+    "build": "tsc",
+    "wbuild": "tsc --watch",
     "prepush": "tsc",
     "push": "yarn publish --access public"
   }

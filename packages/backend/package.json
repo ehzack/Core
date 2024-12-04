@@ -10,7 +10,7 @@
     "README.md"
   ],
   "author": "Quatrain Développement SAS <developers@quatrain.com>",
-  "peerDependencies": {
+  "dependencies": {
     "@quatrain/core": "^1.0.0"
   },
   "devDependencies": {
@@ -28,7 +28,8 @@
     "pretest": "tsc",
     "test": "clear && firebase emulators:exec 'jest -i --verbose --silent=false'",
     "test-ci": "jest --runInBand",
-    "build": "tsc --watch",
+    "build": "tsc",
+    "wbuild": "tsc --watch",
     "prepush": "tsc",
     "push": "yarn publish --access public"
   }

@@ -1,22 +1,25 @@
 import {
-   AbstractAdapter,
+   ObjectUri,
+   NotFoundError,
+   statuses,
+   StringProperty,
+} from '@quatrain/core'
+import {
+   CollectionHierarchy,
    DataObjectClass,
+   Backend,
+   AbstractBackendAdapter,
    BackendAction,
    BackendParameters,
    BackendError,
-   ObjectUri,
    QueryMetaType,
    QueryResultType,
    Filters,
    Filter,
    SortAndLimit,
    Sorting,
-   Core,
-   NotFoundError,
-   statuses,
-   InjectKeywordsMiddleware,
-} from '@quatrain/core'
-import { CollectionHierarchy } from '@quatrain/core/lib/backends'
+   InjectKeywordsMiddleware
+} from '@quatrain/backend'
 
 // do not convert to import as it is not yet supported
 import { getApps, initializeApp } from 'firebase-admin/app'
@@ -47,7 +50,7 @@ const operatorsMap: { [x: string]: WhereFilterOp } = {
    containsAny: 'array-contains-any',
 }
 
-export class FirestoreAdapter extends AbstractAdapter {
+export class FirestoreAdapter extends AbstractBackendAdapter {
    static PKEY_IDENTIFIER = FieldPath.documentId()
 
    constructor(params: BackendParameters = {}) {
@@ -82,7 +85,7 @@ export class FirestoreAdapter extends AbstractAdapter {
          path = `${dataObject.val(dataObject.parentProp).path}/${path}`
       }
 
-      Core.log(`[FSA] Record path is '${path}'`)
+      Backend.log(`[FSA] Record path is '${path}'`)
 
       return path
    }
@@ -116,12 +119,12 @@ export class FirestoreAdapter extends AbstractAdapter {
             dataObject.uri.path = path
             dataObject.uri.label = data && Reflect.get(data, 'name')
 
-            Core.log(`[FSA] Saved object "${data.name}" at path ${path}`)
+            Backend.log(`[FSA] Saved object "${data.name}" at path ${path}`)
 
             resolve(dataObject)
          } catch (err) {
             console.log(err)
-            Core.log((err as Error).message)
+            Backend.log((err as Error).message)
             reject(new BackendError((err as Error).message))
          }
       })
@@ -137,7 +140,7 @@ export class FirestoreAdapter extends AbstractAdapter {
          )
       }
 
-      Core.log(`[FSA] Getting document ${path}`)
+      Backend.log(`[FSA] Getting document ${path}`)
 
       const snapshot = await getFirestore().doc(path).get()
 
@@ -156,7 +159,7 @@ export class FirestoreAdapter extends AbstractAdapter {
       dataObject: DataObjectClass<any>
    ): Promise<DataObjectClass<any>> {
       if (dataObject.uid === undefined) {
-         throw Error('DataObject has no uid')
+         throw new Error('DataObject has no uid')
       }
       let fullPath = ''
 
@@ -177,7 +180,7 @@ export class FirestoreAdapter extends AbstractAdapter {
 
       fullPath += dataObject.path
 
-      Core.log(`[FSA] updating document ${fullPath}`)
+      Backend.log(`[FSA] updating document ${fullPath}`)
 
       // execute middlewares
       await this.executeMiddlewares(dataObject, BackendAction.UPDATE)
@@ -213,7 +216,7 @@ export class FirestoreAdapter extends AbstractAdapter {
    }
 
    async deleteCollection(collection: string, batchSize = 500): Promise<void> {
-      Core.log(`Deleting all records from collection '${collection}'`)
+      Backend.log(`Deleting all records from collection '${collection}'`)
       const collectionRef = getFirestore().collection(collection)
       const query = collectionRef.orderBy('__name__').limit(batchSize)
 
@@ -281,7 +284,7 @@ export class FirestoreAdapter extends AbstractAdapter {
 
          fullPath += collection
          console.log({ fullPath, collection })
-         Core.log(
+         Backend.log(
             `[FSA] Query on ${
                dataObject.has('parent') ? 'sub' : ''
             }collection '${fullPath}'`
@@ -295,7 +298,7 @@ export class FirestoreAdapter extends AbstractAdapter {
                CollectionHierarchy.SUBCOLLECTION &&
             fullPath.split('/').length === 1 // no collectiongroup on a sub collection
          ) {
-            Core.log(`[FSA] Using collectionGroup()`)
+            Backend.log(`[FSA] Using collectionGroup()`)
             query = getFirestore().collectionGroup(collection)
          } else {
             query = getFirestore().collection(fullPath)
@@ -320,13 +323,13 @@ export class FirestoreAdapter extends AbstractAdapter {
                   realOperator = operatorsMap.containsAll
                   realValue = String(filter.value).toLowerCase()
                } else if (
-                  filter.prop !== AbstractAdapter.PKEY_IDENTIFIER &&
+                  filter.prop !== AbstractBackendAdapter.PKEY_IDENTIFIER &&
                   !dataObject.has(filter.prop)
                ) {
                   throw new BackendError(
                      `[FSA] No such property '${filter.prop}' on object'`
                   )
-               } else if (filter.prop === AbstractAdapter.PKEY_IDENTIFIER) {
+               } else if (filter.prop === AbstractBackendAdapter.PKEY_IDENTIFIER) {
                   realProp = FieldPath.documentId()
                   realOperator = operatorsMap[filter.operator]
                } else {
@@ -351,7 +354,7 @@ export class FirestoreAdapter extends AbstractAdapter {
 
                query = query.where(realProp, realOperator, realValue)
 
-               Core.log(
+               Backend.log(
                   `[FSA] Filter added: ${realProp} ${realOperator} ${realValue}`
                )
             })
@@ -380,7 +383,7 @@ export class FirestoreAdapter extends AbstractAdapter {
             offset: pagination?.limits.offset || 0,
             batch: pagination?.limits.batch || 20,
             sortField: sortField.join(', '),
-            executionTime: Core.timestamp(),
+            executionTime: Backend.timestamp(),
          }
 
          const items: DataObjectClass<any>[] = []

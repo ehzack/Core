@@ -14,11 +14,11 @@ import {
 import { CloudFunction, setGlobalOptions } from 'firebase-functions/v2'
 import { onObjectFinalized } from 'firebase-functions/v2/storage'
 import {
+   CloudWrapper,
    AbstractCloudWrapper,
    DatabaseTriggerType,
-   BackendAction,
-   Core,
-} from '@quatrain/core'
+} from '@quatrain/cloudwrapper'
+import { BackendAction } from '@quatrain/backend'
 
 export type FirebaseParams = {
    region?: string[]
@@ -52,21 +52,21 @@ export class FirebaseCloudWrapper extends AbstractCloudWrapper {
       )
    }
 
-   databaseTrigger(trigger: DatabaseTriggerType): CloudFunction<any> {
-      this._initialize()
-      switch (trigger.eventType) {
-         case BackendAction.CREATE:
-            return onDocumentCreated(trigger., trigger.script)
-         case BackendAction.UPDATE:
-            return onDocumentUpdated(rule, func)
-         case BackendAction.DELETE:
-            return onDocumentDeleted(rule, func)
-         case BackendAction.WRITE:
-            return onDocumentWritten(rule, func)
-         default:
-            throw new Error(`Unknown event type '${trigger.eventType}'`)
-      }
-   }
+   // databaseTrigger(trigger: DatabaseTriggerType): CloudFunction<any> {
+   //    this._initialize()
+   //    switch (trigger.event) {
+   //       case BackendAction.CREATE:
+   //          return onDocumentCreated(trigger.path, trigger.script)
+   //       case BackendAction.UPDATE:
+   //          return onDocumentUpdated(trigger.path, trigger.script)
+   //       case BackendAction.DELETE:
+   //          return onDocumentDeleted(trigger.path, trigger.script)
+   //       case BackendAction.WRITE:
+   //          return onDocumentWritten(trigger.path, trigger.script)
+   //       default:
+   //          throw new Error(`Unknown event type '${trigger.event}'`)
+   //    }
+   // }
 
    storageTrigger(func: any, eventType: BackendAction) {
       this._initialize()
@@ -81,7 +81,7 @@ export class FirebaseCloudWrapper extends AbstractCloudWrapper {
    protected _initialize() {
       if (this._isInitialized === false) {
          const { projectId, serviceAccount } = this._params
-         Core.log(`[FCW] Firebase App init for project ${projectId}`)
+         CloudWrapper.log(`[FCW] Firebase App init for project ${projectId}`)
          //if (this._params.useEmulator === true) {
          // if emulator is active, we need a service account to access storage functions
          // @see bin/setServiceAccountPath.sh

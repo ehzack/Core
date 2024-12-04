@@ -8,3 +8,4 @@ lib
 !.yarn/sdks
 !.yarn/versions
 coverage/*
+.DS_Store
