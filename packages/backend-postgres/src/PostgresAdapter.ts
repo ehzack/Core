@@ -191,6 +191,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
 
    async read(dataObject: DataObjectClass<any>): Promise<DataObjectClass<any>> {
       const path = dataObject.path
+      const collection = this.getCollection(dataObject)
 
       const parts = path.split('/')
       if (parts.length < 2 || parts.length % 2 !== 0) {
@@ -201,13 +202,53 @@ export class PostgresAdapter extends AbstractBackendAdapter {
 
       Backend.log(`[PGA] Getting document ${path}`)
 
-      const query = `SELECT * FROM ${parts[parts.length - 2]} WHERE id = '${
-         parts[parts.length - 1]
-      }'`
+      if (!collection) {
+         throw new BackendError(
+            `[PGA] Can't find collection matching object to query`
+         )
+      }
 
-      Backend.log(`[PGA] ${query}`)
+      const alias = 'coll'
+      const query: string[] = []
+      const fields: string[] = [`${alias}.id`]
+      const caseMap = {}
 
-      const result = await (await this._connect()).query(query)
+      query.push(`SELECT * FROM ${collection.toLowerCase()} AS coll`)
+
+      // prepare joins
+      Object.keys(dataObject.properties).forEach((prop) => {
+         const lcProp = `${prop.toLowerCase()}`
+         Reflect.set(caseMap, lcProp, prop)
+         if (
+            dataObject.properties[prop].constructor.name === 'ObjectProperty' &&
+            dataObject.properties[prop].instanceOf
+         ) {
+            Backend.log(
+               `Adding join table for property ${prop} instance of ${dataObject.properties[prop].instanceOf}`
+            )
+
+            const joinAlias = `${prop.toLowerCase()}_table`
+            const table =
+               this._params.mapping &&
+               this._params.mapping[dataObject.properties[prop].instanceOf]
+                  ? this._params.mapping[dataObject.properties[prop].instanceOf]
+                  : dataObject.properties[prop].instanceOf.COLLECTION
+            query.push(
+               `LEFT JOIN ${table} AS ${joinAlias} ON ${joinAlias}.id = coll.${prop.toLowerCase()}`
+            )
+            fields.push(
+               `CASE WHEN ${alias}.${lcProp} IS NOT NULL THEN json_build_object('ref', CONCAT('${table}/', ${alias}.${lcProp}), 'path', CONCAT('${table}/', ${alias}.${lcProp}), 'label', ${joinAlias}.name || '') ELSE NULL  END AS ${prop} `
+            )
+         } else {
+            fields.push(`${alias}.${prop.toLowerCase()} AS ${prop}`)
+         }
+      })
+
+      const queryString = `${query.join(' ').replace('*', fields.join(', '))}`
+
+      Backend.log(`[PGA] SQL ${queryString}`)
+
+      const result = await (await this._connect()).query(queryString)
 
       if (result.rowCount === 0) {
          throw new NotFoundError(`[PGA] No document matches path '${path}'`)
