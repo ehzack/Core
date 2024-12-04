@@ -1,4 +1,4 @@
-import * as statuses from '../statuses'
+import * as statuses from '../common/statuses'
 import { StringProperty } from '../properties/StringProperty'
 import { ObjectProperty } from '../properties/ObjectProperty'
 import { EnumProperty } from '../properties/EnumProperty'

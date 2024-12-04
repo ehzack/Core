@@ -1,7 +1,7 @@
 {
-   "name": "@quatrain/core",
-   "version": "1.1.3",
-   "description": "Core objects for business apps",
+   "name": "@quatrain/worker",
+   "version": "0.1.0",
+   "description": "Worker helpers",
    "main": "lib/index.js",
    "types": "lib/index.d.ts",
    "files": [
@@ -12,8 +12,10 @@
    "license": "MIT",
    "devDependencies": {
       "@tsconfig/recommended": "^1.0.1",
+      "@types/fs-extra": "^11.0.4",
       "@types/jest": "^27.0.3",
-      "@types/node-persist": "^3.1.8",
+      "@types/node": "^22.9.0",
+      "@types/object-hash": "^3.0.6",
       "jest": "^27.4.7",
       "jest-node-exports-resolver": "^1.1.6",
       "trace-unhandled": "^2.0.1",
@@ -22,8 +24,10 @@
       "typescript": "^5.1.5"
    },
    "dependencies": {
-      "@faker-js/faker": "^7.6.0",
-      "node-persist": "^4.0.3"
+      "@quatrain/core": "^1.1.1",
+      "axios": "^1.7.7",
+      "fs-extra": "^11.2.0",
+      "node-fetch": "^3.3.2"
    },
    "scripts": {
       "test": "tsc && jest --verbose",

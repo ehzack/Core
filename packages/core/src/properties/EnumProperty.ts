@@ -5,6 +5,7 @@ export interface EnumPropertyType extends BasePropertyType {
 }
 
 export class EnumProperty extends BaseProperty {
+   static WILDCARD = '*'
    static TYPE = 'enum'
    protected _values: string[] = []
 
@@ -14,7 +15,11 @@ export class EnumProperty extends BaseProperty {
    }
 
    set(value: string, setChanged = true) {
-      if (value !== null && !this._values.includes(value)) {
+      if (
+         value !== null &&
+         !this._values.includes(EnumProperty.WILDCARD) &&
+         !this._values.includes(value)
+      ) {
          throw new Error(`Value '${value}' is not acceptable`)
       }
 

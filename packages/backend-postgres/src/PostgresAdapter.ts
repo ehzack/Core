@@ -269,10 +269,10 @@ export class PostgresAdapter extends AbstractBackendAdapter {
       dataObject: DataObjectClass<any>
    ): Promise<DataObjectClass<any>> {
       if (dataObject.uid === undefined) {
-         throw Error('DataObject has no uid')
+         throw new Error('DataObject has no uid')
       }
 
-      Backend.log(`[PGA] updating document ${dataObject.path}`)
+      Backend.log(`[PGA] Updating document ${dataObject.path}`)
 
       // execute middlewares
       await this.executeMiddlewares(dataObject, BackendAction.UPDATE)
@@ -283,7 +283,12 @@ export class PostgresAdapter extends AbstractBackendAdapter {
          converters: { datetime: (ts: number) => ts / 1000 },
       })
 
-      const pgData = this._prepareData(data, false)
+      if (Object.keys(data).length === 0) {
+         Backend.log('[PGA] Nothing to update')
+         return dataObject
+      }
+
+      const pgData = this._prepareData(data, true)
 
       let query = `UPDATE ${dataObject.uri.collection?.toLowerCase()} SET `
       let i = 1

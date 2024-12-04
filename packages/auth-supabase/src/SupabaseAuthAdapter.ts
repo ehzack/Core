@@ -105,6 +105,7 @@ export class SupabaseAuthAdapter extends AbstractAuthAdapter {
    async delete(user: User): Promise<any> {
       // return await getAuth().deleteUser(user.uid)
    }
+
    async setCustomUserClaims(id: string, claims: any) {
       const { data, error } = await this._client.auth.admin.updateUserById(
          id,
