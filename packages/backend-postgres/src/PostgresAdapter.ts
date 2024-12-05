@@ -17,6 +17,7 @@ import {
    Filter,
    SortAndLimit,
    Sorting,
+   CollectionHierarchy,
 } from '@quatrain/backend'
 import { randomUUID } from 'crypto'
 import { Client } from 'pg'
@@ -44,6 +45,32 @@ export class PostgresAdapter extends AbstractBackendAdapter {
       super(params)
    }
 
+   protected _buildPath(dataObject: DataObjectClass<any>, uid?: string) {
+      const collection = this.getCollection(dataObject)
+      if (!collection) {
+         throw new BackendError(
+            `[PGA] Can't define record path without a collection name`
+         )
+      }
+
+      // define document path
+
+      let path = `${collection}/${uid}`
+      if (
+         this._params.hierarchy &&
+         this._params.hierarchy[collection] ===
+            CollectionHierarchy.SUBCOLLECTION &&
+         dataObject.parentProp &&
+         dataObject.has(dataObject.parentProp) &&
+         dataObject.val(dataObject.parentProp)
+      ) {
+         path = `${dataObject.val(dataObject.parentProp).path}/${path}`
+      }
+
+      Backend.log(`[FSA] Record path is '${path}'`)
+
+      return path
+   }
    protected async _connect(): Promise<Client> {
       if (!this._connection) {
          const {
@@ -72,6 +99,14 @@ export class PostgresAdapter extends AbstractBackendAdapter {
       } else {
          data = Object.values(data)
       }
+
+      // convert reference for database Array only
+      data.forEach((el: any, key: number) => {
+         if (Array.isArray(el) && el.length === 0) {
+            data[key] = JSON.stringify(el)
+         }
+      })
+
       if (
          this._params['useNativeForeignKeys'] &&
          this._params['useNativeForeignKeys'] === true
@@ -121,7 +156,6 @@ export class PostgresAdapter extends AbstractBackendAdapter {
 
             const data = dataObject.toJSON({ withoutURIData: true })
 
-            // console.log('json data', data)
             let query = `INSERT INTO ${dataObject.uri.collection?.toLowerCase()} (id`
             let values = `VALUES ($1`
             Object.keys(data).forEach((key, i) => {
@@ -135,12 +169,13 @@ export class PostgresAdapter extends AbstractBackendAdapter {
 
             const pgData = [uid, ...this._prepareData(data, false)]
 
+            Backend.log(`[PGA] Values ${JSON.stringify(pgData)}`)
+
             await (await this._connect()).query(`${query}${values}`, pgData)
 
-            dataObject.uri.path = `${dataObject.uri.collection}/${uid}`
+            dataObject.uri.path = this._buildPath(dataObject, uid)
             dataObject.uri.label = data && Reflect.get(data, 'name')
             dataObject.isPersisted(true)
-
             Backend.log(
                `[PGA] Saved object "${data.name}" at path ${dataObject.path}`
             )
@@ -156,6 +191,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
 
    async read(dataObject: DataObjectClass<any>): Promise<DataObjectClass<any>> {
       const path = dataObject.path
+      const collection = this.getCollection(dataObject)
 
       const parts = path.split('/')
       if (parts.length < 2 || parts.length % 2 !== 0) {
@@ -166,11 +202,53 @@ export class PostgresAdapter extends AbstractBackendAdapter {
 
       Backend.log(`[PGA] Getting document ${path}`)
 
-      const query = `SELECT * FROM ${parts[0]} WHERE id = '${parts[1]}'`
+      if (!collection) {
+         throw new BackendError(
+            `[PGA] Can't find collection matching object to query`
+         )
+      }
 
-      Backend.log(`[PGA] ${query}`)
+      const alias = 'coll'
+      const query: string[] = []
+      const fields: string[] = [`${alias}.id`]
+      const caseMap = {}
 
-      const result = await (await this._connect()).query(query)
+      query.push(`SELECT * FROM ${collection.toLowerCase()} AS coll`)
+
+      // prepare joins
+      Object.keys(dataObject.properties).forEach((prop) => {
+         const lcProp = `${prop.toLowerCase()}`
+         Reflect.set(caseMap, lcProp, prop)
+         if (
+            dataObject.properties[prop].constructor.name === 'ObjectProperty' &&
+            dataObject.properties[prop].instanceOf
+         ) {
+            Backend.log(
+               `Adding join table for property ${prop} instance of ${dataObject.properties[prop].instanceOf}`
+            )
+
+            const joinAlias = `${prop.toLowerCase()}_table`
+            const table =
+               this._params.mapping &&
+               this._params.mapping[dataObject.properties[prop].instanceOf]
+                  ? this._params.mapping[dataObject.properties[prop].instanceOf]
+                  : dataObject.properties[prop].instanceOf.COLLECTION
+            query.push(
+               `LEFT JOIN ${table} AS ${joinAlias} ON ${joinAlias}.id = coll.${prop.toLowerCase()}`
+            )
+            fields.push(
+               `CASE WHEN ${alias}.${lcProp} IS NOT NULL THEN json_build_object('ref', CONCAT('${table}/', ${alias}.${lcProp}), 'path', CONCAT('${table}/', ${alias}.${lcProp}), 'label', ${joinAlias}.name || '') ELSE NULL  END AS ${prop} `
+            )
+         } else {
+            fields.push(`${alias}.${prop.toLowerCase()} AS ${prop}`)
+         }
+      })
+
+      const queryString = `${query.join(' ').replace('*', fields.join(', '))}`
+
+      Backend.log(`[PGA] SQL ${queryString}`)
+
+      const result = await (await this._connect()).query(queryString)
 
       if (result.rowCount === 0) {
          throw new NotFoundError(`[PGA] No document matches path '${path}'`)
@@ -200,7 +278,6 @@ export class PostgresAdapter extends AbstractBackendAdapter {
       await this.executeMiddlewares(dataObject, BackendAction.UPDATE)
 
       const data = dataObject.toJSON({
-         objectsAsReferences: true,
          withoutURIData: true,
          ignoreUnchanged: true,
          converters: { datetime: (ts: number) => ts / 1000 },
@@ -231,16 +308,18 @@ export class PostgresAdapter extends AbstractBackendAdapter {
       query += ` WHERE id = '${dataObject.uid}'`
 
       Backend.log(`[PGA] ${query}`)
+      Backend.log(`[PGA] Values ${JSON.stringify(pgData)}`)
 
       await (await this._connect()).query(query, pgData)
 
-      dataObject.isPersisted(true)
+      //dataObject.isPersisted(true)
 
       return dataObject
    }
 
    async delete(
-      dataObject: DataObjectClass<any>
+      dataObject: DataObjectClass<any>,
+      hardDelete = false
    ): Promise<DataObjectClass<any>> {
       if (dataObject.uid === undefined) {
          throw new BackendError('Dataobject has no uid')
@@ -253,7 +332,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
 
       await this._connect()
 
-      if (this._params.softDelete === true) {
+      if (!hardDelete) {
          dataObject.set('status', statuses.DELETED)
          let query = `UPDATE ${dataObject.uri.collection} SET status = $1 WHERE id = $2`
          await this._connection?.query(query, [

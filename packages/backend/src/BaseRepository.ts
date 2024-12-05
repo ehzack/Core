@@ -1,4 +1,9 @@
-import { BaseObjectType, GoneError, NotFoundError, statuses } from '@quatrain/core'
+import {
+   BaseObjectType,
+   GoneError,
+   NotFoundError,
+   statuses,
+} from '@quatrain/core'
 import { DataObjectClass } from './types/DataObjectClass'
 import { PersistedDataObject } from './PersistedDataObject'
 import { PersistedBaseObject } from './PersistedBaseObject'
@@ -24,7 +29,6 @@ export class BaseRepository<T extends BaseObjectType> {
       this._model = model
       this.backendAdapter = backendAdapter
    }
-
    protected async getDataObjectFromUid(
       uid: string
    ): Promise<DataObjectClass<any>> {
@@ -63,22 +67,27 @@ export class BaseRepository<T extends BaseObjectType> {
       const savedObj = await this.backendAdapter.create(obj.dataObject, uid)
       return this._model.fromDataObject(savedObj)
    }
+   async getDataObject(key: string) {
+      let dataObject
+
+      if (key.split('/').length <= 2) {
+         const uid =
+            key.indexOf('/') !== -1
+               ? key.substring(key.lastIndexOf('/') + 1)
+               : key
+         dataObject = await this.getDataObjectFromUid(uid)
+      } else {
+         dataObject = await this.getDataObjectFromPath(key)
+      }
+      return dataObject
+   }
 
    async read(key: string) {
       if (!key) {
          throw new Error(`Missing key value in ${this.constructor.name}`)
       }
       try {
-         let dataObject
-         if (key.split('/').length <= 2) {
-            const uid =
-               key.indexOf('/') !== -1
-                  ? key.substring(key.lastIndexOf('/') + 1)
-                  : key
-            dataObject = await this.getDataObjectFromUid(uid)
-         } else {
-            dataObject = await this.getDataObjectFromPath(key)
-         }
+         let dataObject = await this.getDataObject(key)
 
          const response = await this.backendAdapter.read(dataObject)
 
@@ -116,7 +125,7 @@ export class BaseRepository<T extends BaseObjectType> {
     * @param uid string
     */
    async delete(uid: string, hardDelete = false) {
-      const dataObject = await this.getDataObjectFromUid(uid)
+      const dataObject = await this.getDataObject(uid)
       return await this.backendAdapter.delete(dataObject, hardDelete)
    }
 
