@@ -244,7 +244,9 @@ export class PostgresAdapter extends AbstractBackendAdapter {
          }
       })
 
-      const queryString = `${query.join(' ').replace('*', fields.join(', '))}`
+      const queryString = `${query
+         .join(' ')
+         .replace('*', fields.join(', '))} WHERE id = '${parts[1]}'`
 
       Backend.log(`[PGA] SQL ${queryString}`)
 
