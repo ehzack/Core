@@ -79,8 +79,4 @@ export class Backend extends Core {
          throw new Error(`Unknown backend alias: '${alias}'`)
       }
    }
-
-   static log(message: any, src = 'Backend') {
-      super.log(message, src)
-   }
 }

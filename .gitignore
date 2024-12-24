@@ -9,3 +9,5 @@ lib
 !.yarn/versions
 coverage/*
 .DS_Store
+.yarnrc.yml
+.DS_Store

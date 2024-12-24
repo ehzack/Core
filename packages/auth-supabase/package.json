@@ -9,9 +9,6 @@
     "README.md"
   ],
   "author": "Quatrain Développement SAS <developers@quatrain.com>",
-  "peerDependencies": {
-    "@quatrain/core": "^1.0.0-beta2"
-  },
   "dependencies": {
     "@quatrain/auth": "^1.0.0",
     "@supabase/supabase-js": "^2.45.1"

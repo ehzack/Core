@@ -25,7 +25,6 @@
    },
    "dependencies": {
       "@aws-sdk/client-sqs": "^3.637.0",
-      "@quatrain/core": "^1.0.0-beta13",
       "@quatrain/queue": "^0.1.0"
    },
    "scripts": {

@@ -6,10 +6,6 @@ import { spawn } from 'child_process'
 export class Worker extends Core {
    static endpoint: string = ''
 
-   static log(message: any, src = 'Worker') {
-      super.log(message, src)
-   }
-
    /**
     * Execute an external command in a promise
     * @see https://stackoverflow.com/questions/46289682/how-to-wait-for-child-process-spawn-execution-with-async-await

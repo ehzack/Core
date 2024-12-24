@@ -44,8 +44,4 @@ export class Storage extends Core {
          throw new Error(`Unknown storage alias: '${alias}'`)
       }
    }
-
-   static log(message: any, src = 'Storage') {
-      Core.log(message, src)
-   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "@quatrain/backend-postgres",
-  "version": "0.9.9",
+  "version": "1.0.0",
   "license": "MIT",
   "description": "Backend adapter for Postgres",
   "main": "lib/index.js",
@@ -10,11 +10,9 @@
     "README.md"
   ],
   "author": "Quatrain Développement SAS <developers@quatrain.com>",
-  "peerDependencies": {
-    "@quatrain/core": "^1.0.0-beta2"
-  },
   "dependencies": {
-    "@quatrain/backend": "^1.0.0",
+    "@quatrain/backend": "^1.1.2",
+    "@quatrain/core": "workspace:^",
     "pg": "^8.11.3",
     "postgres": "^3.4.4"
   },
