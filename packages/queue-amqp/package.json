@@ -1,6 +1,6 @@
 {
    "name": "@quatrain/queue-amqp",
-   "version": "0.1.0",
+   "version": "1.1.6",
    "description": "Queue adapter for AMQP compatible queue",
    "main": "lib/index.js",
    "types": "lib/index.d.ts",
@@ -25,15 +25,14 @@
    },
    "dependencies": {
       "@cloudamqp/amqp-client": "^3.1.1",
-      "@quatrain/core": "^1.0.0-beta13",
-      "@quatrain/queue": "^0.1.0"
+      "@quatrain/core": "^1.1.6",
+      "@quatrain/queue": "^1.1.6"
    },
    "scripts": {
       "test": "tsc && jest --verbose",
       "build": "tsc",
       "wbuild": "tsc --watch",
-      "patch": "yarn version --patch --no-git-tag-version",
-      "push": "yarn publish --access public",
-      "prepublish": "tsc"
+      "bump-to": "yarn version",
+      "publish": "yarn build && yarn npm publish --access public"
    }
 }

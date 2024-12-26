@@ -1,6 +1,6 @@
 {
   "name": "@quatrain/backend-postgres",
-  "version": "1.0.0",
+  "version": "1.1.6",
   "license": "MIT",
   "description": "Backend adapter for Postgres",
   "main": "lib/index.js",
@@ -11,7 +11,7 @@
   ],
   "author": "Quatrain Développement SAS <developers@quatrain.com>",
   "dependencies": {
-    "@quatrain/backend": "^1.1.2",
+    "@quatrain/backend": "^1.1.6",
     "@quatrain/core": "workspace:^",
     "pg": "^8.11.3",
     "postgres": "^3.4.4"
@@ -35,7 +35,7 @@
     "test-ci": "jest --runInBand",
     "build": "tsc",
     "wbuild": "tsc --watch",
-    "prepush": "tsc",
-    "push": "yarn publish --access public"
+    "bump-to": "yarn version",
+    "publish": "yarn build && yarn npm publish --access public"
   }
 }
