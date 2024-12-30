@@ -82,4 +82,8 @@ export class Core {
    static error(message: any): void {
       Core.logger.error(Core.formatLogMessage(message))
    }
+
+   static trace(message: any): void {
+      Core.logger.trace(Core.formatLogMessage(message))
+   }
 }

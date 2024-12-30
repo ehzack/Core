@@ -101,11 +101,11 @@ export class PostgresAdapter extends AbstractBackendAdapter {
       }
 
       // convert reference for database Array only
-      data.forEach((el: any, key: number) => {
-         if (Array.isArray(el) && el.length === 0) {
-            data[key] = JSON.stringify(el)
-         }
-      })
+      // data.forEach((el: any, key: number) => {
+      //    if (Array.isArray(el) && el.length === 0) {
+      //       data[key] = JSON.stringify(el)
+      //    }
+      // })
 
       if (
          this._params['useNativeForeignKeys'] &&
@@ -176,7 +176,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
             dataObject.uri.path = this._buildPath(dataObject, uid)
             dataObject.uri.label = data && Reflect.get(data, 'name')
             dataObject.isPersisted(true)
-            Backend.log(
+            Backend.info(
                `[PGA] Saved object "${data.name}" at path ${dataObject.path}`
             )
 
@@ -274,7 +274,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
          throw new Error('DataObject has no uid')
       }
 
-      Backend.log(`[PGA] Updating document ${dataObject.path}`)
+      Backend.info(`[PGA] Updating document ${dataObject.path}`)
 
       // execute middlewares
       await this.executeMiddlewares(dataObject, BackendAction.UPDATE)
@@ -286,7 +286,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
       })
 
       if (Object.keys(data).length === 0) {
-         Backend.log('[PGA] Nothing to update')
+         Backend.warn('[PGA] Nothing to update')
          return dataObject
       }
 
