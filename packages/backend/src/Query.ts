@@ -31,6 +31,7 @@ export type QueryResultType<T> = {
 export class Query<T extends typeof PersistedBaseObject> {
    protected _obj: T
    protected _parent: T | undefined
+
    filters: Filter[]
    sortings: Sorting[]
    limits: Limits
@@ -61,6 +62,13 @@ export class Query<T extends typeof PersistedBaseObject> {
       this._parent = parent
    }
 
+   /**
+    * Declare query parent record
+    * This may be need in some NoSQL backend to query subcollections
+    */
+   setParentName(parent: string) {
+      this._obj.PARENT_PROP = parent
+   }
    where(
       param: Filter | string | any,
       value: any = null,

@@ -3,6 +3,7 @@ import {
    NotFoundError,
    statuses,
    StringProperty,
+   ObjectProperty,
 } from '@quatrain/core'
 import {
    DataObjectClass,
@@ -43,6 +44,25 @@ export class PostgresAdapter extends AbstractBackendAdapter {
 
    constructor(params: BackendParameters = {}) {
       super(params)
+   }
+
+   protected _safeRealValue(value: any, property: ObjectProperty) {
+      const collectionName = property.instanceOf.COLLECTION
+      if (value instanceof ObjectUri) {
+         return value.path
+      } else if (value && typeof value === 'object' && value.ref) {
+         return value.ref.split('/')[1]
+      } else if (typeof value === 'string' && value.includes(collectionName)) {
+         return value.replace(`${collectionName}/`, '')
+      } else {
+         return (
+            (value &&
+               value.uri &&
+               value.uri.path &&
+               value.uri.path.split('/')[1]) ||
+            value
+         )
+      }
    }
 
    protected _buildPath(dataObject: DataObjectClass<any>, uid?: string) {
@@ -228,6 +248,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
             )
 
             const joinAlias = `${prop.toLowerCase()}_table`
+
             const table =
                this._params.mapping &&
                this._params.mapping[dataObject.properties[prop].instanceOf]
@@ -428,6 +449,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
                )
 
                const joinAlias = `${prop.toLowerCase()}_table`
+
                const table =
                   this._params.mapping &&
                   this._params.mapping[dataObject.properties[prop].instanceOf]
@@ -435,6 +457,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
                           dataObject.properties[prop].instanceOf
                        ]
                      : dataObject.properties[prop].instanceOf.COLLECTION
+
                query.push(
                   `LEFT JOIN ${table} AS ${joinAlias} ON ${joinAlias}.id = coll.${prop.toLowerCase()}`
                )
@@ -496,6 +519,21 @@ export class PostgresAdapter extends AbstractBackendAdapter {
                         filter.value.ref
                      ) {
                         realValue = filter.value.ref.split('/')[1]
+                     } else if (typeof filter.value === 'string') {
+                        const collectionName =
+                           this._params.mapping &&
+                           this._params.mapping[
+                              dataObject.properties[filter.prop].instanceOf
+                           ]
+                              ? this._params.mapping[
+                                   dataObject.properties[filter.prop].instanceOf
+                                ]
+                              : dataObject.properties[filter.prop].instanceOf
+                                   .COLLECTION
+                        realValue = filter.value.replace(
+                           `${collectionName}/`,
+                           ''
+                        )
                      } else {
                         realValue =
                            (filter.value &&
