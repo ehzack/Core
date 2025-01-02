@@ -63,8 +63,9 @@ export class Query<T extends typeof PersistedBaseObject> {
    }
 
    /**
-    * Declare query parent record
-    * This may be need in some NoSQL backend to query subcollections
+    * Updates the parent property of the current object.
+    * This method is useful for SQL backends where a model may have two parent records
+    * and requires dynamically setting the name of one of them.
     */
    setParentName(parent: string) {
       this._obj.PARENT_PROP = parent
