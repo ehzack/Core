@@ -127,8 +127,8 @@ export class FirebaseStorageAdapter extends AbstractStorageAdapter {
       })
 
       return {
-         href: url,
-         type: 'PUT',
+         url,
+         method: 'PUT',
          accept: file.contentType || 'application/octet-stream',
          expiresIn,
       }
