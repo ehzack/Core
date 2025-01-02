@@ -1,13 +1,14 @@
 import { DataObject } from './components/DataObject'
 import { User } from './components/User'
 import { DataObjectClass } from './components/types/DataObjectClass'
+import logger from 'loglevel'
 
 export class Core {
    static storage = require('node-persist')
    static storagePrefix = 'core'
    static userClass = User
    static classRegistry: { [key: string]: any } = {}
-   static logger = console
+   static logger = logger
 
    // How timestamp are formatted
    static timestamp = () => new Date().toISOString()
@@ -52,21 +53,37 @@ export class Core {
       return DataObject.prototype
    }
 
+   protected static formatLogMessage = (message: any) =>
+      `${Core.timestamp()} - [${this.name}] ${
+         typeof message === 'string' ? message : JSON.stringify(message)
+      }`
+
    /**
     * Log message using defined logger
-    * This is currently just a stub that will be implemented from config in the future
     * @param message string | object
     * @param level string
     */
-   static log(
-      message: any,
-      src: string = 'Core',
-      level: string = 'NOTICE'
-   ): void {
-      Core.logger.log(
-         `${Date.now()} - [${src}] ${
-            typeof message === 'string' ? message : JSON.stringify(message)
-         }`
-      )
+   static log(message: any, level: any = logger.levels.WARN): void {
+      Core.logger.log(Core.formatLogMessage(message))
+   }
+
+   static debug(message: any): void {
+      Core.logger.debug(Core.formatLogMessage(message))
+   }
+
+   static warn(message: any): void {
+      Core.logger.warn(Core.formatLogMessage(message))
+   }
+
+   static info(message: any): void {
+      Core.logger.info(Core.formatLogMessage(message))
+   }
+
+   static error(message: any): void {
+      Core.logger.error(Core.formatLogMessage(message))
+   }
+
+   static trace(message: any): void {
+      Core.logger.trace(Core.formatLogMessage(message))
    }
 }

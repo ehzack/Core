@@ -68,6 +68,11 @@ export class BaseRepository<T extends BaseObjectType> {
       return this._model.fromDataObject(savedObj)
    }
    async getDataObject(key: string) {
+      if (!key) {
+         throw new Error(
+            `Missing key value for getDataObject() in ${this.constructor.name}`
+         )
+      }
       let dataObject
 
       if (key.split('/').length <= 2) {
@@ -84,7 +89,9 @@ export class BaseRepository<T extends BaseObjectType> {
 
    async read(key: string) {
       if (!key) {
-         throw new Error(`Missing key value in ${this.constructor.name}`)
+         throw new Error(
+            `Missing key value for read() in ${this.constructor.name}`
+         )
       }
       try {
          let dataObject = await this.getDataObject(key)

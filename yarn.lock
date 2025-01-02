@@ -2533,7 +2533,7 @@ __metadata:
   resolution: "@quatrain/auth-firebase@workspace:packages/auth-firebase"
   dependencies:
     "@faker-js/faker": "npm:^7.6.0"
-    "@quatrain/auth": "workspace:^"
+    "@quatrain/auth": "npm:^1.1.7"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/jest": "npm:^27.0.3"
     "@types/node": "npm:^22.10.1"
@@ -2546,7 +2546,7 @@ __metadata:
     ts-node: "npm:^10.9.1"
     typescript: "npm:^5.1.5"
   peerDependencies:
-    "@quatrain/core": ^1.0.0-beta2
+    "@quatrain/core": ^1.1.7
   languageName: unknown
   linkType: soft
 
@@ -2554,7 +2554,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@quatrain/auth-supabase@workspace:packages/auth-supabase"
   dependencies:
-    "@quatrain/auth": "npm:^1.0.0"
+    "@quatrain/auth": "npm:^1.1.7"
     "@supabase/supabase-js": "npm:^2.45.1"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/jest": "npm:^27.0.3"
@@ -2566,17 +2566,14 @@ __metadata:
     ts-jest: "npm:^27.1.2"
     ts-node: "npm:^10.9.1"
     typescript: "npm:^5.1.5"
-  peerDependencies:
-    "@quatrain/core": ^1.0.0-beta2
   languageName: unknown
   linkType: soft
 
-"@quatrain/auth@npm:^1.0.0, @quatrain/auth@workspace:^, @quatrain/auth@workspace:packages/auth":
+"@quatrain/auth@npm:^1.1.7, @quatrain/auth@workspace:packages/auth":
   version: 0.0.0-use.local
   resolution: "@quatrain/auth@workspace:packages/auth"
   dependencies:
-    "@faker-js/faker": "npm:^7.6.0"
-    "@firebase/rules-unit-testing": "npm:^2.0.7"
+    "@quatrain/core": "npm:^1.1.7"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/jest": "npm:^27.0.3"
     "@types/node": "npm:^22.10.1"
@@ -2587,8 +2584,6 @@ __metadata:
     ts-jest: "npm:^27.1.2"
     ts-node: "npm:^10.9.1"
     typescript: "npm:^5.1.5"
-  peerDependencies:
-    "@quatrain/core": ^1.0.0-beta2
   languageName: unknown
   linkType: soft
 
@@ -2610,7 +2605,7 @@ __metadata:
     ts-node: "npm:^10.9.1"
     typescript: "npm:^5.1.5"
   peerDependencies:
-    "@quatrain/core": ^1.0.0-beta2
+    "@quatrain/core": ^1.1.7
   languageName: unknown
   linkType: soft
 
@@ -2619,7 +2614,8 @@ __metadata:
   resolution: "@quatrain/backend-postgres@workspace:packages/backend-postgres"
   dependencies:
     "@faker-js/faker": "npm:^7.6.0"
-    "@quatrain/backend": "npm:^1.0.0"
+    "@quatrain/backend": "npm:^1.1.7"
+    "@quatrain/core": "workspace:^"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/jest": "npm:^27.0.3"
     "@types/node": "npm:^22.10.1"
@@ -2633,17 +2629,14 @@ __metadata:
     ts-jest: "npm:^27.1.2"
     ts-node: "npm:^10.9.1"
     typescript: "npm:^5.1.5"
-  peerDependencies:
-    "@quatrain/core": ^1.0.0-beta2
   languageName: unknown
   linkType: soft
 
-"@quatrain/backend@npm:^1.0.0, @quatrain/backend@npm:^1.0.1, @quatrain/backend@workspace:packages/backend":
+"@quatrain/backend@npm:^1.1.7, @quatrain/backend@workspace:packages/backend":
   version: 0.0.0-use.local
   resolution: "@quatrain/backend@workspace:packages/backend"
   dependencies:
-    "@faker-js/faker": "npm:^7.6.0"
-    "@quatrain/core": "npm:^1.0.0"
+    "@quatrain/core": "npm:^1.1.7"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/jest": "npm:^27.0.3"
     "@types/node": "npm:^22.10.1"
@@ -2672,7 +2665,7 @@ __metadata:
     ts-node: "npm:^10.9.1"
     typescript: "npm:^5.1.5"
   peerDependencies:
-    "@quatrain/core": ^1.0.0-beta2
+    "@quatrain/core": ^1.1.7
   languageName: unknown
   linkType: soft
 
@@ -2680,9 +2673,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@quatrain/cloudwrapper-supabase@workspace:packages/cloudwrapper-supabase"
   dependencies:
-    "@quatrain/backend": "npm:^1.0.1"
-    "@quatrain/cloudwrapper": "npm:^1.0.0"
-    "@quatrain/core": "npm:^1.0.0-beta16"
+    "@quatrain/backend": "npm:^1.1.7"
+    "@quatrain/cloudwrapper": "npm:^1.1.7"
+    "@quatrain/core": "npm:^1.1.7"
     "@supabase/supabase-js": "npm:^2.45.1"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/jest": "npm:^27.0.3"
@@ -2695,11 +2688,11 @@ __metadata:
     ts-node: "npm:^10.9.1"
     typescript: "npm:^5.1.5"
   peerDependencies:
-    "@quatrain/core": ^1.0.0-beta2
+    "@quatrain/core": ^1.1.7
   languageName: unknown
   linkType: soft
 
-"@quatrain/cloudwrapper@npm:^1.0.0, @quatrain/cloudwrapper@workspace:packages/cloudwrapper":
+"@quatrain/cloudwrapper@npm:^1.1.7, @quatrain/cloudwrapper@workspace:packages/cloudwrapper":
   version: 0.0.0-use.local
   resolution: "@quatrain/cloudwrapper@workspace:packages/cloudwrapper"
   dependencies:
@@ -2714,12 +2707,12 @@ __metadata:
     ts-node: "npm:^10.9.1"
     typescript: "npm:^5.1.5"
   peerDependencies:
-    "@quatrain/backend": ^1.0.1
-    "@quatrain/core": ^1.0.0-beta2
+    "@quatrain/backend": ^1.1.7
+    "@quatrain/core": ^1.1.7
   languageName: unknown
   linkType: soft
 
-"@quatrain/core@npm:^1.0.0, @quatrain/core@npm:^1.0.0-beta13, @quatrain/core@npm:^1.0.0-beta16, @quatrain/core@npm:^1.1.1, @quatrain/core@workspace:packages/core":
+"@quatrain/core@npm:^1.1.7, @quatrain/core@workspace:^, @quatrain/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@quatrain/core@workspace:packages/core"
   dependencies:
@@ -2730,6 +2723,7 @@ __metadata:
     "@types/node-persist": "npm:^3.1.8"
     jest: "npm:^27.4.7"
     jest-node-exports-resolver: "npm:^1.1.6"
+    loglevel: "npm:^1.9.2"
     node-persist: "npm:^4.0.3"
     trace-unhandled: "npm:^2.0.1"
     ts-jest: "npm:^27.1.2"
@@ -2743,8 +2737,8 @@ __metadata:
   resolution: "@quatrain/queue-amqp@workspace:packages/queue-amqp"
   dependencies:
     "@cloudamqp/amqp-client": "npm:^3.1.1"
-    "@quatrain/core": "npm:^1.0.0-beta13"
-    "@quatrain/queue": "npm:^0.1.0"
+    "@quatrain/core": "npm:^1.1.7"
+    "@quatrain/queue": "npm:^1.1.7"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/fs-extra": "npm:^11.0.4"
     "@types/jest": "npm:^27.0.3"
@@ -2764,8 +2758,7 @@ __metadata:
   resolution: "@quatrain/queue-aws@workspace:packages/queue-aws"
   dependencies:
     "@aws-sdk/client-sqs": "npm:^3.637.0"
-    "@quatrain/core": "npm:^1.0.0-beta13"
-    "@quatrain/queue": "npm:^0.1.0"
+    "@quatrain/queue": "npm:^1.1.7"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/fs-extra": "npm:^11.0.4"
     "@types/jest": "npm:^27.0.3"
@@ -2785,8 +2778,8 @@ __metadata:
   resolution: "@quatrain/queue-gcp@workspace:packages/queue-gcp"
   dependencies:
     "@google-cloud/pubsub": "npm:^4.7.0"
-    "@quatrain/core": "npm:^1.0.0-beta13"
-    "@quatrain/queue": "npm:^0.1.0"
+    "@quatrain/core": "npm:^1.1.7"
+    "@quatrain/queue": "npm:^1.1.7"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/fs-extra": "npm:^11.0.4"
     "@types/jest": "npm:^27.0.3"
@@ -2801,11 +2794,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@quatrain/queue@npm:^0.1.0, @quatrain/queue@workspace:packages/queue":
+"@quatrain/queue@npm:^1.1.7, @quatrain/queue@workspace:packages/queue":
   version: 0.0.0-use.local
   resolution: "@quatrain/queue@workspace:packages/queue"
   dependencies:
-    "@quatrain/core": "npm:^1.0.0-beta13"
+    "@quatrain/core": "npm:^1.1.7"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/fs-extra": "npm:^11.0.4"
     "@types/jest": "npm:^27.0.3"
@@ -2825,8 +2818,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@quatrain/storage-firebase@workspace:packages/storage-firebase"
   dependencies:
-    "@quatrain/core": "npm:^1.0.0-beta13"
-    "@quatrain/storage": "npm:^0.1.1"
+    "@quatrain/core": "npm:^1.1.7"
+    "@quatrain/storage": "npm:^1.1.7"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/fs-extra": "npm:^11.0.4"
     "@types/jest": "npm:^27.0.3"
@@ -2849,7 +2842,7 @@ __metadata:
   dependencies:
     "@aws-sdk/client-s3": "npm:^3.337.0"
     "@aws-sdk/s3-request-presigner": "npm:^3.342.0"
-    "@quatrain/storage": "npm:^0.1.1"
+    "@quatrain/storage": "npm:^1.1.7"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/jest": "npm:^27.0.3"
     "@types/node": "npm:^22.10.1"
@@ -2867,8 +2860,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@quatrain/storage-supabase@workspace:packages/storage-supabase"
   dependencies:
-    "@quatrain/core": "npm:^1.0.0-beta13"
-    "@quatrain/storage": "npm:^0.1.0"
+    "@quatrain/core": "npm:^1.1.7"
+    "@quatrain/storage": "npm:^1.1.7"
     "@supabase/supabase-js": "npm:^2.45.1"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/jest": "npm:^27.0.3"
@@ -2882,11 +2875,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@quatrain/storage@npm:^0.1.0, @quatrain/storage@npm:^0.1.1, @quatrain/storage@workspace:packages/storage":
+"@quatrain/storage@npm:^1.1.7, @quatrain/storage@workspace:packages/storage":
   version: 0.0.0-use.local
   resolution: "@quatrain/storage@workspace:packages/storage"
   dependencies:
-    "@quatrain/core": "npm:^1.0.0-beta13"
+    "@quatrain/core": "npm:^1.1.7"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/fs-extra": "npm:^11.0.4"
     "@types/jest": "npm:^27.0.3"
@@ -2906,7 +2899,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@quatrain/worker@workspace:packages/worker"
   dependencies:
-    "@quatrain/core": "npm:^1.1.1"
+    "@quatrain/core": "npm:^1.1.7"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/fs-extra": "npm:^11.0.4"
     "@types/jest": "npm:^27.0.3"
@@ -2917,6 +2910,7 @@ __metadata:
     jest: "npm:^27.4.7"
     jest-node-exports-resolver: "npm:^1.1.6"
     node-fetch: "npm:^3.3.2"
+    node-fetch-native: "npm:^1.6.4"
     trace-unhandled: "npm:^2.0.1"
     ts-jest: "npm:^27.1.2"
     ts-node: "npm:^10.4.0"
@@ -7255,6 +7249,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"loglevel@npm:^1.9.2":
+  version: 1.9.2
+  resolution: "loglevel@npm:1.9.2"
+  checksum: 10c0/1e317fa4648fe0b4a4cffef6de037340592cee8547b07d4ce97a487abe9153e704b98451100c799b032c72bb89c9366d71c9fb8192ada8703269263ae77acdc7
+  languageName: node
+  linkType: hard
+
 "long@npm:^5.0.0":
   version: 5.2.3
   resolution: "long@npm:5.2.3"
@@ -7597,6 +7598,13 @@ __metadata:
   version: 1.0.0
   resolution: "node-domexception@npm:1.0.0"
   checksum: 10c0/5e5d63cda29856402df9472335af4bb13875e1927ad3be861dc5ebde38917aecbf9ae337923777af52a48c426b70148815e890a5d72760f1b4d758cc671b1a2b
+  languageName: node
+  linkType: hard
+
+"node-fetch-native@npm:^1.6.4":
+  version: 1.6.4
+  resolution: "node-fetch-native@npm:1.6.4"
+  checksum: 10c0/78334dc6def5d1d95cfe87b33ac76c4833592c5eb84779ad2b0c23c689f9dd5d1cfc827035ada72d6b8b218f717798968c5a99aeff0a1a8bf06657e80592f9c3
   languageName: node
   linkType: hard
 

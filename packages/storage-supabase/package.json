@@ -1,6 +1,6 @@
 {
    "name": "@quatrain/storage-supabase",
-   "version": "0.1.0",
+   "version": "1.1.7",
    "description": "Storage adapter for Supabase Storage",
    "main": "lib/index.js",
    "types": "lib/index.d.ts",
@@ -22,16 +22,16 @@
       "typescript": "^5.1.5"
    },
    "dependencies": {
-      "@quatrain/core": "^1.0.0-beta13",
-      "@quatrain/storage": "^0.1.0",
+      "@quatrain/core": "^1.1.7",
+      "@quatrain/storage": "^1.1.7",
       "@supabase/supabase-js": "^2.45.1"
    },
    "scripts": {
       "test": "tsc && jest --verbose",
       "build": "tsc",
       "wbuild": "tsc --watch",
+      "bump-to": "yarn version",
       "patch": "yarn version --patch --no-git-tag-version",
-      "push": "yarn publish --access public",
-      "prepublish": "tsc"
+      "publish": "yarn build && yarn npm publish --access public"
    }
 }

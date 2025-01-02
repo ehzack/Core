@@ -121,11 +121,11 @@ export class PostgresAdapter extends AbstractBackendAdapter {
       }
 
       // convert reference for database Array only
-      data.forEach((el: any, key: number) => {
-         if (Array.isArray(el) && el.length === 0) {
-            data[key] = JSON.stringify(el)
-         }
-      })
+      // data.forEach((el: any, key: number) => {
+      //    if (Array.isArray(el) && el.length === 0) {
+      //       data[key] = JSON.stringify(el)
+      //    }
+      // })
 
       if (
          this._params['useNativeForeignKeys'] &&
@@ -185,18 +185,18 @@ export class PostgresAdapter extends AbstractBackendAdapter {
             query += `) `
             values += `)`
 
-            Backend.log(`[PGA] ${query}${values}`)
+            Backend.debug(`[PGA] ${query}${values}`)
 
             const pgData = [uid, ...this._prepareData(data, false)]
 
-            Backend.log(`[PGA] Values ${JSON.stringify(pgData)}`)
+            Backend.debug(`[PGA] Values ${JSON.stringify(pgData)}`)
 
             await (await this._connect()).query(`${query}${values}`, pgData)
 
             dataObject.uri.path = this._buildPath(dataObject, uid)
             dataObject.uri.label = data && Reflect.get(data, 'name')
             dataObject.isPersisted(true)
-            Backend.log(
+            Backend.info(
                `[PGA] Saved object "${data.name}" at path ${dataObject.path}`
             )
 
@@ -243,7 +243,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
             dataObject.properties[prop].constructor.name === 'ObjectProperty' &&
             dataObject.properties[prop].instanceOf
          ) {
-            Backend.log(
+            Backend.debug(
                `Adding join table for property ${prop} instance of ${dataObject.properties[prop].instanceOf}`
             )
 
@@ -269,7 +269,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
          .join(' ')
          .replace('*', fields.join(', '))} WHERE coll.id = '${parts[1]}'`
 
-      Backend.log(`[PGA] SQL ${queryString}`)
+      Backend.debug(`[PGA] SQL ${queryString}`)
 
       const result = await (await this._connect()).query(queryString)
 
@@ -295,7 +295,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
          throw new Error('DataObject has no uid')
       }
 
-      Backend.log(`[PGA] Updating document ${dataObject.path}`)
+      Backend.info(`[PGA] Updating document ${dataObject.path}`)
 
       // execute middlewares
       await this.executeMiddlewares(dataObject, BackendAction.UPDATE)
@@ -307,7 +307,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
       })
 
       if (Object.keys(data).length === 0) {
-         Backend.log('[PGA] Nothing to update')
+         Backend.warn('[PGA] Nothing to update')
          return dataObject
       }
 
@@ -330,12 +330,10 @@ export class PostgresAdapter extends AbstractBackendAdapter {
 
       query += ` WHERE id = '${dataObject.uid}'`
 
-      Backend.log(`[PGA] ${query}`)
-      Backend.log(`[PGA] Values ${JSON.stringify(pgData)}`)
+      Backend.debug(`[PGA] ${query}`)
+      Backend.debug(`[PGA] Values ${JSON.stringify(pgData)}`)
 
       await (await this._connect()).query(query, pgData)
-
-      //dataObject.isPersisted(true)
 
       return dataObject
    }
@@ -425,7 +423,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
             )
          }
 
-         Backend.log(`[PGA] Preparing query on '${collection}'`)
+         Backend.debug(`[PGA] Preparing query on '${collection}'`)
 
          let hasFilters = false
          const alias = 'coll'
@@ -444,7 +442,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
                   'ObjectProperty' &&
                dataObject.properties[prop].instanceOf
             ) {
-               Backend.log(
+               Backend.debug(
                   `Adding join table for property ${prop} instance of ${dataObject.properties[prop].instanceOf}`
                )
 
@@ -570,20 +568,20 @@ export class PostgresAdapter extends AbstractBackendAdapter {
                   )
                }
 
-               Backend.log(
+               Backend.debug(
                   `[PGA] Filter added: ${realProp} ${realOperator} ${realValue}`
                )
             })
          }
 
-         Backend.log(`[PGA] SQL ${query.join(' ')}`)
+         Backend.debug(`[PGA] SQL ${query.join(' ')}`)
 
          const connection = await this._connect()
          const countSnapshot = await connection.query(
             `${query.join(' ').replace('*', 'COUNT(*) as total')}`
          )
 
-         Backend.log(`[PGA] Counting records ${countSnapshot.rows[0].total}`)
+         Backend.info(`[PGA] Counting records ${countSnapshot.rows[0].total}`)
 
          let sortField: string[] = []
          if (pagination) {
@@ -602,7 +600,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
          }
 
          const literal = `${query.join(' ').replace('*', fields.join(', '))}`
-         Backend.log(`[PGA] Full SQL ${literal}`)
+         Backend.debug(`[PGA] Full SQL ${literal}`)
 
          const result = await connection.query(`${literal}`)
 
@@ -647,7 +645,6 @@ export class PostgresAdapter extends AbstractBackendAdapter {
                newDataObjectUri,
                newDataObject.val('name')
             )
-            // this.executeMiddlewares(newDataObject, BackendAction.READ)
 
             items.push(newDataObject)
          }

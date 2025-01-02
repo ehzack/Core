@@ -38,8 +38,4 @@ export class Queue extends Core {
          throw new Error(`Unknown queue alias: '${alias}'`)
       }
    }
-
-   static log(message: any, src = 'Message Queue') {
-      super.log(message, src)
-   }
 }

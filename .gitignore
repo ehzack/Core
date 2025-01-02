@@ -1,3 +1,4 @@
+.yarnrc.yml
 node_modules
 lib
 .pnp.*
@@ -9,3 +10,4 @@ lib
 !.yarn/versions
 coverage/*
 .DS_Store
+**/.DS_Store

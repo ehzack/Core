@@ -107,11 +107,12 @@ export class SupabaseAuthAdapter extends AbstractAuthAdapter {
    }
 
    async setCustomUserClaims(id: string, claims: any) {
-      const { data, error } = await this._client.auth.admin.updateUserById(
-         id,
-         claims
-      )
+      Auth.log(`Updating user ${id} with claims ${JSON.stringify(claims)}`)
+      const { data, error } = await this._client.auth.admin.updateUserById(id, {
+         user_metadata: claims,
+      })
 
+      console.log(data, error)
       if (error) {
          throw new Error(error)
       } else {

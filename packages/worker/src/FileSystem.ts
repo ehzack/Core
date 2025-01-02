@@ -1,11 +1,10 @@
 import fs from 'fs'
 import path from 'path'
 import axios from 'axios'
-import fetch, { Response } from "node-fetch"
 import { Worker } from './Worker'
+import fetch from 'node-fetch-native'
 
 export class FileSystem {
-
    static prepare(folder: string) {
       Worker.log(`Setting up process folder ${folder}`)
       this.removeFolder(folder)
@@ -19,11 +18,14 @@ export class FileSystem {
       fs.mkdirSync(folder)
    }
 
-   static removeFolder(folder: string) {
+   static removeFolder(folder: string, recursively = true) {
       if (fs.existsSync(folder)) {
          fs.readdirSync(folder).forEach((element) => {
             const item = path.join(folder, element)
             if (fs.lstatSync(item).isDirectory()) {
+               if (recursively !== true) {
+                  throw new Error(`Folder contains folder`)
+               }
                this.removeFolder(item)
             } else {
                fs.unlinkSync(item)
@@ -57,64 +59,91 @@ export class FileSystem {
       return name.replace(/\s+/g, '_')
    }
 
+   // static uploadFile18(
+   //    filename: string,
+   //    destination: string,
+   //    mime: string = 'application/octet-stream'
+   // ) {
+   //    return new Promise((resolve, reject) => {
+   //       try {
+   //          const { size } = fs.statSync(filename)
+   //          const bufferContent = fs.readFileSync(filename)
+   //          fetch(destination, {
+   //             method: 'POST',
+   //             mode: 'cors',
+   //             headers: {
+   //                'Content-Type': mime,
+   //                'Content-length': String(size),
+   //             },
+   //             body: bufferContent,
+   //          })
+   //             .then(() => resolve(undefined))
+   //             .catch((err) => reject(err))
+   //       } catch (err: any) {
+   //          reject(err as Error)
+   //       }
+   //    })
+   // }
+
    static uploadFile(
       filename: string,
       destination: string,
-      mime: string = 'application/octet-stream'
+      mime = 'video/mp4'
    ) {
       return new Promise((resolve, reject) => {
          try {
-            // init upload, Google sends a new url
+            // // init upload, Google sends a new url
+            // fetch(destination, {
+            //    method: 'POST',
+            //    mode: 'cors',
+            //    headers: {
+            //       'Content-Type': mime,
+            //       'X-Goog-Resumable': 'start',
+            //    },
+            // })
+            //    .then((res: any) => {
+            //       if (res.ok) {
+            let done = 0 // total bytes uploaded
+            let prev = 0 // latest value of done stored when % done was displayed
+            const { size } = fs.statSync(filename)
+            const readStream = fs.createReadStream(filename)
+
+            const sizeMB = (size / (1024 * 1024)).toFixed(2)
+
+            readStream.on('data', (data) => {
+               done += data.length
+               if (done - prev >= size / 20) {
+                  // only display message when 5% more has been uploaded
+                  Worker.info(
+                     `${((done / size) * 100).toFixed(2)}% - ${(
+                        done /
+                        (1024 * 1024)
+                     ).toFixed(2)}MB / ${sizeMB}MB`
+                  )
+                  prev = done
+               }
+            })
+
+            Worker.info(`Uploading file ${filename} with size ${size} bytes`)
             fetch(destination, {
-               method: 'POST',
-               //mode: 'cors',
+               //res.headers.get('location'), {
+               method: 'PUT',
+               mode: 'cors',
+               duplex: 'half',
+               body: readStream,
                headers: {
                   'Content-Type': mime,
-                  'X-Goog-Resumable': 'start',
+                  'Content-length': String(size),
                },
             })
-               .then((res: Response) => {
-                  if (res.ok) {
-                     let done = 0 // total bytes uploaded
-                     let prev = 0 // latest value of done stored when % done was displayed
-                     const { size } = fs.statSync(filename)
-                     const readStream = fs.createReadStream(filename)
-                     const sizeMB = size / (1024 * 1024)
-
-                     readStream.on('data', (data) => {
-                        done += data.length
-                        if (done - prev >= size / 20) {
-                           // only display message when 5% more has been uploaded
-                           Worker.log(
-                              `${(done / size) * 100}% - ${
-                                 done / (1024 * 1024)
-                              }MB / ${sizeMB}MB`
-                           )
-                           prev = done
-                        }
-                     })
-
-                     Worker.log(
-                        `Uploading file ${filename} with size ${size} bytes`
-                     )
-                     const url = res.headers.get('location') || ''
-                     fetch(url, {
-                        method: 'PUT',
-                        //mode: 'cors',
-                        body: readStream,
-                        headers: {
-                           'Content-Type': mime,
-                           'Content-length': String(size),
-                        },
-                     })
-                        .then(() => resolve(undefined))
-                        .catch((err) => reject(err))
-                  } else {
-                     Worker.log(res)
-                     reject(new Error('Unable to init upload'))
-                  }
-               })
-               .catch((err) => reject(err))
+               .then((res) => resolve(res))
+               .catch((err: any) => reject(err))
+            // } else {
+            //    Worker.error(res)
+            //    reject(new Error('Unable to init upload'))
+            // }
+            //})
+            // .catch((err: any) => reject(err))
          } catch (err) {
             reject(err)
          }

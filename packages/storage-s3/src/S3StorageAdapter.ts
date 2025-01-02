@@ -34,7 +34,7 @@ export class S3StorageAdapter extends AbstractStorageAdapter {
       }
 
       this._client = new S3Client(config)
-      Storage.log(
+      Storage.info(
          `AWS Storage Adapter initialized in ${this._params.config.region}`
       )
    }
@@ -60,7 +60,7 @@ export class S3StorageAdapter extends AbstractStorageAdapter {
          Body: await this.streamToBuffer(stream),
          ContentType: file.contentType,
       }
-      Storage.log(`Uploading ${file.ref} to ${file.bucket}`)
+      Storage.debug(`Uploading ${file.ref} to ${file.bucket}`)
 
       const command = new PutObjectCommand(input)
       await this._client.send(command)
@@ -69,7 +69,7 @@ export class S3StorageAdapter extends AbstractStorageAdapter {
    }
 
    async copy(file: FileType, destFile: FileType) {
-      Storage.log(`Copying file ${file.ref} to ${destFile.ref}`)
+      Storage.debug(`Copying file ${file.ref} to ${destFile.ref}`)
       const command = new CopyObjectCommand({
          CopySource: encodeURI(`${file.bucket}/${file.ref}`),
          Bucket: file.bucket,
@@ -97,6 +97,7 @@ export class S3StorageAdapter extends AbstractStorageAdapter {
          Bucket: file.bucket,
          Key: encodeURI(file.ref),
       })
+      Storage.debug(`Creating public url for ${file.ref}`)
       const url = await getSignedUrl(this._client, command, { expiresIn })
       return { url, expiresIn }
    }
@@ -109,13 +110,13 @@ export class S3StorageAdapter extends AbstractStorageAdapter {
       })
 
       await this._client?.send(command)
-      Storage.log('Object successfully deleted.')
+      Storage.info(`Object ${file.ref} successfully deleted`)
 
       return true
    }
 
    async getReadable(file: FileType): Promise<Readable> {
-      Storage.log('GET Readable :', file.ref)
+      Storage.debug(`GET Readable for ${file.ref}`)
       const command = new GetObjectCommand({
          Bucket: file.bucket || this._params.config.bucket,
          Key: file.ref,
@@ -158,17 +159,17 @@ export class S3StorageAdapter extends AbstractStorageAdapter {
       file: FileType,
       expiresIn = 3600
    ): Promise<FileResponseLinkType> {
-      const input = {
+      const command = new PutObjectCommand({
          Bucket: file.bucket || this._params.config.bucket,
          Key: file.ref,
-      }
-      const command = new PutObjectCommand(input)
+         ContentType: file.contentType,
+      })
 
       const url = await getSignedUrl(this._client, command, { expiresIn })
 
       return {
-         href: url,
-         type: 'PUT',
+         url,
+         method: 'PUT',
          accept: file.contentType || 'application/octet-stream',
          expiresIn,
       }

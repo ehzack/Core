@@ -1,6 +1,6 @@
 {
    "name": "@quatrain/worker",
-   "version": "0.1.0",
+   "version": "1.1.7",
    "description": "Container Worker helpers",
    "main": "lib/index.js",
    "types": "lib/index.d.ts",
@@ -24,17 +24,17 @@
       "typescript": "^5.1.5"
    },
    "dependencies": {
-      "@quatrain/core": "^1.1.1",
+      "@quatrain/core": "^1.1.7",
       "axios": "^1.7.7",
       "fs-extra": "^11.2.0",
-      "node-fetch": "^3.3.2"
+      "node-fetch-native": "^1.6.4"
    },
    "scripts": {
       "test": "tsc && jest --verbose",
       "build": "tsc",
       "wbuild": "tsc --watch",
+      "bump-to": "yarn version",
       "patch": "yarn version --patch --no-git-tag-version",
-      "push": "yarn publish --access public",
-      "prepublish": "tsc"
+      "publish": "yarn build && yarn npm publish --access public"
    }
 }
