@@ -1,6 +1,6 @@
 {
   "name": "@quatrain/cloudwrapper-firebase",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "license": "MIT",
   "description": "Cloud Wrapper adapter for Firebase",
   "main": "lib/index.js",
@@ -11,7 +11,7 @@
   ],
   "author": "Quatrain Développement SAS <developers@quatrain.com>",
   "peerDependencies": {
-    "@quatrain/core": "^1.1.6"
+    "@quatrain/core": "^1.1.7"
   },
   "dependencies": {
     "firebase-admin": "^13.0.1",

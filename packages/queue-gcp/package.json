@@ -1,6 +1,6 @@
 {
    "name": "@quatrain/queue-gcp",
-   "version": "1.1.6",
+   "version": "1.1.7",
    "description": "Queue adapter for Google Cloud Platform PubSub",
    "main": "lib/index.js",
    "types": "lib/index.d.ts",
@@ -25,8 +25,8 @@
    },
    "dependencies": {
       "@google-cloud/pubsub": "^4.7.0",
-      "@quatrain/core": "^1.1.6",
-      "@quatrain/queue": "^1.1.6"
+      "@quatrain/core": "^1.1.7",
+      "@quatrain/queue": "^1.1.7"
    },
    "scripts": {
       "test": "tsc && jest --verbose",
