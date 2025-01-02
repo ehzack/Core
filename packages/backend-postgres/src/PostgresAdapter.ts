@@ -46,25 +46,6 @@ export class PostgresAdapter extends AbstractBackendAdapter {
       super(params)
    }
 
-   protected _safeRealValue(value: any, property: ObjectProperty) {
-      const collectionName = property.instanceOf.COLLECTION
-      if (value instanceof ObjectUri) {
-         return value.path
-      } else if (value && typeof value === 'object' && value.ref) {
-         return value.ref.split('/')[1]
-      } else if (typeof value === 'string' && value.includes(collectionName)) {
-         return value.replace(`${collectionName}/`, '')
-      } else {
-         return (
-            (value &&
-               value.uri &&
-               value.uri.path &&
-               value.uri.path.split('/')[1]) ||
-            value
-         )
-      }
-   }
-
    protected _buildPath(dataObject: DataObjectClass<any>, uid?: string) {
       const collection = this.getCollection(dataObject)
       if (!collection) {
