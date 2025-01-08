@@ -29,6 +29,10 @@ export class SqsAdapter extends AbstractQueueAdapter {
       return response.MessageId
    }
 
+   /**
+    * Listen to a topic
+    * @param topic
+    */
    listen(topic: string) {
       throw new Error(`Unavailable method on this adapter`)
    }

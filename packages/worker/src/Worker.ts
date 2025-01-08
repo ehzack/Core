@@ -25,19 +25,19 @@ export class Worker extends Core {
          const child = spawn(command, args, { cwd })
 
          child.stdout.on('data', (data) => {
-            console.info(`stdout: ${data}`)
+            Worker.info(data)
          })
 
          child.stderr.on('data', (data) => {
-            console.info(`stderr: ${data}`)
+            Worker.info(data)
          })
 
          child.on('close', (code) => {
             if (code !== 0) {
-               console.error(`Command execution failed with code: ${code}`)
+               Worker.error(`Command execution failed with code: ${code}`)
                reject(code)
             } else {
-               console.info(`Command execution completed with code: ${code}`)
+               Worker.info(`Command execution completed with code: ${code}`)
                resolve(undefined)
             }
          })
@@ -46,7 +46,7 @@ export class Worker extends Core {
 
    static pushEvent(event: string, data = {}, ts = 0) {
       if (!this.endpoint) {
-         Worker.log(`Events endpoint is not set, can't send update!`)
+         Worker.warn(`Events endpoint is not set, can't send update!`)
          return false
       }
 
@@ -60,10 +60,10 @@ export class Worker extends Core {
       }
 
       axios
-         .put(Worker.endpoint, payload)
+         .patch(Worker.endpoint, payload)
          .then((res) =>
-            Worker.log(`Event pushed to backend: ${res.statusText}`)
+            Worker.info(`Event pushed to backend: ${res.statusText}`)
          )
-         .catch((err) => Worker.log(`Failed to push event to backend: ${err}`))
+         .catch((err) => Worker.error(`Failed to push event to backend: ${err}`))
    }
 }

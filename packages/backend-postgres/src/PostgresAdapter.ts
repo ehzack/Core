@@ -154,7 +154,12 @@ export class PostgresAdapter extends AbstractBackendAdapter {
                useDateFormat: true,
             })
 
-            const data = dataObject.toJSON({ withoutURIData: true })
+            const data = dataObject.toJSON({
+               withoutURIData: true,
+               converters: {
+                  datetime: (v: any) => (v ? new Date(v).toISOString() : v),
+               },
+            })
 
             let query = `INSERT INTO ${dataObject.uri.collection?.toLowerCase()} (id`
             let values = `VALUES ($1`
@@ -183,7 +188,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
             resolve(dataObject)
          } catch (err) {
             console.log(err)
-            Backend.log((err as Error).message)
+            Backend.error((err as Error).message)
             reject(new BackendError((err as Error).message))
          }
       })

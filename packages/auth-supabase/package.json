@@ -1,6 +1,6 @@
 {
   "name": "@quatrain/auth-supabase",
-  "version": "1.1.10",
+  "version": "1.1.11",
   "license": "MIT",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -10,7 +10,7 @@
   ],
   "author": "Quatrain Développement SAS <developers@quatrain.com>",
   "dependencies": {
-    "@quatrain/auth": "^1.1.10",
+    "@quatrain/auth": "^1.1.12",
     "@supabase/supabase-js": "^2.45.1"
   },
   "devDependencies": {

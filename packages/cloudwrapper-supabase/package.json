@@ -1,6 +1,6 @@
 {
    "name": "@quatrain/cloudwrapper-supabase",
-   "version": "1.1.10",
+   "version": "1.1.11",
    "license": "MIT",
    "description": "Cloud Wrapper adapter for Supabase",
    "main": "lib/index.js",
@@ -11,12 +11,12 @@
    ],
    "author": "Quatrain Développement SAS <developers@quatrain.com>",
    "peerDependencies": {
-      "@quatrain/core": "^1.1.10"
+      "@quatrain/core": "^1.1.11"
    },
    "dependencies": {
-      "@quatrain/backend": "^1.1.10",
-      "@quatrain/cloudwrapper": "^1.1.10",
-      "@quatrain/core": "^1.1.10",
+      "@quatrain/backend": "^1.1.11",
+      "@quatrain/cloudwrapper": "^1.1.11",
+      "@quatrain/core": "^1.1.11",
       "@supabase/supabase-js": "^2.45.1"
    },
    "devDependencies": {

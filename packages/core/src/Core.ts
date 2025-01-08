@@ -4,6 +4,7 @@ import { DataObjectClass } from './components/types/DataObjectClass'
 import logger from 'loglevel'
 
 export class Core {
+   static me = this.name
    static storage = require('node-persist')
    static storagePrefix = 'core'
    static userClass = User
@@ -53,8 +54,8 @@ export class Core {
       return DataObject.prototype
    }
 
-   protected static formatLogMessage = (message: any) =>
-      `${Core.timestamp()} - [${this.name}] ${
+   protected static formatLogMessage = (message: any, prefix = this.me) =>
+      `${Core.timestamp()} - [${this.me}] ${
          typeof message === 'string' ? message : JSON.stringify(message)
       }`
 

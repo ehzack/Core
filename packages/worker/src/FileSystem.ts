@@ -92,17 +92,6 @@ export class FileSystem {
    ) {
       return new Promise((resolve, reject) => {
          try {
-            // // init upload, Google sends a new url
-            // fetch(destination, {
-            //    method: 'POST',
-            //    mode: 'cors',
-            //    headers: {
-            //       'Content-Type': mime,
-            //       'X-Goog-Resumable': 'start',
-            //    },
-            // })
-            //    .then((res: any) => {
-            //       if (res.ok) {
             let done = 0 // total bytes uploaded
             let prev = 0 // latest value of done stored when % done was displayed
             const { size } = fs.statSync(filename)
@@ -126,7 +115,6 @@ export class FileSystem {
 
             Worker.info(`Uploading file ${filename} with size ${size} bytes`)
             fetch(destination, {
-               //res.headers.get('location'), {
                method: 'PUT',
                mode: 'cors',
                duplex: 'half',
@@ -145,6 +133,7 @@ export class FileSystem {
             //})
             // .catch((err: any) => reject(err))
          } catch (err) {
+            console.log(err)
             reject(err)
          }
       })
