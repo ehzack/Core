@@ -2605,6 +2605,7 @@ __metadata:
     jest: "npm:^27.4.7"
     jest-node-exports-resolver: "npm:^1.1.6"
     jest-serial-runner: "npm:^1.2.1"
+    node-fetch-native: "npm:^1.6.4"
     trace-unhandled: "npm:^2.0.1"
     ts-jest: "npm:^27.1.2"
     ts-node: "npm:^10.9.1"

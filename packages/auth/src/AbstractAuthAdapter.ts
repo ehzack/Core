@@ -8,7 +8,7 @@ export abstract class AbstractAuthAdapter implements AuthInterface {
    protected _params: AuthParameters = {}
 
    constructor(params: AuthParameters = {}) {
-      this._alias = params.alias || ''
+      this._params = params
    }
 
    setParam(key: AuthParametersKeys, value: any) {
@@ -38,6 +38,8 @@ export abstract class AbstractAuthAdapter implements AuthInterface {
    abstract delete(user: User): Promise<any>
 
    abstract getAuthToken(token: string): any
+
+   abstract refreshToken(refreshToken: string): Promise<any>
 
    abstract revokeAuthToken(token: string): any
 

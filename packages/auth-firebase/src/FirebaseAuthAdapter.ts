@@ -7,6 +7,7 @@ import {
 } from '@quatrain/auth'
 import { CreateRequest, UpdateRequest, getAuth } from 'firebase-admin/auth'
 import { getApps, initializeApp } from 'firebase-admin/app'
+import * as nativeFetch from 'node-fetch-native'
 
 export class FirebaseAuthAdapter extends AbstractAuthAdapter {
    constructor(params: AuthParameters = {}) {
@@ -73,4 +74,26 @@ export class FirebaseAuthAdapter extends AbstractAuthAdapter {
    async revokeAuthToken(token: string) {}
 
    async setCustomUserClaims(id: string, claims: any) {}
+
+   async refreshToken(refreshToken: string): Promise<any> {
+      if (!this._params.config.apiKey) {
+         Auth.warn(`Can't get refresh token, no API key provided`)
+         return {}
+      }
+      const response = await nativeFetch.fetch(
+         `https://securetoken.googleapis.com/v1/token?key=${this._params.config.apiKey}`,
+         {
+            method: 'POST',
+            body: JSON.stringify({
+               grant_type: 'refresh_token',
+               refresh_token: refreshToken,
+            }),
+            headers: { 'Content-Type': 'application/json' }, //, crossdomain: true },
+         }
+      )
+
+      const data = response.json()
+
+      return data
+   }
 }

@@ -544,7 +544,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
             `${query.join(' ').replace('*', 'COUNT(*) as total')}`
          )
 
-         Backend.info(`[PGA] Counting records ${countSnapshot.rows[0].total}`)
+         Backend.debug(`[PGA] Counting records ${countSnapshot.rows[0].total}`)
 
          let sortField: string[] = []
          if (pagination) {

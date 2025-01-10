@@ -21,6 +21,7 @@ export interface StorageAdapterInterface {
    ): Promise<any>
    getUploadUrl(filePath: FileType, expiresIn?: number): Promise<any>
    getReadable(filePath: FileType): Promise<Readable>
+   getMetaData(filePath: FileType): Promise<FileType>
    generateThumbnail(file: FileType, sizes: number[]): Promise<any>
    generateImageThumbnail(file: FileType, sizes: number[]): Promise<any>
    generateVideoThumbnail(file: FileType, sizes: number[]): Promise<any>

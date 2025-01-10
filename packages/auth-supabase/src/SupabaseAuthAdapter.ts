@@ -6,6 +6,7 @@ import {
    AuthParameters,
 } from '@quatrain/auth'
 import { createClient } from '@supabase/supabase-js'
+import * as nativeFetch from 'node-fetch-native'
 
 // Create a single supabase client for interacting with your database
 export class SupabaseAuthAdapter extends AbstractAuthAdapter {
@@ -64,6 +65,23 @@ export class SupabaseAuthAdapter extends AbstractAuthAdapter {
          return token.data.user
       }
       throw new Error('Unable to retrieve auth token from Supabase')
+   }
+
+   async refreshToken(refreshToken: string) {
+      const url = `${this._params.config.supabaseUrl}/auth/v1/token?grant_type=refresh_token`
+      const response = await nativeFetch.fetch(url, {
+         method: 'POST',
+         headers: {
+            apikey: this._params.config.supabaseKey,
+         },
+         body: JSON.stringify({
+            refresh_token: refreshToken,
+         }),
+      })
+
+      const data = response.json()
+
+      return data
    }
 
    async revokeAuthToken(token: string) {

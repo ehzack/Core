@@ -1,6 +1,6 @@
 {
    "name": "@quatrain/worker",
-   "version": "1.1.11",
+   "version": "1.1.13",
    "description": "Container Worker helpers",
    "main": "lib/index.js",
    "types": "lib/index.d.ts",
@@ -35,9 +35,9 @@
       "wbuild": "tsc --watch",
       "bump-to": "yarn version",
       "hash": "node ../../bin/hashFolder.js",
-      "hash_persist": "yarn hash  > .hash_latest.txt",
-      "hash_compare": "yarn hash > .hash_newest.txt && cmp -s .hash_latest.txt .hash_newest.txt",
-      "publish": "yarn hash_compare || yarn publish_process",
-      "publish_process": "yarn version patch && yarn build && yarn npm publish --access public && yarn hash_persist"
+      "hash:persist": "yarn hash  > .hash_latest.txt",
+      "hash:compare": "yarn hash > .hash_newest.txt && cmp -s .hash_latest.txt .hash_newest.txt",
+      "publish": "yarn hash:compare || yarn publish:process",
+      "publish:process": "yarn version patch && yarn build && yarn npm publish --access public && yarn hash:persist"
    }
 }

@@ -24,12 +24,12 @@ export class Worker extends Core {
       return new Promise((resolve, reject) => {
          const child = spawn(command, args, { cwd })
 
-         child.stdout.on('data', (data) => {
-            Worker.info(data)
+         child.stdout.on('data', (data: Buffer) => {
+            Worker.debug(data.toString())
          })
 
-         child.stderr.on('data', (data) => {
-            Worker.info(data)
+         child.stderr.on('data', (data: Buffer) => {
+            Worker.debug(data.toString())
          })
 
          child.on('close', (code) => {
@@ -64,6 +64,8 @@ export class Worker extends Core {
          .then((res) =>
             Worker.info(`Event pushed to backend: ${res.statusText}`)
          )
-         .catch((err) => Worker.error(`Failed to push event to backend: ${err}`))
+         .catch((err) =>
+            Worker.error(`Failed to push event to backend: ${err}`)
+         )
    }
 }

@@ -48,6 +48,8 @@ export abstract class AbstractStorageAdapter
 
    abstract getReadable(file: FileType): Promise<Readable>
 
+   abstract getMetaData(file: FileType): Promise<FileType>
+
    async generateImageThumbnail(file: FileType, sizes: number[]): Promise<any> {
       const name = file.name || file.ref
       const thumbnails: any = {}

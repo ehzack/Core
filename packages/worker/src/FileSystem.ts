@@ -126,12 +126,6 @@ export class FileSystem {
             })
                .then((res) => resolve(res))
                .catch((err: any) => reject(err))
-            // } else {
-            //    Worker.error(res)
-            //    reject(new Error('Unable to init upload'))
-            // }
-            //})
-            // .catch((err: any) => reject(err))
          } catch (err) {
             console.log(err)
             reject(err)

@@ -15,6 +15,7 @@ import {
    GetObjectCommand,
    DeleteObjectCommand,
    CopyObjectCommand,
+   HeadObjectCommand,
 } from '@aws-sdk/client-s3'
 
 export class S3StorageAdapter extends AbstractStorageAdapter {
@@ -129,6 +130,22 @@ export class S3StorageAdapter extends AbstractStorageAdapter {
       readable.push(null)
 
       return readable
+   }
+
+   async getMetaData(file: FileType): Promise<FileType> {
+      const command = new HeadObjectCommand({
+         Bucket: file.bucket,
+         Key: file.ref,
+      })
+      const item = await this._client.send(command)
+      const meta = {
+         ...file,
+         contentType: item.ContentType,
+         size: item.ContentLength,
+         lastModified: item.LastModified,
+      }
+
+      return meta
    }
 
    async stream(file: FileType, res: any) {

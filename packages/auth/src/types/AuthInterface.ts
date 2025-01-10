@@ -12,4 +12,6 @@ export interface AuthInterface {
    delete(user: User): Promise<any>
 
    getAuthToken(token: string): any
+
+   refreshToken(refreshToken: string): Promise<any>
 }
