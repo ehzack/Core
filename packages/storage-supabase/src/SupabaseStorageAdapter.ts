@@ -163,8 +163,8 @@ export class SupabaseStorageAdapter extends AbstractStorageAdapter {
       }
 
       return {
-         href: data?.signedUrl,
-         type: 'PUT',
+         url: data?.signedUrl,
+         method: 'PUT',
          accept: file.contentType || 'application/octet-stream',
          expiresIn: 7200, // fixed value in Supabase
       }
