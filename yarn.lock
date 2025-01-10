@@ -2576,7 +2576,7 @@ __metadata:
   resolution: "@quatrain/auth-firebase@workspace:packages/auth-firebase"
   dependencies:
     "@faker-js/faker": "npm:^7.6.0"
-    "@quatrain/auth": "npm:^1.1.12"
+    "@quatrain/auth": "npm:^1.1.14"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/jest": "npm:^27.0.3"
     "@types/node": "npm:^22.10.1"
@@ -2589,7 +2589,7 @@ __metadata:
     ts-node: "npm:^10.9.1"
     typescript: "npm:^5.1.5"
   peerDependencies:
-    "@quatrain/core": ^1.1.11
+    "@quatrain/core": ^1.1.12
   languageName: unknown
   linkType: soft
 
@@ -2597,7 +2597,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@quatrain/auth-supabase@workspace:packages/auth-supabase"
   dependencies:
-    "@quatrain/auth": "npm:^1.1.12"
+    "@quatrain/auth": "npm:^1.1.14"
     "@supabase/supabase-js": "npm:^2.45.1"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/jest": "npm:^27.0.3"
@@ -2613,11 +2613,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@quatrain/auth@npm:^1.1.12, @quatrain/auth@workspace:packages/auth":
+"@quatrain/auth@npm:^1.1.14, @quatrain/auth@workspace:packages/auth":
   version: 0.0.0-use.local
   resolution: "@quatrain/auth@workspace:packages/auth"
   dependencies:
-    "@quatrain/core": "npm:^1.1.11"
+    "@quatrain/core": "npm:^1.1.12"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/jest": "npm:^27.0.3"
     "@types/node": "npm:^22.10.1"
@@ -2649,7 +2649,7 @@ __metadata:
     ts-node: "npm:^10.9.1"
     typescript: "npm:^5.1.5"
   peerDependencies:
-    "@quatrain/core": ^1.1.11
+    "@quatrain/core": ^1.1.12
   languageName: unknown
   linkType: soft
 
@@ -2658,7 +2658,7 @@ __metadata:
   resolution: "@quatrain/backend-postgres@workspace:packages/backend-postgres"
   dependencies:
     "@faker-js/faker": "npm:^7.6.0"
-    "@quatrain/backend": "npm:^1.1.11"
+    "@quatrain/backend": "npm:^1.1.12"
     "@quatrain/core": "workspace:^"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/jest": "npm:^27.0.3"
@@ -2676,12 +2676,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@quatrain/backend@npm:^1.1.11, @quatrain/backend@workspace:packages/backend":
+"@quatrain/backend@npm:^1.1.12, @quatrain/backend@workspace:packages/backend":
   version: 0.0.0-use.local
   resolution: "@quatrain/backend@workspace:packages/backend"
   dependencies:
     "@faker-js/faker": "npm:^7.6.0"
-    "@quatrain/core": "npm:^1.1.11"
+    "@quatrain/core": "npm:^1.1.12"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/jest": "npm:^27.0.3"
     "@types/node": "npm:^22.10.1"
@@ -2710,7 +2710,7 @@ __metadata:
     ts-node: "npm:^10.9.1"
     typescript: "npm:^5.1.5"
   peerDependencies:
-    "@quatrain/core": ^1.1.11
+    "@quatrain/core": ^1.1.12
   languageName: unknown
   linkType: soft
 
@@ -2718,9 +2718,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@quatrain/cloudwrapper-supabase@workspace:packages/cloudwrapper-supabase"
   dependencies:
-    "@quatrain/backend": "npm:^1.1.11"
+    "@quatrain/backend": "npm:^1.1.12"
     "@quatrain/cloudwrapper": "npm:^1.1.11"
-    "@quatrain/core": "npm:^1.1.11"
+    "@quatrain/core": "npm:^1.1.12"
     "@supabase/supabase-js": "npm:^2.45.1"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/jest": "npm:^27.0.3"
@@ -2733,7 +2733,7 @@ __metadata:
     ts-node: "npm:^10.9.1"
     typescript: "npm:^5.1.5"
   peerDependencies:
-    "@quatrain/core": ^1.1.11
+    "@quatrain/core": ^1.1.12
   languageName: unknown
   linkType: soft
 
@@ -2752,12 +2752,12 @@ __metadata:
     ts-node: "npm:^10.9.1"
     typescript: "npm:^5.1.5"
   peerDependencies:
-    "@quatrain/backend": ^1.1.11
-    "@quatrain/core": ^1.1.11
+    "@quatrain/backend": ^1.1.12
+    "@quatrain/core": ^1.1.12
   languageName: unknown
   linkType: soft
 
-"@quatrain/core@npm:^1.1.11, @quatrain/core@workspace:^, @quatrain/core@workspace:packages/core":
+"@quatrain/core@npm:^1.1.12, @quatrain/core@workspace:^, @quatrain/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@quatrain/core@workspace:packages/core"
   dependencies:
@@ -2782,7 +2782,7 @@ __metadata:
   resolution: "@quatrain/queue-amqp@workspace:packages/queue-amqp"
   dependencies:
     "@cloudamqp/amqp-client": "npm:^3.1.1"
-    "@quatrain/core": "npm:^1.1.11"
+    "@quatrain/core": "npm:^1.1.12"
     "@quatrain/queue": "npm:^1.1.11"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/fs-extra": "npm:^11.0.4"
@@ -2823,7 +2823,7 @@ __metadata:
   resolution: "@quatrain/queue-gcp@workspace:packages/queue-gcp"
   dependencies:
     "@google-cloud/pubsub": "npm:^4.7.0"
-    "@quatrain/core": "npm:^1.1.11"
+    "@quatrain/core": "npm:^1.1.12"
     "@quatrain/queue": "npm:^1.1.11"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/fs-extra": "npm:^11.0.4"
@@ -2843,7 +2843,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@quatrain/queue@workspace:packages/queue"
   dependencies:
-    "@quatrain/core": "npm:^1.1.11"
+    "@quatrain/core": "npm:^1.1.12"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/fs-extra": "npm:^11.0.4"
     "@types/jest": "npm:^27.0.3"
@@ -2863,7 +2863,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@quatrain/storage-firebase@workspace:packages/storage-firebase"
   dependencies:
-    "@quatrain/core": "npm:^1.1.11"
+    "@quatrain/core": "npm:^1.1.12"
     "@quatrain/storage": "npm:^1.1.11"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/fs-extra": "npm:^11.0.4"
@@ -2905,7 +2905,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@quatrain/storage-supabase@workspace:packages/storage-supabase"
   dependencies:
-    "@quatrain/core": "npm:^1.1.11"
+    "@quatrain/core": "npm:^1.1.12"
     "@quatrain/storage": "npm:^1.1.11"
     "@supabase/supabase-js": "npm:^2.45.1"
     "@tsconfig/recommended": "npm:^1.0.1"
@@ -2924,7 +2924,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@quatrain/storage@workspace:packages/storage"
   dependencies:
-    "@quatrain/core": "npm:^1.1.11"
+    "@quatrain/core": "npm:^1.1.12"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/fs-extra": "npm:^11.0.4"
     "@types/jest": "npm:^27.0.3"
@@ -2944,7 +2944,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@quatrain/worker@workspace:packages/worker"
   dependencies:
-    "@quatrain/core": "npm:^1.1.11"
+    "@quatrain/core": "npm:^1.1.12"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/fs-extra": "npm:^11.0.4"
     "@types/jest": "npm:^27.0.3"

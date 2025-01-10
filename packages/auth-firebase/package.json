@@ -10,10 +10,10 @@
   ],
   "author": "Quatrain Développement SAS <developers@quatrain.com>",
   "peerDependencies": {
-    "@quatrain/core": "^1.1.11"
+    "@quatrain/core": "^1.1.12"
   },
   "dependencies": {
-    "@quatrain/auth": "^1.1.12",
+    "@quatrain/auth": "^1.1.14",
     "firebase-admin": "^13.0.1"
   },
   "devDependencies": {
