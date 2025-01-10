@@ -3,6 +3,7 @@ import {
    NotFoundError,
    statuses,
    StringProperty,
+   ObjectProperty,
 } from '@quatrain/core'
 import {
    DataObjectClass,
@@ -233,6 +234,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
             )
 
             const joinAlias = `${prop.toLowerCase()}_table`
+
             const table =
                this._params.mapping &&
                this._params.mapping[dataObject.properties[prop].instanceOf]
@@ -251,7 +253,9 @@ export class PostgresAdapter extends AbstractBackendAdapter {
 
       const queryString = `${query
          .join(' ')
-         .replace('*', fields.join(', '))} WHERE coll.id = '${parts[1]}'`
+         .replace('*', fields.join(', '))} WHERE coll.id = '${
+         parts[parts.length - 1]
+      }'`
 
       Backend.debug(`[PGA] SQL ${queryString}`)
 
@@ -391,7 +395,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
       dataObject: DataObjectClass<any>,
       filters: Filters | Filter[] | undefined = undefined,
       pagination: SortAndLimit | undefined = undefined,
-      parent: any = undefined
+      parent: DataObjectClass<any> | undefined = undefined
    ): Promise<QueryResultType<DataObjectClass<any>>> {
       try {
          //  use parent path to start fullPath, if available
@@ -431,6 +435,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
                )
 
                const joinAlias = `${prop.toLowerCase()}_table`
+
                const table =
                   this._params.mapping &&
                   this._params.mapping[dataObject.properties[prop].instanceOf]
@@ -438,6 +443,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
                           dataObject.properties[prop].instanceOf
                        ]
                      : dataObject.properties[prop].instanceOf.COLLECTION
+
                query.push(
                   `LEFT JOIN ${table} AS ${joinAlias} ON ${joinAlias}.id = coll.${prop.toLowerCase()}`
                )
@@ -449,12 +455,16 @@ export class PostgresAdapter extends AbstractBackendAdapter {
             }
          })
 
+         if (parent) {
+            query.push(`WHERE coll.${dataObject.parentProp}='${parent.uid}'`)
+         }
+
          if (filters instanceof Filters) {
             hasFilters = true
          } else if (Array.isArray(filters)) {
             // list of filters objects
             filters.forEach((filter, i) => {
-               query.push(i > 0 ? 'AND' : 'WHERE')
+               query.push(parent && i === 0 ? 'AND' : i > 0 ? 'AND' : 'WHERE')
                let realProp: any = filter.prop
                let realOperator: string
                let realValue = filter.value
@@ -495,6 +505,21 @@ export class PostgresAdapter extends AbstractBackendAdapter {
                         filter.value.ref
                      ) {
                         realValue = filter.value.ref.split('/')[1]
+                     } else if (typeof filter.value === 'string') {
+                        const collectionName =
+                           this._params.mapping &&
+                           this._params.mapping[
+                              dataObject.properties[filter.prop].instanceOf
+                           ]
+                              ? this._params.mapping[
+                                   dataObject.properties[filter.prop].instanceOf
+                                ]
+                              : dataObject.properties[filter.prop].instanceOf
+                                   .COLLECTION
+                        realValue = filter.value.replace(
+                           `${collectionName}/`,
+                           ''
+                        )
                      } else {
                         realValue =
                            (filter.value &&
