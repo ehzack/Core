@@ -1,8 +1,10 @@
-import fs from 'fs'
-import path from 'path'
+import fs from 'node:fs'
+import path from 'node:path'
 import axios from 'axios'
 import { Worker } from './Worker'
 import fetch from 'node-fetch-native'
+import * as ffmpeg from 'fluent-ffmpeg'
+import { FileType } from '@quatrain/storage'
 
 export class FileSystem {
    static prepare(folder: string) {
@@ -85,11 +87,10 @@ export class FileSystem {
    //    })
    // }
 
-   static uploadFile(
-      filename: string,
-      destination: string,
-      mime = 'video/mp4'
-   ) {
+   static uploadFile(filename: string, meta: FileType, mime = 'video/mp4') {
+      // try to get more file metadata
+      meta = { ...meta, ...FileSystem.getInfo(filename) }
+
       return new Promise((resolve, reject) => {
          try {
             let done = 0 // total bytes uploaded
@@ -114,22 +115,57 @@ export class FileSystem {
             })
 
             Worker.info(`Uploading file ${filename} with size ${size} bytes`)
-            fetch(destination, {
+            fetch(meta.uploadUrl, {
                method: 'PUT',
                mode: 'cors',
                duplex: 'half',
                body: readStream,
                headers: {
-                  'Content-Type': mime,
+                  'Content-Type': meta.contentType || mime,
                   'Content-length': String(size),
                },
             })
-               .then((res) => resolve(res))
+               .then((res) => resolve({ ...meta, size, uploadUrl: undefined }))
                .catch((err: any) => reject(err))
          } catch (err) {
             console.log(err)
             reject(err)
          }
       })
+   }
+
+   /**
+    * Return meta data on given file
+    */
+   static getInfo = (file: string): Promise<any> => {
+      if (file.endsWith('.mp4')) {
+         return new Promise((resolve, reject) =>
+            ffmpeg.ffprobe(file, (err: any, metadata: any) => {
+               if (err) {
+                  Worker.error(err)
+                  reject(err)
+               }
+               Worker.debug(`ffprobe getInfo: ${JSON.stringify(metadata)}`)
+               const {
+                  width,
+                  height,
+                  duration,
+                  bit_rate: bitrate,
+                  nb_frames: nbFramees,
+               } = metadata.streams[0]
+               const nb_frames: number = parseFloat(nbFramees as string)
+               const framerate = nb_frames / parseFloat(duration as string)
+               resolve({
+                  width,
+                  height,
+                  framerate: framerate.toFixed(0),
+                  duration: parseInt(duration as string),
+                  bitrate,
+               })
+            })
+         )
+      }
+      // Handle other cases silently
+      return new Promise((resolve) => resolve({}))
    }
 }

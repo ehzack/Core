@@ -2576,7 +2576,7 @@ __metadata:
   resolution: "@quatrain/auth-firebase@workspace:packages/auth-firebase"
   dependencies:
     "@faker-js/faker": "npm:^7.6.0"
-    "@quatrain/auth": "npm:^1.1.14"
+    "@quatrain/auth": "npm:^1.1.15"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/jest": "npm:^27.0.3"
     "@types/node": "npm:^22.10.1"
@@ -2597,7 +2597,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@quatrain/auth-supabase@workspace:packages/auth-supabase"
   dependencies:
-    "@quatrain/auth": "npm:^1.1.14"
+    "@quatrain/auth": "npm:^1.1.15"
     "@supabase/supabase-js": "npm:^2.45.1"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/jest": "npm:^27.0.3"
@@ -2613,10 +2613,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@quatrain/auth@npm:^1.1.14, @quatrain/auth@workspace:packages/auth":
+"@quatrain/auth@npm:^1.1.15, @quatrain/auth@workspace:packages/auth":
   version: 0.0.0-use.local
   resolution: "@quatrain/auth@workspace:packages/auth"
   dependencies:
+    "@quatrain/backend": "npm:^1.1.12"
     "@quatrain/core": "npm:^1.1.12"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/jest": "npm:^27.0.3"
@@ -2946,11 +2947,13 @@ __metadata:
   dependencies:
     "@quatrain/core": "npm:^1.1.12"
     "@tsconfig/recommended": "npm:^1.0.1"
+    "@types/fluent-ffmpeg": "npm:^2"
     "@types/fs-extra": "npm:^11.0.4"
     "@types/jest": "npm:^27.0.3"
     "@types/node": "npm:^22.9.0"
     "@types/object-hash": "npm:^3.0.6"
     axios: "npm:^1.7.7"
+    fluent-ffmpeg: "npm:^2.1.3"
     fs-extra: "npm:^11.2.0"
     jest: "npm:^27.4.7"
     jest-node-exports-resolver: "npm:^1.1.6"
@@ -4167,6 +4170,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/fluent-ffmpeg@npm:^2":
+  version: 2.1.27
+  resolution: "@types/fluent-ffmpeg@npm:2.1.27"
+  dependencies:
+    "@types/node": "npm:*"
+  checksum: 10c0/2362e7d240d4d8a0b775b5abf9ab5f26a85b17dc335276f0c3ff3bf935f913ccc9e1e10e756a6a3cebf78c1cd1eff835a253f73a3cd1bbcb343b28089a9957f3
+  languageName: node
+  linkType: hard
+
 "@types/fs-extra@npm:^11.0.4":
   version: 11.0.4
   resolution: "@types/fs-extra@npm:11.0.4"
@@ -4643,6 +4655,13 @@ __metadata:
   dependencies:
     retry: "npm:0.13.1"
   checksum: 10c0/cabced4fb46f8737b95cc88dc9c0ff42656c62dc83ce0650864e891b6c155a063af08d62c446269b51256f6fbcb69a6563b80e76d0ea4a5117b0c0377b6b19d8
+  languageName: node
+  linkType: hard
+
+"async@npm:^0.2.9":
+  version: 0.2.10
+  resolution: "async@npm:0.2.10"
+  checksum: 10c0/714d284dc6c3ae59f3e8b347083e32c7657ba4ffc4ff945eb152ad4fb08def27e768992fcd4d9fd3b411c6b42f1541862ac917446bf2a1acfa0f302d1001f7d2
   languageName: node
   linkType: hard
 
@@ -5866,6 +5885,16 @@ __metadata:
   bin:
     firebase-functions: lib/bin/firebase-functions.js
   checksum: 10c0/0d6184358cd7aff3208fe1c0457e46231d9767b98862a54f35f46b2c7eb7d4020c67fd2a1c10f5a4a9027aa53c08b519653a645491eadecb872c875e6b53bdc9
+  languageName: node
+  linkType: hard
+
+"fluent-ffmpeg@npm:^2.1.3":
+  version: 2.1.3
+  resolution: "fluent-ffmpeg@npm:2.1.3"
+  dependencies:
+    async: "npm:^0.2.9"
+    which: "npm:^1.1.1"
+  checksum: 10c0/0397379ec3237c10b2389edeef26fdaf93f36d1b20b0f28f8945fe6d9121dcee9b0c615bf7d44edb7abd37233e0d24f0db39389668d3c86a1a2a0d59e3f4457b
   languageName: node
   linkType: hard
 
@@ -9617,6 +9646,17 @@ __metadata:
     tr46: "npm:^2.1.0"
     webidl-conversions: "npm:^6.1.0"
   checksum: 10c0/de0bc94387dba586b278e701cf5a1c1f5002725d22b8564dbca2cab1966ef24b839018e57ae2423fb514d8a2dd3aa3bf97323e2f89b55cd89e79141e432e9df1
+  languageName: node
+  linkType: hard
+
+"which@npm:^1.1.1":
+  version: 1.3.1
+  resolution: "which@npm:1.3.1"
+  dependencies:
+    isexe: "npm:^2.0.0"
+  bin:
+    which: ./bin/which
+  checksum: 10c0/e945a8b6bbf6821aaaef7f6e0c309d4b615ef35699576d5489b4261da9539f70393c6b2ce700ee4321c18f914ebe5644bc4631b15466ffbaad37d83151f6af59
   languageName: node
   linkType: hard
 

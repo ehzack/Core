@@ -13,7 +13,7 @@
     "@quatrain/core": "^1.1.12"
   },
   "dependencies": {
-    "@quatrain/auth": "^1.1.14",
+    "@quatrain/auth": "^1.1.15",
     "firebase-admin": "^13.0.1"
   },
   "devDependencies": {
