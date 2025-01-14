@@ -24,7 +24,7 @@
       "typescript": "^5.1.5"
    },
    "dependencies": {
-      "@quatrain/core": "^1.1.12",
+      "@quatrain/core": "^1.1.14",
       "@quatrain/storage": "^1.1.12",
       "firebase-admin": "^12.4.0",
       "fs-extra": "^11.2.0"

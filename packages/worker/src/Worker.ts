@@ -44,6 +44,13 @@ export class Worker extends Core {
       })
    }
 
+   /**
+    * Push an event to the backend endpoint, if available
+    * @param event string
+    * @param data
+    * @param ts timestamp
+    * @returns boolean
+    */
    static pushEvent(event: string, data = {}, ts = 0) {
       if (!this.endpoint) {
          Worker.warn(`Events endpoint is not set, can't send update!`)
@@ -61,11 +68,13 @@ export class Worker extends Core {
 
       axios
          .patch(Worker.endpoint, payload)
-         .then((res) =>
+         .then((res) => {
             Worker.info(`Event pushed to backend: ${res.statusText}`)
-         )
-         .catch((err) =>
+            return true
+         })
+         .catch((err) => {
             Worker.error(`Failed to push event to backend: ${err}`)
-         )
+            return false
+         })
    }
 }

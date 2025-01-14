@@ -87,7 +87,18 @@ export class FileSystem {
    //    })
    // }
 
-   static uploadFile(filename: string, meta: FileType, mime = 'video/mp4') {
+   /**
+    * Upload file to public URL and return meta data
+    * @param filename string
+    * @param meta
+    * @param mime
+    * @returns Promise
+    */
+   static uploadFile(
+      filename: string,
+      meta: FileType,
+      mime = 'video/mp4'
+   ): Promise<FileType> {
       // try to get more file metadata
       meta = { ...meta, ...FileSystem.getInfo(filename) }
 

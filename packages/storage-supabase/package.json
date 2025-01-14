@@ -22,7 +22,7 @@
       "typescript": "^5.1.5"
    },
    "dependencies": {
-      "@quatrain/core": "^1.1.12",
+      "@quatrain/core": "^1.1.14",
       "@quatrain/storage": "^1.1.12",
       "@supabase/supabase-js": "^2.45.1"
    },
