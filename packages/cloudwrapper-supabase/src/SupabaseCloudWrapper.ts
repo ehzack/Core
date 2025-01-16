@@ -29,6 +29,7 @@ export class SupabaseCloudWrapper extends AbstractCloudWrapper {
 
    constructor(params: SupabaseParams) {
       super(params)
+      this._initialize()
    }
 
    // httpsTrigger(
@@ -47,28 +48,70 @@ export class SupabaseCloudWrapper extends AbstractCloudWrapper {
 
    databaseTrigger(trigger: DatabaseTriggerType) {
       this._initialize()
-      this._realtimeClient?.on(
-         'postgres_changes',
-         {
+
+      if (!this._realtimeClient) {
+         throw new Error(`Realtime channel is not enabled`)
+      }
+
+      if (typeof trigger.script !== 'function') {
+         throw new Error(`Passed script value is not a function`)
+      }
+
+      try {
+         const params = {
             event: Reflect.get(eventMap, trigger.event),
             schema: 'public',
             table: trigger.model,
-         },
-         async ({ old: before, new: after, ...context }) =>
-            await trigger.script({ before, after, context })
-      )
+         }
+         this._supabaseClient
+            ?.channel(trigger.name)
+            .on(
+               'postgres_changes',
+               params,
+               async ({ old: before, new: after, ...context }) => {
+                  console.log(after)
+                  CloudWrapper.info(`Triggering function on event`)
+                  try {
+                     return await trigger.script({ before, after, context })
+                  } catch (err) {
+                     CloudWrapper.error((err as Error).message)
+                     console.log(err)
+                  }
+               }
+            ).subscribe()
+         return params
+      } catch (err) {
+         console.log(err)
+         throw new Error(`Realtime channel subscription failed`)
+      }
    }
 
    triggersEnable() {
-      this._realtimeClient?.subscribe()
+      if (!this._realtimeClient) {
+         throw new Error(`Realtime client is not enabled`)
+      }
+      this._realtimeClient.subscribe((res) => {
+         CloudWrapper.info(`Enabling Realtime triggers: ${res}`)
+         if (res !== 'SUBSCRIBED') {
+            throw new Error(`Failed to subscribe to Realtime channels`)
+         }
+      })
+   }
+
+   triggersDisable() {
+      if (!this._realtimeClient) {
+         throw new Error(`Realtime channel is not enabled`)
+      }
+      CloudWrapper.info(`Disabling Realtime triggers`)
+      this._supabaseClient?.removeAllChannels()
    }
 
    protected _initialize() {
       if (this._isInitialized === false) {
-         CloudWrapper.log(`Supabase App init`)
          this._supabaseClient = createClient(this._params.url, this._params.key)
          this._realtimeClient = this._supabaseClient.channel('table-db-changes')
          this._isInitialized = true
+         CloudWrapper.info(`Supabase App initialized`)
       }
    }
 }

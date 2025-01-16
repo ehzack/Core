@@ -84,13 +84,28 @@ export class S3StorageAdapter extends AbstractStorageAdapter {
       }
    }
 
-   async move(file: FileType, destFile: FileType) {
+   /**
+    * Move file to given destination
+    * There is no native command in AWS SDK for this, we need to copy then delete source media
+    * @param file
+    * @param destFile
+    * @returns
+    */
+   async move(file: FileType, destFile: FileType): Promise<FileType> {
       try {
+         Storage.debug(`Moving file from ${file.ref} to ${destFile.ref}`)
          await this.copy(file, destFile)
          await this.delete(file)
       } catch (err) {
+         Storage.error(
+            `Failed to move file from ${file.ref} to ${destFile.ref}: ${
+               (err as Error).message
+            }`
+         )
          console.log(err)
       }
+
+      return destFile
    }
 
    async getUrl(file: FileType, expiresIn = 3600) {
@@ -104,7 +119,7 @@ export class S3StorageAdapter extends AbstractStorageAdapter {
    }
 
    async delete(file: FileType) {
-      Storage.log(`Deleting file ${file.ref}`)
+      Storage.debug(`Deleting file ${file.ref}`)
       const command = new DeleteObjectCommand({
          Bucket: file.bucket,
          Key: file.ref,
