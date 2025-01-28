@@ -38,17 +38,20 @@ export class SupabaseAuthAdapter extends AbstractAuthAdapter {
             email,
             phone: phoneNumber,
             password,
-            //disabled = false,
          } = user._
 
          Auth.log(`[SAA] Adding user '${displayName}'`)
          const { data, error } = await this._client.auth.admin.createUser({
             email,
             password,
+            email_confirm: false, // TODO move to params
          })
 
          if (error) {
             console.log(error)
+            if (error.code === 'email_exists') {
+               throw new AuthenticationError(Auth.ERROR_EMAIL_EXISTS)
+            }
             throw new Error(error)
          }
 
@@ -86,7 +89,7 @@ export class SupabaseAuthAdapter extends AbstractAuthAdapter {
 
    async revokeAuthToken(token: string) {
       // Careful, this only delete tokens on client side, not on server side
-      const { error } = await this._client.auth.signOut()
+      const { error } = await this.signout()
    }
 
    async signup(login: string, password: string) {
@@ -103,7 +106,14 @@ export class SupabaseAuthAdapter extends AbstractAuthAdapter {
       return { user: data.user, session: data.session }
    }
 
-   async signout(user: User): Promise<any> {}
+   async signout(): Promise<any> {
+      const { data, error } = await this._client.auth.signOut()
+      if (error !== null) {
+         Auth.log(error)
+         return false
+      }
+      return true
+   }
 
    async update(user: User, updatable: any): Promise<any> {
       Auth.log('auth data to update', JSON.stringify(updatable))
@@ -132,7 +142,7 @@ export class SupabaseAuthAdapter extends AbstractAuthAdapter {
 
       console.log(data, error)
       if (error) {
-         throw new Error(error)
+         throw new AuthenticationError(error)
       } else {
          return data
       }

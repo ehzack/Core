@@ -15,6 +15,7 @@ export interface UserType extends BaseObjectType {
    birthday?: Date
    password: string
    email: string
+   [x:string]: any
 }
 
 /**

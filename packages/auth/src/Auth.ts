@@ -38,6 +38,8 @@ export type AuthRegistry<T extends AbstractAuthAdapter> = { [x: string]: T }
 export class Auth extends Core {
    static defaultProvider = 'default'
 
+   static ERROR_EMAIL_EXISTS = `User email already exists`
+
    protected static _providers: AuthRegistry<any> = {}
 
    static addProvider(

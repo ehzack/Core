@@ -497,7 +497,10 @@ export class PostgresAdapter extends AbstractBackendAdapter {
                } else {
                   const property = dataObject.get(filter.prop)
 
-                  if (property.constructor.name === 'ArrayProperty') {
+                  if (
+                     property.constructor.name === 'ArrayProperty' &&
+                     Array.isArray(realValue)
+                  ) {
                      // we only compara arrays without using operator
                      query.push(
                         `ARRAY['${realValue.join(
@@ -507,7 +510,8 @@ export class PostgresAdapter extends AbstractBackendAdapter {
                      return
                   } else if (property.constructor.name === 'ObjectProperty') {
                      if (filter.value instanceof ObjectUri) {
-                        realValue = filter.value.path
+                        // only keep uuid
+                        realValue = filter.value.uid
                      } else if (
                         filter.value &&
                         typeof filter.value === 'object' &&
@@ -545,8 +549,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
 
                if (realOperator === operatorsMap['containsAny']) {
                   // Use 'containsAny' for queries in arrays which query structure is weird
-                  //  query.push(`'${realValue}'=ANY(${alias}.${realProp})`)
-                  query.push(`${realValue} && ${alias}.${realProp}`)
+                  query.push(`'${realValue}'=ANY(${alias}.${realProp})`)
                } else if (
                   realOperator === operatorsMap['equals'] &&
                   realValue === 'null'

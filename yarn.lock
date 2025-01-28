@@ -2720,7 +2720,7 @@ __metadata:
   resolution: "@quatrain/cloudwrapper-supabase@workspace:packages/cloudwrapper-supabase"
   dependencies:
     "@quatrain/backend": "npm:^1.1.12"
-    "@quatrain/cloudwrapper": "npm:^1.1.11"
+    "@quatrain/cloudwrapper": "npm:^1.1.12"
     "@quatrain/core": "npm:^1.1.14"
     "@supabase/supabase-js": "npm:^2.47.15"
     "@tsconfig/recommended": "npm:^1.0.1"
@@ -2738,7 +2738,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@quatrain/cloudwrapper@npm:^1.1.11, @quatrain/cloudwrapper@workspace:packages/cloudwrapper":
+"@quatrain/cloudwrapper@npm:^1.1.12, @quatrain/cloudwrapper@workspace:packages/cloudwrapper":
   version: 0.0.0-use.local
   resolution: "@quatrain/cloudwrapper@workspace:packages/cloudwrapper"
   dependencies:
