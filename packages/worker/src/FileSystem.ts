@@ -149,7 +149,7 @@ export class FileSystem {
     * Return meta data on given file
     */
    static getInfo = (file: string): Promise<any> => {
-      if (file.endsWith('.mp4')) {
+      if (file.endsWith('.mp4') || file.endsWith('.insv')) {
          return new Promise((resolve, reject) =>
             ffmpeg.ffprobe(file, (err: any, metadata: any) => {
                if (err) {
