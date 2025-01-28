@@ -468,6 +468,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
                let realProp: any = filter.prop
                let realOperator: string
                let realValue = filter.value
+
                if (filter.prop === 'keywords') {
                   realProp = '('
                   realOperator = ''
@@ -496,7 +497,15 @@ export class PostgresAdapter extends AbstractBackendAdapter {
                } else {
                   const property = dataObject.get(filter.prop)
 
-                  if (property.constructor.name === 'ObjectProperty') {
+                  if (property.constructor.name === 'ArrayProperty') {
+                     // we only compara arrays without using operator
+                     query.push(
+                        `ARRAY['${realValue.join(
+                           "','"
+                        )}'] && ${alias}.${realProp}`
+                     )
+                     return
+                  } else if (property.constructor.name === 'ObjectProperty') {
                      if (filter.value instanceof ObjectUri) {
                         realValue = filter.value.path
                      } else if (
@@ -527,6 +536,8 @@ export class PostgresAdapter extends AbstractBackendAdapter {
                               filter.value.uri.path &&
                               filter.value.uri.path.split('/')[1]) ||
                            filter.value
+
+                        console.log('here', realValue)
                      }
                   }
                   realOperator = operatorsMap[filter.operator]
@@ -534,7 +545,8 @@ export class PostgresAdapter extends AbstractBackendAdapter {
 
                if (realOperator === operatorsMap['containsAny']) {
                   // Use 'containsAny' for queries in arrays which query structure is weird
-                  query.push(`'${realValue}'=ANY(${alias}.${realProp})`)
+                  //  query.push(`'${realValue}'=ANY(${alias}.${realProp})`)
+                  query.push(`${realValue} && ${alias}.${realProp}`)
                } else if (
                   realOperator === operatorsMap['equals'] &&
                   realValue === 'null'
