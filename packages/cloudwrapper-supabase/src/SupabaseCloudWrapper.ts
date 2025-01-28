@@ -57,20 +57,35 @@ export class SupabaseCloudWrapper extends AbstractCloudWrapper {
          throw new Error(`Passed script value is not a function`)
       }
 
+      if (Array.isArray(trigger.event)) {
+         const params = trigger.event.forEach((event) => {
+            return this.databaseTrigger({
+               ...trigger,
+               event,
+               name: `${trigger.name}-${event}`,
+            })
+         })
+         return params
+      }
+
       try {
          const params = {
             event: Reflect.get(eventMap, trigger.event),
             schema: 'public',
             table: trigger.model,
          }
+         CloudWrapper.info(
+            `Set up DB trigger ${trigger.name} for ${trigger.event} event on table ${params.table}`
+         )
          this._supabaseClient
             ?.channel(trigger.name)
             .on(
                'postgres_changes',
                params,
                async ({ old: before, new: after, ...context }) => {
-                  console.log(after)
-                  CloudWrapper.info(`Triggering function on event`)
+                  CloudWrapper.info(
+                     `Triggering function on event ${trigger.name}`
+                  )
                   try {
                      return await trigger.script({ before, after, context })
                   } catch (err) {
@@ -78,7 +93,8 @@ export class SupabaseCloudWrapper extends AbstractCloudWrapper {
                      console.log(err)
                   }
                }
-            ).subscribe()
+            )
+            .subscribe()
          return params
       } catch (err) {
          console.log(err)
