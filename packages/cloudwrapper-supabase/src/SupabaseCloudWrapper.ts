@@ -71,7 +71,7 @@ export class SupabaseCloudWrapper extends AbstractCloudWrapper {
       try {
          const params = {
             event: Reflect.get(eventMap, trigger.event),
-            schema: 'public',
+            schema: trigger.schema || 'public',
             table: trigger.model,
          }
          CloudWrapper.info(
