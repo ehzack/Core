@@ -69,13 +69,14 @@ export class SupabaseCloudWrapper extends AbstractCloudWrapper {
       }
 
       try {
+         const schema = trigger.schema || 'public'
          const params = {
             event: Reflect.get(eventMap, trigger.event),
-            schema: trigger.schema || 'public',
+            schema,
             table: trigger.model,
          }
          CloudWrapper.info(
-            `Set up DB trigger ${trigger.name} for ${trigger.event} event on table ${params.table}`
+            `Set up DB trigger ${trigger.name} for ${trigger.event} event on table ${schema}.${params.table}`
          )
          this._supabaseClient
             ?.channel(trigger.name)
