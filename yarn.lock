@@ -2742,6 +2742,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@quatrain/cloudwrapper@workspace:packages/cloudwrapper"
   dependencies:
+    "@quatrain/cloudwrapper": "npm:^1.1.13"
+    "@quatrain/storage": "workspace:^"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/jest": "npm:^27.0.3"
     "@types/node": "npm:^22.10.1"
@@ -2921,7 +2923,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@quatrain/storage@npm:^1.1.12, @quatrain/storage@workspace:packages/storage":
+"@quatrain/storage@npm:^1.1.12, @quatrain/storage@workspace:^, @quatrain/storage@workspace:packages/storage":
   version: 0.0.0-use.local
   resolution: "@quatrain/storage@workspace:packages/storage"
   dependencies:

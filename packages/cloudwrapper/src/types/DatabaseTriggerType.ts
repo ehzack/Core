@@ -1,10 +1,7 @@
-import { BackendAction } from '@quatrain/backend'
+import { GenericTriggerType } from './GenericTriggerType'
 
-export type DatabaseTriggerType = {
-   name: string
-   event: BackendAction | BackendAction[]
+export interface DatabaseTriggerType extends GenericTriggerType {
    schema?: string
    model: string
    path: string
-   script: Function
 }

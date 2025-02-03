@@ -2,6 +2,8 @@ import {
    CloudWrapper,
    AbstractCloudWrapper,
    DatabaseTriggerType,
+   StorageTriggerType,
+   StorageEventPayloadType,
 } from '@quatrain/cloudwrapper'
 import { BackendAction } from '@quatrain/backend'
 import {
@@ -9,6 +11,7 @@ import {
    SupabaseClient,
    RealtimeChannel,
 } from '@supabase/supabase-js'
+import { FileType } from '@quatrain/storage'
 
 export type SupabaseParams = {
    useEmulator?: boolean
@@ -103,6 +106,67 @@ export class SupabaseCloudWrapper extends AbstractCloudWrapper {
       }
    }
 
+   storageTrigger(trigger: StorageTriggerType) {
+      this._initialize()
+
+      if (!this._realtimeClient) {
+         throw new Error(`Realtime channel is not enabled`)
+      }
+
+      if (typeof trigger.script !== 'function') {
+         throw new Error(`Passed script value is not a function`)
+      }
+
+      if (Array.isArray(trigger.event)) {
+         const params = trigger.event.forEach((event) => {
+            return this.storageTrigger({
+               ...trigger,
+               event,
+               name: `${trigger.name}-${event}`,
+            })
+         })
+         return params
+      }
+
+      try {
+         const params = {
+            event: Reflect.get(eventMap, trigger.event),
+            schema: 'storage',
+            table: 'objects',
+         }
+         CloudWrapper.info(
+            `Set up Storage trigger ${trigger.name} for ${trigger.event} event`
+         )
+         this._supabaseClient
+            ?.channel(trigger.name)
+            .on(
+               'postgres_changes',
+               params,
+               async ({ old: before, new: after, ...context }) => {
+                  CloudWrapper.info(
+                     `Triggering function on event ${trigger.name}`
+                  )
+                  try {
+                     const payload: StorageEventPayloadType = {
+                        before: this._payload2File(before),
+                        after: this._payload2File(after),
+                        context,
+                     }
+                     return await trigger.script(payload)
+                  } catch (err) {
+                     CloudWrapper.error((err as Error).message)
+                     console.log(err)
+                  }
+               }
+            )
+            .subscribe()
+         return params
+      } catch (err) {
+         console.log(err)
+         throw new Error(`Realtime channel subscription failed`)
+      }
+   }
+
    triggersEnable() {
       if (!this._realtimeClient) {
          throw new Error(`Realtime client is not enabled`)
@@ -129,6 +193,19 @@ export class SupabaseCloudWrapper extends AbstractCloudWrapper {
          this._realtimeClient = this._supabaseClient.channel('table-db-changes')
          this._isInitialized = true
          CloudWrapper.info(`Supabase App initialized`)
+      }
+   }
+
+   protected _payload2File(payload: {
+      [x: string]: any
+   }): FileType | undefined {
+      if (Object.keys(payload).length === 0) {
+         return undefined
+      }
+
+      return {
+         bucket: payload.bucket_id,
+         ref: payload.name,
       }
    }
 }
