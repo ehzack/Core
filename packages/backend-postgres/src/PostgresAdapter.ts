@@ -21,7 +21,7 @@ import {
    CollectionHierarchy,
 } from '@quatrain/backend'
 import { randomUUID } from 'crypto'
-import { Client } from 'pg'
+import { Pool, PoolClient, PoolConfig } from 'pg'
 
 const operatorsMap: { [x: string]: string } = {
    equals: '=',
@@ -40,7 +40,7 @@ const operatorsMap: { [x: string]: string } = {
  * https://en.wikipedia.org/wiki/List_of_SQL_reserved_words
  */
 export class PostgresAdapter extends AbstractBackendAdapter {
-   protected _connection: undefined | Client
+   protected _connection: undefined | PoolClient
 
    constructor(params: BackendParameters = {}) {
       super(params)
@@ -72,7 +72,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
 
       return path
    }
-   protected async _connect(): Promise<Client> {
+   protected async _connect(): Promise<PoolClient> {
       if (!this._connection) {
          const {
             user = '',
@@ -80,9 +80,10 @@ export class PostgresAdapter extends AbstractBackendAdapter {
             host = 'localhost',
             port = 5432,
             database = 'postgres',
-         } = this._params.config
-         this._connection = new Client({ host, port, database, user, password })
-         await this._connection.connect()
+            max = 100,
+         }: PoolConfig = this._params.config
+         const pool = new Pool({ host, port, database, user, password })
+         this._connection = await pool.connect()
       }
 
       return this._connection
@@ -579,10 +580,14 @@ export class PostgresAdapter extends AbstractBackendAdapter {
 
          Backend.debug(`[PGA] SQL ${query.join(' ')}`)
 
-         const connection = await this._connect()
-         const countSnapshot = await connection.query(
-            `${query.join(' ').replace('*', 'COUNT(*) as total')}`
-         )
+         // const connection = await this._connect()
+         // const countSnapshot = await connection.query(
+         //    `${query.join(' ').replace('*', 'COUNT(*) as total')}`
+         // )
+
+         const countSnapshot = await (
+            await this._connect()
+         ).query(`${query.join(' ').replace('*', 'COUNT(*) as total')}`)
 
          Backend.debug(`[PGA] Counting records ${countSnapshot.rows[0].total}`)
 
@@ -605,7 +610,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
          const literal = `${query.join(' ').replace('*', fields.join(', '))}`
          Backend.debug(`[PGA] Full SQL ${literal}`)
 
-         const result = await connection.query(`${literal}`)
+         const result = await (await this._connect()).query(`${literal}`)
 
          const meta: QueryMetaType = {
             count: parseInt(countSnapshot.rows[0].total),

@@ -67,6 +67,7 @@ export class BaseRepository<T extends BaseObjectType> {
       const savedObj = await this.backendAdapter.create(obj.dataObject, uid)
       return this._model.fromDataObject(savedObj)
    }
+
    async getDataObject(key: string) {
       if (!key) {
          throw new Error(
@@ -93,6 +94,13 @@ export class BaseRepository<T extends BaseObjectType> {
             `Missing key value for read() in ${this.constructor.name}`
          )
       }
+
+      if (typeof key !== 'string') {
+         throw new Error(
+            `key value for read() musr be a string, ${typeof key} value was passed`
+         )
+      }
+
       try {
          let dataObject = await this.getDataObject(key)
 

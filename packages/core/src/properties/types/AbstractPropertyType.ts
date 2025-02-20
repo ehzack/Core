@@ -4,4 +4,5 @@ export interface AbstractPropertyType {
    name: string
    id?: string
    type?: PropertyTypes
+   defaultValue?: any
 }

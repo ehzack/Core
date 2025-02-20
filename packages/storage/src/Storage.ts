@@ -21,6 +21,7 @@ export type StorageBackendRegistry<T extends AbstractStorageAdapter> = {
 }
 export class Storage extends Core {
    static defaultStorage = '@default'
+   static logger = this.addLogger('Storage')
 
    protected static _storages: StorageBackendRegistry<any> = {}
 

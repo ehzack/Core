@@ -35,20 +35,6 @@ export class SupabaseCloudWrapper extends AbstractCloudWrapper {
       this._initialize()
    }
 
-   // httpsTrigger(
-   //    func: any,
-   //    params: HttpsOptions = { memory: '4GiB', timeoutSeconds: 500 }
-   // ): HttpsFunction {
-   //    this._initialize()
-   //    return onRequest(
-   //       {
-   //          concurrency: 500,
-   //          ...params,
-   //       },
-   //       func
-   //    )
-   // }
-
    databaseTrigger(trigger: DatabaseTriggerType) {
       this._initialize()
 
@@ -101,7 +87,7 @@ export class SupabaseCloudWrapper extends AbstractCloudWrapper {
             .subscribe()
          return params
       } catch (err) {
-         console.log(err)
+         CloudWrapper.error(err)
          throw new Error(`Realtime channel subscription failed`)
       }
    }

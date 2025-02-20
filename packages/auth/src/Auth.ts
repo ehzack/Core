@@ -37,6 +37,8 @@ export type AuthRegistry<T extends AbstractAuthAdapter> = { [x: string]: T }
 
 export class Auth extends Core {
    static defaultProvider = 'default'
+   static logger = this.addLogger('Auth')
+
 
    static ERROR_EMAIL_EXISTS = `User email already exists`
 
@@ -61,9 +63,5 @@ export class Auth extends Core {
       } else {
          throw new Error(`Unknown provider alias: '${alias}'`)
       }
-   }
-
-   static log(message: any, src = 'Auth') {
-      super.log(message, src)
    }
 }

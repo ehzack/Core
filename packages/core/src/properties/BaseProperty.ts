@@ -41,7 +41,10 @@ export class BaseProperty implements PropertyClassType {
       this._name = config.name
       this._protected = config.protected || false
       this._mandatory = config.mandatory || false
-      this._defaultValue = config.defaultValue
+      this._defaultValue =
+         typeof config.defaultValue === 'function'
+            ? config.defaultValue()
+            : config.defaultValue
       this._value = config.defaultValue
       this._hasChanged = false
       this._htmlType = config.htmlType || 'off'
