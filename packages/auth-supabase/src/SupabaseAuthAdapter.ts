@@ -40,7 +40,7 @@ export class SupabaseAuthAdapter extends AbstractAuthAdapter {
             password,
          } = user._
 
-         Auth.log(`[SAA] Adding user '${displayName}'`)
+         Auth.info(`[SAA] Adding user '${displayName}'`)
          const { data, error } = await this._client.auth.admin.createUser({
             email,
             password,
@@ -116,7 +116,7 @@ export class SupabaseAuthAdapter extends AbstractAuthAdapter {
    }
 
    async update(user: User, updatable: any): Promise<any> {
-      Auth.log('auth data to update', JSON.stringify(updatable))
+      Auth.debug('auth data to update', JSON.stringify(updatable))
 
       try {
          if (Object.keys(updatable).length > 0) {
@@ -135,7 +135,7 @@ export class SupabaseAuthAdapter extends AbstractAuthAdapter {
    }
 
    async setCustomUserClaims(id: string, claims: any) {
-      Auth.log(`Updating user ${id} with claims ${JSON.stringify(claims)}`)
+      Auth.debug(`Updating user ${id} with claims ${JSON.stringify(claims)}`)
       const { data, error } = await this._client.auth.admin.updateUserById(id, {
          user_metadata: claims,
       })

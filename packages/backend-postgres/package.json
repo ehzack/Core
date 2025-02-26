@@ -11,7 +11,7 @@
    ],
    "author": "Quatrain Développement SAS <developers@quatrain.com>",
    "dependencies": {
-      "@quatrain/backend": "^1.1.12",
+      "@quatrain/backend": "^1.1.13",
       "@quatrain/core": "workspace:^",
       "pg": "^8.11.3",
       "postgres": "^3.4.4"

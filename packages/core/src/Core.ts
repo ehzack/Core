@@ -9,14 +9,19 @@ export class Core {
    static storagePrefix = 'core'
    static userClass = User
    static classRegistry: { [key: string]: any } = {}
+   static logLevel = LogLevel.WARN
    static logger: AbstractLoggerAdapter = this.addLogger()
 
    static addLogger(alias: string = this.name) {
       return Log.addLogger(
          '@' + alias,
-         new DefaultLoggerAdapter(alias, LogLevel.DEBUG),
+         new DefaultLoggerAdapter(alias, this.logLevel),
          true
       )
+   }
+
+   static setLogLevel(level: LogLevel) {
+      this.logger.logLevel(level)
    }
 
    // How timestamp are formatted

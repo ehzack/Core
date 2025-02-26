@@ -2576,7 +2576,7 @@ __metadata:
   resolution: "@quatrain/auth-firebase@workspace:packages/auth-firebase"
   dependencies:
     "@faker-js/faker": "npm:^7.6.0"
-    "@quatrain/auth": "npm:^1.1.15"
+    "@quatrain/auth": "npm:^1.1.16"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/jest": "npm:^27.0.3"
     "@types/node": "npm:^22.10.1"
@@ -2589,7 +2589,7 @@ __metadata:
     ts-node: "npm:^10.9.1"
     typescript: "npm:^5.1.5"
   peerDependencies:
-    "@quatrain/core": ^1.1.14
+    "@quatrain/core": ^1.1.15
   languageName: unknown
   linkType: soft
 
@@ -2597,8 +2597,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@quatrain/auth-supabase@workspace:packages/auth-supabase"
   dependencies:
-    "@quatrain/auth": "npm:^1.1.15"
-    "@supabase/supabase-js": "npm:^2.45.1"
+    "@quatrain/auth": "npm:^1.1.16"
+    "@supabase/supabase-js": "npm:^2.48.1"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/jest": "npm:^27.0.3"
     "@types/node": "npm:^22.10.1"
@@ -2613,12 +2613,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@quatrain/auth@npm:^1.1.15, @quatrain/auth@workspace:packages/auth":
+"@quatrain/auth@npm:^1.1.16, @quatrain/auth@workspace:packages/auth":
   version: 0.0.0-use.local
   resolution: "@quatrain/auth@workspace:packages/auth"
   dependencies:
-    "@quatrain/backend": "npm:^1.1.12"
-    "@quatrain/core": "npm:^1.1.14"
+    "@quatrain/backend": "npm:^1.1.13"
+    "@quatrain/core": "npm:^1.1.15"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/jest": "npm:^27.0.3"
     "@types/node": "npm:^22.10.1"
@@ -2650,7 +2650,7 @@ __metadata:
     ts-node: "npm:^10.9.1"
     typescript: "npm:^5.1.5"
   peerDependencies:
-    "@quatrain/core": ^1.1.14
+    "@quatrain/core": ^1.1.15
   languageName: unknown
   linkType: soft
 
@@ -2659,7 +2659,7 @@ __metadata:
   resolution: "@quatrain/backend-postgres@workspace:packages/backend-postgres"
   dependencies:
     "@faker-js/faker": "npm:^7.6.0"
-    "@quatrain/backend": "npm:^1.1.12"
+    "@quatrain/backend": "npm:^1.1.13"
     "@quatrain/core": "workspace:^"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/jest": "npm:^27.0.3"
@@ -2677,12 +2677,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@quatrain/backend@npm:^1.1.12, @quatrain/backend@workspace:packages/backend":
+"@quatrain/backend@npm:^1.1.13, @quatrain/backend@workspace:packages/backend":
   version: 0.0.0-use.local
   resolution: "@quatrain/backend@workspace:packages/backend"
   dependencies:
     "@faker-js/faker": "npm:^7.6.0"
-    "@quatrain/core": "npm:^1.1.14"
+    "@quatrain/core": "npm:^1.1.15"
     "@quatrain/log": "workspace:^"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/jest": "npm:^27.0.3"
@@ -2712,7 +2712,7 @@ __metadata:
     ts-node: "npm:^10.9.1"
     typescript: "npm:^5.1.5"
   peerDependencies:
-    "@quatrain/core": ^1.1.14
+    "@quatrain/core": ^1.1.15
   languageName: unknown
   linkType: soft
 
@@ -2720,10 +2720,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@quatrain/cloudwrapper-supabase@workspace:packages/cloudwrapper-supabase"
   dependencies:
-    "@quatrain/backend": "npm:^1.1.12"
+    "@quatrain/backend": "npm:^1.1.13"
     "@quatrain/cloudwrapper": "npm:^1.1.13"
-    "@quatrain/core": "npm:^1.1.14"
-    "@supabase/supabase-js": "npm:^2.47.15"
+    "@quatrain/core": "npm:^1.1.15"
+    "@supabase/supabase-js": "npm:^2.48.1"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/jest": "npm:^27.0.3"
     "@types/node": "npm:^22.10.1"
@@ -2735,7 +2735,7 @@ __metadata:
     ts-node: "npm:^10.9.1"
     typescript: "npm:^5.1.5"
   peerDependencies:
-    "@quatrain/core": ^1.1.14
+    "@quatrain/core": ^1.1.15
   languageName: unknown
   linkType: soft
 
@@ -2755,12 +2755,12 @@ __metadata:
     ts-node: "npm:^10.9.1"
     typescript: "npm:^5.1.5"
   peerDependencies:
-    "@quatrain/backend": ^1.1.12
-    "@quatrain/core": ^1.1.14
+    "@quatrain/backend": ^1.1.13
+    "@quatrain/core": ^1.1.15
   languageName: unknown
   linkType: soft
 
-"@quatrain/core@npm:^1.1.14, @quatrain/core@workspace:^, @quatrain/core@workspace:packages/core":
+"@quatrain/core@npm:^1.1.15, @quatrain/core@workspace:^, @quatrain/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@quatrain/core@workspace:packages/core"
   dependencies:
@@ -2803,7 +2803,7 @@ __metadata:
   resolution: "@quatrain/queue-amqp@workspace:packages/queue-amqp"
   dependencies:
     "@cloudamqp/amqp-client": "npm:^3.1.1"
-    "@quatrain/core": "npm:^1.1.14"
+    "@quatrain/core": "npm:^1.1.15"
     "@quatrain/queue": "npm:^1.1.11"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/fs-extra": "npm:^11.0.4"
@@ -2844,7 +2844,7 @@ __metadata:
   resolution: "@quatrain/queue-gcp@workspace:packages/queue-gcp"
   dependencies:
     "@google-cloud/pubsub": "npm:^4.7.0"
-    "@quatrain/core": "npm:^1.1.14"
+    "@quatrain/core": "npm:^1.1.15"
     "@quatrain/queue": "npm:^1.1.11"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/fs-extra": "npm:^11.0.4"
@@ -2864,7 +2864,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@quatrain/queue@workspace:packages/queue"
   dependencies:
-    "@quatrain/core": "npm:^1.1.14"
+    "@quatrain/core": "npm:^1.1.15"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/fs-extra": "npm:^11.0.4"
     "@types/jest": "npm:^27.0.3"
@@ -2884,7 +2884,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@quatrain/storage-firebase@workspace:packages/storage-firebase"
   dependencies:
-    "@quatrain/core": "npm:^1.1.14"
+    "@quatrain/core": "npm:^1.1.15"
     "@quatrain/storage": "npm:^1.1.12"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/fs-extra": "npm:^11.0.4"
@@ -2926,7 +2926,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@quatrain/storage-supabase@workspace:packages/storage-supabase"
   dependencies:
-    "@quatrain/core": "npm:^1.1.14"
+    "@quatrain/core": "npm:^1.1.15"
     "@quatrain/storage": "npm:^1.1.12"
     "@supabase/supabase-js": "npm:^2.45.1"
     "@tsconfig/recommended": "npm:^1.0.1"
@@ -2945,7 +2945,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@quatrain/storage@workspace:packages/storage"
   dependencies:
-    "@quatrain/core": "npm:^1.1.14"
+    "@quatrain/core": "npm:^1.1.15"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/fs-extra": "npm:^11.0.4"
     "@types/jest": "npm:^27.0.3"
@@ -2965,7 +2965,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@quatrain/worker@workspace:packages/worker"
   dependencies:
-    "@quatrain/core": "npm:^1.1.14"
+    "@quatrain/core": "npm:^1.1.15"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/fluent-ffmpeg": "npm:^2"
     "@types/fs-extra": "npm:^11.0.4"
@@ -3979,12 +3979,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@supabase/auth-js@npm:2.67.3":
-  version: 2.67.3
-  resolution: "@supabase/auth-js@npm:2.67.3"
+"@supabase/auth-js@npm:2.68.0":
+  version: 2.68.0
+  resolution: "@supabase/auth-js@npm:2.68.0"
   dependencies:
     "@supabase/node-fetch": "npm:^2.6.14"
-  checksum: 10c0/59b29ba51e4c9e9d61b60db98005cec2007077e09489dbc82073919f8dd86364e0577c27e79993af528f9a077e564e2da222f4f22af71b1d1688d130098cb3e0
+  checksum: 10c0/99a9395b3c73bd3befc77c69041df4a68a23dff9fb6ae26aeb6ddd7ba49e666cbe5fe9618614bb85d22f2c2e636a9f4bf1f4de740f742022a4445dabecb857c2
   languageName: node
   linkType: hard
 
@@ -4024,12 +4024,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@supabase/postgrest-js@npm:1.17.11":
-  version: 1.17.11
-  resolution: "@supabase/postgrest-js@npm:1.17.11"
+"@supabase/postgrest-js@npm:1.19.2":
+  version: 1.19.2
+  resolution: "@supabase/postgrest-js@npm:1.19.2"
   dependencies:
     "@supabase/node-fetch": "npm:^2.6.14"
-  checksum: 10c0/be288fc2bdcf624fa3aba033c72adb595293b46f1ffd070b13e4b163ed881ad09b5b916c0ea324fd5176bc4c2abae1c1edf362c7aba5ab42c4defef6214d4a2f
+  checksum: 10c0/9a14513f6cc5d9d249d13516eed29ecd5fcbea767ec6c1463fa8a133d933f2878ba4f65c76494f9259fe5f655d1096335656a75824c3401c542dade1b2201a15
   languageName: node
   linkType: hard
 
@@ -4089,17 +4089,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@supabase/supabase-js@npm:^2.47.15":
-  version: 2.47.15
-  resolution: "@supabase/supabase-js@npm:2.47.15"
+"@supabase/supabase-js@npm:^2.48.1":
+  version: 2.49.1
+  resolution: "@supabase/supabase-js@npm:2.49.1"
   dependencies:
-    "@supabase/auth-js": "npm:2.67.3"
+    "@supabase/auth-js": "npm:2.68.0"
     "@supabase/functions-js": "npm:2.4.4"
     "@supabase/node-fetch": "npm:2.6.15"
-    "@supabase/postgrest-js": "npm:1.17.11"
+    "@supabase/postgrest-js": "npm:1.19.2"
     "@supabase/realtime-js": "npm:2.11.2"
     "@supabase/storage-js": "npm:2.7.1"
-  checksum: 10c0/15d329531eeb1d2783f75bded7dbd17edf3d0bd7b5d9600563cdc16a16d3ca21f25ee479e303cb69831cb6bd3878f5289977bfe3b50524999804c13b9e31424c
+  checksum: 10c0/432c6d3d07ad8e9645b3495ad92ef83042452433259268c0c9892c8e4f2ab8b26eadd2d7156dbb762ee18abe098d3bdae39a9176bb66934bcc62c89ec166869e
   languageName: node
   linkType: hard
 
