@@ -5,6 +5,7 @@ import { spawn } from 'child_process'
 
 export class Worker extends Core {
    static endpoint: string = ''
+   static logger = this.addLogger('Worker')
 
    /**
     * Execute an external command in a promise

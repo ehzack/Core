@@ -15,6 +15,7 @@ export type QueueRegistry<T extends AbstractQueueAdapter> = { [x: string]: T }
 
 export class Queue extends Core {
    static defaultQueue = '@default'
+   static logger = this.addLogger('Queue')
 
    protected static _queues: QueueRegistry<any> = {}
 

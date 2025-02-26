@@ -48,7 +48,7 @@ export class SupabaseAuthAdapter extends AbstractAuthAdapter {
          })
 
          if (error) {
-            console.log(error)
+            Auth.error(error.message)
             if (error.code === 'email_exists') {
                throw new AuthenticationError(Auth.ERROR_EMAIL_EXISTS)
             }
@@ -57,7 +57,7 @@ export class SupabaseAuthAdapter extends AbstractAuthAdapter {
 
          return data.user
       } catch (err) {
-         console.log(err)
+         Auth.error(err)
          throw new AuthenticationError((err as Error).message)
       }
    }
@@ -109,7 +109,7 @@ export class SupabaseAuthAdapter extends AbstractAuthAdapter {
    async signout(): Promise<any> {
       const { data, error } = await this._client.auth.signOut()
       if (error !== null) {
-         Auth.log(error)
+         Auth.error(error)
          return false
       }
       return true
@@ -120,7 +120,7 @@ export class SupabaseAuthAdapter extends AbstractAuthAdapter {
 
       try {
          if (Object.keys(updatable).length > 0) {
-            Auth.log(`Updating ${updatable.displayName} Auth record`)
+            Auth.info(`Updating ${updatable.displayName} Auth record`)
             const { data, error } =
                await this._client.auth.admin.updateUserById(user.uid, updatable)
             if (error !== null) {

@@ -28,6 +28,10 @@ export class SupabaseStorageAdapter extends AbstractStorageAdapter {
       return this._client
    }
 
+   getMetaData(file: FileType): Promise<FileType> {
+      return new Promise(() => file)
+   }
+
    async streamToBuffer(stream: Stream): Promise<Buffer> {
       return new Promise<Buffer>((resolve, reject) => {
          const _buf: any[] = []

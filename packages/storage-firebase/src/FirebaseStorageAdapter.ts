@@ -29,6 +29,20 @@ export class FirebaseStorageAdapter extends AbstractStorageAdapter {
       return getStorage()
    }
 
+   getMetaData(file: FileType): Promise<FileType> {
+      return getStorage()
+         .bucket(file.bucket)
+         .file(file.ref)
+         .getMetadata()
+         .then((data) => {
+            const [metadata] = data
+            return {
+               ...file,
+               metadata,
+            }
+         })
+   }
+
    async download(file: FileType, meta: DownloadFileMetaType) {
       const bucket = getStorage().bucket(file.bucket)
       if (meta.onlyContent) {

@@ -1,6 +1,6 @@
 {
    "name": "@quatrain/storage-firebase",
-   "version": "1.1.11",
+   "version": "1.1.12",
    "description": "Storage adapter for Firebase Storage",
    "main": "lib/index.js",
    "types": "lib/index.d.ts",
@@ -25,15 +25,19 @@
    },
    "dependencies": {
       "@quatrain/core": "^1.1.15",
-      "@quatrain/storage": "^1.1.12",
+      "@quatrain/storage": "^1.1.13",
       "firebase-admin": "^12.4.0",
       "fs-extra": "^11.2.0"
    },
    "scripts": {
-      "test": "tsc && jest --verbose",
+      "test-ci": "jest --runInBand",
       "build": "tsc",
       "wbuild": "tsc --watch",
       "bump-to": "yarn version",
-      "publish": "yarn build && yarn npm publish --access public"
+      "hash": "node ../../bin/hashFolder.js",
+      "hash:persist": "yarn hash  > .hash_latest.txt",
+      "hash:compare": "yarn hash > .hash_newest.txt && cmp -s .hash_latest.txt .hash_newest.txt",
+      "publish": "yarn hash:compare || yarn publish:process",
+      "publish:process": "yarn version patch && yarn build && yarn npm publish --access public && yarn hash:persist"
    }
 }
