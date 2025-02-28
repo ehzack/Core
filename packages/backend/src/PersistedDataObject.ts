@@ -76,20 +76,22 @@ export class PersistedDataObject extends CoreDO implements Persisted {
    protected _dataToJSON(
       objectsAsReferences = false,
       ignoreUnchanged = false,
+      ignoreNulls = false,
       converters = {}
    ) {
       const data = {}
       Object.keys(this._properties).forEach((key: string) => {
          const prop = Reflect.get(this._properties, key)
+         if (ignoreNulls && !prop.val()) return
          if (ignoreUnchanged && prop.hasChanged === false) return
 
-         //   console.log(prop.constructor.name);
          switch (prop.constructor.name) {
             case 'CollectionProperty':
                // ignore
                break
             case 'ObjectProperty':
-               const value: PersistedBaseObject | ObjectUri | undefined = prop.val()
+               const value: PersistedBaseObject | ObjectUri | undefined =
+                  prop.val()
                Reflect.set(
                   data,
                   key,
@@ -135,7 +137,9 @@ export class PersistedDataObject extends CoreDO implements Persisted {
     * @param param
     * @returns DataObject
     */
-   static factory(param: DataObjectParams | undefined = undefined): PersistedDataObject {
+   static factory(
+      param: DataObjectParams | undefined = undefined
+   ): PersistedDataObject {
       try {
          return new this(param)
       } catch (err) {

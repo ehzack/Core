@@ -283,6 +283,7 @@ export class DataObject implements DataObjectType {
       let objectsAsReferences: boolean = false,
          withoutURIData: boolean = false,
          ignoreUnchanged: boolean = false,
+         ignoreNulls: boolean = false,
          converters: any = {}
 
       if (typeof params === 'object') {
@@ -290,13 +291,19 @@ export class DataObject implements DataObjectType {
          objectsAsReferences = Boolean(params.objectsAsReferences)
          withoutURIData = Boolean(params.withoutURIData)
          ignoreUnchanged = Boolean(params.ignoreUnchanged)
+         ignoreNulls = Boolean(params.ignoreNulls)
          converters = params.converters
       }
 
       return {
          ...(!withoutURIData &&
             this.uri && { uid: this.uri.uid, path: this.uri.path }),
-         ...this._dataToJSON(objectsAsReferences, ignoreUnchanged, converters),
+         ...this._dataToJSON(
+            objectsAsReferences,
+            ignoreUnchanged,
+            ignoreNulls,
+            converters
+         ),
       }
    }
 
@@ -310,11 +317,13 @@ export class DataObject implements DataObjectType {
    protected _dataToJSON(
       objectsAsReferences = false,
       ignoreUnchanged = false,
+      ignoreNulls = false,
       converters = {}
    ) {
       const data = {}
       Object.keys(this._properties).forEach((key: string) => {
          const prop = Reflect.get(this._properties, key)
+         if (ignoreNulls && !prop.val()) return
          if (ignoreUnchanged && prop.hasChanged === false) return
 
          //   console.log(prop.constructor.name);
