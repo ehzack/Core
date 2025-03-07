@@ -20,7 +20,7 @@ export type StorageBackendRegistry<T extends AbstractStorageAdapter> = {
    [x: string]: T
 }
 export class Storage extends Core {
-   static defaultStorage = '@default'
+   static defaultStorage = ''
    static logger = this.addLogger('Storage')
 
    protected static _storages: StorageBackendRegistry<any> = {}
@@ -31,7 +31,10 @@ export class Storage extends Core {
       setDefault: boolean = false
    ) {
       this._storages[alias] = adapter
-      if (setDefault) {
+      this.info(
+         `Added storage adapter ${adapter.constructor.name} with alias '${alias}'`
+      )
+      if (setDefault === true) {
          this.defaultStorage = alias
       }
    }

@@ -8,7 +8,7 @@ import { FileType } from '@quatrain/storage'
 
 export class FileSystem {
    static prepare(folder: string) {
-      Worker.log(`Setting up process folder ${folder}`)
+      Worker.debug(`Setting up process folder ${folder}`)
       this.removeFolder(folder)
 
       fs.mkdirSync(folder)
@@ -61,32 +61,6 @@ export class FileSystem {
       return name.replace(/\s+/g, '_')
    }
 
-   // static uploadFile18(
-   //    filename: string,
-   //    destination: string,
-   //    mime: string = 'application/octet-stream'
-   // ) {
-   //    return new Promise((resolve, reject) => {
-   //       try {
-   //          const { size } = fs.statSync(filename)
-   //          const bufferContent = fs.readFileSync(filename)
-   //          fetch(destination, {
-   //             method: 'POST',
-   //             mode: 'cors',
-   //             headers: {
-   //                'Content-Type': mime,
-   //                'Content-length': String(size),
-   //             },
-   //             body: bufferContent,
-   //          })
-   //             .then(() => resolve(undefined))
-   //             .catch((err) => reject(err))
-   //       } catch (err: any) {
-   //          reject(err as Error)
-   //       }
-   //    })
-   // }
-
    /**
     * Upload file to public URL and return meta data
     * @param filename string
@@ -136,10 +110,10 @@ export class FileSystem {
                   'Content-length': String(size),
                },
             })
-               .then((res) => resolve({ ...meta, size, uploadUrl: undefined }))
+               .then(() => resolve({ ...meta, size, uploadUrl: undefined }))
                .catch((err: any) => reject(err))
          } catch (err) {
-            console.log(err)
+            Worker.error(err)
             reject(err)
          }
       })
@@ -169,7 +143,7 @@ export class FileSystem {
                resolve({
                   width,
                   height,
-                  framerate: framerate.toFixed(0),
+                  framerate: parseInt(framerate.toFixed(0)),
                   duration: parseInt(duration as string),
                   bitrate,
                })

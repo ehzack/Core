@@ -3,7 +3,7 @@ import logger from 'loglevel'
 import { LogLevel } from './Log'
 
 export class DefaultLoggerAdapter extends AbstractLoggerAdapter {
-   constructor(prefix = '', level: LogLevel = LogLevel.WARN) {
+   constructor(prefix = '', level: LogLevel = LogLevel.DEBUG) {
       super(prefix, level)
       this._logger = logger
       this._logger.setLevel(level)

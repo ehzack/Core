@@ -9,6 +9,15 @@ export interface LoggerType {
    trace(message: string): void
 }
 
+export const loglevelNames = [
+   'TRACE',
+   'DEBUG',
+   'INFO',
+   'WARN',
+   'ERROR',
+   'SILENT',
+]
+
 export abstract class AbstractLoggerAdapter implements LoggerType {
    protected _me: string = ''
    protected _logLevel: LogLevel = LogLevel.WARN
@@ -23,7 +32,7 @@ export abstract class AbstractLoggerAdapter implements LoggerType {
       this._logLevel = level
    }
 
-   formatLogMessage = (messages: any[]): string =>
+   formatLogMessage = (messages: any[], loglevel: LogLevel = 3): string =>
       `${Log.timestamp()} - [${this._me}] ${messages.reduce((message: any) =>
          typeof message === 'string'
             ? `${message} `

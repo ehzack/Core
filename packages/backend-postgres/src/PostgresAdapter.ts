@@ -41,9 +41,28 @@ const operatorsMap: { [x: string]: string } = {
  */
 export class PostgresAdapter extends AbstractBackendAdapter {
    protected _connection: undefined | PoolClient
+   protected _pool: Pool
 
    constructor(params: BackendParameters = {}) {
       super(params)
+
+      const {
+         user = '',
+         password = '',
+         host = 'localhost',
+         port = 5432,
+         database = 'postgres',
+         max = 100,
+      }: PoolConfig = this._params.config
+      this._pool = new Pool({
+         host,
+         port,
+         database,
+         user,
+         password,
+         max,
+         connectionTimeoutMillis: 10000,
+      })
    }
 
    protected _buildPath(dataObject: DataObjectClass<any>, uid?: string) {
@@ -55,7 +74,6 @@ export class PostgresAdapter extends AbstractBackendAdapter {
       }
 
       // define document path
-
       let path = `${collection}/${uid}`
       if (
          this._params.hierarchy &&
@@ -68,22 +86,22 @@ export class PostgresAdapter extends AbstractBackendAdapter {
          path = `${dataObject.val(dataObject.parentProp).path}/${path}`
       }
 
-      Backend.log(`[FSA] Record path is '${path}'`)
+      Backend.debug(`[FSA] Record path is '${path}'`)
 
       return path
    }
    protected async _connect(): Promise<PoolClient> {
       if (!this._connection) {
-         const {
-            user = '',
-            password = '',
-            host = 'localhost',
-            port = 5432,
-            database = 'postgres',
-            max = 100,
-         }: PoolConfig = this._params.config
-         const pool = new Pool({ host, port, database, user, password })
-         this._connection = await pool.connect()
+         // const {
+         //    user = '',
+         //    password = '',
+         //    host = 'localhost',
+         //    port = 5432,
+         //    database = 'postgres',
+         //    max = 100,
+         // }: PoolConfig = this._params.config
+         // this._pool = new Pool({ host, port, database, user, password })
+         this._connection = await this._pool.connect()
       }
 
       return this._connection
@@ -129,6 +147,10 @@ export class PostgresAdapter extends AbstractBackendAdapter {
       }
 
       return data
+   }
+
+   protected _query(sql: string, params: any[] = []) {
+      return this._pool.query(sql, params)
    }
 
    /**
@@ -178,7 +200,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
 
             Backend.debug(`[PGA] Values ${JSON.stringify(pgData)}`)
 
-            await (await this._connect()).query(`${query}${values}`, pgData)
+            await this._query(`${query}${values}`, pgData)
 
             dataObject.uri.path = this._buildPath(dataObject, uid)
             dataObject.uri.label = data && Reflect.get(data, 'name')
@@ -260,7 +282,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
 
       Backend.debug(`[PGA] SQL ${queryString}`)
 
-      const result = await (await this._connect()).query(queryString)
+      const result = await this._query(queryString)
 
       if (result.rowCount === 0) {
          throw new NotFoundError(`[PGA] No document matches path '${path}'`)
@@ -322,7 +344,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
       Backend.debug(`[PGA] ${query}`)
       Backend.debug(`[PGA] Values ${JSON.stringify(pgData)}`)
 
-      await (await this._connect()).query(query, pgData)
+      await this._query(query, pgData)
 
       return dataObject
    }
@@ -339,8 +361,6 @@ export class PostgresAdapter extends AbstractBackendAdapter {
       await this.executeMiddlewares(dataObject, BackendAction.DELETE, {
          useDateFormat: true,
       })
-
-      await this._connect()
 
       if (!hardDelete) {
          dataObject.set('status', statuses.DELETED)
@@ -363,8 +383,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
 
    async deleteCollection(collection: string, batchSize = 500): Promise<void> {
       Backend.log(`Deleting all records from collection '${collection}'`)
-      await this._connect()
-      await this._connection?.query(`TRUNCATE TABLE ${collection}`)
+      await this._query(`TRUNCATE TABLE ${collection}`)
    }
 
    /**
@@ -580,14 +599,9 @@ export class PostgresAdapter extends AbstractBackendAdapter {
 
          Backend.debug(`[PGA] SQL ${query.join(' ')}`)
 
-         // const connection = await this._connect()
-         // const countSnapshot = await connection.query(
-         //    `${query.join(' ').replace('*', 'COUNT(*) as total')}`
-         // )
-
-         const countSnapshot = await (
-            await this._connect()
-         ).query(`${query.join(' ').replace('*', 'COUNT(*) as total')}`)
+         const countSnapshot = await this._query(
+            `${query.join(' ').replace('*', 'COUNT(*) as total')}`
+         )
 
          Backend.debug(`[PGA] Counting records ${countSnapshot.rows[0].total}`)
 
@@ -610,7 +624,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
          const literal = `${query.join(' ').replace('*', fields.join(', '))}`
          Backend.debug(`[PGA] Full SQL ${literal}`)
 
-         const result = await (await this._connect()).query(`${literal}`)
+         const result = await this._query(literal)
 
          const meta: QueryMetaType = {
             count: parseInt(countSnapshot.rows[0].total),

@@ -45,7 +45,7 @@ export class BaseProperty implements PropertyClassType {
          typeof config.defaultValue === 'function'
             ? config.defaultValue()
             : config.defaultValue
-      this._value = config.defaultValue
+      this._value = this._defaultValue
       this._hasChanged = false
       this._htmlType = config.htmlType || 'off'
       if (typeof config.onChange === 'function') {

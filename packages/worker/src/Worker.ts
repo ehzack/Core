@@ -20,18 +20,18 @@ export class Worker extends Core {
       args: any[] = [],
       cwd = process.cwd()
    ): Promise<any> => {
-      Worker.log(`Executing command ${command} in ${cwd} with arguments:`)
+      Worker.info(`Executing command ${command} in ${cwd} with arguments:`)
       args.forEach((arg) => console.log(`\t${arg}`))
       return new Promise((resolve, reject) => {
          const child = spawn(command, args, { cwd })
 
-         child.stdout.on('data', (data: Buffer) => {
+         child.stdout.on('data', (data: Buffer) =>
             Worker.debug(data.toString())
-         })
+         )
 
-         child.stderr.on('data', (data: Buffer) => {
+         child.stderr.on('data', (data: Buffer) =>
             Worker.debug(data.toString())
-         })
+         )
 
          child.on('close', (code) => {
             if (code !== 0) {

@@ -1,7 +1,12 @@
 import { DataObject } from './components/DataObject'
 import { User } from './components/User'
 import { DataObjectClass } from './components/types/DataObjectClass'
-import { AbstractLoggerAdapter, DefaultLoggerAdapter, Log, LogLevel } from '@quatrain/log'
+import {
+   AbstractLoggerAdapter,
+   DefaultLoggerAdapter,
+   Log,
+   LogLevel,
+} from '@quatrain/log'
 
 export class Core {
    static me = this.name
@@ -9,7 +14,7 @@ export class Core {
    static storagePrefix = 'core'
    static userClass = User
    static classRegistry: { [key: string]: any } = {}
-   static logLevel = LogLevel.WARN
+   static logLevel = LogLevel.DEBUG
    static logger: AbstractLoggerAdapter = this.addLogger()
 
    static addLogger(alias: string = this.name) {

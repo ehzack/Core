@@ -5,7 +5,6 @@ import { HashProperty } from '../properties/HashProperty'
 import { StringProperty } from '../properties/StringProperty'
 import * as htmlType from '../properties/types/PropertyHTMLType'
 import { BaseObjectProperties } from './BaseObjectProperties'
-import { Entity } from './Entity'
 import { BaseObjectType } from './types/BaseObjectType'
 
 export interface UserType extends BaseObjectType {
@@ -98,7 +97,7 @@ export const UserProperties: any = [
       name: 'entity',
       mandatory: false,
       type: ObjectProperty.TYPE,
-      instanceOf: Entity,
+      instanceOf: 'Entity',
    },
 ]
 
