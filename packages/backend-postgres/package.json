@@ -1,6 +1,6 @@
 {
    "name": "@quatrain/backend-postgres",
-   "version": "1.1.17",
+   "version": "1.1.18",
    "license": "MIT",
    "description": "Backend adapter for Postgres",
    "main": "lib/index.js",

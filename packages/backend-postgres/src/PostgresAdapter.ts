@@ -21,7 +21,7 @@ import {
    CollectionHierarchy,
 } from '@quatrain/backend'
 import { randomUUID } from 'crypto'
-import { Pool, PoolClient, PoolConfig } from 'pg'
+import { Client, Pool, PoolClient, PoolConfig } from 'pg'
 
 const operatorsMap: { [x: string]: string } = {
    equals: '=',
@@ -41,28 +41,10 @@ const operatorsMap: { [x: string]: string } = {
  */
 export class PostgresAdapter extends AbstractBackendAdapter {
    protected _connection: undefined | PoolClient
-   protected _pool: Pool
+   protected _pool: undefined | Pool
 
    constructor(params: BackendParameters = {}) {
       super(params)
-
-      const {
-         user = '',
-         password = '',
-         host = 'localhost',
-         port = 5432,
-         database = 'postgres',
-         max = 100,
-      }: PoolConfig = this._params.config
-      this._pool = new Pool({
-         host,
-         port,
-         database,
-         user,
-         password,
-         max,
-         connectionTimeoutMillis: 10000,
-      })
    }
 
    protected _buildPath(dataObject: DataObjectClass<any>, uid?: string) {
@@ -91,20 +73,34 @@ export class PostgresAdapter extends AbstractBackendAdapter {
       return path
    }
    protected async _connect(): Promise<PoolClient> {
-      if (!this._connection) {
-         // const {
-         //    user = '',
-         //    password = '',
-         //    host = 'localhost',
-         //    port = 5432,
-         //    database = 'postgres',
-         //    max = 100,
-         // }: PoolConfig = this._params.config
-         // this._pool = new Pool({ host, port, database, user, password })
-         this._connection = await this._pool.connect()
+      if (!this._pool) {
+         const {
+            user = '',
+            password = '',
+            host = 'localhost',
+            port = 6543,
+            database = 'postgres',
+            max = 100,
+         }: PoolConfig = this._params.config
+         Backend.info(`Creating Postgres Pool on postgresql://${host}:${port}/${database}`)
+         this._pool = new Pool({
+            host,
+            port,
+            database,
+            user,
+            password,
+            max,
+            //connectionTimeoutMillis: 5000,
+            //idleTimeoutMillis: 5000,
+         })
       }
 
-      return this._connection
+      return await this._pool.connect()
+   }
+
+   protected async _query(sql: string, params: any[] = []) {
+      const connection = await this._connect()
+      return connection.query(sql, params).finally(() => connection.release())
    }
 
    /**
@@ -147,10 +143,6 @@ export class PostgresAdapter extends AbstractBackendAdapter {
       }
 
       return data
-   }
-
-   protected _query(sql: string, params: any[] = []) {
-      return this._pool.query(sql, params)
    }
 
    /**
