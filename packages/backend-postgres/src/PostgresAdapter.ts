@@ -82,7 +82,9 @@ export class PostgresAdapter extends AbstractBackendAdapter {
             database = 'postgres',
             max = 100,
          }: PoolConfig = this._params.config
-         Backend.info(`Creating Postgres Pool on postgresql://${host}:${port}/${database}`)
+         Backend.info(
+            `Creating Postgres Pool on postgresql://${host}:${port}/${database}`
+         )
          this._pool = new Pool({
             host,
             port,
@@ -221,7 +223,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
          )
       }
 
-      Backend.log(`[PGA] Getting document ${path}`)
+      Backend.info(`[PGA] Getting document ${path}`)
 
       if (!collection) {
          throw new BackendError(
@@ -477,11 +479,20 @@ export class PostgresAdapter extends AbstractBackendAdapter {
             // list of filters objects
             filters.forEach((filter, i) => {
                query.push(parent && i === 0 ? 'AND' : i > 0 ? 'AND' : 'WHERE')
+
+               let addPrefix = true
                let realProp: any = filter.prop
                let realOperator: string
                let realValue = filter.value
 
-               if (filter.prop === 'keywords') {
+               if (filter.prop.indexOf('.') > -1) {
+                  // Condition is on a sub-object on the form 'model.property'
+                  const parts = filter.prop.toLowerCase().split('.')
+                  const joinAlias = `${parts[0]}_table`
+                  realProp = `${joinAlias}.${parts[1]}`
+                  realOperator = operatorsMap[filter.operator]
+                  addPrefix = false
+               } else if (filter.prop === 'keywords') {
                   realProp = '('
                   realOperator = ''
                   realValue = `%${filter.value}%`
@@ -494,6 +505,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
                   )
                   realProp += ')'
                   realValue = undefined
+                  addPrefix = false
                } else if (
                   filter.prop !== AbstractBackendAdapter.PKEY_IDENTIFIER &&
                   !dataObject.has(filter.prop)
@@ -570,7 +582,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
                } else {
                   query.push(
                      `${
-                        filter.prop === 'keywords' ? '' : `${alias}.`
+                        addPrefix ? `${alias}.` : ''
                      }${realProp} ${realOperator} ${
                         realValue !== undefined
                            ? `${
