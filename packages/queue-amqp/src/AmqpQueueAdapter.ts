@@ -1,34 +1,49 @@
-import { Core } from '@quatrain/core'
-import { AbstractQueueAdapter, QueueParameters } from '@quatrain/queue'
-import { AMQPClient } from '@cloudamqp/amqp-client'
+import { AbstractQueueAdapter, Queue, QueueParameters } from '@quatrain/queue'
+import { AMQPClient, AMQPMessage } from '@cloudamqp/amqp-client'
 
 export class AmqpQueueAdapter extends AbstractQueueAdapter {
    constructor(params: QueueParameters) {
       super(params)
-      const { url = 'localhost', user, password, port = 5672 } = params.config
+      const {
+         host = 'localhost',
+         user = 'guest',
+         password = 'guest',
+         port = 5672,
+      } = params.config || {}
 
-      this._client = new AMQPClient(`amqp://${url}:${port}`)
+      this._client = new AMQPClient(
+         `amqp://${user}:${password}@${host}:${port}`
+      )
    }
 
    async send(data: any, topic: string): Promise<string> {
-      const conn = await this._client.connect()
+      const connection = await this._client.connect()
 
-      const ch = await conn.channel()
-      const q = await ch.queue()
+      const channel = await connection.channel()
+      const queue = await channel.queue(topic)
       const dataBuffer = Buffer.from(JSON.stringify(data))
-      const messageId = await q.publish(dataBuffer, { deliveryMode: 2 })
+      Queue.info(`[AMQP] Sending message to ${topic}`)
+      const res = await queue.publish(dataBuffer, { deliveryMode: 2 })
+      Queue.info(`[AMQP] Message send with id ${res.confirmId}`)
 
-      Core.log(`[AMQP] Sending message to ${topic}`)
-
-      return messageId
+      return res.confirmId
    }
 
-   async listen(topic: string) {
-      const conn = await this._client.connect()
+   async listen(
+      topic: string | undefined = this._params.topic,
+      messageHandler: Function
+   ) {
+      if (!topic) {
+         throw new Error(`No topic provided for listening.`)
+      }
+      const connection = await this._client.connect()
 
-      const ch = await conn.channel()
-      const q = await ch.queue()
+      const channel = await connection.channel()
+      const queue = await channel.queue(topic)
 
-      return q.subscribe({ noAck: true })
+      return queue.subscribe(
+         { noAck: true },
+         async (message: AMQPMessage) => await messageHandler(message.bodyToString())
+      )
    }
 }

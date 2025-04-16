@@ -44,7 +44,7 @@ export class SupabaseAuthAdapter extends AbstractAuthAdapter {
          const { data, error } = await this._client.auth.admin.createUser({
             email,
             password,
-            email_confirm: false, // TODO move to params
+            email_confirm: true, // TODO move to params
          })
 
          if (error) {

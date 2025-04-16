@@ -88,7 +88,7 @@ export class BaseRepository<T extends BaseObjectType> {
       return dataObject
    }
 
-   async read(key: string) {
+   async read(key: string | Ref) {
       if (!key) {
          throw new Error(
             `Missing key value for read() in ${this.constructor.name}`
@@ -97,7 +97,7 @@ export class BaseRepository<T extends BaseObjectType> {
 
       if (typeof key !== 'string') {
          throw new Error(
-            `key value for read() musr be a string, ${typeof key} value was passed`
+            `key value for read() must be a string, ${typeof key} value was passed`
          )
       }
 
