@@ -2,26 +2,27 @@ import {
    Storage,
    AbstractStorageAdapter,
    FileType,
-   FileResponseUrlType,
    FileResponseLinkType,
    StorageParameters,
    DownloadFileMetaType,
 } from '@quatrain/storage'
 import { Readable, Stream } from 'stream'
-import { createClient, SupabaseClient } from '@supabase/supabase-js'
+import { StorageClient } from '@supabase/storage-js'
 import { tmpdir } from 'os'
 import { join } from 'path'
+import fs from 'node:fs'
 
 export class SupabaseStorageAdapter extends AbstractStorageAdapter {
-   protected _client: SupabaseClient
+   protected _client: StorageClient
 
    constructor(params: StorageParameters) {
       super(params)
-      this._client = createClient(
-         this._params.config.supabaseUrl,
-         this._params.config.supabaseKey
-      )
-      Storage.log(`[ASA] Supabase Storage Adapter initialized`)
+      this._client = new StorageClient(params.config.endpoint, {
+         apikey: params.config.secret,
+         Authorization: `Bearer ${params.config.secret}`,
+      })
+
+      Storage.log(`[SSA] Supabase Storage Adapter initialized`)
    }
 
    getDriver() {
@@ -30,6 +31,26 @@ export class SupabaseStorageAdapter extends AbstractStorageAdapter {
 
    getMetaData(file: FileType): Promise<FileType> {
       return new Promise(() => file)
+   }
+
+   async test(): Promise<boolean> {
+      try {
+         const { data, error } = await this._client.listBuckets()
+
+         if (error !== null) {
+            Storage.error(`Unable to get buckets list`)
+            throw new Error(`Unable to get buckets list: ${error.message}`)
+         }
+
+         // Storage.info(`S3 Buckets: ${JSON.stringify(data)}`)
+
+         return true
+      } catch (err) {
+         Storage.error(
+            `Failed to connect to storage: ${(err as Error).message}`
+         )
+         return false
+      }
    }
 
    async streamToBuffer(stream: Stream): Promise<Buffer> {
@@ -42,25 +63,31 @@ export class SupabaseStorageAdapter extends AbstractStorageAdapter {
       })
    }
 
-   async create(file: FileType, stream: Readable): Promise<FileType> {
-      Storage.log(`Uploading ${file.ref} to ${file.bucket}`)
+   async create(file: FileType, stream: Readable | string): Promise<FileType> {
+      console.log(stream)
+      Storage.info(`Uploading ${file.ref} to ${file.bucket}`)
 
-      const { data, error } = await this._client.storage
-         .from(file.bucket)
-         .upload(file.ref, await this.streamToBuffer(stream), {
-            cacheControl: '3600',
-            upsert: false,
-         })
+      if (typeof stream === 'string') {
+         const { data, error } = await this._client
+            .from(file.bucket)
+            .upload(file.ref, new Blob([fs.readFileSync(stream)]), {
+               //   cacheControl: '3600',
+               upsert: false,
+               contentType: file.contentType,
+            })
+
+         if (error !== null) {
+            Storage.error(`Unable to upload ${file.ref} to ${file.bucket}`)
+            throw new Error(`Unable to upload ${file.ref} to ${file.bucket}`)
+         }
+      }
 
       return file
    }
 
    async copy(file: FileType, destFile: FileType) {
-      Storage.log(
-         `Copying file ${file.ref} to ${destFile.ref} in bucket ${file.bucket}`
-      )
       try {
-         const response = await this._client.storage
+         const response = await this._client
             .from(file.bucket)
             .copy(file.ref, destFile.ref, {
                destinationBucket: destFile.bucket,
@@ -72,20 +99,30 @@ export class SupabaseStorageAdapter extends AbstractStorageAdapter {
    }
 
    async move(file: FileType, destFile: FileType) {
-      try {
-         await this.copy(file, destFile)
-         await this.delete(file)
+      Storage.info(
+         `Moving file ${file.ref} to ${destFile.ref} in same bucket ${file.bucket}`
+      )
+      const { data, error } = await this._client
+         .from(file.bucket)
+         .move(file.ref, destFile.ref)
 
-         return destFile
-      } catch (err) {
-         return (err as Error).message
+      if (error !== null) {
+         Storage.error(
+            `Unable to move ${file.ref} to ${destFile.ref}: ${error.message}`
+         )
+         throw new Error(`Unable to move ${file.ref} to ${destFile.ref}`)
       }
+
+      return destFile
    }
 
    async getUrl(file: FileType, expiresIn = 3600) {
-      const { data, error } = await this._client.storage
+      Storage.info(
+         `Getting signed url for file ${file.ref} in bucket ${file.bucket}`
+      )
+      const { data, error } = await this._client
          .from(file.bucket)
-         .createSignedUrl(file.path, expiresIn)
+         .createSignedUrl(file.ref, expiresIn, { download: true })
 
       if (error !== null) {
          throw new Error(`Unable to get signed url: ${error}`)
@@ -95,15 +132,14 @@ export class SupabaseStorageAdapter extends AbstractStorageAdapter {
    }
 
    async delete(file: FileType) {
-      const { error } = await this._client.storage
-         .from(file.bucket)
-         .remove([file.ref])
+      Storage.info(`Deleting file ${file.ref} in bucket ${file.bucket}`)
+      const { error } = await this._client.from(file.bucket).remove([file.ref])
 
       if (error !== null) {
          throw new Error(`Unable to delete ${file.ref}`)
       }
 
-      Storage.log('Object successfully deleted')
+      Storage.info(`Object ${file.ref} successfully deleted`)
 
       return true
    }
@@ -139,7 +175,7 @@ export class SupabaseStorageAdapter extends AbstractStorageAdapter {
       file: FileType,
       meta: DownloadFileMetaType
    ): Promise<string | Blob> {
-      const { data, error } = await this._client.storage
+      const { data, error } = await this._client
          .from(file.bucket)
          .download(meta.path)
 
@@ -158,7 +194,7 @@ export class SupabaseStorageAdapter extends AbstractStorageAdapter {
       file: FileType,
       _expiresIn = 3600
    ): Promise<FileResponseLinkType> {
-      const { data, error } = await this._client.storage
+      const { data, error } = await this._client
          .from(file.bucket)
          .createSignedUploadUrl(file.ref)
 

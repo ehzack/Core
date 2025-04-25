@@ -10,6 +10,7 @@ export type StorageParametersKeys = 'region' | 'alias' | 'config' | 'debug'
  * Backend parameters interface
  */
 export interface StorageParameters {
+   endpoint?: string
    region?: string
    alias?: string
    config?: any

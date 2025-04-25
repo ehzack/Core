@@ -16,6 +16,7 @@ import {
    DeleteObjectCommand,
    CopyObjectCommand,
    HeadObjectCommand,
+   ListBucketsCommand,
 } from '@aws-sdk/client-s3'
 
 export class S3StorageAdapter extends AbstractStorageAdapter {
@@ -35,9 +36,24 @@ export class S3StorageAdapter extends AbstractStorageAdapter {
       }
 
       this._client = new S3Client(config)
+
       Storage.info(
-         `AWS Storage Adapter initialized in ${this._params.config.region}`
+         `AWS Storage Adapter initialized in ${
+            this._params.config.endpoint || this._params.config.region
+         }`
       )
+   }
+
+   async test(): Promise<boolean> {
+      try {
+         const command = new ListBucketsCommand()
+         const res = await this._client.send(command)
+         //Storage.info(`S3 Buckets: ${JSON.stringify(res.Buckets)}`)
+         return true
+      } catch (err) {
+         Storage.error(`Failed to connect to S3: ${(err as Error).message}`)
+         return false
+      }
    }
 
    getDriver() {
@@ -55,22 +71,37 @@ export class S3StorageAdapter extends AbstractStorageAdapter {
    }
 
    async create(file: FileType, stream: Readable): Promise<FileType> {
-      const input = {
-         Bucket: file.bucket || this._params.config.bucket,
-         Key: file.ref,
-         Body: await this.streamToBuffer(stream),
-         ContentType: file.contentType,
+      try {
+         const input = {
+            Bucket: file.bucket || this._params.config.bucket,
+            Key: file.ref,
+            Body: await this.streamToBuffer(stream),
+            ContentType: file.contentType,
+         }
+         Storage.debug(`Uploading ${file.ref} to ${file.bucket}`)
+
+         const command = new PutObjectCommand(input)
+         await this._client.send(command)
+
+         return file
+      } catch (err) {
+         Storage.error(
+            `Failed to upload file ${file.ref} to ${file.bucket}: ${
+               (err as Error).message
+            }`
+         )
+         throw new Error(
+            `Failed to upload file ${file.ref} to ${file.bucket}: ${
+               (err as Error).message
+            }`
+         )
       }
-      Storage.debug(`Uploading ${file.ref} to ${file.bucket}`)
-
-      const command = new PutObjectCommand(input)
-      await this._client.send(command)
-
-      return file
    }
 
    async copy(file: FileType, destFile: FileType) {
-      Storage.debug(`Copying file ${file.ref} to ${destFile.ref}`)
+      Storage.debug(
+         `Copying file ${file.bucket}/${file.ref} to ${file.bucket}/${destFile.ref}`
+      )
       const command = new CopyObjectCommand({
          CopySource: encodeURI(`${file.bucket}/${file.ref}`),
          Bucket: file.bucket,
@@ -93,7 +124,9 @@ export class S3StorageAdapter extends AbstractStorageAdapter {
     */
    async move(file: FileType, destFile: FileType): Promise<FileType> {
       try {
-         Storage.debug(`Moving file from ${file.ref} to ${destFile.ref}`)
+         Storage.debug(
+            `Moving file ${file.bucket}/${file.ref} to ${file.bucket}/${destFile.ref}`
+         )
          await this.copy(file, destFile)
          await this.delete(file)
       } catch (err) {
@@ -113,13 +146,13 @@ export class S3StorageAdapter extends AbstractStorageAdapter {
          Bucket: file.bucket,
          Key: encodeURI(file.ref),
       })
-      Storage.debug(`Creating public url for ${file.ref}`)
+      Storage.debug(`Creating public url for ${file.bucket}/${file.ref}`)
       const url = await getSignedUrl(this._client, command, { expiresIn })
       return { url, expiresIn }
    }
 
    async delete(file: FileType) {
-      Storage.debug(`Deleting file ${file.ref}`)
+      Storage.debug(`Deleting file ${file.bucket}/${file.ref}`)
       const command = new DeleteObjectCommand({
          Bucket: file.bucket,
          Key: file.ref,
