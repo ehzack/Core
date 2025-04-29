@@ -2,6 +2,7 @@ import { Core } from '@quatrain/core'
 import os from 'os'
 import axios from 'axios'
 import { spawn } from 'child_process'
+import { HandlerParameters } from './types/HandlerParameters'
 
 export class Worker extends Core {
    static endpoint: string = ''
@@ -77,5 +78,50 @@ export class Worker extends Core {
             Worker.error(`Failed to push event to backend: ${err}`)
             return false
          })
+   }
+
+   /**
+    * Global handling function to process received messages
+    * @param messageHandler function
+    * @param config object
+    */
+   static handler = async (
+      messageHandler: Function,
+      config: HandlerParameters
+   ) => {
+      try {
+         switch (config.mode) {
+            case 'queue':
+               const { Queue } = require('@quatrain/queue')
+               Queue.addQueue(config.queueAdapter, 'default', true)
+               Queue.getQueue().listen(config.topic, messageHandler)
+               Queue.info(
+                  `Connected and listening to ${config.topic}, ready to receive messages.`
+               )
+               break
+
+            case 'cli':
+            case 'test':
+               Worker.warn(`Message received from CLI.`)
+               const json =
+                  config.mode === 'test'
+                     ? require('../test.json')
+                     : process.env.JSON
+
+               if (!json) {
+                  throw new Error(`CLI call with missing environment variables`)
+               }
+
+               await messageHandler(json)
+               break
+
+            default:
+               Worker.error(`Unknown mode option: '${config.mode}'`)
+               process.exit(1)
+         }
+      } catch (error) {
+         Worker.error((error as Error).message)
+         process.exit(1)
+      }
    }
 }

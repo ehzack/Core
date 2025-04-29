@@ -75,7 +75,7 @@ export class FileSystem {
    ): Promise<FileType> {
       // try to get more file metadata
       meta = { ...meta, ...FileSystem.getInfo(filename) }
-
+      Worker.info(`Uploading file ${filename} to ${meta.uploadUrl}`)
       return new Promise((resolve, reject) => {
          try {
             let done = 0 // total bytes uploaded
@@ -111,7 +111,12 @@ export class FileSystem {
                },
             })
                .then(() => resolve({ ...meta, size, uploadUrl: undefined }))
-               .catch((err: any) => reject(err))
+               .catch((err) => {
+                  Worker.error(
+                     `An error occured while uploading ${filename}: ${err.message}`
+                  )
+                  reject(err)
+               })
          } catch (err) {
             Worker.error(err)
             reject(err)
@@ -130,7 +135,7 @@ export class FileSystem {
                   Worker.error(err)
                   reject(err)
                }
-               Worker.debug(`ffprobe getInfo: ${JSON.stringify(metadata)}`)
+               //   Worker.debug(`ffprobe getInfo: ${JSON.stringify(metadata)}`)
                const {
                   width,
                   height,

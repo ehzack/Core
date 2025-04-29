@@ -190,17 +190,29 @@ export class SupabaseStorageAdapter extends AbstractStorageAdapter {
       return meta.path
    }
 
+   /**
+    * Get signed upload url for file
+    * Careful, on docker the time to live for JWT signature is defaulted to 60 sec
+    * Add SIGNED_UPLOAD_URL_EXPIRATION_TIME env variable to fix TTL
+    * @param file FileType
+    * @param _expiresIn actually ignored
+    * @returns
+    */
    async getUploadUrl(
       file: FileType,
-      _expiresIn = 3600
+      _expiresIn = 7200
    ): Promise<FileResponseLinkType> {
       const { data, error } = await this._client
          .from(file.bucket)
-         .createSignedUploadUrl(file.ref)
+         .createSignedUploadUrl(file.ref, { upsert: true, })
 
       if (error !== null) {
          throw new Error(`Unable to get signed upload url: ${error}`)
       }
+
+      Storage.info(
+         `Upload URL for ${file.ref} in bucket ${file.bucket} is ${data?.signedUrl}`
+      )
 
       return {
          url: data?.signedUrl,
