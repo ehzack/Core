@@ -2,6 +2,7 @@ import {
    BaseObjectType,
    GoneError,
    NotFoundError,
+   ObjectUri,
    statuses,
 } from '@quatrain/core'
 import { DataObjectClass } from './types/DataObjectClass'
@@ -10,6 +11,7 @@ import { PersistedBaseObject } from './PersistedBaseObject'
 import { Query, QueryResultType } from './Query'
 import { BackendInterface } from './types/BackendInterface'
 import { Backend } from './Backend'
+import { ReferenceType } from './types/ReferenceType'
 
 const RESOURCE_GONE_ERROR = `The resource you are trying to access has been deleted.`
 
@@ -88,11 +90,26 @@ export class BaseRepository<T extends BaseObjectType> {
       return dataObject
    }
 
-   async read(key: string | Ref) {
-      if (!key) {
+   /**
+    * Retrieve object from its backend
+    * @param param string | ReferenceType
+    * @returns {Promise<T | null>}
+    */
+   async read(param: string | ObjectUri | ReferenceType): Promise<any> {
+      if (!param) {
          throw new Error(
             `Missing key value for read() in ${this.constructor.name}`
          )
+      }
+
+      let key
+
+      if (param instanceof ObjectUri) {
+         key = param.path
+      } else if (typeof param === 'object') {
+         key = param.ref
+      } else {
+         key = param
       }
 
       if (typeof key !== 'string') {
@@ -115,6 +132,7 @@ export class BaseRepository<T extends BaseObjectType> {
 
          return obj
       } catch (e) {
+         Backend.error((e as Error).message)
          if (e instanceof GoneError) {
             throw e
          }

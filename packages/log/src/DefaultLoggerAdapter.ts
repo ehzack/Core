@@ -39,6 +39,11 @@ export class DefaultLoggerAdapter extends AbstractLoggerAdapter {
       }
    }
 
+   logLevel(level: LogLevel): void {
+      super.logLevel(level)
+      this._logger.setLevel(level)
+   }
+
    debug(...messages: any): void {
       this.log(messages, LogLevel.DEBUG)
    }

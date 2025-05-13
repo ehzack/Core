@@ -25,7 +25,6 @@ export abstract class AbstractLoggerAdapter implements LoggerType {
 
    constructor(prefix = '', level: LogLevel = LogLevel.WARN) {
       this._me = prefix
-      this.logLevel(level)
    }
 
    logLevel(level: LogLevel) {

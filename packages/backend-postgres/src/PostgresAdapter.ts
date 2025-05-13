@@ -21,7 +21,7 @@ import {
    CollectionHierarchy,
 } from '@quatrain/backend'
 import { randomUUID } from 'crypto'
-import { Client, Pool, PoolClient, PoolConfig } from 'pg'
+import { Pool, PoolClient, PoolConfig } from 'pg'
 
 const operatorsMap: { [x: string]: string } = {
    equals: '=',
@@ -30,7 +30,7 @@ const operatorsMap: { [x: string]: string } = {
    greaterOrEquals: '>=',
    lower: '<',
    lowerOrEquals: '>',
-   contains: 'in',
+   contains: 'ILIKE',
    notContains: 'not in',
    containsAll: 'array-contains',
    containsAny: 'any',
@@ -322,7 +322,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
       let i = 1
       Object.keys(dataObject.properties).forEach((key) => {
          const prop = dataObject.get(key)
-         if (prop.hasChanged === true) {
+         if (prop.hasChanged === true && Reflect.has(pgData, key)) {
             query += `${i > 1 ? ', ' : ''}${key.toLowerCase()} = `
             if (prop.constructor.name === 'DateTimeProperty') {
                query += `to_timestamp($${i})`
@@ -511,7 +511,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
                   !dataObject.has(filter.prop)
                ) {
                   throw new BackendError(
-                     `[PGA] No such property '${filter.prop}' on object'`
+                     `[PGA] No such property '${filter.prop}' on model'`
                   )
                } else if (
                   filter.prop === AbstractBackendAdapter.PKEY_IDENTIFIER
@@ -564,8 +564,6 @@ export class PostgresAdapter extends AbstractBackendAdapter {
                               filter.value.uri.path &&
                               filter.value.uri.path.split('/')[1]) ||
                            filter.value
-
-                        console.log('here', realValue)
                      }
                   }
                   realOperator = operatorsMap[filter.operator]
