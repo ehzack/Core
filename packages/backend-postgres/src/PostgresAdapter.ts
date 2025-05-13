@@ -316,29 +316,35 @@ export class PostgresAdapter extends AbstractBackendAdapter {
          return dataObject
       }
 
+      Backend.debug(`[PGA] Data to update ${JSON.stringify(data)}`)
       const pgData = this._prepareData(data, true)
+      Backend.debug(`[PGA] Filtered data to update ${JSON.stringify(pgData)}`)
 
-      let query = `UPDATE ${dataObject.uri.collection?.toLowerCase()} SET `
-      let i = 1
-      Object.keys(dataObject.properties).forEach((key) => {
-         const prop = dataObject.get(key)
-         if (prop.hasChanged === true && Reflect.has(pgData, key)) {
-            query += `${i > 1 ? ', ' : ''}${key.toLowerCase()} = `
-            if (prop.constructor.name === 'DateTimeProperty') {
-               query += `to_timestamp($${i})`
-            } else {
-               query += `$${i}`
+      if (pgData.length > 0) {
+         let query = `UPDATE ${dataObject.uri.collection?.toLowerCase()} SET `
+         let i = 1
+         Object.keys(dataObject.properties).forEach((key) => {
+            const prop = dataObject.get(key)
+            if (prop.hasChanged === true || Reflect.has(pgData, key)) { // TODO Fix hasChanged erratic value
+               query += `${i > 1 ? ', ' : ''}${key.toLowerCase()} = `
+               if (prop.constructor.name === 'DateTimeProperty') {
+                  query += `to_timestamp($${i})`
+               } else {
+                  query += `$${i}`
+               }
+               i++
             }
-            i++
-         }
-      })
+         })
 
-      query += ` WHERE id = '${dataObject.uid}'`
+         query += ` WHERE id = '${dataObject.uid}'`
 
-      Backend.debug(`[PGA] ${query}`)
-      Backend.debug(`[PGA] Values ${JSON.stringify(pgData)}`)
+         Backend.debug(`[PGA] ${query}`)
+         Backend.debug(`[PGA] Values ${JSON.stringify(pgData)}`)
 
-      await this._query(query, pgData)
+         await this._query(query, pgData)
+      } else {
+         Backend.warn(`[PGA] No data to update`)
+      }
 
       return dataObject
    }

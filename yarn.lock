@@ -2854,7 +2854,7 @@ __metadata:
   dependencies:
     "@cloudamqp/amqp-client": "npm:^3.1.1"
     "@quatrain/core": "npm:^1.1.19"
-    "@quatrain/queue": "npm:^1.1.15"
+    "@quatrain/queue": "npm:^1.1.16"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/fs-extra": "npm:^11.0.4"
     "@types/jest": "npm:^27.0.3"
@@ -2874,7 +2874,7 @@ __metadata:
   resolution: "@quatrain/queue-aws@workspace:packages/queue-aws"
   dependencies:
     "@aws-sdk/client-sqs": "npm:3.721.0"
-    "@quatrain/queue": "npm:^1.1.15"
+    "@quatrain/queue": "npm:^1.1.16"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/fs-extra": "npm:^11.0.4"
     "@types/jest": "npm:^27.0.3"
@@ -2895,7 +2895,7 @@ __metadata:
   dependencies:
     "@google-cloud/pubsub": "npm:^4.7.0"
     "@quatrain/core": "npm:^1.1.19"
-    "@quatrain/queue": "npm:^1.1.15"
+    "@quatrain/queue": "npm:^1.1.16"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/fs-extra": "npm:^11.0.4"
     "@types/jest": "npm:^27.0.3"
@@ -2910,7 +2910,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@quatrain/queue@npm:^1.1.15, @quatrain/queue@workspace:^, @quatrain/queue@workspace:packages/queue":
+"@quatrain/queue@npm:^1.1.16, @quatrain/queue@workspace:^, @quatrain/queue@workspace:packages/queue":
   version: 0.0.0-use.local
   resolution: "@quatrain/queue@workspace:packages/queue"
   dependencies:
