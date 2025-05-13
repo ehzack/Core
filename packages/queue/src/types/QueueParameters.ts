@@ -9,6 +9,10 @@ export interface ConfigParameters {
    secret?: string
    region?: string
    accountid?: string
+
+   //gcp
+   projectId?: string
+   keyFilename?: string
 }
 export interface QueueParameters {
    topic?: string

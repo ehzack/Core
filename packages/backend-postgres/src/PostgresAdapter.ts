@@ -425,7 +425,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
             )
          }
 
-         Backend.debug(`[PGA] Preparing query on '${collection}'`)
+         Backend.info(`[PGA] Preparing query on '${collection}'`)
 
          let hasFilters = false
          const alias = 'coll'
@@ -599,7 +599,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
             })
          }
 
-         Backend.debug(`[PGA] SQL ${query.join(' ')}`)
+         Backend.info(`[PGA] SQL ${query.join(' ')}`)
 
          const countSnapshot = await this._query(
             `${query.join(' ').replace('*', 'COUNT(*) as total')}`

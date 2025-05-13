@@ -9,8 +9,8 @@ export class SqsAdapter extends AbstractQueueAdapter {
       this._client = new SQSClient({
          region,
          credentials: {
-            accessKeyId: accesskey,
-            secretAccessKey: secret,
+            accessKeyId: `${accesskey}`,
+            secretAccessKey: `${secret}`,
          },
       })
    }
@@ -19,7 +19,7 @@ export class SqsAdapter extends AbstractQueueAdapter {
       const params = {
          DelaySeconds: 10,
          MessageBody: JSON.stringify(data),
-         QueueUrl: `https://sqs.${this._params.config.region}.amazonaws.com/${this._params.config.accountid}/${topic}`,
+         QueueUrl: `https://sqs.${`${this._params?.config?.region}`}.amazonaws.com/${`${this._params?.config?.accountid}`}/${`${topic}`}`,
       }
 
       Queue.log(`[SQS] Sending message to ${params.QueueUrl}`)

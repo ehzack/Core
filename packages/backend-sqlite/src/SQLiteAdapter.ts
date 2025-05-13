@@ -604,134 +604,134 @@ export class SQLiteAdapter extends AbstractBackendAdapter {
             params.push(parent.uid)
          }
 
-         if (filters instanceof Filters) {
-            hasFilters = true
-            // SQLite doesn't support complex Filters object, but we'll mark it as handled
-         } else if (Array.isArray(filters)) {
-            // list of filters objects
-            filters.forEach((filter, i) => {
-               query.push(parent && i === 0 ? 'AND' : i > 0 ? 'AND' : 'WHERE')
+         //  if (filters instanceof Filters) {
+         //     hasFilters = true
+         //     // SQLite doesn't support complex Filters object, but we'll mark it as handled
+         //  } else if (Array.isArray(filters)) {
+         //     // list of filters objects
+         //     filters.forEach((filter, i) => {
+         //        query.push(parent && i === 0 ? 'AND' : i > 0 ? 'AND' : 'WHERE')
 
-               let realProp: any = filter.prop.toLowerCase()
-               let realOperator: string
-               let realValue = filter.value
+         //        let realProp: any = filter.prop.toLowerCase()
+         //        let realOperator: string
+         //        let realValue = filter.value
 
-               if (filter.prop === 'keywords') {
-                  const keywordFilters: string[] = []
-                  params.push(`%${filter.value}%`)
+         //        if (filter.prop === 'keywords') {
+         //           const keywordFilters: string[] = []
+         //           params.push(`%${filter.value}%`)
 
-                  const props = dataObject.getProperties(StringProperty.name)
-                  Object.keys(props).forEach((rp) => {
-                     keywordFilters.push(
-                        `${collection.toLowerCase()}.${rp.toLowerCase()} LIKE ?`
-                     )
-                     params.push(`%${filter.value as string}%`)
-                  })
+         //           const props = dataObject.getProperties(StringProperty.name)
+         //           Object.keys(props).forEach((rp) => {
+         //              keywordFilters.push(
+         //                 `${collection.toLowerCase()}.${rp.toLowerCase()} LIKE ?`
+         //              )
+         //              params.push(`%${filter.value as string}%`)
+         //           })
 
-                  query.push(`(${keywordFilters.join(' OR ')})`)
-               } else if (
-                  filter.prop !== AbstractBackendAdapter.PKEY_IDENTIFIER &&
-                  !dataObject.has(filter.prop)
-               ) {
-                  throw new BackendError(
-                     `[SQLA] No such property '${filter.prop}' on object'`
-                  )
-               } else if (
-                  filter.prop === AbstractBackendAdapter.PKEY_IDENTIFIER
-               ) {
-                  realProp = 'id'
-                  realOperator = operatorsMap[filter.operator]
-               } else {
-                  const property = dataObject.get(filter.prop)
-                  realProp = filter.prop.toLowerCase()
+         //           query.push(`(${keywordFilters.join(' OR ')})`)
+         //        } else if (
+         //           filter.prop !== AbstractBackendAdapter.PKEY_IDENTIFIER &&
+         //           !dataObject.has(filter.prop)
+         //        ) {
+         //           throw new BackendError(
+         //              `[SQLA] No such property '${filter.prop}' on object'`
+         //           )
+         //        } else if (
+         //           filter.prop === AbstractBackendAdapter.PKEY_IDENTIFIER
+         //        ) {
+         //           realProp = 'id'
+         //           realOperator = operatorsMap[filter.operator]
+         //        } else {
+         //           const property = dataObject.get(filter.prop)
+         //           realProp = filter.prop.toLowerCase()
 
-                  if (
-                     property.constructor.name === 'ArrayProperty' &&
-                     Array.isArray(realValue)
-                  ) {
-                     // We use JSON_ARRAY_ANY function for array containment
-                     query.push(
-                        `JSON_ARRAY_ANY(${collection.toLowerCase()}.${realProp}, ?)`
-                     )
-                     params.push((realValue as string[]).join(','))
-                  } else if (property.constructor.name === 'ObjectProperty') {
-                     if (filter.value instanceof ObjectUri) {
-                        realValue = filter.value.uid
-                     } else if (
-                        filter.value &&
-                        typeof filter.value === 'object' &&
-                        filter.value.ref
-                     ) {
-                        realValue = filter.value.ref.split('/')[1]
-                     } else if (typeof filter.value === 'string') {
-                        const collectionName =
-                           this._params.mapping &&
-                           this._params.mapping[
-                              dataObject.properties[filter.prop].instanceOf
-                           ]
-                              ? this._params.mapping[
-                                   dataObject.properties[filter.prop].instanceOf
-                                ]
-                              : dataObject.properties[filter.prop].instanceOf
-                                   .COLLECTION
-                        realValue = filter.value.replace(
-                           `${collectionName}/`,
-                           ''
-                        )
-                     } else {
-                        realValue =
-                           (filter.value &&
-                              filter.value.uri &&
-                              filter.value.uri.path &&
-                              filter.value.uri.path.split('/')[1]) ||
-                           filter.value
-                     }
-                  }
+         //           if (
+         //              property.constructor.name === 'ArrayProperty' &&
+         //              Array.isArray(realValue)
+         //           ) {
+         //              // We use JSON_ARRAY_ANY function for array containment
+         //              query.push(
+         //                 `JSON_ARRAY_ANY(${collection.toLowerCase()}.${realProp}, ?)`
+         //              )
+         //              params.push((realValue as string[]).join(','))
+         //           } else if (property.constructor.name === 'ObjectProperty') {
+         //              if (filter.value instanceof ObjectUri) {
+         //                 realValue = filter.value.uid
+         //              } else if (
+         //                 filter.value &&
+         //                 typeof filter.value === 'object' &&
+         //                 filter.value.ref
+         //              ) {
+         //                 realValue = filter.value.ref.split('/')[1]
+         //              } else if (typeof filter.value === 'string') {
+         //                 const collectionName =
+         //                    this._params.mapping &&
+         //                    this._params.mapping[
+         //                       dataObject.properties[filter.prop].instanceOf
+         //                    ]
+         //                       ? this._params.mapping[
+         //                            dataObject.properties[filter.prop].instanceOf
+         //                         ]
+         //                       : dataObject.properties[filter.prop].instanceOf
+         //                            .COLLECTION
+         //                 realValue = filter.value.replace(
+         //                    `${collectionName}/`,
+         //                    ''
+         //                 )
+         //              } else {
+         //                 realValue =
+         //                    (filter.value &&
+         //                       filter.value.uri &&
+         //                       filter.value.uri.path &&
+         //                       filter.value.uri.path.split('/')[1]) ||
+         //                    filter.value
+         //              }
+         //           }
 
-                  realOperator = operatorsMap[filter.operator]
-               }
+         //           realOperator = operatorsMap[filter.operator]
+         //        }
 
-               if (realOperator === operatorsMap['containsAny']) {
-                  // Use custom JSON function for array checks
-                  query.push(
-                     `JSON_ARRAY_ANY(${collection.toLowerCase()}.${realProp}, ?)`
-                  )
-                  params.push(realValue)
-               } else if (
-                  realOperator === operatorsMap['equals'] &&
-                  realValue === 'null'
-               ) {
-                  query.push(`${collection.toLowerCase()}.${realProp} IS NULL`)
-               } else if (
-                  realOperator === operatorsMap['contains'] ||
-                  realOperator === operatorsMap['notContains']
-               ) {
-                  if (Array.isArray(realValue)) {
-                     const placeholders = realValue.map(() => '?').join(', ')
-                     query.push(
-                        `${collection.toLowerCase()}.${realProp} ${realOperator} (${placeholders})`
-                     )
-                     params.push(...realValue)
-                  } else {
-                     query.push(
-                        `${collection.toLowerCase()}.${realProp} ${realOperator} (?)`
-                     )
-                     params.push(realValue as string | number)
-                  }
-               } else {
-                  query.push(
-                     `${collection.toLowerCase()}.${realProp} ${realOperator} ?`
-                  )
-                  params.push(realValue)
-               }
+         //        if (realOperator === operatorsMap['containsAny']) {
+         //           // Use custom JSON function for array checks
+         //           query.push(
+         //              `JSON_ARRAY_ANY(${collection.toLowerCase()}.${realProp}, ?)`
+         //           )
+         //           params.push(realValue)
+         //        } else if (
+         //           realOperator === operatorsMap['equals'] &&
+         //           realValue === 'null'
+         //        ) {
+         //           query.push(`${collection.toLowerCase()}.${realProp} IS NULL`)
+         //        } else if (
+         //           realOperator === operatorsMap['contains'] ||
+         //           realOperator === operatorsMap['notContains']
+         //        ) {
+         //           if (Array.isArray(realValue)) {
+         //              const placeholders = realValue.map(() => '?').join(', ')
+         //              query.push(
+         //                 `${collection.toLowerCase()}.${realProp} ${realOperator} (${placeholders})`
+         //              )
+         //              params.push(...realValue)
+         //           } else {
+         //              query.push(
+         //                 `${collection.toLowerCase()}.${realProp} ${realOperator} (?)`
+         //              )
+         //              params.push(realValue as string | number)
+         //           }
+         //        } else {
+         //           query.push(
+         //              `${collection.toLowerCase()}.${realProp} ${realOperator} ?`
+         //           )
+         //           params.push(realValue)
+         //        }
 
-               Backend.debug(
-                  `[SQLA] Filter added: ${realProp} ${realOperator} ${String(
-                     realValue
-                  )}`
-               )
-            })
-         }
+         //        Backend.debug(
+         //           `[SQLA] Filter added: ${realProp} ${realOperator} ${String(
+         //              realValue
+         //           )}`
+         //        )
+         //     })
+         //  }
 
          // Count query - without pagination
          const countQuery = query.join(' ').replace('*', 'COUNT(*) as total')
@@ -787,44 +787,46 @@ export class SQLiteAdapter extends AbstractBackendAdapter {
 
          for (let doc of results || []) {
             // Process document before populating
-            Object.entries(dataObject.properties).forEach(([prop, propDef]: [prop: string, propDef: any]) => {
-               const lcProp = prop.toLowerCase()
+            Object.entries(dataObject.properties).forEach(
+               ([prop, propDef]: [prop: string, propDef: any]) => {
+                  const lcProp = prop.toLowerCase()
 
-               // Handle ObjectProperty references
-               if (
-                  propDef.constructor.name === 'ObjectProperty' &&
-                  propDef.instanceOf
-               ) {
-                  const refValue = doc[lcProp]
-                  if (refValue) {
-                     const info = joinTables[prop]
-                     const label = doc[`${lcProp}_table_name`] || ''
+                  // Handle ObjectProperty references
+                  if (
+                     propDef.constructor.name === 'ObjectProperty' &&
+                     propDef.instanceOf
+                  ) {
+                     const refValue = doc[lcProp]
+                     if (refValue) {
+                        const info = joinTables[prop]
+                        const label = doc[`${lcProp}_table_name`] || ''
 
-                     doc[prop] = {
-                        ref: `${info.table}/${refValue}`,
-                        path: `${info.table}/${refValue}`,
-                        label,
+                        doc[prop] = {
+                           ref: `${info.table}/${refValue}`,
+                           path: `${info.table}/${refValue}`,
+                           label,
+                        }
                      }
                   }
-               }
-               // Handle array properties
-               else if (propDef.constructor.name === 'ArrayProperty') {
-                  try {
-                     if (doc[lcProp]) {
-                        doc[prop] = JSON.parse(doc[lcProp])
+                  // Handle array properties
+                  else if (propDef.constructor.name === 'ArrayProperty') {
+                     try {
+                        if (doc[lcProp]) {
+                           doc[prop] = JSON.parse(doc[lcProp])
+                        }
+                     } catch (e) {
+                        Backend.warn(
+                           `[SQLA] Failed to parse array for ${prop}: ${e}`
+                        )
                      }
-                  } catch (e) {
-                     Backend.warn(
-                        `[SQLA] Failed to parse array for ${prop}: ${e}`
-                     )
+                  }
+
+                  // Ensure property is available with original case
+                  if (prop !== lcProp) {
+                     doc[prop] = doc[lcProp]
                   }
                }
-
-               // Ensure property is available with original case
-               if (prop !== lcProp) {
-                  doc[prop] = doc[lcProp]
-               }
-            })
+            )
 
             const newDataObject: DataObjectClass<any> = await dataObject.clone({
                ...doc,
