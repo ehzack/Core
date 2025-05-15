@@ -16,5 +16,5 @@ export interface ConfigParameters {
 }
 export interface QueueParameters {
    topic?: string
-   config?: ConfigParameters
+   config: ConfigParameters
 }
