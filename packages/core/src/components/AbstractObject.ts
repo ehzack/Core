@@ -33,6 +33,8 @@ export abstract class AbstractObject {
    }
 
    val(key: string): any {
+      if (!this.has(key)) return null
+
       const prop = this.get(key)
       if (prop) {
          return prop.val()

@@ -22,3 +22,4 @@ export type FilterOperatorType =
    | 'notContains'
    | 'containsAll'
    | 'containsAny'
+   | 'like'

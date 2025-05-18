@@ -371,6 +371,8 @@ export class PostgresAdapter extends AbstractBackendAdapter {
             dataObject.uid,
          ])
       } else {
+    
+   
          await this._connection?.query(
             `DELETE FROM ${dataObject.uri.collection} WHERE id = $1`,
             [dataObject.uid]
