@@ -5,6 +5,7 @@ export enum FilterOperator {
    greaterOrEquals,
    lower,
    lowerOrEquals,
+   like,
    contains,
    notContains,
    containsAll,
@@ -18,6 +19,7 @@ export type FilterOperatorType =
    | 'greaterOrEquals'
    | 'lower'
    | 'lowerOrEquals'
+   | 'like'
    | 'contains'
    | 'notContains'
    | 'containsAll'

@@ -31,50 +31,62 @@ export class ObjectProperty extends BaseProperty {
    }
 
    val(transform: string | undefined = undefined) {
-      if (typeof this._instanceOf === 'string') {
-         this._instanceOf = Core.getClass(this._instanceOf)
-      }
+      try {
+         if (typeof this._instanceOf === 'string') {
+            this._instanceOf = Core.getClass(this._instanceOf)
+         }
 
-      if (!this._value) {
-         return this._defaultValue
-      }
+         if (!this._value) {
+            return this._defaultValue
+         }
 
-      switch (transform) {
-         case returnAs.AS_DATAOBJECTS:
-            if (this._value instanceof DataObject) {
-               Core.log(`Returning already existing dataObject`)
+         switch (transform) {
+            case returnAs.AS_DATAOBJECTS:
+               if (this._value instanceof DataObject) {
+                  Core.debug(`Returning already existing dataObject`)
+                  return this._value
+               } else if (this._value instanceof ObjectUri) {
+                  Core.debug(`Converting objectUri -> dataObject`)
+                  return DataObject.factory({
+                     properties: Reflect.get(
+                        this._instanceOf,
+                        'PROPS_DEFINITION'
+                     ),
+                     uri: this._value,
+                  })
+               } else {
+                  Core.debug(`Converting instance -> dataObject`)
+                  return this._value.dataObject
+               }
+            case returnAs.AS_INSTANCES:
+               if (this._value instanceof DataObject) {
+                  Core.debug(`Converting dataObject -> instance`)
+                  return Reflect.construct(this._instanceOf, [this._value])
+               } else if (this._value instanceof ObjectUri) {
+
+                  Core.debug(`Converting objectUri -> dataObject -> instance`)
+                  const dao = DataObject.factory({
+                     properties: Reflect.get(
+                        this._instanceOf,
+                        'PROPS_DEFINITION'
+                     ),
+                     uri: this._value,
+                  })
+                  return Reflect.construct(this._instanceOf, [dao])
+               } else {
+                  Core.log(`Returning already existing instance`)
+                  return this._value
+               }
+            case returnAs.AS_OBJECTURIS:
+            default:
                return this._value
-            } else if (this._value instanceof ObjectUri) {
-               Core.log(`Converting objectUri -> dataObject`)
-               return DataObject.factory({
-                  properties: Reflect.get(this._instanceOf, 'PROPS_DEFINITION'),
-                  uri: this._value,
-               })
-            } else {
-               Core.log(`Converting instance -> dataObject`)
-               return this._value.dataObject
-            }
-         case returnAs.AS_INSTANCES:
-            if (this._value instanceof DataObject) {
-               Core.log(`Converting dataObject -> instance`)
-               return Reflect.construct(this._instanceOf, [this._value])
-            } else if (this._value instanceof ObjectUri) {
-               // console.log('ObjectProperty', this)
-
-               Core.log(`Converting objectUri -> dataObject -> instance`)
-               // console.log(this._instanceOf)
-               const dao = DataObject.factory({
-                  properties: Reflect.get(this._instanceOf, 'PROPS_DEFINITION'),
-                  uri: this._value,
-               })
-               return Reflect.construct(this._instanceOf, [dao])
-            } else {
-               Core.log(`Returning already existing instance`)
-               return this._value
-            }
-         case returnAs.AS_OBJECTURIS:
-         default:
-            return this._value
+         }
+      } catch (err) {
+         Core.error(
+            `Error in ObjectProperty.val() for property ${this._name}: ${err}`
+         )
+         console.log(err)
+         return undefined
       }
    }
 
