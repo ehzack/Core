@@ -326,7 +326,8 @@ export class PostgresAdapter extends AbstractBackendAdapter {
          let i = 1
          Object.keys(dataObject.properties).forEach((key) => {
             const prop = dataObject.get(key)
-            if (prop.hasChanged === true || Reflect.has(pgData, key)) { // TODO Fix hasChanged erratic value
+            if (prop.hasChanged === true || Reflect.has(pgData, key)) {
+               // TODO Fix hasChanged erratic value
                query += `${i > 1 ? ', ' : ''}${key.toLowerCase()} = `
                if (prop.constructor.name === 'DateTimeProperty') {
                   query += `to_timestamp($${i})`
@@ -363,15 +364,12 @@ export class PostgresAdapter extends AbstractBackendAdapter {
          useDateFormat: true,
       })
 
-      if (!hardDelete) {
+      if (hardDelete === false) {
          dataObject.set('status', statuses.DELETED)
          let query = `UPDATE ${dataObject.uri.collection} SET status = $1 WHERE id = $2`
-         await this._connection?.query(query, [
-            statuses.DELETED,
-            dataObject.uid,
-         ])
+         await this._query(query, [statuses.DELETED, dataObject.uid])
       } else {
-         await this._connection?.query(
+         await this._query(
             `DELETE FROM ${dataObject.uri.collection} WHERE id = $1`,
             [dataObject.uid]
          )
