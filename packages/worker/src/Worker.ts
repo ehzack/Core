@@ -21,29 +21,34 @@ export class Worker extends Core {
       args: any[] = [],
       cwd = process.cwd()
    ): Promise<any> => {
-      Worker.info(`Executing command ${command} in ${cwd} with arguments:`)
-      args.forEach((arg) => console.log(`\t${arg}`))
-      return new Promise((resolve, reject) => {
-         const child = spawn(command, args, { cwd })
+      try {
+         Worker.info(`Executing command ${command} in ${cwd} with arguments:`)
+         args.forEach((arg) => console.log(`\t${arg}`))
+         return new Promise((resolve, reject) => {
+            const child = spawn(command, args, { cwd })
 
-         child.stdout.on('data', (data: Buffer) =>
-            Worker.debug(data.toString())
-         )
+            child.stdout.on('data', (data: Buffer) =>
+               Worker.debug(data.toString())
+            )
 
-         child.stderr.on('data', (data: Buffer) =>
-            Worker.debug(data.toString())
-         )
+            child.stderr.on('data', (data: Buffer) =>
+               Worker.debug(data.toString())
+            )
 
-         child.on('close', (code) => {
-            if (code !== 0) {
-               Worker.error(`Command execution failed with code: ${code}`)
-               reject(code)
-            } else {
-               Worker.info(`Command execution completed with code: ${code}`)
-               resolve(undefined)
-            }
+            child.on('close', (code) => {
+               if (code !== 0) {
+                  Worker.error(`Command execution failed with code: ${code}`)
+                  reject(code)
+               } else {
+                  Worker.info(`Command execution completed with code: ${code}`)
+                  resolve(undefined)
+               }
+            })
          })
-      })
+      } catch (err) {
+         Worker.error((err as Error).message)
+         throw err
+      }
    }
 
    /**

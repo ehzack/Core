@@ -1,4 +1,4 @@
-import fs from 'node:fs'
+import fs, { readFileSync } from 'node:fs'
 import path from 'node:path'
 import axios from 'axios'
 import { Worker } from './Worker'
@@ -40,6 +40,7 @@ export class FileSystem {
 
    static async downloadFile(url: string, filepath: string) {
       try {
+         Worker.debug(`Downloading file at ${url} to ${filepath}`)
          const writer = fs.createWriteStream(filepath)
          const response = await axios.get(url, {
             responseType: 'stream',
@@ -51,9 +52,9 @@ export class FileSystem {
             writer.on('finish', resolve)
             writer.on('error', reject)
          })
-      } catch (error) {
-         console.error(`Download error: ${(error as Error).message}`)
-         throw error
+      } catch (err) {
+         Worker.error(`Download error: ${(err as Error).message}`)
+         throw err
       }
    }
 
@@ -76,6 +77,30 @@ export class FileSystem {
       // try to get more file metadata
       meta = { ...meta, ...FileSystem.getInfo(filename) }
       Worker.info(`Uploading file ${filename} to ${meta.uploadUrl}`)
+      const { size } = fs.statSync(filename)
+
+      if (size < 32 * 1024) {
+         return new Promise((resolve, reject) => {
+            fetch(meta.uploadUrl, {
+               method: 'PUT',
+               mode: 'cors',
+               duplex: 'half',
+               body: readFileSync(filename),
+               headers: {
+                  'Content-Type': meta.contentType || mime,
+                  'Content-length': String(size),
+               },
+            })
+               .then(() => resolve({ ...meta, size, uploadUrl: undefined }))
+               .catch((err) => {
+                  Worker.error(
+                     `An error occured while uploading ${filename}: ${err.message}`
+                  )
+                  reject(err)
+               })
+         })
+      }
+
       return new Promise((resolve, reject) => {
          try {
             let done = 0 // total bytes uploaded

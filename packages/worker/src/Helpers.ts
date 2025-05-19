@@ -24,7 +24,7 @@ export class Helpers {
          '-vframes',
          '1',
          '-vf',
-         `"select=gte(n\,${frame})"`,
+         String.raw`select=gte(n\,${frame})`,
          '-s',
          resolution,
          '-ss',
