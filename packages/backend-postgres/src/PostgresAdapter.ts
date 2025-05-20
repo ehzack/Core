@@ -326,7 +326,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
          let i = 1
          Object.keys(dataObject.properties).forEach((key) => {
             const prop = dataObject.get(key)
-            if (prop.hasChanged === true || Reflect.has(pgData, key)) {
+            if (prop.hasChanged === true || Reflect.has(data, key)) {
                // TODO Fix hasChanged erratic value
                query += `${i > 1 ? ', ' : ''}${key.toLowerCase()} = `
                if (prop.constructor.name === 'DateTimeProperty') {
@@ -583,6 +583,9 @@ export class PostgresAdapter extends AbstractBackendAdapter {
                ) {
                   query.push(`${alias}.${realProp} is null`)
                } else {
+                  if (realOperator === operatorsMap['like']) {
+                     realValue === `%${realValue}%`
+                  }
                   query.push(
                      `${
                         addPrefix ? `${alias}.` : ''
