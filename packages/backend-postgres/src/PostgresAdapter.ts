@@ -33,8 +33,8 @@ const operatorsMap: { [x: string]: string } = {
    like: 'ILIKE',
    contains: 'in',
    notContains: 'not in',
-   containsAll: 'array-contains',
-   containsAny: 'any',
+   containsAll: '<@',
+   containsAny: '&&',
 }
 
 /**
@@ -69,7 +69,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
          path = `${dataObject.val(dataObject.parentProp).path}/${path}`
       }
 
-      Backend.debug(`[FSA] Record path is '${path}'`)
+      Backend.debug(`[PGA] Record path is '${path}'`)
 
       return path
    }
@@ -534,7 +534,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
                      query.push(
                         `ARRAY['${realValue.join(
                            "','"
-                        )}'] && ${alias}.${realProp}`
+                        )}'] ${operatorsMap[filter.operator]} ${alias}.${realProp}`
                      )
                      return
                   } else if (property.constructor.name === 'ObjectProperty') {
@@ -583,8 +583,8 @@ export class PostgresAdapter extends AbstractBackendAdapter {
                ) {
                   query.push(`${alias}.${realProp} is null`)
                } else {
-                  if (realOperator === operatorsMap['like']) {
-                     realValue === `%${realValue}%`
+                  if (realOperator === operatorsMap.like) {
+                     realValue = `%${realValue}%`
                   }
                   query.push(
                      `${
