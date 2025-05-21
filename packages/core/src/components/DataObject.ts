@@ -323,10 +323,10 @@ export class DataObject implements DataObjectType {
       const data = {}
       Object.keys(this._properties).forEach((key: string) => {
          const prop = Reflect.get(this._properties, key)
-         if (ignoreNulls && !prop.val()) return
+         if (ignoreNulls && (prop.val() === null || prop.val() === undefined))
+            return
          if (ignoreUnchanged && prop.hasChanged === false) return
 
-         //   console.log(prop.constructor.name);
          switch (prop.constructor.name) {
             case 'CollectionProperty':
                // ignore

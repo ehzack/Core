@@ -119,13 +119,6 @@ export class PostgresAdapter extends AbstractBackendAdapter {
          data = Object.values(data)
       }
 
-      // convert reference for database Array only
-      // data.forEach((el: any, key: number) => {
-      //    if (Array.isArray(el) && el.length === 0) {
-      //       data[key] = JSON.stringify(el)
-      //    }
-      // })
-
       if (
          this._params['useNativeForeignKeys'] &&
          this._params['useNativeForeignKeys'] === true
@@ -321,6 +314,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
       const pgData = this._prepareData(data, true)
       Backend.debug(`[PGA] Filtered data to update ${JSON.stringify(pgData)}`)
 
+      console.log(data, pgData)
       if (pgData.length > 0) {
          let query = `UPDATE ${dataObject.uri.collection?.toLowerCase()} SET `
          let i = 1
@@ -532,9 +526,9 @@ export class PostgresAdapter extends AbstractBackendAdapter {
                   ) {
                      // we only compara arrays without using operator
                      query.push(
-                        `ARRAY['${realValue.join(
-                           "','"
-                        )}'] ${operatorsMap[filter.operator]} ${alias}.${realProp}`
+                        `ARRAY['${realValue.join("','")}'] ${
+                           operatorsMap[filter.operator]
+                        } ${alias}.${realProp}`
                      )
                      return
                   } else if (property.constructor.name === 'ObjectProperty') {

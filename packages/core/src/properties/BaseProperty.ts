@@ -97,7 +97,10 @@ export class BaseProperty implements PropertyClassType {
          )
       }
 
-      if (value !== this._value) {
+      if (
+         JSON.stringify({ value: value }) !==
+         JSON.stringify({ value: this._value })
+      ) {
          this._value = value
          this._hasChanged = setChanged
       }

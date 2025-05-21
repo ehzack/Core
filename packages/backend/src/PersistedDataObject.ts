@@ -82,8 +82,9 @@ export class PersistedDataObject extends CoreDO implements Persisted {
       const data = {}
       Object.keys(this._properties).forEach((key: string) => {
          const prop = Reflect.get(this._properties, key)
-         if (ignoreNulls && (prop.val() === null || prop.val() === undefined))
+         if (ignoreNulls && (prop.val() === null || prop.val() === undefined)) {
             return
+         }
          if (ignoreUnchanged && prop.hasChanged === false) return
 
          switch (prop.constructor.name) {
