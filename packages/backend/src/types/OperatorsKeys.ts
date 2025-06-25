@@ -10,4 +10,6 @@ export enum OperatorKeys {
    notContains = 'notContains',
    containsAll = 'containsAll',
    containsAny = 'containsAny',
+   isNull = 'isNull',
+   isNotNull = 'isNotNull',
 }

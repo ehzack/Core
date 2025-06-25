@@ -130,7 +130,7 @@ export class SupabaseCloudWrapper extends AbstractCloudWrapper {
                params,
                async ({ old: before, new: after, ...context }) => {
                   CloudWrapper.info(
-                     `Triggering function on event ${trigger.name}`
+                     `Triggering storage function on event ${trigger.name}`
                   )
                   try {
                      const payload: StorageEventPayloadType = {
@@ -138,6 +138,7 @@ export class SupabaseCloudWrapper extends AbstractCloudWrapper {
                         after: this._payload2File(after),
                         context,
                      }
+                     CloudWrapper.debug(payload)
                      return await trigger.script(payload)
                   } catch (err) {
                      CloudWrapper.error((err as Error).message)

@@ -24,3 +24,5 @@ export type FilterOperatorType =
    | 'notContains'
    | 'containsAll'
    | 'containsAny'
+   | 'isNull'
+   | 'isNotNull'

@@ -54,7 +54,7 @@ export type BackendRegistry<T extends AbstractBackendAdapter> = {
 }
 
 export class Backend extends Core {
-   static defaultBackend = '@default'
+   static defaultBackend = 'default'
    static userClass = User
    static logger = this.addLogger('Backend')
 

@@ -35,6 +35,8 @@ const operatorsMap: { [x: string]: string } = {
    notContains: 'not in',
    containsAll: '<@',
    containsAny: '&&',
+   isNull: 'IS NULL',
+   isNotNull: 'IS NOT NULL',
 }
 
 /**
@@ -240,9 +242,9 @@ export class PostgresAdapter extends AbstractBackendAdapter {
             dataObject.properties[prop].constructor.name === 'ObjectProperty' &&
             dataObject.properties[prop].instanceOf
          ) {
-            Backend.debug(
-               `Adding join table for property ${prop} instance of ${dataObject.properties[prop].instanceOf}`
-            )
+            // Backend.debug(
+            //    `Adding join table for property ${prop} instance of ${dataObject.properties[prop].instanceOf}`
+            // )
 
             const joinAlias = `${prop.toLowerCase()}_table`
 
@@ -443,9 +445,9 @@ export class PostgresAdapter extends AbstractBackendAdapter {
                   'ObjectProperty' &&
                dataObject.properties[prop].instanceOf
             ) {
-               Backend.debug(
-                  `Adding join table for property ${prop} instance of ${dataObject.properties[prop].instanceOf}`
-               )
+               // Backend.debug(
+               //    `Adding join table for property ${prop} instance of ${dataObject.properties[prop].instanceOf}`
+               // )
 
                const joinAlias = `${prop.toLowerCase()}_table`
 
@@ -579,6 +581,12 @@ export class PostgresAdapter extends AbstractBackendAdapter {
                } else {
                   if (realOperator === operatorsMap.like) {
                      realValue = `%${realValue}%`
+                  }
+                  if (
+                     realOperator === operatorsMap.isNull ||
+                     realOperator === operatorsMap.isNotNull
+                  ) {
+                     realValue = undefined
                   }
                   query.push(
                      `${
