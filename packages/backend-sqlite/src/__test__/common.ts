@@ -1,29 +1,6 @@
-import { Core, DataObject, Entity as CoreEntity } from '@quatrain/core'
 import { User, PersistedBaseObject } from '@quatrain/backend'
-import { PostgresAdapter } from '../PostgresAdapter'
-
-export const setup = () => {
-   return new PostgresAdapter({
-      config: {
-         host: process.env.POSTGRES_HOST || 'localhost',
-         port: parseInt(process.env.POSTGRES_PORT || '5432'),
-         database: process.env.POSTGRES_DB || 'quatrain_test',
-         user: process.env.POSTGRES_USER || 'postgres',
-         password: process.env.POSTGRES_PASSWORD || 'password',
-         max: 10,
-      },
-   })
-}
-
-export const createUser = async () => {
-   const user = await User.factory()
-   user._.firstname = 'John'
-   user._.lastname = 'Doe'
-   user._.email = 'john@doe.com'
-   user._.password = 'azerty'
-
-   return user
-}
+import { Entity as CoreEntity } from '@quatrain/core'
+import { SQLiteAdapter } from '../SQLiteAdapter'
 
 // Create a simple Entity class that extends PersistedBaseObject for testing
 class Entity extends PersistedBaseObject {
@@ -33,6 +10,24 @@ class Entity extends PersistedBaseObject {
    static async factory(src: any = undefined): Promise<Entity> {
       return super.factory(src, Entity)
    }
+}
+
+export const setup = (dbPath: string = ':memory:') => {
+   return new SQLiteAdapter({
+      config: {
+         database: dbPath
+      },
+   })
+}
+
+export const createUser = async () => {
+   const user = await User.factory()
+   user._.firstname = 'John'
+   user._.lastname = 'Doe'
+   user._.email = 'john@doe.com'
+   user._.password = 'password123'
+
+   return user
 }
 
 export const createEntity = async () => {
@@ -62,3 +57,5 @@ export const createUsers = async (
    }
    return users
 }
+
+export { Entity }

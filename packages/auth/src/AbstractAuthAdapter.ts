@@ -27,7 +27,7 @@ export abstract class AbstractAuthAdapter implements AuthInterface {
       return this._alias
    }
 
-   abstract register(user: User): Promise<any>
+   abstract register(user: User, clearPassword?: string): Promise<any>
 
    abstract signup(login: string, password: string): Promise<any>
 

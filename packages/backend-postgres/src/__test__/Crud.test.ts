@@ -1,4 +1,4 @@
-import { User } from '@quatrain/core'
+import { User } from '@quatrain/backend'
 import { createUser, setup } from './common'
 
 const backend = setup()
@@ -14,10 +14,10 @@ afterAll(async () => {
    //await backend.deleteCollection('entity')
 })
 
-describe('Firestore CRUD operations', () => {
+describe('Postgres CRUD operations', () => {
    test('write data', async () => {
       // Check that object is successfully created in backend
-      expect(user.dataObject.isPersisted()).toBe(true)
+      expect(user.dataObject.isPersisted(false)).toBe(true)
       expect(user.uri).not.toBeUndefined()
       expect(user.uid).not.toBeUndefined()
       expect(user.uri.constructor.name).toBe('ObjectUri')

@@ -22,7 +22,7 @@ export class FirebaseAuthAdapter extends AbstractAuthAdapter {
     * @param user
     * @returns user unique id
     */
-   async register(user: User) {
+   async register(user: User, clearPassword?: string) {
       try {
          const {
             name: displayName,
@@ -35,7 +35,7 @@ export class FirebaseAuthAdapter extends AbstractAuthAdapter {
             uid: user.uid,
             email,
             phoneNumber,
-            password,
+            password: clearPassword || password,
             disabled,
             displayName,
          }

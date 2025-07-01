@@ -32,10 +32,13 @@ const operatorsMap: { [x: string]: string } = {
    greaterOrEquals: '>=',
    lower: '<',
    lowerOrEquals: '<=', // Corrected from '>' in PostgreSQL implementation
+   like: 'LIKE',
    contains: 'IN',
    notContains: 'NOT IN',
-   containsAll: 'JSON_ARRAY_CONTAINS', // Custom function to be implemented
-   containsAny: 'JSON_ARRAY_ANY', // Custom function to be implemented
+   containsAll: 'JSON_EXTRACT', // Use JSON_EXTRACT with custom logic
+   containsAny: 'JSON_EXTRACT', // Use JSON_EXTRACT with custom logic
+   isNull: 'IS NULL',
+   isNotNull: 'IS NOT NULL',
 }
 
 /**
@@ -88,44 +91,13 @@ export class SQLiteAdapter extends AbstractBackendAdapter {
          await this._connection.run('PRAGMA foreign_keys = ON')
 
          // Configure SQLite to handle JSON arrays and objects
-         // Register custom SQL functions for array operations
-         // Using the create function API from sqlite3 via db.exec
-         await this._connection.exec(`
-             CREATE FUNCTION JSON_ARRAY_CONTAINS(array, value) 
-             RETURNS INTEGER AS 
-             BEGIN
-                RETURN CASE 
-                   WHEN json_valid(array) AND (
-                      SELECT COUNT(*) 
-                      FROM json_each(array) 
-                      WHERE value LIKE '%' || json_each.value || '%'
-                   ) = (
-                      SELECT COUNT(*) 
-                      FROM (
-                         SELECT value FROM json_each(json_array(value))
-                      )
-                   )
-                THEN 1
-                ELSE 0
-                END;
-             END;
-          `)
-
-         await this._connection.exec(`
-             CREATE FUNCTION JSON_ARRAY_ANY(array, value) 
-             RETURNS INTEGER AS 
-             BEGIN
-                RETURN CASE 
-                   WHEN json_valid(array) AND (
-                      SELECT COUNT(*) 
-                      FROM json_each(array) 
-                      WHERE value LIKE '%' || json_each.value || '%'
-                   ) > 0
-                THEN 1
-                ELSE 0
-                END;
-             END;
-          `)
+         // SQLite doesn't support CREATE FUNCTION syntax, so we'll use built-in JSON functions
+         // Enable JSON1 extension if available
+         try {
+            await this._connection.exec('SELECT json_valid(\'[]\')') // Test if JSON1 is available
+         } catch (err) {
+            Backend.warn('[SQLA] JSON1 extension not available, array operations may be limited')
+         }
       }
 
       return this._connection
@@ -356,23 +328,26 @@ export class SQLiteAdapter extends AbstractBackendAdapter {
             const propValue = result[prop.toLowerCase()]
 
             if (propValue) {
-               const refTable =
-                  this._params.mapping &&
-                  this._params.mapping[propDef.instanceOf]
-                     ? this._params.mapping[propDef.instanceOf]
-                     : propDef.instanceOf.COLLECTION
+               let refTable = undefined
+               if (this._params.mapping && this._params.mapping[propDef.instanceOf]) {
+                  refTable = this._params.mapping[propDef.instanceOf]
+               } else if (propDef.instanceOf && propDef.instanceOf.COLLECTION) {
+                  refTable = propDef.instanceOf.COLLECTION
+               }
 
-               // Look up the referenced object for its name
-               const refObject = await db.get(
-                  `SELECT name FROM ${refTable.toLowerCase()} WHERE id = ?`,
-                  [propValue]
-               )
+               if (refTable) {
+                  // Look up the referenced object for its name
+                  const refObject = await db.get(
+                     `SELECT name FROM ${refTable.toLowerCase()} WHERE id = ?`,
+                     [propValue]
+                  )
 
-               if (refObject) {
-                  result[prop] = {
-                     ref: `${refTable}/${propValue}`,
-                     path: `${refTable}/${propValue}`,
-                     label: refObject.name || '',
+                  if (refObject) {
+                     result[prop] = {
+                        ref: `${refTable}/${propValue}`,
+                        path: `${refTable}/${propValue}`,
+                        label: refObject.name || '',
+                     }
                   }
                }
             }
@@ -422,6 +397,8 @@ export class SQLiteAdapter extends AbstractBackendAdapter {
          return dataObject
       }
 
+      Backend.debug(`[SQLA] Data to update ${JSON.stringify(data)}`)
+
       const db = await this._connect()
       const collection = this.getCollection(dataObject)
 
@@ -431,23 +408,19 @@ export class SQLiteAdapter extends AbstractBackendAdapter {
       let updates: string[] = []
       let values: any[] = []
 
-      Object.entries(dataObject.properties).forEach(
-         ([key, prop]: [key: string, prop: any]) => {
-            if (prop.hasChanged === true) {
-               updates.push(`${key.toLowerCase()} = ?`)
+      Object.entries(data).forEach(
+         ([key, value]: [key: string, value: any]) => {
+            updates.push(`${key.toLowerCase()} = ?`)
 
-               let value = prop.value
-
-               // Convert arrays and objects to JSON strings
-               if (
-                  Array.isArray(value) ||
-                  (typeof value === 'object' && value !== null)
-               ) {
-                  value = JSON.stringify(value)
-               }
-
-               values.push(value as string | number | boolean)
+            // Convert arrays and objects to JSON strings
+            if (
+               Array.isArray(value) ||
+               (typeof value === 'object' && value !== null)
+            ) {
+               value = JSON.stringify(value)
             }
+
+            values.push(value as string | number | boolean)
          }
       )
 
@@ -581,18 +554,23 @@ export class SQLiteAdapter extends AbstractBackendAdapter {
                   const propName = prop.toLowerCase()
                   const joinAlias = `${propName}_table`
 
-                  const table =
-                     this._params.mapping &&
-                     this._params.mapping[propDef.instanceOf]
-                        ? this._params.mapping[propDef.instanceOf]
-                        : propDef.instanceOf.COLLECTION
+                  let table = undefined
+                  if (this._params.mapping && this._params.mapping[propDef.instanceOf]) {
+                     table = this._params.mapping[propDef.instanceOf]
+                  } else if (propDef.instanceOf && propDef.instanceOf.COLLECTION) {
+                     table = propDef.instanceOf.COLLECTION
+                  }
 
-                  joinTables[prop] = { table, alias: joinAlias }
+                  if (table) {
+                     joinTables[prop] = { table, alias: joinAlias }
 
-                  query.push(
-                     `LEFT JOIN ${table.toLowerCase()} AS ${joinAlias}
-                   ON ${joinAlias}.id = ${collection.toLowerCase()}.${propName}`
-                  )
+                     query.push(
+                        `LEFT JOIN ${table.toLowerCase()} AS ${joinAlias}
+                      ON ${joinAlias}.id = ${collection.toLowerCase()}.${propName}`
+                     )
+                  } else {
+                     Backend.warn(`[SQLA] Skipping join for property ${prop} - no collection found`)
+                  }
                }
             }
          )
@@ -613,12 +591,11 @@ export class SQLiteAdapter extends AbstractBackendAdapter {
                query.push(parent && i === 0 ? 'AND' : i > 0 ? 'AND' : 'WHERE')
 
                let realProp: any = filter.prop.toLowerCase()
-               let realOperator: string
+               let realOperator: string = operatorsMap[filter.operator]
                let realValue = filter.value
 
                if (filter.prop === 'keywords') {
                   const keywordFilters: string[] = []
-                  params.push(`%${filter.value}%`)
 
                   const props = dataObject.getProperties(StringProperty.name)
                   Object.keys(props).forEach((rp) => {
@@ -640,7 +617,6 @@ export class SQLiteAdapter extends AbstractBackendAdapter {
                   filter.prop === AbstractBackendAdapter.PKEY_IDENTIFIER
                ) {
                   realProp = 'id'
-                  realOperator = operatorsMap[filter.operator]
                } else {
                   const property = dataObject.get(filter.prop)
                   realProp = filter.prop.toLowerCase()
@@ -649,11 +625,16 @@ export class SQLiteAdapter extends AbstractBackendAdapter {
                      property.constructor.name === 'ArrayProperty' &&
                      Array.isArray(realValue)
                   ) {
-                     // We use JSON_ARRAY_ANY function for array containment
+                     // Use EXISTS with json_each for array containment in SQLite
+                     const placeholders = realValue.map(() => 'json_each.value = ?').join(' OR ')
                      query.push(
-                        `JSON_ARRAY_ANY(${collection.toLowerCase()}.${realProp}, ?)`
+                        `EXISTS (SELECT 1 FROM json_each(${collection.toLowerCase()}.${realProp}) WHERE ${placeholders})`
                      )
-                     params.push((realValue as string[]).join(','))
+                     params.push(...(realValue as string[]))
+                     // Skip further processing for this filter
+                     Backend.debug(
+                        `[SQLA] Array filter added: ${realProp} EXISTS ${String(realValue)}`
+                     )
                   } else if (property.constructor.name === 'ObjectProperty') {
                      if (filter.value instanceof ObjectUri) {
                         realValue = filter.value.uid
@@ -678,6 +659,13 @@ export class SQLiteAdapter extends AbstractBackendAdapter {
                            `${collectionName}/`,
                            ''
                         )
+                     } else if (
+                        filter.value &&
+                        typeof filter.value === 'object' &&
+                        filter.value.uid
+                     ) {
+                        // Handle DataObject instances
+                        realValue = filter.value.uid
                      } else {
                         realValue =
                            (filter.value &&
@@ -688,48 +676,77 @@ export class SQLiteAdapter extends AbstractBackendAdapter {
                      }
                   }
 
-                  realOperator = operatorsMap[filter.operator]
-               }
+                  // Only add the filter query if it's not an ArrayProperty (which was already handled above)
+                  if (!(property.constructor.name === 'ArrayProperty' && Array.isArray(realValue))) {
+                     if (realOperator === operatorsMap['containsAny']) {
+                        // Use EXISTS with json_each for array containment in SQLite
+                        query.push(
+                           `EXISTS (SELECT 1 FROM json_each(${collection.toLowerCase()}.${realProp}) WHERE json_each.value = ?)`
+                        )
+                        params.push(realValue)
+                     } else if (
+                        realOperator === operatorsMap['equals'] &&
+                        realValue === 'null'
+                     ) {
+                        query.push(`${collection.toLowerCase()}.${realProp} IS NULL`)
+                     } else if (
+                        realOperator === operatorsMap['contains'] ||
+                        realOperator === operatorsMap['notContains']
+                     ) {
+                        if (Array.isArray(realValue)) {
+                           const placeholders = realValue.map(() => '?').join(', ')
+                           query.push(
+                              `${collection.toLowerCase()}.${realProp} ${realOperator} (${placeholders})`
+                           )
+                           params.push(...realValue)
+                        } else {
+                           query.push(
+                              `${collection.toLowerCase()}.${realProp} ${realOperator} (?)`
+                           )
+                           params.push(realValue as string | number)
+                        }
+                     } else {
+                        // Handle ObjectProperty specially for JSON-stored references
+                        if (property && property.constructor.name === 'ObjectProperty') {
+                           if (realOperator === operatorsMap.equals) {
+                              // For ObjectProperty, check if the JSON contains the reference
+                              query.push(
+                                 `json_extract(${collection.toLowerCase()}.${realProp}, '$.ref') LIKE ?`
+                              )
+                              params.push(`%${realValue}`)
+                           } else {
+                              query.push(
+                                 `${collection.toLowerCase()}.${realProp} ${realOperator} ?`
+                              )
+                              params.push(realValue)
+                           }
+                        } else if (realOperator === operatorsMap.like) {
+                           query.push(
+                              `${collection.toLowerCase()}.${realProp} ${realOperator} ?`
+                           )
+                           params.push(`%${realValue}%`)
+                        } else if (
+                           realOperator === operatorsMap.isNull ||
+                           realOperator === operatorsMap.isNotNull
+                        ) {
+                           query.push(
+                              `${collection.toLowerCase()}.${realProp} ${realOperator}`
+                           )
+                        } else {
+                           query.push(
+                              `${collection.toLowerCase()}.${realProp} ${realOperator} ?`
+                           )
+                           params.push(realValue)
+                        }
+                     }
 
-               if (realOperator === operatorsMap['containsAny']) {
-                  // Use custom JSON function for array checks
-                  query.push(
-                     `JSON_ARRAY_ANY(${collection.toLowerCase()}.${realProp}, ?)`
-                  )
-                  params.push(realValue)
-               } else if (
-                  realOperator === operatorsMap['equals'] &&
-                  realValue === 'null'
-               ) {
-                  query.push(`${collection.toLowerCase()}.${realProp} IS NULL`)
-               } else if (
-                  realOperator === operatorsMap['contains'] ||
-                  realOperator === operatorsMap['notContains']
-               ) {
-                  if (Array.isArray(realValue)) {
-                     const placeholders = realValue.map(() => '?').join(', ')
-                     query.push(
-                        `${collection.toLowerCase()}.${realProp} ${realOperator} (${placeholders})`
+                     Backend.debug(
+                        `[SQLA] Filter added: ${realProp} ${realOperator} ${String(
+                           realValue
+                        )}`
                      )
-                     params.push(...realValue)
-                  } else {
-                     query.push(
-                        `${collection.toLowerCase()}.${realProp} ${realOperator} (?)`
-                     )
-                     params.push(realValue as string | number)
                   }
-               } else {
-                  query.push(
-                     `${collection.toLowerCase()}.${realProp} ${realOperator} ?`
-                  )
-                  params.push(realValue)
                }
-
-               Backend.debug(
-                  `[SQLA] Filter added: ${realProp} ${realOperator} ${String(
-                     realValue
-                  )}`
-               )
             })
          }
 
@@ -753,7 +770,7 @@ export class SQLiteAdapter extends AbstractBackendAdapter {
                   }`
                )
                if (sorting.prop !== undefined) {
-                  sortField.push(`${sorting.prop} ${sorting.order}`)
+                  sortField.push(`${sorting.prop} ${sorting.order.toUpperCase()}`)
                }
             })
 
@@ -798,12 +815,32 @@ export class SQLiteAdapter extends AbstractBackendAdapter {
                   const refValue = doc[lcProp]
                   if (refValue) {
                      const info = joinTables[prop]
-                     const label = doc[`${lcProp}_table_name`] || ''
+                     
+                     if (info) {
+                        const label = doc[`${lcProp}_table_name`] || ''
 
-                     doc[prop] = {
-                        ref: `${info.table}/${refValue}`,
-                        path: `${info.table}/${refValue}`,
-                        label,
+                        doc[prop] = {
+                           ref: `${info.table}/${refValue}`,
+                           path: `${info.table}/${refValue}`,
+                           label,
+                        }
+                     } else {
+                        // Fallback when no join table info is available
+                        // Try to determine table name from propDef
+                        let tableName = undefined
+                        if (this._params.mapping && this._params.mapping[propDef.instanceOf]) {
+                           tableName = this._params.mapping[propDef.instanceOf]
+                        } else if (propDef.instanceOf && propDef.instanceOf.COLLECTION) {
+                           tableName = propDef.instanceOf.COLLECTION
+                        }
+                        
+                        if (tableName) {
+                           doc[prop] = {
+                              ref: `${tableName}/${refValue}`,
+                              path: `${tableName}/${refValue}`,
+                              label: '',
+                           }
+                        }
                      }
                   }
                }
@@ -858,6 +895,7 @@ export class SQLiteAdapter extends AbstractBackendAdapter {
          return { items, meta }
       } catch (err) {
          console.error(err)
+         Backend.error(`[SQLA] Query failed: ${(err as Error).message}`)
          throw new BackendError(
             `Query failed for '${dataObject.class.name}': ${
                (err as Error).message

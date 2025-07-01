@@ -2603,7 +2603,7 @@ __metadata:
   resolution: "@quatrain/auth-firebase@workspace:packages/auth-firebase"
   dependencies:
     "@faker-js/faker": "npm:^7.6.0"
-    "@quatrain/auth": "npm:^1.1.16"
+    "@quatrain/auth": "npm:^1.1.17"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/jest": "npm:^27.0.3"
     "@types/node": "npm:^22.10.1"
@@ -2624,7 +2624,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@quatrain/auth-supabase@workspace:packages/auth-supabase"
   dependencies:
-    "@quatrain/auth": "npm:^1.1.16"
+    "@quatrain/auth": "npm:^1.1.17"
     "@supabase/supabase-js": "npm:^2.49.4"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/jest": "npm:^27.0.3"
@@ -2640,7 +2640,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@quatrain/auth@npm:^1.1.16, @quatrain/auth@workspace:packages/auth":
+"@quatrain/auth@npm:^1.1.17, @quatrain/auth@workspace:packages/auth":
   version: 0.0.0-use.local
   resolution: "@quatrain/auth@workspace:packages/auth"
   dependencies:
@@ -2844,6 +2844,46 @@ __metadata:
     trace-unhandled: "npm:^2.0.1"
     ts-jest: "npm:^27.1.2"
     ts-node: "npm:^10.4.0"
+    typescript: "npm:^5.1.5"
+  languageName: unknown
+  linkType: soft
+
+"@quatrain/messaging-firebase@workspace:packages/messaging-firebase":
+  version: 0.0.0-use.local
+  resolution: "@quatrain/messaging-firebase@workspace:packages/messaging-firebase"
+  dependencies:
+    "@quatrain/messaging": "npm:^1.0.3"
+    "@tsconfig/recommended": "npm:^1.0.1"
+    "@types/jest": "npm:^27.0.3"
+    "@types/node": "npm:^22.10.1"
+    firebase-admin: "npm:^13.0.1"
+    jest: "npm:^27.4.7"
+    jest-node-exports-resolver: "npm:^1.1.6"
+    jest-serial-runner: "npm:^1.2.1"
+    trace-unhandled: "npm:^2.0.1"
+    ts-jest: "npm:^27.1.2"
+    typescript: "npm:^5.1.5"
+  peerDependencies:
+    "@quatrain/core": ^1.1.19
+  languageName: unknown
+  linkType: soft
+
+"@quatrain/messaging@npm:^1.0.3, @quatrain/messaging@workspace:packages/messaging":
+  version: 0.0.0-use.local
+  resolution: "@quatrain/messaging@workspace:packages/messaging"
+  dependencies:
+    "@quatrain/core": "npm:^1.1.19"
+    "@tsconfig/recommended": "npm:^1.0.1"
+    "@types/jest": "npm:^27.0.3"
+    "@types/mustache": "npm:^4"
+    "@types/node": "npm:^22.10.1"
+    jest: "npm:^27.4.7"
+    jest-node-exports-resolver: "npm:^1.1.6"
+    jest-serial-runner: "npm:^1.2.1"
+    mustache: "npm:^4.2.0"
+    trace-unhandled: "npm:^2.0.1"
+    ts-jest: "npm:^27.1.2"
+    ts-node: "npm:^10.9.1"
     typescript: "npm:^5.1.5"
   languageName: unknown
   linkType: soft
@@ -4430,6 +4470,13 @@ __metadata:
   version: 1.3.5
   resolution: "@types/mime@npm:1.3.5"
   checksum: 10c0/c2ee31cd9b993804df33a694d5aa3fa536511a49f2e06eeab0b484fef59b4483777dbb9e42a4198a0809ffbf698081fdbca1e5c2218b82b91603dfab10a10fbc
+  languageName: node
+  linkType: hard
+
+"@types/mustache@npm:^4":
+  version: 4.2.6
+  resolution: "@types/mustache@npm:4.2.6"
+  checksum: 10c0/f49a83b189e92c962e9b61094c80c979f115ea876bd746bdb9f725c38ab8981a6691e3d1d5cd008ade24b6e5040602970bc0bc60ade71772501d1df8adc7adad
   languageName: node
   linkType: hard
 
@@ -8274,6 +8321,15 @@ __metadata:
   version: 2.1.3
   resolution: "ms@npm:2.1.3"
   checksum: 10c0/d924b57e7312b3b63ad21fc5b3dc0af5e78d61a1fc7cfb5457edaf26326bf62be5307cc87ffb6862ef1c2b33b0233cdb5d4f01c4c958cc0d660948b65a287a48
+  languageName: node
+  linkType: hard
+
+"mustache@npm:^4.2.0":
+  version: 4.2.0
+  resolution: "mustache@npm:4.2.0"
+  bin:
+    mustache: bin/mustache
+  checksum: 10c0/1f8197e8a19e63645a786581d58c41df7853da26702dbc005193e2437c98ca49b255345c173d50c08fe4b4dbb363e53cb655ecc570791f8deb09887248dd34a2
   languageName: node
   linkType: hard
 

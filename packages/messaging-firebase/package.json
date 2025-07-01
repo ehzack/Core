@@ -1,6 +1,6 @@
 {
-   "name": "@quatrain/auth-supabase",
-   "version": "1.1.15",
+   "name": "@quatrain/messaging-firebase",
+   "version": "1.0.2",
    "license": "MIT",
    "main": "lib/index.js",
    "types": "lib/index.d.ts",
@@ -9,10 +9,12 @@
       "README.md"
    ],
    "author": "Quatrain Développement SAS <developers@quatrain.com>",
+   "peerDependencies": {
+      "@quatrain/core": "^1.1.19"
+   },
    "dependencies": {
-      "@quatrain/auth": "^1.1.17",
-      "@supabase/supabase-js": "^2.49.4",
-      "node-fetch-native": "^1.6.4"
+      "@quatrain/messaging": "^1.0.3",
+      "firebase-admin": "^13.0.1"
    },
    "devDependencies": {
       "@tsconfig/recommended": "^1.0.1",
@@ -23,13 +25,12 @@
       "jest-serial-runner": "^1.2.1",
       "trace-unhandled": "^2.0.1",
       "ts-jest": "^27.1.2",
-      "ts-node": "^10.9.1",
       "typescript": "^5.1.5"
    },
    "scripts": {
-      "test-ci": "jest --runInBand",
       "build": "tsc",
       "wbuild": "tsc --watch",
+      "test": "jest",
       "bump-to": "yarn version",
       "hash": "node ../../bin/hashFolder.js",
       "hash:persist": "yarn hash  > .hash_latest.txt",

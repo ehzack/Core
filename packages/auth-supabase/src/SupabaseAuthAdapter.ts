@@ -31,7 +31,7 @@ export class SupabaseAuthAdapter extends AbstractAuthAdapter {
     * @param user
     * @returns user unique id
     */
-   async register(user: User) {
+   async register(user: User, clearPassword?: string) {
       try {
          const {
             name: displayName,
@@ -43,7 +43,7 @@ export class SupabaseAuthAdapter extends AbstractAuthAdapter {
          Auth.info(`[SAA] Adding user '${displayName}'`)
          const { data, error } = await this._client.auth.admin.createUser({
             email,
-            password,
+            password: clearPassword || password,
             email_confirm: true, // TODO move to params
          })
 
