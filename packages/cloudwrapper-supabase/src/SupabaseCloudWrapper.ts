@@ -186,11 +186,15 @@ export class SupabaseCloudWrapper extends AbstractCloudWrapper {
    protected _payload2File(payload: {
       [x: string]: any
    }): FileType | undefined {
+      if (!payload.metadata) {
+         return undefined
+      }
+
       if (Object.keys(payload).length === 0) {
          return undefined
       }
 
-      const { size, mimetype } = payload.metadata
+      const { size, mimetype } = payload?.metadata
       return {
          host: 'supabase',
          bucket: payload.bucket_id,

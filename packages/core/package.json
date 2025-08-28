@@ -24,7 +24,7 @@
    },
    "dependencies": {
       "@faker-js/faker": "^7.6.0",
-      "@quatrain/log": "workspace:^",
+      "@quatrain/log": "^1.0.0",
       "loglevel": "^1.9.2",
       "node-persist": "^4.0.3"
    },

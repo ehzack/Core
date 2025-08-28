@@ -11,8 +11,8 @@ export class DefaultLoggerAdapter extends AbstractLoggerAdapter {
 
    /**
     * Log message using defined logger
-    * @param message string | object
-    * @param level string
+    * @param messages array
+    * @param level LogLevel
     */
    log(messages: any[], level: LogLevel = this._logLevel): void {
       const message = this.formatLogMessage(messages)
@@ -45,22 +45,22 @@ export class DefaultLoggerAdapter extends AbstractLoggerAdapter {
    }
 
    debug(...messages: any): void {
-      this.log(messages, LogLevel.DEBUG)
+      this.log(messages[0], LogLevel.DEBUG)
    }
 
    warn(...messages: any): void {
-      this.log(messages, LogLevel.WARN)
+      this.log(messages[0], LogLevel.WARN)
    }
 
    info(...messages: any): void {
-      this.log(messages, LogLevel.INFO)
+      this.log(messages[0], LogLevel.INFO)
    }
 
    error(...messages: any): void {
-      this.log(messages, LogLevel.ERROR)
+      this.log(messages[0], LogLevel.ERROR)
    }
 
    trace(...messages: any): void {
-      this.log(messages, LogLevel.TRACE)
+      this.log(messages[0], LogLevel.TRACE)
    }
 }

@@ -31,12 +31,14 @@ export abstract class AbstractLoggerAdapter implements LoggerType {
       this._logLevel = level
    }
 
-   formatLogMessage = (messages: any[], loglevel: LogLevel = 3): string =>
-      `${Log.timestamp()} - [${this._me}] ${messages.reduce((message: any) =>
-         typeof message !== 'object'
-            ? `${message} `
-            : `${JSON.stringify(message)} `
-      )}`
+   formatLogMessage = (messages: any[], loglevel: LogLevel = 3): string => {
+      messages.unshift(`${Log.timestamp()} - [${this._me}]`)
+      const strs = messages.map((message: number | string | object) => {
+         return typeof message !== 'object' ? message : JSON.stringify(message)
+      })
+
+      return strs.join(' ')
+   }
 
    /**
     * Log message using defined logger

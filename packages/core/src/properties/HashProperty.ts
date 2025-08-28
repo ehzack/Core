@@ -61,7 +61,7 @@ export class HashProperty extends StringProperty {
    }
 
    /**
-    * Never return the password which is hashed anyway
+    * Never return the value which is hashed anyway
     * @param transform
     * @returns
     */

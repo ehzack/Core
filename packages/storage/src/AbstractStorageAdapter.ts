@@ -10,6 +10,7 @@ import { join } from 'path'
 import { tmpdir } from 'os'
 import fs from 'fs-extra'
 import hash from 'object-hash'
+import { spawn } from 'child_process'
 
 export abstract class AbstractStorageAdapter
    implements StorageAdapterInterface
@@ -117,7 +118,7 @@ export abstract class AbstractStorageAdapter
          await Promise.all(
             sizes.map(async (size) => {
                const locatThmbFilePath = `${tmpFilePath}.thumb${size}.png`
-               await pspawn('ffmpeg', [
+               await spawn('ffmpeg', [
                   '-i',
                   tmpFilePath,
                   '-vframes',

@@ -63,20 +63,44 @@ export class SupabaseStorageAdapter extends AbstractStorageAdapter {
       })
    }
 
+   toArrayBuffer(buffer: Buffer): ArrayBuffer {
+      const arrayBuffer = new ArrayBuffer(buffer.length)
+      const view = new Uint8Array(arrayBuffer)
+      for (let i = 0; i < buffer.length; ++i) {
+         view[i] = buffer[i]
+      }
+      return arrayBuffer
+   }
+
    async create(file: FileType, stream: Readable | string): Promise<FileType> {
-      console.log(stream)
-      Storage.info(`Uploading ${file.ref} to ${file.bucket}`)
+      Storage.info(`[SSA] Uploading ${file.ref} to ${file.bucket}`)
 
       if (typeof stream === 'string') {
-         const { data, error } = await this._client
+         const { error } = await this._client
             .from(file.bucket)
             .upload(file.ref, new Blob([fs.readFileSync(stream)]), {
                //   cacheControl: '3600',
                upsert: false,
                contentType: file.contentType,
             })
-
          if (error !== null) {
+            console.log(error)
+            Storage.error(`Unable to upload ${file.ref} to ${file.bucket}`)
+            throw new Error(`Unable to upload ${file.ref} to ${file.bucket}`)
+         }
+      } else {
+         const content = new Blob([
+            this.toArrayBuffer(await this.streamToBuffer(stream)),
+         ])
+         const { error } = await this._client
+            .from(file.bucket)
+            .upload(file.ref, content, {
+               //   cacheControl: '3600',
+               upsert: false,
+               contentType: file.contentType,
+            })
+         if (error !== null) {
+            console.log(error)
             Storage.error(`Unable to upload ${file.ref} to ${file.bucket}`)
             throw new Error(`Unable to upload ${file.ref} to ${file.bucket}`)
          }
@@ -204,7 +228,7 @@ export class SupabaseStorageAdapter extends AbstractStorageAdapter {
    ): Promise<FileResponseLinkType> {
       const { data, error } = await this._client
          .from(file.bucket)
-         .createSignedUploadUrl(file.ref, { upsert: true, })
+         .createSignedUploadUrl(file.ref, { upsert: true })
 
       if (error !== null) {
          throw new Error(`Unable to get signed upload url: ${error}`)
