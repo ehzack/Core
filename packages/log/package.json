@@ -1,6 +1,6 @@
 {
    "name": "@quatrain/log",
-   "version": "0.1.4",
+   "version": "1.0.1",
    "description": "Logger for business apps",
    "main": "lib/index.js",
    "types": "lib/index.d.ts",

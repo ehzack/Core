@@ -10,12 +10,11 @@ import { join } from 'path'
 import { tmpdir } from 'os'
 import fs from 'fs-extra'
 import hash from 'object-hash'
-import { spawn } from 'child_process'
 
 export abstract class AbstractStorageAdapter
    implements StorageAdapterInterface
 {
-   static FFMPEG = '/usr/bin/ffmpeg'
+   static readonly FFMPEG = '/usr/bin/ffmpeg'
 
    protected _client: any
    protected _alias: string = ''
@@ -114,11 +113,13 @@ export abstract class AbstractStorageAdapter
       await this.download(file, { path: tmpFilePath })
       const bucketDir = name.substring(0, name.lastIndexOf('/'))
 
+      const pspawn = require('child-process-promise').spawn
+
       try {
          await Promise.all(
             sizes.map(async (size) => {
                const locatThmbFilePath = `${tmpFilePath}.thumb${size}.png`
-               await spawn(AbstractStorageAdapter.FFMPEG, [
+               await pspawn(AbstractStorageAdapter.FFMPEG, [
                   '-i',
                   tmpFilePath,
                   '-vframes',

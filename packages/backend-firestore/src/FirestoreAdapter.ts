@@ -1,9 +1,4 @@
-import {
-   ObjectUri,
-   NotFoundError,
-   statuses,
-   StringProperty,
-} from '@quatrain/core'
+import { ObjectUri, NotFoundError, statuses } from '@quatrain/core'
 import {
    CollectionHierarchy,
    DataObjectClass,
@@ -18,7 +13,7 @@ import {
    Filter,
    SortAndLimit,
    Sorting,
-   InjectKeywordsMiddleware
+   InjectKeywordsMiddleware,
 } from '@quatrain/backend'
 
 // do not convert to import as it is not yet supported
@@ -329,7 +324,9 @@ export class FirestoreAdapter extends AbstractBackendAdapter {
                   throw new BackendError(
                      `[FSA] No such property '${filter.prop}' on object'`
                   )
-               } else if (filter.prop === AbstractBackendAdapter.PKEY_IDENTIFIER) {
+               } else if (
+                  filter.prop === AbstractBackendAdapter.PKEY_IDENTIFIER
+               ) {
                   realProp = FieldPath.documentId()
                   realOperator = operatorsMap[filter.operator]
                } else {

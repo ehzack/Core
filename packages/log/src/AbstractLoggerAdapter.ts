@@ -45,15 +45,27 @@ export abstract class AbstractLoggerAdapter implements LoggerType {
     * @param message string | object
     * @param level string
     */
-   log(...messages: any): void {}
+   log(...messages: any): void {
+      throw new Error(`This method needs to be implemtend in child class`)
+   }
 
-   debug(message: any): void {}
+   debug(message: any): void {
+      throw new Error(`This method needs to be implemtend in child class`)
+   }
 
-   warn(message: any): void {}
+   warn(message: any): void {
+      throw new Error(`This method needs to be implemtend in child class`)
+   }
 
-   info(message: any): void {}
+   info(message: any): void {
+      throw new Error(`This method needs to be implemtend in child class`)
+   }
 
-   error(message: any): void {}
+   error(message: any): void {
+      throw new Error(`This method needs to be implemtend in child class`)
+   }
 
-   trace(message: any): void {}
+   trace(message: any): void {
+      throw new Error(`This method needs to be implemtend in child class`)
+   }
 }

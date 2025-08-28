@@ -5,8 +5,8 @@ import { spawn } from 'child_process'
 import { HandlerParameters } from './types/HandlerParameters'
 
 export class Worker extends Core {
-   static endpoint: string = ''
-   static logger = this.addLogger('Worker')
+   static readonly endpoint: string = ''
+   static readonly logger = this.addLogger('Worker')
 
    /**
     * Execute an external command in a promise
@@ -16,7 +16,7 @@ export class Worker extends Core {
     * @param array args
     * @return Promise
     */
-   static execPromise = (
+   static readonly execPromise = (
       command: string,
       args: any[] = [],
       cwd = process.cwd()
@@ -90,7 +90,7 @@ export class Worker extends Core {
     * @param messageHandler function
     * @param config object
     */
-   static handler = async (
+   static readonly handler = async (
       messageHandler: Function,
       config: HandlerParameters
    ) => {

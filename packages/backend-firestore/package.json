@@ -14,11 +14,10 @@
       "@quatrain/core": "^1.1.19"
    },
    "dependencies": {
-      "firebase-admin": "^13.0.1"
+      "firebase-admin": "^13.4.0"
    },
    "devDependencies": {
       "@faker-js/faker": "^7.6.0",
-      "@firebase/rules-unit-testing": "^2.0.7",
       "@tsconfig/recommended": "^1.0.1",
       "@types/jest": "^27.0.3",
       "@types/node": "^22.10.1",
