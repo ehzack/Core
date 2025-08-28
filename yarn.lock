@@ -1807,17 +1807,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@firebase/rules-unit-testing@npm:^2.0.7":
-  version: 2.0.7
-  resolution: "@firebase/rules-unit-testing@npm:2.0.7"
-  dependencies:
-    node-fetch: "npm:2.6.7"
-  peerDependencies:
-    firebase: ^9.0.0
-  checksum: 10c0/6b54517ffeb154129a61bece24cc819387724c76b0393681c23d0001d01b7ee28987151e1dac3670bd49e3c24ced671215dea39e28d6eaf9ce18dd461097fed6
-  languageName: node
-  linkType: hard
-
 "@firebase/util@npm:1.10.2":
   version: 1.10.2
   resolution: "@firebase/util@npm:1.10.2"
@@ -2677,7 +2666,6 @@ __metadata:
   resolution: "@quatrain/backend-firestore@workspace:packages/backend-firestore"
   dependencies:
     "@faker-js/faker": "npm:^7.6.0"
-    "@firebase/rules-unit-testing": "npm:^2.0.7"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/jest": "npm:^27.0.3"
     "@types/node": "npm:^22.10.1"
@@ -2765,8 +2753,8 @@ __metadata:
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/jest": "npm:^27.0.3"
     "@types/pg": "npm:^8.11.4"
-    firebase-admin: "npm:^13.0.1"
-    firebase-functions: "npm:^6.1.1"
+    firebase-admin: "npm:^13.4.0"
+    firebase-functions: "npm:^6.4.0"
     jest: "npm:^27.4.7"
     jest-node-exports-resolver: "npm:^1.1.6"
     jest-serial-runner: "npm:^1.2.1"
@@ -6289,9 +6277,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"firebase-functions@npm:^6.1.1":
-  version: 6.1.1
-  resolution: "firebase-functions@npm:6.1.1"
+"firebase-functions@npm:^6.4.0":
+  version: 6.4.0
+  resolution: "firebase-functions@npm:6.4.0"
   dependencies:
     "@types/cors": "npm:^2.8.5"
     "@types/express": "npm:^4.17.21"
@@ -6302,7 +6290,7 @@ __metadata:
     firebase-admin: ^11.10.0 || ^12.0.0 || ^13.0.0
   bin:
     firebase-functions: lib/bin/firebase-functions.js
-  checksum: 10c0/0d6184358cd7aff3208fe1c0457e46231d9767b98862a54f35f46b2c7eb7d4020c67fd2a1c10f5a4a9027aa53c08b519653a645491eadecb872c875e6b53bdc9
+  checksum: 10c0/5a1941bfe37df58650c4a90fd2cacfcee6fe7cd9a7047a15f3952298cfbcea00d9608d8103011686e75ada785d1ce5b2164f2440eacce8b3ae08ac83cb61a1d5
   languageName: node
   linkType: hard
 
@@ -8421,20 +8409,6 @@ __metadata:
   version: 1.6.4
   resolution: "node-fetch-native@npm:1.6.4"
   checksum: 10c0/78334dc6def5d1d95cfe87b33ac76c4833592c5eb84779ad2b0c23c689f9dd5d1cfc827035ada72d6b8b218f717798968c5a99aeff0a1a8bf06657e80592f9c3
-  languageName: node
-  linkType: hard
-
-"node-fetch@npm:2.6.7":
-  version: 2.6.7
-  resolution: "node-fetch@npm:2.6.7"
-  dependencies:
-    whatwg-url: "npm:^5.0.0"
-  peerDependencies:
-    encoding: ^0.1.0
-  peerDependenciesMeta:
-    encoding:
-      optional: true
-  checksum: 10c0/fcae80f5ac52fbf5012f5e19df2bd3915e67d3b3ad51cb5942943df2238d32ba15890fecabd0e166876a9f98a581ab50f3f10eb942b09405c49ef8da36b826c7
   languageName: node
   linkType: hard
 
