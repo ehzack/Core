@@ -38,7 +38,7 @@ export class Worker extends Core {
             child.on('close', (code) => {
                if (code !== 0) {
                   Worker.error(`Command execution failed with code: ${code}`)
-                  reject(code)
+                  reject(new Error(`Process failed and returned code: ${code}`))
                } else {
                   Worker.info(`Command execution completed with code: ${code}`)
                   resolve(undefined)
