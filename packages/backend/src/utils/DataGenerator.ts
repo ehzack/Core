@@ -43,6 +43,7 @@ export const DataGenerator = async <T extends AbstractObject>(
                      break
                   case htmlType.ORG:
                      property.set(faker.company.name())
+                     break
                   default:
                      property.set(faker.word.noun())
                      break
