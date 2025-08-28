@@ -194,7 +194,7 @@ export class SupabaseCloudWrapper extends AbstractCloudWrapper {
          return undefined
       }
 
-      const { size, mimetype } = payload?.metadata
+      const { size, mimetype } = payload?.metadata || {}
       return {
          host: 'supabase',
          bucket: payload.bucket_id,
