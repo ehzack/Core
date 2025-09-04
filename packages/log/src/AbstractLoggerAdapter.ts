@@ -32,6 +32,9 @@ export abstract class AbstractLoggerAdapter implements LoggerType {
    }
 
    formatLogMessage = (messages: any[], loglevel: LogLevel = 3): string => {
+      if (!Array.isArray(messages)) {
+         messages = [messages]
+      }
       messages.unshift(`${Log.timestamp()} - [${this._me}]`)
       const strs = messages.map((message: number | string | object) => {
          return typeof message !== 'object' ? message : JSON.stringify(message)

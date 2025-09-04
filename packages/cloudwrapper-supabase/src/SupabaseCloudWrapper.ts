@@ -19,6 +19,17 @@ export type SupabaseParams = {
    key?: string
 }
 
+export type Channel = {
+   name: string
+   channel: RealtimeChannel | undefined
+   state: any
+}
+
+export type Channels = {
+   database: Channel[]
+   storage: Channel[]
+}
+
 export const eventMap = {
    [BackendAction.CREATE]: 'INSERT',
    [BackendAction.UPDATE]: 'UPDATE',
@@ -29,6 +40,7 @@ export class SupabaseCloudWrapper extends AbstractCloudWrapper {
    protected _supabaseClient: SupabaseClient | undefined
    protected _realtimeClient: RealtimeChannel | undefined
    protected _isInitialized = false
+   protected _channels: Channels = { database: [], storage: [] }
 
    constructor(params: SupabaseParams) {
       super(params)
@@ -38,7 +50,7 @@ export class SupabaseCloudWrapper extends AbstractCloudWrapper {
    databaseTrigger(trigger: DatabaseTriggerType) {
       this._initialize()
 
-      if (!this._realtimeClient) {
+      if (!(this._supabaseClient instanceof SupabaseClient)) {
          throw new Error(`Realtime channel is not enabled`)
       }
 
@@ -67,7 +79,7 @@ export class SupabaseCloudWrapper extends AbstractCloudWrapper {
          CloudWrapper.info(
             `Set up DB trigger ${trigger.name} for ${trigger.event} event on table ${schema}.${params.table}`
          )
-         this._supabaseClient
+         const channel = this._supabaseClient
             ?.channel(trigger.name)
             .on(
                'postgres_changes',
@@ -85,6 +97,12 @@ export class SupabaseCloudWrapper extends AbstractCloudWrapper {
                }
             )
             .subscribe()
+         this._channels.database.push({
+            name: trigger.name,
+            channel,
+            state: channel.state,
+         })
+
          return params
       } catch (err) {
          CloudWrapper.error(err)
@@ -94,10 +112,6 @@ export class SupabaseCloudWrapper extends AbstractCloudWrapper {
 
    storageTrigger(trigger: StorageTriggerType) {
       this._initialize()
-
-      if (!this._realtimeClient) {
-         throw new Error(`Realtime channel is not enabled`)
-      }
 
       if (typeof trigger.script !== 'function') {
          throw new Error(`Passed script value is not a function`)
@@ -111,6 +125,7 @@ export class SupabaseCloudWrapper extends AbstractCloudWrapper {
                name: `${trigger.name}-${event}`,
             })
          })
+
          return params
       }
 
@@ -123,7 +138,7 @@ export class SupabaseCloudWrapper extends AbstractCloudWrapper {
          CloudWrapper.info(
             `Set up Storage trigger ${trigger.name} for ${trigger.event} event`
          )
-         this._supabaseClient
+         const channel = this._supabaseClient
             ?.channel(trigger.name)
             .on(
                'postgres_changes',
@@ -142,11 +157,15 @@ export class SupabaseCloudWrapper extends AbstractCloudWrapper {
                      return await trigger.script(payload)
                   } catch (err) {
                      CloudWrapper.error((err as Error).message)
-                     console.log(err)
                   }
                }
             )
             .subscribe()
+         this._channels.storage.push({
+            name: trigger.name,
+            channel,
+            state: channel?.state,
+         })
          return params
       } catch (err) {
          console.log(err)
@@ -154,33 +173,23 @@ export class SupabaseCloudWrapper extends AbstractCloudWrapper {
       }
    }
 
-   triggersEnable() {
-      if (!this._realtimeClient) {
-         throw new Error(`Realtime client is not enabled`)
-      }
-      this._realtimeClient.subscribe((res) => {
-         CloudWrapper.info(`Enabling Realtime triggers: ${res}`)
-         if (res !== 'SUBSCRIBED') {
-            throw new Error(`Failed to subscribe to Realtime channels`)
-         }
-      })
-   }
-
-   triggersDisable() {
-      if (!this._realtimeClient) {
-         throw new Error(`Realtime channel is not enabled`)
-      }
-      CloudWrapper.info(`Disabling Realtime triggers`)
-      this._supabaseClient?.removeAllChannels()
-   }
-
    protected _initialize() {
       if (this._isInitialized === false) {
          this._supabaseClient = createClient(this._params.url, this._params.key)
-         this._realtimeClient = this._supabaseClient.channel('table-db-changes')
          this._isInitialized = true
          CloudWrapper.info(`Supabase App initialized`)
       }
+   }
+
+   public poll() {
+      CloudWrapper.info(
+         `Supabase client status: ${this._supabaseClient?.channel}`
+      )
+      this._channels.storage.forEach((channel) => {
+         CloudWrapper.info(`${channel.name}: ${channel.state}`)
+         console.log(channel.channel?.params)
+      })
+      setTimeout(() => this.poll(), 10000)
    }
 
    protected _payload2File(payload: {
