@@ -14,10 +14,11 @@ export class Core {
    static readonly me = this.name
    static readonly storage = require('node-persist')
    static readonly storagePrefix = 'core'
-   static readonly userClass = User
    static readonly classRegistry: { [key: string]: any } = {}
    static readonly logLevel = LogLevel.DEBUG
    static readonly logger: AbstractLoggerAdapter = this.addLogger()
+
+   static userClass = User
 
    static addLogger(alias: string = this.name) {
       return Log.addLogger(
