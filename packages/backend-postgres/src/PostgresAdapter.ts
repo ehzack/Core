@@ -3,7 +3,6 @@ import {
    NotFoundError,
    statuses,
    StringProperty,
-   ObjectProperty,
 } from '@quatrain/core'
 import {
    DataObjectClass,
@@ -29,7 +28,7 @@ const operatorsMap: { [x: string]: string } = {
    greater: '>',
    greaterOrEquals: '>=',
    lower: '<',
-   lowerOrEquals: '>',
+   lowerOrEquals: '<=',
    like: 'ILIKE',
    contains: 'in',
    notContains: 'not in',
