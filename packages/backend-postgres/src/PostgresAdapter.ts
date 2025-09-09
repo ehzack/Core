@@ -316,7 +316,6 @@ export class PostgresAdapter extends AbstractBackendAdapter {
       const pgData = this._prepareData(data, true)
       Backend.debug(`[PGA] Filtered data to update ${JSON.stringify(pgData)}`)
 
-      console.log(data, pgData)
       if (pgData.length > 0) {
          let query = `UPDATE ${dataObject.uri.collection?.toLowerCase()} SET `
          let i = 1

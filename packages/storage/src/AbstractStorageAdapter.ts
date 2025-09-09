@@ -10,12 +10,11 @@ import { join } from 'path'
 import { tmpdir } from 'os'
 import fs from 'fs-extra'
 import hash from 'object-hash'
+import { Core } from '@quatrain/core'
 
 export abstract class AbstractStorageAdapter
    implements StorageAdapterInterface
 {
-   static readonly FFMPEG = '/usr/bin/ffmpeg'
-
    protected _client: any
    protected _alias: string = ''
    protected _params: StorageParameters = {}
@@ -42,7 +41,7 @@ export abstract class AbstractStorageAdapter
       extra?: any
    ): Promise<any>
 
-   abstract delete(file: FileType): Promise<Boolean>
+   abstract delete(file: FileType): Promise<boolean>
 
    abstract stream(file: FileType, res: any): Promise<any>
 
@@ -53,6 +52,7 @@ export abstract class AbstractStorageAdapter
    abstract getMetaData(file: FileType): Promise<FileType>
 
    async generateImageThumbnail(file: FileType, sizes: number[]): Promise<any> {
+      Storage.info(`Generating image thumbnail(s) for ${file.ref}`)
       const name = file.name || file.ref
       const thumbnails: any = {}
       const workingDir = join(tmpdir(), 'thumbs')
@@ -79,7 +79,7 @@ export abstract class AbstractStorageAdapter
                })
                .toFile(thumbPath)
             thumbnails[thumbName] = join(bucketDir, thumbName) + `.${extension}`
-            Storage.log(`Generating ${size} thumbnail for ${name}`)
+            Storage.debug(`Generating ${size} thumbnail for ${name}`)
 
             this.create(
                {
@@ -92,7 +92,7 @@ export abstract class AbstractStorageAdapter
          await Promise.all(uploadPromises)
          await fs.remove(workingDir)
       } catch (err) {
-         Storage.log(
+         Storage.error(
             `Thumbnail generation for ${file.name} failed with error: ${err}`
          )
       }
@@ -101,6 +101,8 @@ export abstract class AbstractStorageAdapter
    }
 
    async generateVideoThumbnail(file: FileType, sizes: number[]): Promise<any> {
+      Storage.info(`Generating video thumbnail(s) for ${file.ref}`)
+
       const name = file.name || file.ref
       const thumbnails: any = {}
 
@@ -113,46 +115,52 @@ export abstract class AbstractStorageAdapter
       await this.download(file, { path: tmpFilePath })
       const bucketDir = name.substring(0, name.lastIndexOf('/'))
 
-      const pspawn = require('child-process-promise').spawn
+      const ffmpeg = await Core.getSystemCommandPath('ffmpeg')
 
       try {
          await Promise.all(
             sizes.map(async (size) => {
-               const locatThmbFilePath = `${tmpFilePath}.thumb${size}.png`
-               await pspawn(AbstractStorageAdapter.FFMPEG, [
+               const localThmbFilePath = `${tmpFilePath}.thumb${size}.png`
+
+               const ffmpegParams = [
                   '-i',
                   tmpFilePath,
                   '-vframes',
                   '1',
-                  '-an',
+                  '-vf',
+                  String.raw`select=gte(n\,0)`,
                   '-s',
                   `${size}x${Math.ceil(size * 0.7)}`,
                   '-ss',
                   '1',
-                  locatThmbFilePath,
-               ])
-               const thumbName = `thumb${size}`
-               const thumbPath = join(workingDir, thumbName) + `.png`
-               await sharp(locatThmbFilePath)
-                  .resize(size, size, {
-                     fit: 'contain',
-                     background: { r: 255, g: 255, b: 255, alpha: 1 },
-                  })
-                  .toFile(thumbPath)
+                  localThmbFilePath,
+                  '-y',
+               ]
+               await Core.execPromise(ffmpeg, ffmpegParams).then(async () => {
+                  const thumbName = `thumb${size}`
+                  const thumbPath = join(workingDir, thumbName) + `.png`
 
-               thumbnails[thumbName] = join(bucketDir, `${thumbName}.png`)
+                  await sharp(localThmbFilePath)
+                     .resize(size, size, {
+                        fit: 'contain',
+                        background: { r: 255, g: 255, b: 255, alpha: 1 },
+                     })
+                     .toFile(thumbPath)
 
-               this.create(
-                  {
-                     ...file,
-                     ref: join(bucketDir, `${thumbName}.png`),
-                  },
-                  createReadStream(thumbPath)
-               )
+                  thumbnails[thumbName] = join(bucketDir, `${thumbName}.png`)
+
+                  this.create(
+                     {
+                        ...file,
+                        ref: join(bucketDir, `${thumbName}.png`),
+                     },
+                     createReadStream(thumbPath)
+                  )
+               })
             })
          )
       } catch (e) {
-         console.error(e)
+         Storage.error(e)
       }
 
       return thumbnails

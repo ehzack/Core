@@ -12,7 +12,7 @@
   "author": "Quatrain Développement SAS <developers@quatrain.com>",
   "dependencies": {
     "@faker-js/faker": "^7.6.0",
-    "@quatrain/core": "^1.1.19",
+    "@quatrain/core": "^1.1.21",
     "@quatrain/log": "workspace:^"
   },
   "devDependencies": {

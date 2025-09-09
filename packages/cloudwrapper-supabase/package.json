@@ -17,7 +17,7 @@
    ],
    "author": "Quatrain Développement SAS <developers@quatrain.com>",
    "peerDependencies": {
-      "@quatrain/core": "^1.1.19"
+      "@quatrain/core": "^1.1.21"
    },
    "dependencies": {
       "@quatrain/backend": "^1.1.20",

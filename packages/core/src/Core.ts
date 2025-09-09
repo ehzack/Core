@@ -7,15 +7,17 @@ import {
    Log,
    LogLevel,
 } from '@quatrain/log'
+import { spawn } from 'child_process'
+import which from 'which'
 
 export class Core {
-   static me = this.name
-   static storage = require('node-persist')
-   static storagePrefix = 'core'
-   static userClass = User
-   static classRegistry: { [key: string]: any } = {}
-   static logLevel = LogLevel.DEBUG
-   static logger: AbstractLoggerAdapter = this.addLogger()
+   static readonly me = this.name
+   static readonly storage = require('node-persist')
+   static readonly storagePrefix = 'core'
+   static readonly userClass = User
+   static readonly classRegistry: { [key: string]: any } = {}
+   static readonly logLevel = LogLevel.DEBUG
+   static readonly logger: AbstractLoggerAdapter = this.addLogger()
 
    static addLogger(alias: string = this.name) {
       return Log.addLogger(
@@ -30,7 +32,7 @@ export class Core {
    }
 
    // How timestamp are formatted
-   static timestamp = () => new Date().toISOString()
+   static readonly timestamp = () => new Date().toISOString()
 
    static definition(key: string) {
       return {
@@ -62,6 +64,51 @@ export class Core {
    static getClass(name: string) {
       return Core.classRegistry[name]
    }
+
+   /**
+    * Execute an external command in a promise
+    * @see https://stackoverflow.com/questions/46289682/how-to-wait-for-child-process-spawn-execution-with-async-await
+    * @see https://dzone.com/articles/understanding-execfile-spawn-exec-and-fork-in-node
+    * @param string command
+    * @param array args
+    * @return Promise
+    */
+   static readonly execPromise = (
+      command: string,
+      args: any[] = [],
+      cwd = process.cwd()
+   ): Promise<any> => {
+      try {
+         Core.info(`Executing command ${command} in ${cwd} with arguments:`)
+         args.forEach((arg) => console.log(`\t${arg}`))
+         return new Promise((resolve, reject) => {
+            const child = spawn(command, args, { cwd })
+
+            child.stdout.on('data', (data: Buffer) =>
+               Core.debug(data.toString())
+            )
+
+            child.stderr.on('data', (data: Buffer) =>
+               Core.debug(data.toString())
+            )
+
+            child.on('close', (code) => {
+               if (code !== 0) {
+                  Core.error(`Command execution failed with code: ${code}`)
+                  reject(new Error(`Process failed and returned code: ${code}`))
+               } else {
+                  Core.info(`Command execution completed with code: ${code}`)
+                  resolve(undefined)
+               }
+            })
+         })
+      } catch (err) {
+         Core.error((err as Error).message)
+         throw err
+      }
+   }
+
+   static readonly getSystemCommandPath = (command: string): Promise<string> => which(command)
 
    /**
     * Returns the class to use for a data object

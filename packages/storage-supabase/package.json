@@ -22,8 +22,8 @@
       "typescript": "^5.1.5"
    },
    "dependencies": {
-      "@quatrain/core": "^1.1.19",
-      "@quatrain/storage": "^1.1.17",
+      "@quatrain/core": "^1.1.21",
+      "@quatrain/storage": "^1.1.18",
       "@supabase/storage-js": "^2.7.2",
       "@supabase/supabase-js": "^2.45.1"
    },
