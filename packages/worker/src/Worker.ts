@@ -5,7 +5,7 @@ import { spawn } from 'child_process'
 import { HandlerParameters } from './types/HandlerParameters'
 
 export class Worker extends Core {
-   static readonly endpoint: string = ''
+   static endpoint: string = ''
    static readonly logger = this.addLogger('Worker')
 
    /**
