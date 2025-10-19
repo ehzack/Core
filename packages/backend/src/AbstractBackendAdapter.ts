@@ -45,6 +45,12 @@ export abstract class AbstractBackendAdapter implements BackendInterface {
       this._middlewares.push(middleware)
    }
 
+   deleteMiddleware(middlewareClassName: string) {
+      this._middlewares = this._middlewares.filter(
+         (middleware) => middleware.constructor.name !== middlewareClassName
+      )
+   }
+
    /**
     * Returns true if a given middleware is attached
     * @param className
