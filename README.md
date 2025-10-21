@@ -1,8 +1,3 @@
-<!--
-Hello! You've found the README for the Quatrain Core monorepo.
-For a more detailed overview of each package, please see PACKAGES_OVERVIEW.md.
--->
-
 # Quatrain Core - A Modular BaaS Framework
 
 Quatrain Core is a modular TypeScript framework designed to accelerate business application development with **Backend as a Service (BaaS)** solutions like Firebase and Supabase. It provides a clean separation of concerns between logic, data, and storage, using an adapter pattern to provide consistent interfaces across different BaaS providers.
@@ -17,7 +12,7 @@ Quatrain Core is a modular TypeScript framework designed to accelerate business 
 
 ## 🏗️ Architecture & Packages
 
-The framework is organized as a monorepo with a foundation package and a suite of adapters for popular services.
+The framework is organized as a monorepo with a foundation package and a suite of adapters for popular services. For a detailed explanation of the architecture and each package, please see [**PACKAGES_OVERVIEW.md**](./PACKAGES_OVERVIEW.md).
 
 ```bash
 @quatrain/core (Foundation - works standalone)
@@ -25,21 +20,13 @@ The framework is organized as a monorepo with a foundation package and a suite o
 │   ├── @quatrain/backend-firestore (Firestore NoSQL)
 │   ├── @quatrain/auth-firebase (Firebase Auth)
 │   ├── @quatrain/storage-firebase (Firebase Storage)
-│   └── @quatrain/cloudwrapper-firebase (Firebase Functions)
+│   ├── @quatrain/cloudwrapper-firebase (Firebase Functions)
+│   └── @quatrain/messaging-firebase (FCM)
 ├── 🟢 Supabase Ecosystem
 │   ├── @quatrain/backend-postgres (PostgreSQL - works with Supabase)
 │   ├── @quatrain/auth-supabase (Supabase Auth)
 │   ├── @quatrain/storage-supabase (Supabase Storage)
 │   └── @quatrain/cloudwrapper-supabase (Supabase Edge Functions)
-├── 📊 Traditional Backends (for migration/hybrid scenarios)
-│   ├── @quatrain/backend-sqlite (Local development)
-│   └── @quatrain/storage-s3 (S3-compatible storage)
-├── 📬 Message Queues (for complex workflows)
-│   ├── @quatrain/queue-amqp (RabbitMQ)
-│   ├── @quatrain/queue-aws (AWS SQS)
-│   └── @quatrain/queue-gcp (Google Pub/Sub)
-├── @quatrain/log (Structured logging)
-└── @quatrain/worker (Background processing)
 ```
 
 ## How to use
