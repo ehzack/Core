@@ -1,25 +1,45 @@
-# Quatrain Core
+<!--
+Hello! You've found the README for the Quatrain Core monorepo.
+For a more detailed overview of each package, please see PACKAGES_OVERVIEW.md.
+-->
 
-## Why
+# Quatrain Core - A Modular BaaS Framework
 
-Quatrain Core is an abstraction layer designed to accelerate and simplify the development
-of applications using many models and various data stores, being database or APIs.
+Quatrain Core is a modular TypeScript framework designed to accelerate business application development with **Backend as a Service (BaaS)** solutions like Firebase and Supabase. It provides a clean separation of concerns between logic, data, and storage, using an adapter pattern to provide consistent interfaces across different BaaS providers.
 
-With Quatrain Core and peer packages, one may develop robust applications based on
-Oriented Object Programming with a clear separation of concerns between logic, data
-and storage.
+## 🎯 Core Principles
 
-## How to install
+-  **BaaS-First Architecture**: Built to leverage modern BaaS platforms like Firebase and Supabase for managed databases, authentication, storage, and serverless functions.
+-  **Clean Abstraction**: Write your business logic once. The adapter pattern allows you to switch between different backend services (e.g., Firestore, PostgreSQL, Firebase Auth, Supabase Auth) with minimal code changes.
+-  **Deployment Flexibility**: While optimized for SaaS, Quatrain fully supports self-hosted solutions. For example, a Supabase-powered application can be deployed via Docker, Kubernetes, or on-premise for data sovereignty, using the exact same codebase.
+-  **Modular by Design**: The framework is split into scoped packages. Use only what you need, from core object modeling to authentication, storage, and message queues.
+-  **Standalone Core**: The `@quatrain/core` package works entirely in-memory for defining models, validation, and business logic, without requiring any database connection.
+
+## 🏗️ Architecture & Packages
+
+The framework is organized as a monorepo with a foundation package and a suite of adapters for popular services.
 
 ```bash
-yarn install @quatrain/core
-```
-
-Quatrain Core comes with a built-in Mock backend adapter. Other adapters are available in
-different packages. For example, a Google Firestore adapter is available:
-
-```bash
-yarn install @quatrain/backend-firestore
+@quatrain/core (Foundation - works standalone)
+├── 🔥 Firebase Ecosystem
+│   ├── @quatrain/backend-firestore (Firestore NoSQL)
+│   ├── @quatrain/auth-firebase (Firebase Auth)
+│   ├── @quatrain/storage-firebase (Firebase Storage)
+│   └── @quatrain/cloudwrapper-firebase (Firebase Functions)
+├── 🟢 Supabase Ecosystem
+│   ├── @quatrain/backend-postgres (PostgreSQL - works with Supabase)
+│   ├── @quatrain/auth-supabase (Supabase Auth)
+│   ├── @quatrain/storage-supabase (Supabase Storage)
+│   └── @quatrain/cloudwrapper-supabase (Supabase Edge Functions)
+├── 📊 Traditional Backends (for migration/hybrid scenarios)
+│   ├── @quatrain/backend-sqlite (Local development)
+│   └── @quatrain/storage-s3 (S3-compatible storage)
+├── 📬 Message Queues (for complex workflows)
+│   ├── @quatrain/queue-amqp (RabbitMQ)
+│   ├── @quatrain/queue-aws (AWS SQS)
+│   └── @quatrain/queue-gcp (Google Pub/Sub)
+├── @quatrain/log (Structured logging)
+└── @quatrain/worker (Background processing)
 ```
 
 ## How to use
@@ -35,14 +55,14 @@ Core.addBackend(myAdapter, 'myDB', true)
 ### Create a model
 
 ```ts
-import { BaseObjectCore } from '@quatrain/core'
+import { BaseObject, Property } from '@quatrain/core'
 
 export type Cat = {
    name: string
    color: `#${string}`
 }
 
-export class CatCore extends BaseObjectCore {
+export class CatCore extends BaseObject {
    static COLLECTION = 'cats'
 
    static PROPERTIES = [
@@ -70,24 +90,28 @@ const catData: Cat = {
    color: '#ffa502',
 }
 
-const garfield = CatCore.fromObject(catData)
+const garfield = Cat.fromObject(catData)
 
 console.log(garfield.name)
 // > "Garfield"
 console.log(garfield.color)
 // > "#ffa502"
-console.log(garfield.core)
-// > CatCore { ... }
 ```
 
 ### Interact with backend
 
 ```ts
+import { Backend } from '@quatrain/backend'
+import { SqliteAdapter } from '@quatrain/backend-sqlite'
+
+// Set up a default backend
+Backend.addAdapter(new SqliteAdapter(), 'default')
+
 // Let's save Garfield in our database
-garfield.core.save()
+const savedCat = await garfield.save()
 
 // Now, let's retrieve Garfield in the database
-const persistedGarfield = await CatCore.fromBackend('garfield')
+const persistedGarfield = await Cat.fromBackend(savedCat.path)
 ```
 
 ### Using repositories
@@ -99,11 +123,11 @@ This module provides a BaseRepository class that you can extend and override to 
 Let's create a repository for our Cat model, that prevents us from deleting a cat.
 
 ```ts
-import { Core, BackendInterface, BaseRepository } from '@quatrain/core'
+import { BackendInterface, BaseRepository } from '@quatrain/backend'
 
 export default class CatRepository extends BaseRepository<Cat> {
-   constructor(backendAdapter: BackendInterface = Core.getBackend()) {
-      super(CatCore, backendAdapter)
+   constructor(backendAdapter: BackendInterface = Backend.getBackend()) {
+      super(Cat, backendAdapter)
    }
 
    async delete(uid: string) {
