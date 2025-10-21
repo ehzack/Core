@@ -44,14 +44,6 @@ The framework is organized as a monorepo with a foundation package and a suite o
 
 ## How to use
 
-### Setup
-
-```ts
-import { Core } from '@quatrain/core'
-
-Core.addBackend(myAdapter, 'myDB', true)
-```
-
 ### Create a model
 
 ```ts
@@ -92,9 +84,9 @@ const catData: Cat = {
 
 const garfield = Cat.fromObject(catData)
 
-console.log(garfield.name)
+console.log(garfield._.name)
 // > "Garfield"
-console.log(garfield.color)
+console.log(garfield._.color)
 // > "#ffa502"
 ```
 
@@ -105,13 +97,14 @@ import { Backend } from '@quatrain/backend'
 import { SqliteAdapter } from '@quatrain/backend-sqlite'
 
 // Set up a default backend
-Backend.addAdapter(new SqliteAdapter(), 'default')
+Backend.addBackend(new SqliteAdapter(), 'sqlite', true)
 
 // Let's save Garfield in our database
 const savedCat = await garfield.save()
 
 // Now, let's retrieve Garfield in the database
 const persistedGarfield = await Cat.fromBackend(savedCat.path)
+// cats/xyz
 ```
 
 ### Using repositories
