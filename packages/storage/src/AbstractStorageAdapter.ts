@@ -51,7 +51,7 @@ export abstract class AbstractStorageAdapter
 
    abstract getMetaData(file: FileType): Promise<FileType>
 
-   private async setupThumbnailWorkspace(
+   protected async _setupThumbnailWorkspace(
       workingDirName: string
    ): Promise<string> {
       const workingDir = join(tmpdir(), workingDirName)
@@ -59,7 +59,7 @@ export abstract class AbstractStorageAdapter
       return workingDir
    }
 
-   private async createAndUploadThumbnail(
+   protected async _createAndUploadThumbnail(
       file: FileType,
       size: number,
       workingDir: string,
@@ -91,14 +91,14 @@ export abstract class AbstractStorageAdapter
       return { [thumbName]: thumbnailRef }
    }
 
-   private getFileInfo(file: FileType) {
+   protected _getFileInfo(file: FileType) {
       const name = file.name || file.ref
       const bucketDir = name.substring(0, name.lastIndexOf('/'))
       const extension = name.split('.').pop()?.toLowerCase() || ''
       return { name, bucketDir, extension }
    }
 
-   private isDocumentType(file: FileType, extension: string): boolean {
+   protected _isDocumentType(file: FileType, extension: string): boolean {
       const documentExtensions = [
          'pdf',
          'doc',
@@ -126,10 +126,10 @@ export abstract class AbstractStorageAdapter
 
    async generateImageThumbnail(file: FileType, sizes: number[]): Promise<any> {
       Storage.info(`Generating image thumbnail(s) for ${file.ref}`)
-      const { name, bucketDir, extension } = this.getFileInfo(file)
+      const { name, bucketDir, extension } = this._getFileInfo(file)
       const thumbnailExtension = 'png'
 
-      const workingDir = await this.setupThumbnailWorkspace('thumbs')
+      const workingDir = await this._setupThumbnailWorkspace('thumbs')
       const path = join(workingDir, hash(name)) + `.${extension}`
 
       try {
@@ -137,7 +137,7 @@ export abstract class AbstractStorageAdapter
 
          const uploadPromises = sizes.map(async (size) => {
             Storage.debug(`Generating ${size} thumbnail for ${name}`)
-            return this.createAndUploadThumbnail(
+            return this._createAndUploadThumbnail(
                file,
                size,
                workingDir,
@@ -162,10 +162,10 @@ export abstract class AbstractStorageAdapter
 
    async generateVideoThumbnail(file: FileType, sizes: number[]): Promise<any> {
       Storage.info(`Generating video thumbnail(s) for ${file.ref}`)
-      const { name, bucketDir, extension } = this.getFileInfo(file)
+      const { name, bucketDir, extension } = this._getFileInfo(file)
       const thumbnailExtension = 'png'
 
-      const workingDir = await this.setupThumbnailWorkspace('videothumbs')
+      const workingDir = await this._setupThumbnailWorkspace('videothumbs')
       const tmpFilePath = join(workingDir, hash(name)) + `.${extension}`
 
       try {
@@ -191,7 +191,7 @@ export abstract class AbstractStorageAdapter
             ]
 
             await Core.execPromise(ffmpeg, ffmpegParams)
-            return this.createAndUploadThumbnail(
+            return this._createAndUploadThumbnail(
                file,
                size,
                workingDir,
@@ -217,10 +217,10 @@ export abstract class AbstractStorageAdapter
       sizes: number[]
    ): Promise<any> {
       Storage.info(`Generating document thumbnail(s) for ${file.ref}`)
-      const { name, bucketDir, extension } = this.getFileInfo(file)
+      const { name, bucketDir, extension } = this._getFileInfo(file)
       const thumbnailExtension = 'png'
 
-      const workingDir = await this.setupThumbnailWorkspace('docthumbs')
+      const workingDir = await this._setupThumbnailWorkspace('docthumbs')
       const tmpFilePath = join(workingDir, hash(name)) + `.${extension}`
 
       try {
@@ -249,7 +249,7 @@ export abstract class AbstractStorageAdapter
             await Core.execPromise(convert, convertParams)
             Storage.debug(`Generated ${size} document thumbnail for ${name}`)
 
-            return this.createAndUploadThumbnail(
+            return this._createAndUploadThumbnail(
                file,
                size,
                workingDir,
@@ -276,7 +276,7 @@ export abstract class AbstractStorageAdapter
       const [type] = file.contentType
          ? file.contentType.split('/')
          : 'application/octet-stream'
-      const { extension } = this.getFileInfo(file)
+      const { extension } = this._getFileInfo(file)
 
       try {
          switch (type) {
@@ -287,7 +287,7 @@ export abstract class AbstractStorageAdapter
                return await this.generateVideoThumbnail(file, sizes)
 
             case 'application':
-               if (this.isDocumentType(file, extension)) {
+               if (this._isDocumentType(file, extension)) {
                   return await this.generateDocumentThumbnail(file, sizes)
                } else if (extension === 'jpg') {
                   console.log(`Processing possible missed image: ${file.ref}`)
@@ -300,7 +300,7 @@ export abstract class AbstractStorageAdapter
                break
 
             default:
-               if (this.isDocumentType(file, extension)) {
+               if (this._isDocumentType(file, extension)) {
                   console.log(
                      `Attempting document thumbnail for ${file.ref} based on extension`
                   )
