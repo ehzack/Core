@@ -24,6 +24,7 @@ export class SupabaseAuthAdapter extends AbstractAuthAdapter {
             },
          }
       )
+      Auth.info(`Created Supabase client for ${params.config.supabaseUrl}`)
    }
 
    /**
@@ -90,6 +91,10 @@ export class SupabaseAuthAdapter extends AbstractAuthAdapter {
    async revokeAuthToken(token: string) {
       // Careful, this only delete tokens on client side, not on server side
       const { error } = await this.signout()
+      if (error !== null) {
+         Auth.error(error)
+         return false
+      }
    }
 
    async signup(login: string, password: string) {
@@ -99,7 +104,7 @@ export class SupabaseAuthAdapter extends AbstractAuthAdapter {
       })
 
       if (error !== null) {
-         Auth.log(error)
+         Auth.error(error)
          return false
       }
 
@@ -107,7 +112,7 @@ export class SupabaseAuthAdapter extends AbstractAuthAdapter {
    }
 
    async signout(): Promise<any> {
-      const { data, error } = await this._client.auth.signOut()
+      const { error } = await this._client.auth.signOut()
       if (error !== null) {
          Auth.error(error)
          return false
@@ -121,13 +126,18 @@ export class SupabaseAuthAdapter extends AbstractAuthAdapter {
       try {
          if (Object.keys(updatable).length > 0) {
             Auth.info(`Updating ${updatable.displayName} Auth record`)
-            const { data, error } =
-               await this._client.auth.admin.updateUserById(user.uid, updatable)
+            const { error } = await this._client.auth.admin.updateUserById(
+               user.uid,
+               updatable
+            )
             if (error !== null) {
-               Auth.log(error)
+               Auth.error(error)
             }
          }
-      } catch (e) {}
+      } catch (e) {
+         Auth.error(e)
+         return false
+      }
    }
 
    async delete(user: User): Promise<any> {
@@ -140,7 +150,6 @@ export class SupabaseAuthAdapter extends AbstractAuthAdapter {
          user_metadata: claims,
       })
 
-      console.log(data, error)
       if (error) {
          throw new AuthenticationError(error)
       } else {
