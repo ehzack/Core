@@ -59,6 +59,7 @@ export abstract class AbstractStorageAdapter
 
       const extension = name.split('.').pop().toLowerCase()
       const path = join(workingDir, hash(name)) + `.${extension}`
+      const thumbnailExtension = 'png'
 
       await fs.ensureDir(workingDir)
 
@@ -71,20 +72,22 @@ export abstract class AbstractStorageAdapter
 
          const uploadPromises = sizes.map(async (size) => {
             const thumbName = `thumb${size}`
-            const thumbPath = join(workingDir, thumbName) + `.${extension}`
+            const thumbPath =
+               join(workingDir, thumbName) + `.${thumbnailExtension}`
             await sharp(path)
                .resize(size, size, {
                   fit: 'contain',
                   background: { r: 255, g: 255, b: 255, alpha: 1 },
                })
                .toFile(thumbPath)
-            thumbnails[thumbName] = join(bucketDir, thumbName) + `.${extension}`
+            thumbnails[thumbName] =
+               join(bucketDir, thumbName) + `.${thumbnailExtension}`
             Storage.debug(`Generating ${size} thumbnail for ${name}`)
 
             this.create(
                {
                   ...file,
-                  ref: join(bucketDir, thumbName) + `.${extension}`,
+                  ref: join(bucketDir, thumbName) + `.${thumbnailExtension}`,
                },
                createReadStream(thumbPath)
             )
@@ -166,11 +169,116 @@ export abstract class AbstractStorageAdapter
       return thumbnails
    }
 
+   async generateDocumentThumbnail(
+      file: FileType,
+      sizes: number[]
+   ): Promise<any> {
+      Storage.info(`Generating document thumbnail(s) for ${file.ref}`)
+
+      const name = file.name || file.ref
+      const thumbnails: any = {}
+      const workingDir = join(tmpdir(), 'docthumbs')
+
+      const extension = name.split('.').pop()?.toLowerCase()
+      const tmpFilePath = join(workingDir, hash(name)) + `.${extension}`
+      const thumbnailExtension = 'png'
+
+      await fs.ensureDir(workingDir)
+
+      try {
+         await this.download(file, { path: tmpFilePath })
+         const bucketDir = name.substring(0, name.lastIndexOf('/'))
+
+         const convert = await Core.getSystemCommandPath('convert')
+
+         await Promise.all(
+            sizes.map(async (size) => {
+               const thumbName = `thumb${size}`
+               const thumbPath =
+                  join(workingDir, thumbName) + `.${thumbnailExtension}`
+
+               // Convert first page of document to image
+               const convertParams = [
+                  `${tmpFilePath}[0]`,
+                  '-thumbnail',
+                  `${size}x${size}`,
+                  '-background',
+                  'white',
+                  '-alpha',
+                  'remove',
+                  '-density',
+                  '150',
+                  thumbPath,
+               ]
+
+               await Core.execPromise(convert, convertParams).then(async () => {
+                  // Ensure the thumbnail is properly sized using Sharp
+                  await sharp(thumbPath)
+                     .resize(size, size, {
+                        fit: 'contain',
+                        background: { r: 255, g: 255, b: 255, alpha: 1 },
+                     })
+                     .png()
+                     .toFile(thumbPath + '.final')
+
+                  // Replace the original with the properly sized version
+                  await fs.move(thumbPath + '.final', thumbPath, {
+                     overwrite: true,
+                  })
+
+                  thumbnails[thumbName] =
+                     join(bucketDir, thumbName) + `.${thumbnailExtension}`
+                  Storage.debug(
+                     `Generated ${size} document thumbnail for ${name}`
+                  )
+
+                  await this.create(
+                     {
+                        ...file,
+                        ref:
+                           join(bucketDir, thumbName) +
+                           `.${thumbnailExtension}`,
+                     },
+                     createReadStream(thumbPath)
+                  )
+               })
+            })
+         )
+
+         await fs.remove(workingDir)
+      } catch (err) {
+         Storage.error(
+            `Document thumbnail generation for ${file.name} failed with error: ${err}`
+         )
+      }
+
+      return thumbnails
+   }
+
    async generateThumbnail(file: FileType, sizes: number[]): Promise<any> {
       const [type] = file.contentType
          ? file.contentType.split('/')
          : 'application/octet-stream'
       let thumbnails: any = {}
+
+      // Get file extension for additional type checking
+      const extension =
+         file.name?.split('.').pop()?.toLowerCase() ||
+         file.ref?.split('.').pop()?.toLowerCase()
+
+      const documentExtensions = [
+         'pdf',
+         'doc',
+         'docx',
+         'ppt',
+         'pptx',
+         'xls',
+         'xlsx',
+         'odt',
+         'odp',
+         'ods',
+         'rtf',
+      ]
 
       try {
          // generate thumbnail
@@ -190,23 +298,81 @@ export abstract class AbstractStorageAdapter
                break
 
             case 'application':
-               console.log(`Processing possible missed image: ${file.ref}`)
-               if (
-                  file &&
-                  file.ref &&
-                  file?.ref.split('.').pop()?.toLowerCase() === 'jpg'
+               // Handle various application types
+               if (file.contentType?.includes('pdf') || extension === 'pdf') {
+                  // PDF files
+                  thumbnails = {
+                     ...thumbnails,
+                     ...(await this.generateDocumentThumbnail(file, sizes)),
+                  }
+               } else if (
+                  file.contentType?.includes('msword') ||
+                  file.contentType?.includes('wordprocessingml') ||
+                  extension === 'doc' ||
+                  extension === 'docx'
                ) {
+                  // Word documents
+                  thumbnails = {
+                     ...thumbnails,
+                     ...(await this.generateDocumentThumbnail(file, sizes)),
+                  }
+               } else if (
+                  file.contentType?.includes('powerpoint') ||
+                  file.contentType?.includes('presentationml') ||
+                  extension === 'ppt' ||
+                  extension === 'pptx'
+               ) {
+                  // PowerPoint presentations
+                  thumbnails = {
+                     ...thumbnails,
+                     ...(await this.generateDocumentThumbnail(file, sizes)),
+                  }
+               } else if (
+                  file.contentType?.includes('excel') ||
+                  file.contentType?.includes('spreadsheetml') ||
+                  extension === 'xls' ||
+                  extension === 'xlsx'
+               ) {
+                  // Excel spreadsheets
+                  thumbnails = {
+                     ...thumbnails,
+                     ...(await this.generateDocumentThumbnail(file, sizes)),
+                  }
+               } else if (documentExtensions.includes(extension || '')) {
+                  // Other supported document types
+                  thumbnails = {
+                     ...thumbnails,
+                     ...(await this.generateDocumentThumbnail(file, sizes)),
+                  }
+               } else if (extension === 'jpg') {
+                  // Handle misidentified JPG files
+                  console.log(`Processing possible missed image: ${file.ref}`)
                   thumbnails = {
                      ...thumbnails,
                      ...(await this.generateImageThumbnail(file, sizes)),
                   }
+               } else {
+                  console.log(
+                     `Application type ${file.contentType} with extension ${extension} is not supported for thumbnailing`
+                  )
                }
                break
 
             default:
-               console.log(
-                  `${file.name} type (${file.contentType}) can't be thumbnailed!`
-               )
+               // Try document thumbnail generation for any file with supported extension
+               if (documentExtensions.includes(extension || '')) {
+                  console.log(
+                     `Attempting document thumbnail for ${file.ref} based on extension`
+                  )
+                  thumbnails = {
+                     ...thumbnails,
+                     ...(await this.generateDocumentThumbnail(file, sizes)),
+                  }
+               } else {
+                  console.log(
+                     `${file.name} type (${file.contentType}) with extension (${extension}) can't be thumbnailed!`
+                  )
+               }
                break
          }
       } catch (err) {
