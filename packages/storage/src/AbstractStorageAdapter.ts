@@ -51,221 +51,54 @@ export abstract class AbstractStorageAdapter
 
    abstract getMetaData(file: FileType): Promise<FileType>
 
-   async generateImageThumbnail(file: FileType, sizes: number[]): Promise<any> {
-      Storage.info(`Generating image thumbnail(s) for ${file.ref}`)
-      const name = file.name || file.ref
-      const thumbnails: any = {}
-      const workingDir = join(tmpdir(), 'thumbs')
-
-      const extension = name.split('.').pop().toLowerCase()
-      const path = join(workingDir, hash(name)) + `.${extension}`
-      const thumbnailExtension = 'png'
-
+   private async setupThumbnailWorkspace(
+      workingDirName: string
+   ): Promise<string> {
+      const workingDir = join(tmpdir(), workingDirName)
       await fs.ensureDir(workingDir)
-
-      try {
-         await fs.ensureDir(workingDir)
-
-         // get File directory
-         const bucketDir = name.substring(0, name.lastIndexOf('/'))
-         await this.download(file, { path })
-
-         const uploadPromises = sizes.map(async (size) => {
-            const thumbName = `thumb${size}`
-            const thumbPath =
-               join(workingDir, thumbName) + `.${thumbnailExtension}`
-            await sharp(path)
-               .resize(size, size, {
-                  fit: 'contain',
-                  background: { r: 255, g: 255, b: 255, alpha: 1 },
-               })
-               .toFile(thumbPath)
-            thumbnails[thumbName] =
-               join(bucketDir, thumbName) + `.${thumbnailExtension}`
-            Storage.debug(`Generating ${size} thumbnail for ${name}`)
-
-            this.create(
-               {
-                  ...file,
-                  ref: join(bucketDir, thumbName) + `.${thumbnailExtension}`,
-               },
-               createReadStream(thumbPath)
-            )
-         })
-         await Promise.all(uploadPromises)
-         await fs.remove(workingDir)
-      } catch (err) {
-         Storage.error(
-            `Thumbnail generation for ${file.name} failed with error: ${err}`
-         )
-      }
-
-      return thumbnails
+      return workingDir
    }
 
-   async generateVideoThumbnail(file: FileType, sizes: number[]): Promise<any> {
-      Storage.info(`Generating video thumbnail(s) for ${file.ref}`)
-
-      const name = file.name || file.ref
-      const thumbnails: any = {}
-
-      const workingDir = join(tmpdir(), 'videothumbs')
-      await fs.ensureDir(workingDir)
-
-      const extension = name.split('.').pop()
-      const tmpFilePath = join(workingDir, hash(name)) + `.${extension}`
-
-      await this.download(file, { path: tmpFilePath })
-      const bucketDir = name.substring(0, name.lastIndexOf('/'))
-
-      const ffmpeg = await Core.getSystemCommandPath('ffmpeg')
-
-      try {
-         await Promise.all(
-            sizes.map(async (size) => {
-               const localThmbFilePath = `${tmpFilePath}.thumb${size}.png`
-
-               const ffmpegParams = [
-                  '-i',
-                  tmpFilePath,
-                  '-vframes',
-                  '1',
-                  '-vf',
-                  String.raw`select=gte(n\,0)`,
-                  '-s',
-                  `${size}x${Math.ceil(size * 0.7)}`,
-                  '-ss',
-                  '1',
-                  localThmbFilePath,
-                  '-y',
-               ]
-               await Core.execPromise(ffmpeg, ffmpegParams).then(async () => {
-                  const thumbName = `thumb${size}`
-                  const thumbPath = join(workingDir, thumbName) + `.png`
-
-                  await sharp(localThmbFilePath)
-                     .resize(size, size, {
-                        fit: 'contain',
-                        background: { r: 255, g: 255, b: 255, alpha: 1 },
-                     })
-                     .toFile(thumbPath)
-
-                  thumbnails[thumbName] = join(bucketDir, `${thumbName}.png`)
-
-                  this.create(
-                     {
-                        ...file,
-                        ref: join(bucketDir, `${thumbName}.png`),
-                     },
-                     createReadStream(thumbPath)
-                  )
-               })
-            })
-         )
-      } catch (e) {
-         Storage.error(e)
-      }
-
-      return thumbnails
-   }
-
-   async generateDocumentThumbnail(
+   private async createAndUploadThumbnail(
       file: FileType,
-      sizes: number[]
-   ): Promise<any> {
-      Storage.info(`Generating document thumbnail(s) for ${file.ref}`)
+      size: number,
+      workingDir: string,
+      bucketDir: string,
+      thumbnailExtension: string,
+      imagePath: string
+   ): Promise<{ [key: string]: string }> {
+      const thumbName = `thumb${size}`
+      const thumbPath = join(workingDir, thumbName) + `.${thumbnailExtension}`
 
-      const name = file.name || file.ref
-      const thumbnails: any = {}
-      const workingDir = join(tmpdir(), 'docthumbs')
+      await sharp(imagePath)
+         .resize(size, size, {
+            fit: 'contain',
+            background: { r: 255, g: 255, b: 255, alpha: 1 },
+         })
+         .png()
+         .toFile(thumbPath)
 
-      const extension = name.split('.').pop()?.toLowerCase()
-      const tmpFilePath = join(workingDir, hash(name)) + `.${extension}`
-      const thumbnailExtension = 'png'
+      const thumbnailRef = join(bucketDir, thumbName) + `.${thumbnailExtension}`
 
-      await fs.ensureDir(workingDir)
+      await this.create(
+         {
+            ...file,
+            ref: thumbnailRef,
+         },
+         createReadStream(thumbPath)
+      )
 
-      try {
-         await this.download(file, { path: tmpFilePath })
-         const bucketDir = name.substring(0, name.lastIndexOf('/'))
-
-         const convert = await Core.getSystemCommandPath('convert')
-
-         await Promise.all(
-            sizes.map(async (size) => {
-               const thumbName = `thumb${size}`
-               const thumbPath =
-                  join(workingDir, thumbName) + `.${thumbnailExtension}`
-
-               // Convert first page of document to image
-               const convertParams = [
-                  `${tmpFilePath}[0]`,
-                  '-thumbnail',
-                  `${size}x${size}`,
-                  '-background',
-                  'white',
-                  '-alpha',
-                  'remove',
-                  '-density',
-                  '150',
-                  thumbPath,
-               ]
-
-               await Core.execPromise(convert, convertParams).then(async () => {
-                  // Ensure the thumbnail is properly sized using Sharp
-                  await sharp(thumbPath)
-                     .resize(size, size, {
-                        fit: 'contain',
-                        background: { r: 255, g: 255, b: 255, alpha: 1 },
-                     })
-                     .png()
-                     .toFile(thumbPath + '.final')
-
-                  // Replace the original with the properly sized version
-                  await fs.move(thumbPath + '.final', thumbPath, {
-                     overwrite: true,
-                  })
-
-                  thumbnails[thumbName] =
-                     join(bucketDir, thumbName) + `.${thumbnailExtension}`
-                  Storage.debug(
-                     `Generated ${size} document thumbnail for ${name}`
-                  )
-
-                  await this.create(
-                     {
-                        ...file,
-                        ref:
-                           join(bucketDir, thumbName) +
-                           `.${thumbnailExtension}`,
-                     },
-                     createReadStream(thumbPath)
-                  )
-               })
-            })
-         )
-
-         await fs.remove(workingDir)
-      } catch (err) {
-         Storage.error(
-            `Document thumbnail generation for ${file.name} failed with error: ${err}`
-         )
-      }
-
-      return thumbnails
+      return { [thumbName]: thumbnailRef }
    }
 
-   async generateThumbnail(file: FileType, sizes: number[]): Promise<any> {
-      const [type] = file.contentType
-         ? file.contentType.split('/')
-         : 'application/octet-stream'
-      let thumbnails: any = {}
+   private getFileInfo(file: FileType) {
+      const name = file.name || file.ref
+      const bucketDir = name.substring(0, name.lastIndexOf('/'))
+      const extension = name.split('.').pop()?.toLowerCase() || ''
+      return { name, bucketDir, extension }
+   }
 
-      // Get file extension for additional type checking
-      const extension =
-         file.name?.split('.').pop()?.toLowerCase() ||
-         file.ref?.split('.').pop()?.toLowerCase()
-
+   private isDocumentType(file: FileType, extension: string): boolean {
       const documentExtensions = [
          'pdf',
          'doc',
@@ -279,78 +112,186 @@ export abstract class AbstractStorageAdapter
          'ods',
          'rtf',
       ]
+      return (
+         documentExtensions.includes(extension) ||
+         Boolean(file.contentType?.includes('pdf')) ||
+         Boolean(file.contentType?.includes('msword')) ||
+         Boolean(file.contentType?.includes('wordprocessingml')) ||
+         Boolean(file.contentType?.includes('powerpoint')) ||
+         Boolean(file.contentType?.includes('presentationml')) ||
+         Boolean(file.contentType?.includes('excel')) ||
+         Boolean(file.contentType?.includes('spreadsheetml'))
+      )
+   }
+
+   async generateImageThumbnail(file: FileType, sizes: number[]): Promise<any> {
+      Storage.info(`Generating image thumbnail(s) for ${file.ref}`)
+      const { name, bucketDir, extension } = this.getFileInfo(file)
+      const thumbnailExtension = 'png'
+
+      const workingDir = await this.setupThumbnailWorkspace('thumbs')
+      const path = join(workingDir, hash(name)) + `.${extension}`
 
       try {
-         // generate thumbnail
+         await this.download(file, { path })
+
+         const uploadPromises = sizes.map(async (size) => {
+            Storage.debug(`Generating ${size} thumbnail for ${name}`)
+            return this.createAndUploadThumbnail(
+               file,
+               size,
+               workingDir,
+               bucketDir,
+               thumbnailExtension,
+               path
+            )
+         })
+
+         const results = await Promise.all(uploadPromises)
+         const thumbnails = Object.assign({}, ...results)
+
+         await fs.remove(workingDir)
+         return thumbnails
+      } catch (err) {
+         Storage.error(
+            `Thumbnail generation for ${file.name} failed with error: ${err}`
+         )
+         return {}
+      }
+   }
+
+   async generateVideoThumbnail(file: FileType, sizes: number[]): Promise<any> {
+      Storage.info(`Generating video thumbnail(s) for ${file.ref}`)
+      const { name, bucketDir, extension } = this.getFileInfo(file)
+      const thumbnailExtension = 'png'
+
+      const workingDir = await this.setupThumbnailWorkspace('videothumbs')
+      const tmpFilePath = join(workingDir, hash(name)) + `.${extension}`
+
+      try {
+         await this.download(file, { path: tmpFilePath })
+         const ffmpeg = await Core.getSystemCommandPath('ffmpeg')
+
+         const uploadPromises = sizes.map(async (size) => {
+            const localThmbFilePath = `${tmpFilePath}.thumb${size}.${thumbnailExtension}`
+
+            const ffmpegParams = [
+               '-i',
+               tmpFilePath,
+               '-vframes',
+               '1',
+               '-vf',
+               String.raw`select=gte(n\,0)`,
+               '-s',
+               `${size}x${Math.ceil(size * 0.7)}`,
+               '-ss',
+               '1',
+               localThmbFilePath,
+               '-y',
+            ]
+
+            await Core.execPromise(ffmpeg, ffmpegParams)
+            return this.createAndUploadThumbnail(
+               file,
+               size,
+               workingDir,
+               bucketDir,
+               thumbnailExtension,
+               localThmbFilePath
+            )
+         })
+
+         const results = await Promise.all(uploadPromises)
+         const thumbnails = Object.assign({}, ...results)
+
+         await fs.remove(workingDir)
+         return thumbnails
+      } catch (e) {
+         Storage.error(`Video thumbnail generation failed: ${e}`)
+         return {}
+      }
+   }
+
+   async generateDocumentThumbnail(
+      file: FileType,
+      sizes: number[]
+   ): Promise<any> {
+      Storage.info(`Generating document thumbnail(s) for ${file.ref}`)
+      const { name, bucketDir, extension } = this.getFileInfo(file)
+      const thumbnailExtension = 'png'
+
+      const workingDir = await this.setupThumbnailWorkspace('docthumbs')
+      const tmpFilePath = join(workingDir, hash(name)) + `.${extension}`
+
+      try {
+         await this.download(file, { path: tmpFilePath })
+         const convert = await Core.getSystemCommandPath('convert')
+
+         const uploadPromises = sizes.map(async (size) => {
+            const tempThumbPath = join(
+               workingDir,
+               `temp_thumb${size}.${thumbnailExtension}`
+            )
+
+            const convertParams = [
+               `${tmpFilePath}[0]`,
+               '-thumbnail',
+               `${size}x${size}`,
+               '-background',
+               'white',
+               '-alpha',
+               'remove',
+               '-density',
+               '150',
+               tempThumbPath,
+            ]
+
+            await Core.execPromise(convert, convertParams)
+            Storage.debug(`Generated ${size} document thumbnail for ${name}`)
+
+            return this.createAndUploadThumbnail(
+               file,
+               size,
+               workingDir,
+               bucketDir,
+               thumbnailExtension,
+               tempThumbPath
+            )
+         })
+
+         const results = await Promise.all(uploadPromises)
+         const thumbnails = Object.assign({}, ...results)
+
+         await fs.remove(workingDir)
+         return thumbnails
+      } catch (err) {
+         Storage.error(
+            `Document thumbnail generation for ${file.name} failed with error: ${err}`
+         )
+         return {}
+      }
+   }
+
+   async generateThumbnail(file: FileType, sizes: number[]): Promise<any> {
+      const [type] = file.contentType
+         ? file.contentType.split('/')
+         : 'application/octet-stream'
+      const { extension } = this.getFileInfo(file)
+
+      try {
          switch (type) {
             case 'image':
-               thumbnails = {
-                  ...thumbnails,
-                  ...(await this.generateImageThumbnail(file, sizes)),
-               }
-               break
+               return await this.generateImageThumbnail(file, sizes)
 
             case 'video':
-               thumbnails = {
-                  ...thumbnails,
-                  ...(await this.generateVideoThumbnail(file, sizes)),
-               }
-               break
+               return await this.generateVideoThumbnail(file, sizes)
 
             case 'application':
-               // Handle various application types
-               if (file.contentType?.includes('pdf') || extension === 'pdf') {
-                  // PDF files
-                  thumbnails = {
-                     ...thumbnails,
-                     ...(await this.generateDocumentThumbnail(file, sizes)),
-                  }
-               } else if (
-                  file.contentType?.includes('msword') ||
-                  file.contentType?.includes('wordprocessingml') ||
-                  extension === 'doc' ||
-                  extension === 'docx'
-               ) {
-                  // Word documents
-                  thumbnails = {
-                     ...thumbnails,
-                     ...(await this.generateDocumentThumbnail(file, sizes)),
-                  }
-               } else if (
-                  file.contentType?.includes('powerpoint') ||
-                  file.contentType?.includes('presentationml') ||
-                  extension === 'ppt' ||
-                  extension === 'pptx'
-               ) {
-                  // PowerPoint presentations
-                  thumbnails = {
-                     ...thumbnails,
-                     ...(await this.generateDocumentThumbnail(file, sizes)),
-                  }
-               } else if (
-                  file.contentType?.includes('excel') ||
-                  file.contentType?.includes('spreadsheetml') ||
-                  extension === 'xls' ||
-                  extension === 'xlsx'
-               ) {
-                  // Excel spreadsheets
-                  thumbnails = {
-                     ...thumbnails,
-                     ...(await this.generateDocumentThumbnail(file, sizes)),
-                  }
-               } else if (documentExtensions.includes(extension || '')) {
-                  // Other supported document types
-                  thumbnails = {
-                     ...thumbnails,
-                     ...(await this.generateDocumentThumbnail(file, sizes)),
-                  }
+               if (this.isDocumentType(file, extension)) {
+                  return await this.generateDocumentThumbnail(file, sizes)
                } else if (extension === 'jpg') {
-                  // Handle misidentified JPG files
                   console.log(`Processing possible missed image: ${file.ref}`)
-                  thumbnails = {
-                     ...thumbnails,
-                     ...(await this.generateImageThumbnail(file, sizes)),
-                  }
+                  return await this.generateImageThumbnail(file, sizes)
                } else {
                   console.log(
                      `Application type ${file.contentType} with extension ${extension} is not supported for thumbnailing`
@@ -359,15 +300,11 @@ export abstract class AbstractStorageAdapter
                break
 
             default:
-               // Try document thumbnail generation for any file with supported extension
-               if (documentExtensions.includes(extension || '')) {
+               if (this.isDocumentType(file, extension)) {
                   console.log(
                      `Attempting document thumbnail for ${file.ref} based on extension`
                   )
-                  thumbnails = {
-                     ...thumbnails,
-                     ...(await this.generateDocumentThumbnail(file, sizes)),
-                  }
+                  return await this.generateDocumentThumbnail(file, sizes)
                } else {
                   console.log(
                      `${file.name} type (${file.contentType}) with extension (${extension}) can't be thumbnailed!`
@@ -381,6 +318,6 @@ export abstract class AbstractStorageAdapter
          )
       }
 
-      return thumbnails
+      return {}
    }
 }
