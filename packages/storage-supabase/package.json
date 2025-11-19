@@ -23,7 +23,7 @@
    },
    "dependencies": {
       "@quatrain/core": "^1.1.22",
-      "@quatrain/storage": "^1.1.18",
+      "@quatrain/storage": "^1.1.19",
       "@supabase/storage-js": "^2.7.2",
       "@supabase/supabase-js": "^2.57.2"
    },

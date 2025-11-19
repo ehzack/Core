@@ -11,12 +11,14 @@ import {
    SupabaseClient,
    RealtimeChannel,
 } from '@supabase/supabase-js'
+import { HeartbeatStatus } from '@supabase/realtime-js/dist/module/RealtimeClient'
 import { FileType } from '@quatrain/storage'
 
 export type SupabaseParams = {
    useEmulator?: boolean
    url?: string
    key?: string
+   exitOnDisconnect?: boolean
 }
 
 export type Channel = {
@@ -40,6 +42,8 @@ export class SupabaseCloudWrapper extends AbstractCloudWrapper {
    protected _supabaseClient: SupabaseClient | undefined
    protected _realtimeClient: RealtimeChannel | undefined
    protected _isInitialized = false
+   protected _heartbeatOkReceived = false
+   protected _connectionTimeout: NodeJS.Timeout | undefined
    protected _channels: Channels = { database: [], storage: [] }
 
    constructor(params: SupabaseParams) {
@@ -114,7 +118,7 @@ export class SupabaseCloudWrapper extends AbstractCloudWrapper {
       this._initialize()
 
       if (typeof trigger.script !== 'function') {
-         throw new Error(`Passed script value is not a function`)
+         throw new TypeError(`Passed script value is not a function`)
       }
 
       if (Array.isArray(trigger.event)) {
@@ -175,21 +179,76 @@ export class SupabaseCloudWrapper extends AbstractCloudWrapper {
 
    protected _initialize() {
       if (this._isInitialized === false) {
-         this._supabaseClient = createClient(this._params.url, this._params.key)
+         CloudWrapper.info(`Starting Supabase client with heartbeat monitoring`)
+
+         if (this._connectionTimeout) {
+            clearTimeout(this._connectionTimeout)
+         }
+
+         this._supabaseClient = createClient(
+            this._params.url,
+            this._params.key,
+            {
+               realtime: {
+                  heartbeatIntervalMs: 5000,
+                  heartbeatCallback: (status: HeartbeatStatus) => {
+                     switch (status) {
+                        case 'ok':
+                           if (!this._heartbeatOkReceived) {
+                              CloudWrapper.info(
+                                 `🛜 Supabase Realtime connection established`
+                              )
+                              if (this._connectionTimeout) {
+                                 clearTimeout(this._connectionTimeout)
+                              }
+                              this._heartbeatOkReceived = true
+                           }
+                           break
+                        case 'timeout':
+                           CloudWrapper.warn(
+                              `⚠️ Supabase Realtime connection timed out`
+                           )
+                           break
+                        case 'disconnected':
+                           // Reconnect only if exitOnDisconnect is explicitly set to false.
+                           if (this._params.exitOnDisconnect === false) {
+                              CloudWrapper.warn(
+                                 `❌ Supabase connection lost. Attempting to reconnect...`
+                              )
+                              this._isInitialized = false
+                              this._heartbeatOkReceived = false
+                              this._initialize()
+                           } else {
+                              // Default behavior: exit to allow for a clean restart by the orchestrator.
+                              CloudWrapper.error(
+                                 `❌ Supabase connection lost. Exiting to allow for a clean restart.`
+                              )
+                              process.exit(1)
+                           }
+                           break
+                        default:
+                           // do nothing
+                           break
+                     }
+                  },
+               },
+            }
+         )
          this._isInitialized = true
          CloudWrapper.info(`Supabase App initialized`)
-      }
-   }
+         CloudWrapper.info(
+            `🕘 Supabase Realtime connection is being established`
+         )
 
-   public poll() {
-      CloudWrapper.info(
-         `Supabase client status: ${this._supabaseClient?.channel}`
-      )
-      this._channels.storage.forEach((channel) => {
-         CloudWrapper.info(`${channel.name}: ${channel.state}`)
-         console.log(channel.channel?.params)
-      })
-      setTimeout(() => this.poll(), 10000)
+         this._connectionTimeout = setTimeout(() => {
+            if (!this._heartbeatOkReceived) {
+               CloudWrapper.error(
+                  `❌ Supabase Realtime connection failed to establish after 30 seconds. Exiting.`
+               )
+               process.exit(1)
+            }
+         }, 30000)
+      }
    }
 
    protected _payload2File(payload: {
