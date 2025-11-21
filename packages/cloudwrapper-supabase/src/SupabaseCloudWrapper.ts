@@ -6,12 +6,9 @@ import {
    StorageEventPayloadType,
 } from '@quatrain/cloudwrapper'
 import { BackendAction } from '@quatrain/backend'
-import {
-   createClient,
-   SupabaseClient,
-   RealtimeChannel,
-} from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { HeartbeatStatus } from '@supabase/realtime-js/dist/module/RealtimeClient'
+import ws from 'ws'
 import { FileType } from '@quatrain/storage'
 
 export type SupabaseParams = {
@@ -19,17 +16,6 @@ export type SupabaseParams = {
    url?: string
    key?: string
    exitOnDisconnect?: boolean
-}
-
-export type Channel = {
-   name: string
-   channel: RealtimeChannel | undefined
-   state: any
-}
-
-export type Channels = {
-   database: Channel[]
-   storage: Channel[]
 }
 
 export const eventMap = {
@@ -40,11 +26,9 @@ export const eventMap = {
 
 export class SupabaseCloudWrapper extends AbstractCloudWrapper {
    protected _supabaseClient: SupabaseClient | undefined
-   protected _realtimeClient: RealtimeChannel | undefined
    protected _isInitialized = false
    protected _heartbeatOkReceived = false
    protected _connectionTimeout: NodeJS.Timeout | undefined
-   protected _channels: Channels = { database: [], storage: [] }
 
    constructor(params: SupabaseParams) {
       super(params)
@@ -55,11 +39,11 @@ export class SupabaseCloudWrapper extends AbstractCloudWrapper {
       this._initialize()
 
       if (!(this._supabaseClient instanceof SupabaseClient)) {
-         throw new Error(`Realtime channel is not enabled`)
+         throw new TypeError(`Supabase client is not enabled`)
       }
 
       if (typeof trigger.script !== 'function') {
-         throw new Error(`Passed script value is not a function`)
+         throw new TypeError(`Passed script value is not a function`)
       }
 
       if (Array.isArray(trigger.event)) {
@@ -80,10 +64,11 @@ export class SupabaseCloudWrapper extends AbstractCloudWrapper {
             schema,
             table: trigger.model,
          }
+
          CloudWrapper.info(
             `Set up DB trigger ${trigger.name} for ${trigger.event} event on table ${schema}.${params.table}`
          )
-         const channel = this._supabaseClient
+         this._supabaseClient
             ?.channel(trigger.name)
             .on(
                'postgres_changes',
@@ -101,11 +86,6 @@ export class SupabaseCloudWrapper extends AbstractCloudWrapper {
                }
             )
             .subscribe()
-         this._channels.database.push({
-            name: trigger.name,
-            channel,
-            state: channel.state,
-         })
 
          return params
       } catch (err) {
@@ -142,7 +122,7 @@ export class SupabaseCloudWrapper extends AbstractCloudWrapper {
          CloudWrapper.info(
             `Set up Storage trigger ${trigger.name} for ${trigger.event} event`
          )
-         const channel = this._supabaseClient
+         this._supabaseClient
             ?.channel(trigger.name)
             .on(
                'postgres_changes',
@@ -165,11 +145,7 @@ export class SupabaseCloudWrapper extends AbstractCloudWrapper {
                }
             )
             .subscribe()
-         this._channels.storage.push({
-            name: trigger.name,
-            channel,
-            state: channel?.state,
-         })
+
          return params
       } catch (err) {
          console.log(err)
@@ -190,6 +166,7 @@ export class SupabaseCloudWrapper extends AbstractCloudWrapper {
             this._params.key,
             {
                realtime: {
+                  transport: ws as any,
                   heartbeatIntervalMs: 5000,
                   heartbeatCallback: (status: HeartbeatStatus) => {
                      switch (status) {
