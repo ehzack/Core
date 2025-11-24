@@ -212,6 +212,7 @@ export abstract class AbstractStorageAdapter
       }
    }
 
+
    async generateDocumentThumbnail(
       file: FileType,
       sizes: number[]
@@ -225,7 +226,8 @@ export abstract class AbstractStorageAdapter
 
       try {
          await this.download(file, { path: tmpFilePath })
-         const convert = await Core.getSystemCommandPath('convert')
+         
+         const magickCmd = await Core.getSystemCommandPath('magick')
 
          const uploadPromises = sizes.map(async (size) => {
             const tempThumbPath = join(
@@ -233,20 +235,9 @@ export abstract class AbstractStorageAdapter
                `temp_thumb${size}.${thumbnailExtension}`
             )
 
-            const convertParams = [
-               `${tmpFilePath}[0]`,
-               '-thumbnail',
-               `${size}x${size}`,
-               '-background',
-               'white',
-               '-alpha',
-               'remove',
-               '-density',
-               '150',
-               tempThumbPath,
-            ]
+            const convertParams = ['convert', `${tmpFilePath}[0]`, '-thumbnail', `${size}x${size}`, '-background', 'white', '-alpha', 'remove', '-density', '150', tempThumbPath]
 
-            await Core.execPromise(convert, convertParams)
+            await Core.execPromise(magickCmd, convertParams)
             Storage.debug(`Generated ${size} document thumbnail for ${name}`)
 
             return this._createAndUploadThumbnail(
@@ -268,6 +259,7 @@ export abstract class AbstractStorageAdapter
          Storage.error(
             `Document thumbnail generation for ${file.name} failed with error: ${err}`
          )
+         await fs.remove(workingDir)
          return {}
       }
    }
