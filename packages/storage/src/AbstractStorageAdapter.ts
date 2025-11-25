@@ -235,7 +235,7 @@ export abstract class AbstractStorageAdapter
                `temp_thumb${size}.${thumbnailExtension}`
             )
 
-            const convertParams = ['convert', `${tmpFilePath}[0]`, '-thumbnail', `${size}x${size}`, '-background', 'white', '-alpha', 'remove', '-density', '150', tempThumbPath]
+            const convertParams = [`${tmpFilePath}[0]`, '-thumbnail', `${size}x${size}`, '-background', 'white', '-alpha', 'remove', '-density', '150', tempThumbPath]
 
             await Core.execPromise(magickCmd, convertParams)
             Storage.debug(`Generated ${size} document thumbnail for ${name}`)
