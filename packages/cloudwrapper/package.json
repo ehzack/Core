@@ -12,7 +12,7 @@
    "author": "Quatrain Développement SAS <developers@quatrain.com>",
    "peerDependencies": {
       "@quatrain/backend": "^1.1.22",
-      "@quatrain/core": "^1.1.22"
+      "@quatrain/core": "^1.1.23"
    },
    "devDependencies": {
       "@tsconfig/recommended": "^1.0.1",

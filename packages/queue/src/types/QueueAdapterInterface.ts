@@ -1,6 +1,5 @@
 export interface QueueAdapterInterface {
+   send(data: any, topic: string): Promise<string>
 
-  send(data: any, topic: string): Promise<string>
-
-  listen(topic: string): any
+   listen(topic: string, messageHandler: Function, params: any): any
 }

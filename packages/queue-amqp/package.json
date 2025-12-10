@@ -1,6 +1,6 @@
 {
    "name": "@quatrain/queue-amqp",
-   "version": "1.1.17",
+   "version": "1.2.9",
    "description": "Queue adapter for AMQP compatible queue",
    "main": "lib/index.js",
    "types": "lib/index.d.ts",
@@ -12,6 +12,7 @@
    "license": "MIT",
    "devDependencies": {
       "@tsconfig/recommended": "^1.0.1",
+      "@types/amqplib": "^0.10.8",
       "@types/fs-extra": "^11.0.4",
       "@types/jest": "^27.0.3",
       "@types/node": "^22.10.1",
@@ -24,9 +25,10 @@
       "typescript": "^5.1.5"
    },
    "dependencies": {
-      "@cloudamqp/amqp-client": "^3.1.1",
-      "@quatrain/core": "^1.1.22",
-      "@quatrain/queue": "^1.1.16"
+      "@cloudamqp/amqp-client": "^3.4.1",
+      "@quatrain/core": "^1.1.23",
+      "@quatrain/queue": "^1.1.19",
+      "amqplib": "^0.10.9"
    },
    "scripts": {
       "test-ci": "jest --runInBand",

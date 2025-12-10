@@ -11,7 +11,7 @@
    ],
    "author": "Quatrain Développement SAS <developers@quatrain.com>",
    "dependencies": {
-      "@quatrain/core": "^1.1.22",
+      "@quatrain/core": "^1.1.23",
       "mustache": "^4.2.0"
    },
    "devDependencies": {

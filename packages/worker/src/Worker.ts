@@ -73,16 +73,54 @@ export class Worker extends Core {
          ts,
       }
 
+      Worker.debug('event payload', payload)
+
       axios
          .patch(Worker.endpoint, payload)
          .then((res) => {
             Worker.info(`Event pushed to backend: ${res.statusText}`)
+            Worker.info(res.data)
             return true
          })
          .catch((err) => {
             Worker.error(`Failed to push event to backend: ${err}`)
             return false
          })
+   }
+
+   /**
+    * Async Push an event to the backend endpoint, if available
+    * @param event string
+    * @param data
+    * @param ts timestamp
+    * @returns boolean
+    */
+   static async pushEventAsync(event: string, data = {}, ts = 0) {
+      if (!this.endpoint) {
+         Worker.warn(`Events endpoint is not set, can't send update!`)
+         return false
+      }
+
+      try {
+         ts = ts === Date.now() ? Date.now() + 1 : Date.now()
+         const payload = {
+            event,
+            worker: `Container ${os.hostname}`,
+            os: `${os.type} ${os.release} (${os.platform} ${os.arch})`,
+            ...data,
+            ts,
+         }
+
+         const res = await axios.patch(Worker.endpoint, payload)
+
+         if (res.statusText === 'OK') {
+            Worker.info(`Event pushed to backend: ${res.statusText}`)
+            return true
+         }
+      } catch (err) {
+         Worker.error(`Failed to push event to backend: ${err}`)
+         return false
+      }
    }
 
    /**
@@ -99,7 +137,10 @@ export class Worker extends Core {
             case 'queue':
                const { Queue } = require('@quatrain/queue')
                Queue.addQueue(config.queueAdapter, 'default', true)
-               Queue.getQueue().listen(config.topic, messageHandler)
+               Queue.getQueue().listen(config.topic, messageHandler, {
+                  concurrency: config.concurrency,
+                  gpu: config.gpu,
+               })
                Queue.info(
                   `Connected and listening to ${config.topic}, ready to receive messages.`
                )

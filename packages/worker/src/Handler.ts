@@ -1,6 +1,10 @@
 import { Worker } from './Worker'
 
-export const handler = async (messageHandler: Function, config: any, adapters: any) => {
+export const handler = async (
+   messageHandler: Function,
+   config: any,
+   adapters: any
+) => {
    try {
       Worker.info(
          `Worker version ${require('../package.json').version} started in ${
@@ -14,10 +18,10 @@ export const handler = async (messageHandler: Function, config: any, adapters: a
             Queue.info(
                `Connecting to amqp://${config.MQ_HOST}:${config.MQ_PORT}`
             )
-            Queue.getQueue().listen(config.MQ_TOPIC, messageHandler)
-            Queue.info(
-               `Connected and listening to ${config.MQ_TOPIC}, ready to receive messages.`
-            )
+            Queue.getQueue().listen(config.MQ_TOPIC, messageHandler, {
+               concurrency: config.MQ_CONCURRENCY,
+               gpu: config.MQ_GPU,
+            })
             break
 
          case 'cli':

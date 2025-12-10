@@ -10,5 +10,9 @@ export abstract class AbstractQueueAdapter {
 
    abstract send(data: any, topic: string): Promise<string>
 
-   abstract listen(topic: string, handler: Function): any
+   abstract listen(
+      topic: string,
+      handler: Function,
+      params?: { concurrency?: number; gpu?: boolean }
+   ): any
 }

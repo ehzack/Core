@@ -109,7 +109,12 @@ export class Core {
       }
    }
 
-   static readonly getSystemCommandPath = (command: string): Promise<string> => which(command)
+   static readonly getSystemCommandPath = (command: string): Promise<string> =>
+      which(command)
+
+   static sleep(seconds: number = 1) {
+      return new Promise((resolve) => setTimeout(resolve, seconds * 1000))
+   }
 
    /**
     * Returns the class to use for a data object
