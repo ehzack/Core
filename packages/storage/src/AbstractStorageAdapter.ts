@@ -129,7 +129,9 @@ export abstract class AbstractStorageAdapter
       const { name, bucketDir, extension } = this._getFileInfo(file)
       const thumbnailExtension = 'png'
 
-      const workingDir = await this._setupThumbnailWorkspace('thumbs')
+      const workingDir = await this._setupThumbnailWorkspace(
+         `thumbs-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+      )
       const path = join(workingDir, hash(name)) + `.${extension}`
 
       try {
@@ -165,7 +167,9 @@ export abstract class AbstractStorageAdapter
       const { name, bucketDir, extension } = this._getFileInfo(file)
       const thumbnailExtension = 'png'
 
-      const workingDir = await this._setupThumbnailWorkspace('videothumbs')
+      const workingDir = await this._setupThumbnailWorkspace(
+         `videothumbs-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+      )
       const tmpFilePath = join(workingDir, hash(name)) + `.${extension}`
 
       try {
@@ -191,14 +195,20 @@ export abstract class AbstractStorageAdapter
             ]
 
             await Core.execPromise(ffmpeg, ffmpegParams)
-            return this._createAndUploadThumbnail(
-               file,
-               size,
-               workingDir,
-               bucketDir,
-               thumbnailExtension,
-               localThmbFilePath
+
+            const thumbName = `thumb${size}`
+            const thumbnailRef =
+               join(bucketDir, thumbName) + `.${thumbnailExtension}`
+
+            await this.create(
+               {
+                  ...file,
+                  ref: thumbnailRef,
+               },
+               createReadStream(localThmbFilePath)
             )
+
+            return { [thumbName]: thumbnailRef }
          })
 
          const results = await Promise.all(uploadPromises)
@@ -212,7 +222,6 @@ export abstract class AbstractStorageAdapter
       }
    }
 
-
    async generateDocumentThumbnail(
       file: FileType,
       sizes: number[]
@@ -221,12 +230,14 @@ export abstract class AbstractStorageAdapter
       const { name, bucketDir, extension } = this._getFileInfo(file)
       const thumbnailExtension = 'png'
 
-      const workingDir = await this._setupThumbnailWorkspace('docthumbs')
+      const workingDir = await this._setupThumbnailWorkspace(
+         `docthumbs-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+      )
       const tmpFilePath = join(workingDir, hash(name)) + `.${extension}`
 
       try {
          await this.download(file, { path: tmpFilePath })
-         
+
          const magickCmd = await Core.getSystemCommandPath('magick')
 
          const uploadPromises = sizes.map(async (size) => {
@@ -235,7 +246,18 @@ export abstract class AbstractStorageAdapter
                `temp_thumb${size}.${thumbnailExtension}`
             )
 
-            const convertParams = [`${tmpFilePath}[0]`, '-thumbnail', `${size}x${size}`, '-background', 'white', '-alpha', 'remove', '-density', '150', tempThumbPath]
+            const convertParams = [
+               `${tmpFilePath}[0]`,
+               '-thumbnail',
+               `${size}x${size}`,
+               '-background',
+               'white',
+               '-alpha',
+               'remove',
+               '-density',
+               '150',
+               tempThumbPath,
+            ]
 
             await Core.execPromise(magickCmd, convertParams)
             Storage.debug(`Generated ${size} document thumbnail for ${name}`)
