@@ -201,7 +201,7 @@ export class SupabaseStorageAdapter extends AbstractStorageAdapter {
    ): Promise<string | Blob> {
       const { data, error } = await this._client
          .from(file.bucket)
-         .download(meta.path)
+         .download(file.ref)
 
       if (error !== null) {
          console.log(error)
@@ -211,6 +211,11 @@ export class SupabaseStorageAdapter extends AbstractStorageAdapter {
       if (meta.onlyContent) {
          return data
       }
+
+      // Write the downloaded data to the specified path
+      const buffer = await data.arrayBuffer()
+      fs.writeFileSync(meta.path, Buffer.from(buffer))
+
       return meta.path
    }
 
