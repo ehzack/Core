@@ -20,7 +20,7 @@
       "@quatrain/core": "^1.1.23"
    },
    "dependencies": {
-      "@quatrain/backend": "^1.1.22",
+      "@quatrain/backend": "^1.1.23",
       "@quatrain/cloudwrapper": "^1.1.14",
       "@supabase/supabase-js": "^2.82.0",
       "ws": "^8.18.3"

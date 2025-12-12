@@ -1,39 +1,39 @@
 {
-  "name": "@quatrain/backend",
-  "version": "1.1.22",
-  "license": "MIT",
-  "description": "Backend adapters commons",
-  "main": "lib/index.js",
-  "types": "lib/index.d.ts",
-  "files": [
-    "lib/",
-    "README.md"
-  ],
-  "author": "Quatrain Développement SAS <developers@quatrain.com>",
-  "dependencies": {
-    "@faker-js/faker": "^7.6.0",
-    "@quatrain/core": "^1.1.23",
-    "@quatrain/log": "workspace:^"
-  },
-  "devDependencies": {
-    "@tsconfig/recommended": "^1.0.1",
-    "@types/jest": "^27.0.3",
-    "@types/node": "^22.10.1",
-    "jest": "^27.4.7",
-    "jest-node-exports-resolver": "^1.1.6",
-    "trace-unhandled": "^2.0.1",
-    "ts-node": "^10.9.1",
-    "typescript": "^5.1.5"
-  },
-  "scripts": {
-    "test-ci": "jest --runInBand",
-    "build": "tsc",
-    "wbuild": "tsc --watch",
-    "bump-to": "yarn version",
-    "hash": "node ../../bin/hashFolder.js",
-    "hash:persist": "yarn hash  > .hash_latest.txt",
-    "hash:compare": "yarn hash > .hash_newest.txt && cmp -s .hash_latest.txt .hash_newest.txt",
-    "publish": "yarn hash:compare || yarn publish:process",
-    "publish:process": "yarn version patch && yarn build && yarn npm publish --access public && yarn hash:persist"
-  }
+   "name": "@quatrain/backend",
+   "version": "1.1.23",
+   "license": "MIT",
+   "description": "Backend adapters commons",
+   "main": "lib/index.js",
+   "types": "lib/index.d.ts",
+   "files": [
+      "lib/",
+      "README.md"
+   ],
+   "author": "Quatrain Développement SAS <developers@quatrain.com>",
+   "dependencies": {
+      "@faker-js/faker": "^7.6.0",
+      "@quatrain/core": "^1.1.23",
+      "@quatrain/log": "^1.0.2"
+   },
+   "devDependencies": {
+      "@tsconfig/recommended": "^1.0.1",
+      "@types/jest": "^27.0.3",
+      "@types/node": "^22.10.1",
+      "jest": "^27.4.7",
+      "jest-node-exports-resolver": "^1.1.6",
+      "trace-unhandled": "^2.0.1",
+      "ts-node": "^10.9.1",
+      "typescript": "^5.1.5"
+   },
+   "scripts": {
+      "test-ci": "jest --runInBand",
+      "build": "tsc",
+      "wbuild": "tsc --watch",
+      "bump-to": "yarn version",
+      "hash": "node ../../bin/hashFolder.js",
+      "hash:persist": "yarn hash  > .hash_latest.txt",
+      "hash:compare": "yarn hash > .hash_newest.txt && cmp -s .hash_latest.txt .hash_newest.txt",
+      "publish": "yarn hash:compare || yarn publish:process",
+      "publish:process": "yarn version patch && yarn build && yarn npm publish --access public && yarn hash:persist"
+   }
 }

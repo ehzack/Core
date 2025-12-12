@@ -10,8 +10,9 @@ import { PersistedDataObject } from './PersistedDataObject'
 import { PersistedBaseObject } from './PersistedBaseObject'
 import { Query, QueryResultType } from './Query'
 import { BackendInterface } from './types/BackendInterface'
-import { Backend } from './Backend'
+import { Backend, BackendAction } from './Backend'
 import { ReferenceType } from './types/ReferenceType'
+import { User } from './User'
 
 const RESOURCE_GONE_ERROR = `The resource you are trying to access has been deleted.`
 
@@ -20,6 +21,9 @@ const RESOURCE_GONE_ERROR = `The resource you are trying to access has been dele
  * Extend this by passing the typeof of the desired class to the constructor
  */
 export class BaseRepository<T extends BaseObjectType> {
+   static currentUser: User | undefined
+   static useDateFormat: boolean = true
+
    //implements RepositoryClass<T>
    protected _model: typeof PersistedBaseObject
    backendAdapter: BackendInterface
@@ -52,6 +56,38 @@ export class BaseRepository<T extends BaseObjectType> {
       return dataObject
    }
 
+   protected _addMetaData(
+      dataObject: DataObjectClass<any>,
+      action: BackendAction
+   ) {
+      if (BaseRepository.currentUser) {
+         Backend.info(`Adding meta data on record`)
+         const date = BaseRepository.useDateFormat
+            ? new Date().toISOString()
+            : Date.now()
+         switch (action) {
+            // add properties existence validation
+            case BackendAction.CREATE:
+               dataObject.set('createdBy', BaseRepository.currentUser)
+               dataObject.set('createdAt', date)
+               break
+            case BackendAction.UPDATE:
+               dataObject.set('updatedBy', BaseRepository.currentUser)
+               dataObject.set('updatedAt', date)
+               break
+            case BackendAction.DELETE:
+               dataObject.set('deletedBy', BaseRepository.currentUser)
+               dataObject.set('deletedAt', date)
+               break
+            default:
+               Backend.warn(`Unrecognized action: '${action}'`)
+               break
+         }
+      }
+
+      return dataObject
+   }
+
    protected async getDataObjectFromPath(
       path: string
    ): Promise<DataObjectClass<any>> {
@@ -66,7 +102,8 @@ export class BaseRepository<T extends BaseObjectType> {
    }
 
    async create<B extends PersistedBaseObject>(obj: B, uid?: string) {
-      const savedObj = await this.backendAdapter.create(obj.dataObject, uid)
+      const dataObject = this._addMetaData(obj.dataObject, BackendAction.CREATE)
+      const savedObj = await this.backendAdapter.create(dataObject, uid)
       return this._model.fromDataObject(savedObj)
    }
 
@@ -146,7 +183,10 @@ export class BaseRepository<T extends BaseObjectType> {
    }
 
    async update<B extends PersistedBaseObject>(obj: B) {
-      const dataObject = obj.dataObject || obj
+      const dataObject = this._addMetaData(
+         obj.dataObject || obj,
+         BackendAction.UPDATE
+      )
 
       const savedObj = await this.backendAdapter.update(dataObject)
 
@@ -158,7 +198,11 @@ export class BaseRepository<T extends BaseObjectType> {
     * @param uid string
     */
    async delete(uid: string, hardDelete = false) {
-      const dataObject = await this.getDataObject(uid)
+      const dataObject = this._addMetaData(
+         await this.getDataObject(uid),
+         BackendAction.DELETE
+      )
+
       return await this.backendAdapter.delete(dataObject, hardDelete)
    }
 
