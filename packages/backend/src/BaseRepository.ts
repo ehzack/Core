@@ -1,5 +1,6 @@
 import {
    BaseObjectType,
+   DateTimeProperty,
    GoneError,
    NotFoundError,
    ObjectUri,
@@ -69,7 +70,10 @@ export class BaseRepository<T extends BaseObjectType> {
             // add properties existence validation
             case BackendAction.CREATE:
                dataObject.set('createdBy', BaseRepository.currentUser)
-               dataObject.set('createdAt', date)
+
+               if (!(dataObject.get('createdAt') as DateTimeProperty).val()) {
+                  dataObject.set('createdAt', date)
+               }
                break
             case BackendAction.UPDATE:
                dataObject.set('updatedBy', BaseRepository.currentUser)
