@@ -4,6 +4,8 @@
 
 # Quatrain Core - A Modular BaaS Framework
 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Quatrain_Core&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Quatrain_Core)
+
 Quatrain Core is a modular TypeScript framework designed to accelerate business application development with **Backend as a Service (BaaS)** solutions like Firebase and Supabase. It provides a clean separation of concerns between logic, data, and storage, using an adapter pattern to provide consistent interfaces across different BaaS providers.
 
 ## 🎯 Core Principles
