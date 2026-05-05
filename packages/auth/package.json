@@ -20,8 +20,8 @@
   },
   "author": "Quatrain Développement SAS <developers@quatrain.com>",
   "dependencies": {
-    "@quatrain/backend": "^1.2.3",
-    "@quatrain/core": "^1.2.4"
+    "@quatrain/backend": "^1.2.4",
+    "@quatrain/core": "^1.2.5"
   },
   "devDependencies": {
     "@tsconfig/recommended": "^1.0.1",
