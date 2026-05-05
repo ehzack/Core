@@ -35,8 +35,8 @@
   },
   "dependencies": {
     "@quatrain/core": "^1.2.5",
-    "@quatrain/queue": "^1.2.1",
-    "@quatrain/storage": "^1.2.2",
+    "@quatrain/queue": "^1.2.2",
+    "@quatrain/storage": "^1.2.3",
     "axios": "^1.7.7",
     "fluent-ffmpeg": "^2.1.2",
     "fs-extra": "^11.2.0",
