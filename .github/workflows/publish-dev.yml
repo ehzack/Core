@@ -4,6 +4,12 @@ on:
   push:
     branches:
       - feat/quatrain-studio
+    paths:
+      - 'packages/**'
+      - 'bin/**'
+      - 'package.json'
+      - 'yarn.lock'
+      - '.github/workflows/publish-dev.yml'
 
 jobs:
   publish:
