@@ -3,7 +3,7 @@ name: Publish API Gateway Container Image
 on:
   push:
     branches:
-      - "*"
+      - main
     paths:
       - 'containers/api-gateway/**'
 

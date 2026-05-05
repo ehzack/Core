@@ -3,11 +3,11 @@
 ## Overview
 
 The `@quatrain/api-gateway` package is a high-performance microservice gateway developed with [Bun](https://bun.sh/). 
-This component acts as a frontend to your business applications (such as `api-express`) to intercept and optimally manage:
+This component acts as a frontend to your business applications to intercept and optimally manage:
 1. **JSON Caching (Edge Caching)**: Caching of standard JSON API requests, isolated by user ID.
 2. **Media Streaming (Smart Proxy)**: Optimized delivery of large binary files via S3 in "zero-copy" mode, with in-memory buffering (Redis) for thumbnails and small images.
 
-This architecture significantly relieves the Node.js API (`api-express`), preventing it from being saturated (especially at the Event Loop level) by large file transfers.
+This architecture significantly relieves the Node.js API, preventing it from being saturated (especially at the Event Loop level) by large file transfers.
 
 ---
 
@@ -60,7 +60,7 @@ services:
     restart: always
     environment:
       - PORT=3000
-      - API_UPSTREAM_URL=http://api-express:8080
+      - API_UPSTREAM_URL=http://api:80
       - REDIS_URL=redis://redis:6379
       - MAX_CACHE_SIZE_MB=5
     labels:
