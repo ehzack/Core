@@ -60,7 +60,10 @@ export async function handleMediaRequest(req: Request, url: URL): Promise<Respon
   // Default immutable caching headers for static media
   const responseHeaders = new Headers({
     'Cache-Control': 'public, max-age=31536000, immutable',
-    'Content-Type': mimeType
+    'Content-Type': mimeType,
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': '*'
   })
 
   // 2. Fetch from S3 (with Redis cache if applicable)

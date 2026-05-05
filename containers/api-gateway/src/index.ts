@@ -43,7 +43,10 @@ Bun.serve({
         return new Response(cached, {
           headers: {
             'Content-Type': 'application/json',
-            'X-Cache': 'HIT'
+            'X-Cache': 'HIT',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, OPTIONS',
+            'Access-Control-Allow-Headers': '*'
           }
         })
       }
