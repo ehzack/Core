@@ -23,26 +23,32 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v1
-
-      - name: Enable Corepack
-        run: corepack enable
-
-      - name: Install dependencies
-        run: YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn install
-
-      - name: Build API Gateway
-        run: yarn workspace @quatrain/api-gateway build
-
       - name: Get version from package.json
         id: package-version
         run: echo "VERSION=$(jq -r .version containers/api-gateway/package.json)" >> $GITHUB_ENV
+
+      - name: Prepare package.json for NPM registry (Immutable versions)
+        run: |
+          node -e '
+            const fs = require("fs");
+            const { execSync } = require("child_process");
+            const targetPkgPath = "containers/api-gateway/package.json";
+            const targetPkg = JSON.parse(fs.readFileSync(targetPkgPath, "utf8"));
+            
+            for (const dep in targetPkg.dependencies) {
+              if (targetPkg.dependencies[dep] === "workspace:*") {
+                try {
+                  const latestVersion = execSync(`npm view ${dep} version`, { encoding: "utf8" }).trim();
+                  targetPkg.dependencies[dep] = latestVersion;
+                  console.log(`Resolved ${dep} to published NPM version ${latestVersion}`);
+                } catch (e) {
+                  console.error(`Failed to fetch version for ${dep} from NPM. Falling back to *`);
+                  targetPkg.dependencies[dep] = "*";
+                }
+              }
+            }
+            fs.writeFileSync(targetPkgPath, JSON.stringify(targetPkg, null, 2));
+          '
 
       - name: Log in to the Container registry
         uses: docker/login-action@v3
