@@ -1,6 +1,6 @@
 {
   "name": "@quatrain/api-gateway",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "API Gateway and Cache Proxy for Core",
   "main": "src/index.ts",
   "scripts": {
