@@ -15,7 +15,7 @@ jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       packages: write
       id-token: write
 
@@ -75,4 +75,13 @@ jobs:
           file: containers/api-gateway/ContainerFile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+      - name: Bump package version
+        run: |
+          git checkout containers/api-gateway/package.json
+          npm --no-git-tag-version --prefix containers/api-gateway version patch
+
+      - name: Commit version bump
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore(api-gateway): bump patch version [skip ci]"
+          file_pattern: "containers/api-gateway/package.json"
