@@ -26,8 +26,8 @@ export async function handleMediaRequest(req: Request, url: URL): Promise<Respon
     return new Response('Missing UID', { status: 400 })
   }
 
-  // 1. Call api-express /auth endpoint
-  const authEndpoint = `${API_UPSTREAM_URL}/api/medias/${uid}/auth?action=${action}`
+  // 1. Call upstream server /auth endpoint (requesting native S3 url directly)
+  const authEndpoint = `${API_UPSTREAM_URL}/api/medias/${uid}/auth?action=${action}&native=true`
   
   let authRes: Response
   try {

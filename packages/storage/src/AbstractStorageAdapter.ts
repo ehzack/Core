@@ -1,13 +1,13 @@
-import { Readable } from 'stream'
+import { Readable } from 'node:stream'
 import { FileType } from './types/FileType'
 import { StorageAdapterInterface } from './StorageAdapterInterface'
 import { DownloadFileMetaType } from './types/DownloadFileMetaType'
 import { Storage, StorageParameters } from './Storage'
 
-import { createReadStream } from 'fs'
+import { createReadStream } from 'node:fs'
 import sharp from 'sharp'
-import { join } from 'path'
-import { tmpdir } from 'os'
+import { join } from 'node:path'
+import { tmpdir } from 'node:os'
 import fs from 'fs-extra'
 import hash from 'object-hash'
 import { Core } from '@quatrain/core'
@@ -34,12 +34,48 @@ export abstract class AbstractStorageAdapter
 
    abstract move(file: FileType, destFile: FileType): Promise<any>
 
-   abstract getUrl(
+   abstract _getUrl(
       file: FileType,
       expiresIn?: number,
       action?: string,
       extra?: any
    ): Promise<any>
+
+   public async getUrl(
+      file: FileType,
+      expiresIn?: number,
+      action?: string,
+      extra?: any
+   ): Promise<any> {
+      const publicUrl = await this._getUrl(file, expiresIn, action, extra)
+
+      const gatewayUrl = process.env.GATEWAY_URL
+      if (!gatewayUrl || (action && action !== 'read') || extra?.native) return publicUrl
+
+      // Check max size
+      const maxSizeStr = process.env.GATEWAY_MAXSIZE
+      if (maxSizeStr && file.size && file.size > parseInt(maxSizeStr, 10)) {
+         return publicUrl
+      }
+
+      // Check excluded mimes
+      const excludedMimesStr = process.env.GATEWAY_EXCLUDED_MIMES
+      if (excludedMimesStr && file.contentType) {
+         const excludedMimes = excludedMimesStr.split(',').map((m) => m.trim())
+         if (excludedMimes.includes(file.contentType)) {
+            return publicUrl
+         }
+      }
+
+      const refWithoutSlash = file.ref.replace(/^\//, '')
+      const gatewayUrlClean = gatewayUrl.replace(/\/$/, '')
+      const rewrittenUrl = `${gatewayUrlClean}/${file.bucket}/${refWithoutSlash}`
+
+      if (typeof publicUrl === 'object' && publicUrl !== null) {
+         return { ...publicUrl, url: rewrittenUrl }
+      }
+      return rewrittenUrl
+   }
 
    abstract delete(file: FileType): Promise<boolean>
 

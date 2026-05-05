@@ -4,7 +4,7 @@ import {
    Log,
    LogLevel,
 } from '@quatrain/log'
-import { spawn } from 'child_process'
+import { spawn } from 'node:child_process'
 import which from 'which'
 
 export class Core {

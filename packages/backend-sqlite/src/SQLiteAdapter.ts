@@ -19,7 +19,7 @@ import {
    Sorting,
    CollectionHierarchy,
 } from '@quatrain/backend'
-import { randomUUID } from 'crypto'
+import { randomUUID } from 'node:crypto'
 import sqlite3, { Statement } from 'sqlite3'
 import { open, Database } from 'sqlite'
 

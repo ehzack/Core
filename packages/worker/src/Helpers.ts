@@ -1,5 +1,5 @@
 import { Worker } from './Worker'
-import path from 'path'
+import path from 'node:path'
 
 export class Helpers {
    static FFMPEG = '/usr/bin/ffmpeg'

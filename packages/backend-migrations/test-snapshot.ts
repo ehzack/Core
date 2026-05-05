@@ -1,10 +1,10 @@
 import { Backend } from '@quatrain/backend'
 import { SQLiteAdapter } from '@quatrain/backend-sqlite'
 import { MigrationManager } from './src/MigrationManager'
-import * as path from 'path'
-import * as fs from 'fs'
+import * as path from 'node:path'
+import * as fs from 'node:fs'
 
-import * as os from 'os'
+import * as os from 'node:os'
 
 async function run() {
    const dbPath = path.resolve(__dirname, 'test.sqlite')

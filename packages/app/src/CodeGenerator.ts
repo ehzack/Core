@@ -1,5 +1,5 @@
-import * as fs from 'fs'
-import * as path from 'path'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
 import { Log } from '@quatrain/log'
 
 export class CodeGenerator {
@@ -248,7 +248,7 @@ export const ${className}Api = (router: ServerAdapter, path: string, options: En
       const apiImports = models.map(m => `import { ${m}Api } from './api/${m}Api'`).join('\n')
       const apiRegisters = models.map(m => `      server.addEndpoint(${m}Api, '/api/${m.toLowerCase()}s')`).join('\n')
 
-      const indexCode = `import * as path from 'path'
+      const indexCode = `import * as path from 'node:path'
 import { Backend, InjectMetaMiddleware } from '@quatrain/backend'
 import { ${adapterClass} } from '${adapterImport}'
 import { ExpressAdapter } from '@quatrain/api-server'

@@ -1,6 +1,6 @@
 import * as fs from 'fs-extra';
-import * as path from 'path';
-import { Readable } from 'stream';
+import * as path from 'node:path';
+import { Readable } from 'node:stream';
 import { 
   AbstractStorageAdapter, 
   StorageParameters, 
@@ -63,7 +63,7 @@ export class LocalStorageAdapter extends AbstractStorageAdapter {
     return destFile;
   }
 
-  async getUrl(file: FileType, expiresIn?: number, action?: string, extra?: any): Promise<any> {
+  async _getUrl(file: FileType, expiresIn?: number, action?: string, extra?: any): Promise<any> {
     return `file://${this._getFullPath(file)}`;
   }
 

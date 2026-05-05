@@ -6,9 +6,9 @@ import {
    StorageParameters,
    DownloadFileMetaType,
 } from '@quatrain/storage'
-import { Readable, Stream } from 'stream'
+import { Readable, Stream } from 'node:stream'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
-import { createWriteStream } from 'fs'
+import { createWriteStream } from 'node:fs'
 import {
    S3Client,
    PutObjectCommand,
@@ -141,7 +141,7 @@ export class S3StorageAdapter extends AbstractStorageAdapter {
       return destFile
    }
 
-   async getUrl(file: FileType, expiresIn = 3600, action: any = 'read', extra: any = {}) {
+   async _getUrl(file: FileType, expiresIn = 3600, action: any = 'read', extra: any = {}) {
       const commandArgs: any = {
          Bucket: file.bucket,
          Key: encodeURI(file.ref),

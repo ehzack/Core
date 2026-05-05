@@ -3,8 +3,8 @@ import { BackendError, Filter, OperatorKeys } from '@quatrain/backend'
 import { NotFoundError } from '@quatrain/core'
 import { SQLiteAdapter } from '../SQLiteAdapter'
 import { createUser, createEntity, setup, Entity } from './common'
-import fs from 'fs'
-import path from 'path'
+import fs from 'node:fs'
+import path from 'node:path'
 
 describe('SQLiteAdapter Tests', () => {
    let adapter: SQLiteAdapter

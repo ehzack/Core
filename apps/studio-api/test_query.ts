@@ -1,7 +1,7 @@
 import { SQLiteAdapter } from '@quatrain/backend-sqlite';
 import { StudioModel } from '@quatrain/studio';
 import { Backend } from '@quatrain/backend';
-import path from 'path';
+import path from 'node:path';
 
 async function test() {
   const sqlitePath = path.resolve(process.cwd(), '../../.quatrain-studio.sqlite');

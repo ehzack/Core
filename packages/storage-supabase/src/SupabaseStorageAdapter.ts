@@ -6,10 +6,10 @@ import {
    StorageParameters,
    DownloadFileMetaType,
 } from '@quatrain/storage'
-import { Readable, Stream } from 'stream'
+import { Readable, Stream } from 'node:stream'
 import { StorageClient } from '@supabase/storage-js'
-import { tmpdir } from 'os'
-import { join } from 'path'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import fs from 'node:fs'
 
 export class SupabaseStorageAdapter extends AbstractStorageAdapter {
@@ -138,7 +138,7 @@ export class SupabaseStorageAdapter extends AbstractStorageAdapter {
       return destFile
    }
 
-   async getUrl(file: FileType, expiresIn = 3600, action: any = 'read', extra: any = {}) {
+   async _getUrl(file: FileType, expiresIn = 3600, action: any = 'read', extra: any = {}) {
       Storage.debug(
          `Getting signed url for file ${file.ref} in bucket ${file.bucket}`
       )

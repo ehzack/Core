@@ -1,7 +1,7 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 const { hashElement } = require('folder-hash');
-const crypto = require('crypto');
+const crypto = require('node:crypto');
 
 const packagesDir = path.join(__dirname, 'packages');
 const registryFile = path.join(__dirname, '.version_hashes.json');

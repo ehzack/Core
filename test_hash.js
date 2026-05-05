@@ -1,5 +1,5 @@
-const fs = require('fs');
-const crypto = require('crypto');
+const fs = require('node:fs');
+const crypto = require('node:crypto');
 const pkgJsonPath = 'packages/storage/package.json';
 const pkgJson = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8'));
 

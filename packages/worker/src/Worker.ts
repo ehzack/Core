@@ -1,7 +1,7 @@
 import { Core } from '@quatrain/core'
-import os from 'os'
+import os from 'node:os'
 import axios from 'axios'
-import { spawn } from 'child_process'
+import { spawn } from 'node:child_process'
 import { HandlerParameters } from './types/HandlerParameters'
 
 export class Worker extends Core {

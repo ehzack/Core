@@ -1,8 +1,8 @@
-import { spawn } from 'child_process'
+import { spawn } from 'node:child_process'
 import { Core } from '@quatrain/core'
-import path from 'path'
+import path from 'node:path'
 import { Log } from '@quatrain/log'
-import fs from 'fs'
+import fs from 'node:fs'
 import { InfraBuilder } from './InfraBuilder'
 import { CodeGenerator } from './CodeGenerator'
 

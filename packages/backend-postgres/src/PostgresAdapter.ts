@@ -19,7 +19,7 @@ import {
    Sorting,
    CollectionHierarchy,
 } from '@quatrain/backend'
-import { randomUUID } from 'crypto'
+import { randomUUID } from 'node:crypto'
 import { Pool, PoolClient, PoolConfig, types } from 'pg'
 
 // PostgreSQL type OIDs for timestamp types

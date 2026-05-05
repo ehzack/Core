@@ -1,4 +1,4 @@
-import path from 'path'
+import path from 'node:path'
 import { Backend, InjectMetaMiddleware } from '@quatrain/backend'
 import { SQLiteAdapter } from '@quatrain/backend-sqlite'
 import { MigrationManager } from '@quatrain/backend-migrations'

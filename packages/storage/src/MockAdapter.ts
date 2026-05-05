@@ -1,4 +1,4 @@
-import { Readable } from 'stream'
+import { Readable } from 'node:stream'
 import { AbstractStorageAdapter } from './AbstractStorageAdapter'
 import { FileType } from './types/FileType'
 import { DownloadFileMetaType } from './types/DownloadFileMetaType'
@@ -45,7 +45,7 @@ export class MockAdapter extends AbstractStorageAdapter {
       return true
    }
 
-   async getUrl(file: FileType): Promise<any> {
+   async _getUrl(file: FileType): Promise<any> {
       return `https://mock-storage.com/${file.ref}`
    }
 

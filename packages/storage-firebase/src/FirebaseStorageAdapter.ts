@@ -9,7 +9,7 @@ import {
    FileResponseUrlType,
    FileResponseLinkType,
 } from '@quatrain/storage'
-import { Readable } from 'stream'
+import { Readable } from 'node:stream'
 
 export class FirebaseStorageAdapter extends AbstractStorageAdapter {
    constructor(params: StorageParameters = {}) {
@@ -85,7 +85,7 @@ export class FirebaseStorageAdapter extends AbstractStorageAdapter {
       return File
    }
 
-   async getUrl(
+   async _getUrl(
       fileData: FileType,
       expiresIn: number = 7200,
       action?: string,

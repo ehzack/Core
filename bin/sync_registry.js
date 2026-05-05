@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 const { computePackageHash } = require('./hashUtils');
 const packagesDir = path.join(__dirname, '../packages');
 const registryFile = path.join(__dirname, '../.version_hashes.json');

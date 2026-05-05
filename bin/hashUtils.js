@@ -1,5 +1,5 @@
 const { hashElement } = require('folder-hash');
-const crypto = require('crypto');
+const crypto = require('node:crypto');
 
 const hashOptions = {
     folders: { exclude: ['.*', 'node_modules', 'dist', 'lib'] },

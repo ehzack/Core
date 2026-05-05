@@ -1,6 +1,6 @@
 import { Worker } from './Worker'
 import axios from 'axios'
-import { spawn } from 'child_process'
+import { spawn } from 'node:child_process'
 
 // Mock dependencies
 jest.mock('axios')

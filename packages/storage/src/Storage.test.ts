@@ -1,4 +1,4 @@
-import { Readable } from 'stream'
+import { Readable } from 'node:stream'
 import { Storage } from './Storage'
 import { MockAdapter } from './MockAdapter'
 
