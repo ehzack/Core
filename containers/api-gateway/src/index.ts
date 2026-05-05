@@ -94,7 +94,7 @@ Bun.serve({
       let ttl = 3600
       const match = cacheControl.match(/max-age=(\d+)/)
       if (match) {
-        ttl = parseInt(match[1], 10)
+        ttl = Number.parseInt(match[1], 10)
       }
       
       await setCachedPayload(cacheKey, responseText, ttl)

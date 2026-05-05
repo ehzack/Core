@@ -8,4 +8,4 @@ if (!API_UPSTREAM_URL) {
   process.exit(1)
 }
 
-export const MAX_CACHE_SIZE_MB = parseInt(process.env.MAX_CACHE_SIZE_MB || '5', 10)
+export const MAX_CACHE_SIZE_MB = Number.parseInt(process.env.MAX_CACHE_SIZE_MB || '5', 10)

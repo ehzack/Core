@@ -187,63 +187,61 @@ export class PostgresAdapter extends AbstractBackendAdapter {
       dataObject: DataObjectClass<any>,
       desiredUid: string | undefined
    ): Promise<DataObjectClass<any>> {
-      return new Promise(async (resolve, reject) => {
-         try {
-            if (dataObject.uid) {
-               throw new BackendError(
-                  `Data object already has an uid and can't be created`
-               )
-            }
-
-            const uid = desiredUid || randomUUID()
-
-            // execute middlewares
-            await this.executeMiddlewares(dataObject, BackendAction.CREATE, 'before', {
-               useDateFormat: true,
-            })
-
-            const data = dataObject.toJSON({
-               withoutURIData: true,
-               converters: {
-                  datetime: (v: any) => (v ? new Date(v).toISOString() : v),
-               },
-            })
-
-            let query = `INSERT INTO ${dataObject.uri.collection?.toLowerCase()} (id`
-            let values = `VALUES ($1`
-            Object.keys(data).forEach((key, i) => {
-               query += `, ${key.toLowerCase()}`
-               values += `, $${i + 2}`
-            })
-            query += `) `
-            values += `)`
-
-            Backend.debug(`[PGA] ${query}${values}`)
-
-            const pgData = [uid, ...this._prepareData(data, false)]
-
-            Backend.debug(`[PGA] Values ${JSON.stringify(pgData)}`)
-
-            await this._query(`${query}${values}`, pgData)
-
-            dataObject.uri.path = this._buildPath(dataObject, uid)
-            dataObject.uri.label = data && Reflect.get(data, 'name')
-            dataObject.isPersisted(true)
-            Backend.info(
-               `[PGA] Saved object "${data.name}" at path ${dataObject.path}`
+      try {
+         if (dataObject.uid) {
+            throw new BackendError(
+               `Data object already has an uid and can't be created`
             )
-
-            await this.executeMiddlewares(dataObject, BackendAction.CREATE, 'after', {
-               useDateFormat: true,
-            })
-
-            resolve(dataObject)
-         } catch (err) {
-            console.log(err)
-            Backend.error((err as Error).message)
-            reject(new BackendError((err as Error).message))
          }
-      })
+
+         const uid = desiredUid || randomUUID()
+
+         // execute middlewares
+         await this.executeMiddlewares(dataObject, BackendAction.CREATE, 'before', {
+            useDateFormat: true,
+         })
+
+         const data = dataObject.toJSON({
+            withoutURIData: true,
+            converters: {
+               datetime: (v: any) => (v ? new Date(v).toISOString() : v),
+            },
+         })
+
+         let query = `INSERT INTO ${dataObject.uri.collection?.toLowerCase()} (id`
+         let values = `VALUES ($1`
+         Object.keys(data).forEach((key, i) => {
+            query += `, ${key.toLowerCase()}`
+            values += `, $${i + 2}`
+         })
+         query += `) `
+         values += `)`
+
+         Backend.debug(`[PGA] ${query}${values}`)
+
+         const pgData = [uid, ...this._prepareData(data, false)]
+
+         Backend.debug(`[PGA] Values ${JSON.stringify(pgData)}`)
+
+         await this._query(`${query}${values}`, pgData)
+
+         dataObject.uri.path = this._buildPath(dataObject, uid)
+         dataObject.uri.label = data && Reflect.get(data, 'name')
+         dataObject.isPersisted(true)
+         Backend.info(
+            `[PGA] Saved object "${data.name}" at path ${dataObject.path}`
+         )
+
+         await this.executeMiddlewares(dataObject, BackendAction.CREATE, 'after', {
+            useDateFormat: true,
+         })
+
+         return dataObject
+      } catch (err) {
+         console.log(err)
+         Backend.error((err as Error).message)
+         throw new BackendError((err as Error).message)
+      }
    }
 
    async read(dataObject: DataObjectClass<any>): Promise<DataObjectClass<any>> {
@@ -708,7 +706,7 @@ export class PostgresAdapter extends AbstractBackendAdapter {
          const result = await this._query(literal)
 
          const meta: QueryMetaType = {
-            count: parseInt(countSnapshot.rows[0].total),
+            count: Number.parseInt(countSnapshot.rows[0].total),
             offset: pagination?.limits.offset || 0,
             batch: pagination?.limits.batch || 20,
             sortField: sortField.join(', '),

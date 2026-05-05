@@ -110,7 +110,7 @@ export class CoreFormManager {
                         const formattedData = res.data.map((item: any) => {
                             let label = item.name || item.value
                             if (pattern) {
-                                label = pattern.replace(/\$\{([^}]+)\}/g, (match: string, prop: string) => {
+                                label = pattern.replaceAll(/\$\{([^}]+)\}/g, (match: string, prop: string) => {
                                     return item[prop] !== undefined ? String(item[prop]) : match
                                 })
                             }

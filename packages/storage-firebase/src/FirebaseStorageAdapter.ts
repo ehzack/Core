@@ -105,7 +105,7 @@ export class FirebaseStorageAdapter extends AbstractStorageAdapter {
 
       return {
          url: file,
-         expiresIn: parseInt((expires.valueOf() / 1000).toFixed(0)),
+         expiresIn: Number.parseInt((expires.valueOf() / 1000).toFixed(0)),
       }
    }
 

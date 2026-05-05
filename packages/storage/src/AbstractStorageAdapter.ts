@@ -54,7 +54,7 @@ export abstract class AbstractStorageAdapter
 
       // Check max size
       const maxSizeStr = process.env.GATEWAY_MAXSIZE
-      if (maxSizeStr && file.size && file.size > parseInt(maxSizeStr, 10)) {
+      if (maxSizeStr && file.size && file.size > Number.parseInt(maxSizeStr, 10)) {
          return publicUrl
       }
 

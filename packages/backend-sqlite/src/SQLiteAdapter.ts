@@ -214,87 +214,85 @@ export class SQLiteAdapter extends AbstractBackendAdapter {
       dataObject: DataObjectClass<any>,
       desiredUid: string | undefined
    ): Promise<DataObjectClass<any>> {
-      return new Promise(async (resolve, reject) => {
-         try {
-            if (dataObject.uid) {
-               throw new BackendError(
-                  `Data object already has an uid and can't be created`
-               )
-            }
-
-            const uid = desiredUid || randomUUID()
-
-            // Make sure table exists
-            await this._ensureTable(dataObject)
-
-            // Set uid before middlewares so they can use it
-            dataObject.uri.path = this._buildPath(dataObject, uid)
-
-            // execute middlewares
-            await this.executeMiddlewares(dataObject, BackendAction.CREATE, 'before', {
-               useDateFormat: true,
-            })
-
-            const data = dataObject.toJSON({
-               withoutURIData: true,
-               converters: {
-                  datetime: (v: any) => (v ? new Date(v).getTime() : v), // Store as timestamp in SQLite
-               },
-            })
-
-            const db = await this._connect()
-            const collection = this.getCollection(dataObject)
-
-            let columns = ['id']
-            let placeholders = ['?']
-            let values = [uid]
-
-            Object.entries(data).forEach(
-               ([key, value]: [key: string, value: any]) => {
-                  columns.push(`"${key}"`)
-                  placeholders.push('?')
-
-                  // Convert arrays and objects to JSON strings
-                  if (
-                     Array.isArray(value) ||
-                     (typeof value === 'object' && value !== null)
-                  ) {
-                     values.push(JSON.stringify(value))
-                  } else {
-                     values.push(value)
-                  }
-               }
+      try {
+         if (dataObject.uid) {
+            throw new BackendError(
+               `Data object already has an uid and can't be created`
             )
-
-            const query = `INSERT INTO ${collection?.toLowerCase()} (${columns.join(
-               ', '
-            )})
-                           VALUES (${placeholders.join(', ')})`
-
-            Backend.debug(`[SQLA] ${query}`)
-            Backend.debug(`[SQLA] Values ${JSON.stringify(values)}`)
-
-            await db.run(query, values)
-
-            // uri.path is already set before middlewares
-            dataObject.uri.label = data && Reflect.get(data, 'name')
-            dataObject.isPersisted(true)
-
-            Backend.info(
-               `[SQLA] Saved object "${data.name}" at path ${dataObject.path}`
-            )
-
-            await this.executeMiddlewares(dataObject, BackendAction.CREATE, 'after', {
-               useDateFormat: true,
-            })
-
-            resolve(dataObject)
-         } catch (err) {
-            console.error(err)
-            Backend.error((err as Error).message)
-            reject(new BackendError((err as Error).message))
          }
-      })
+
+         const uid = desiredUid || randomUUID()
+
+         // Make sure table exists
+         await this._ensureTable(dataObject)
+
+         // Set uid before middlewares so they can use it
+         dataObject.uri.path = this._buildPath(dataObject, uid)
+
+         // execute middlewares
+         await this.executeMiddlewares(dataObject, BackendAction.CREATE, 'before', {
+            useDateFormat: true,
+         })
+
+         const data = dataObject.toJSON({
+            withoutURIData: true,
+            converters: {
+               datetime: (v: any) => (v ? new Date(v).getTime() : v), // Store as timestamp in SQLite
+            },
+         })
+
+         const db = await this._connect()
+         const collection = this.getCollection(dataObject)
+
+         let columns = ['id']
+         let placeholders = ['?']
+         let values = [uid]
+
+         Object.entries(data).forEach(
+            ([key, value]: [key: string, value: any]) => {
+               columns.push(`"${key}"`)
+               placeholders.push('?')
+
+               // Convert arrays and objects to JSON strings
+               if (
+                  Array.isArray(value) ||
+                  (typeof value === 'object' && value !== null)
+               ) {
+                  values.push(JSON.stringify(value))
+               } else {
+                  values.push(value)
+               }
+            }
+         )
+
+         const query = `INSERT INTO ${collection?.toLowerCase()} (${columns.join(
+            ', '
+         )})
+                        VALUES (${placeholders.join(', ')})`
+
+         Backend.debug(`[SQLA] ${query}`)
+         Backend.debug(`[SQLA] Values ${JSON.stringify(values)}`)
+
+         await db.run(query, values)
+
+         // uri.path is already set before middlewares
+         dataObject.uri.label = data && Reflect.get(data, 'name')
+         dataObject.isPersisted(true)
+
+         Backend.info(
+            `[SQLA] Saved object "${data.name}" at path ${dataObject.path}`
+         )
+
+         await this.executeMiddlewares(dataObject, BackendAction.CREATE, 'after', {
+            useDateFormat: true,
+         })
+
+         return dataObject
+      } catch (err) {
+         console.error(err)
+         Backend.error((err as Error).message)
+         throw new BackendError((err as Error).message)
+      }
    }
 
    async read(dataObject: DataObjectClass<any>): Promise<DataObjectClass<any>> {

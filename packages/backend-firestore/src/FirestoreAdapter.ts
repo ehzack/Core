@@ -94,36 +94,34 @@ export class FirestoreAdapter extends AbstractBackendAdapter {
       dataObject: DataObjectClass<any>,
       desiredUid: string | undefined
    ): Promise<DataObjectClass<any>> {
-      return new Promise(async (resolve, reject) => {
-         try {
-            if (dataObject.uid) {
-               throw new BackendError(
-                  `Data object already has an uid and can't be created`
-               )
-            }
-
-            const path = this._buildPath(dataObject, desiredUid)
-
-            // execute middlewares
-            await this.executeMiddlewares(dataObject, BackendAction.CREATE, 'before')
-
-            const data = dataObject.toJSON(true)
-
-            await getFirestore().doc(path).create(data)
-
-            dataObject.uri.path = path
-            dataObject.uri.label = data && Reflect.get(data, 'name')
-
-            Backend.log(`[FSA] Saved object "${data.name}" at path ${path}`)
-
-            await this.executeMiddlewares(dataObject, BackendAction.CREATE, 'after')
-            resolve(dataObject)
-         } catch (err) {
-            console.log(err)
-            Backend.log((err as Error).message)
-            reject(new BackendError((err as Error).message))
+      try {
+         if (dataObject.uid) {
+            throw new BackendError(
+               `Data object already has an uid and can't be created`
+            )
          }
-      })
+
+         const path = this._buildPath(dataObject, desiredUid)
+
+         // execute middlewares
+         await this.executeMiddlewares(dataObject, BackendAction.CREATE, 'before')
+
+         const data = dataObject.toJSON(true)
+
+         await getFirestore().doc(path).create(data)
+
+         dataObject.uri.path = path
+         dataObject.uri.label = data && Reflect.get(data, 'name')
+
+         Backend.log(`[FSA] Saved object "${data.name}" at path ${path}`)
+
+         await this.executeMiddlewares(dataObject, BackendAction.CREATE, 'after')
+         return dataObject
+      } catch (err) {
+         console.log(err)
+         Backend.log((err as Error).message)
+         throw new BackendError((err as Error).message)
+      }
    }
 
    async read(dataObject: DataObjectClass<any>): Promise<DataObjectClass<any>> {
@@ -218,9 +216,8 @@ export class FirestoreAdapter extends AbstractBackendAdapter {
       const collectionRef = getFirestore().collection(collection)
       const query = collectionRef.orderBy('__name__').limit(batchSize)
 
-      return new Promise(async (resolve) => {
-         await this._deleteQueryBatch(getFirestore(), query, resolve)
-         resolve()
+      return new Promise((resolve) => {
+         this._deleteQueryBatch(getFirestore(), query, resolve).then(() => resolve())
       })
    }
 

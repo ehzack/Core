@@ -25,7 +25,7 @@ export class InfraBuilder {
     * Génère le contenu des fichiers compose.yaml, .env et Containerfile en fonction de la configuration de l'application
     */
    public static build(config: any, appName?: string): { compose: string, env: string, dockerfile: string } {
-      const finalAppName = appName || config.name?.toLowerCase().replace(/[^a-z0-9]/g, '-') || 'quatrain-app'
+      const finalAppName = appName || config.name?.toLowerCase().replaceAll(/[^a-z0-9]/g, '-') || 'quatrain-app'
       const compose: ComposeFile = {
          services: {},
          volumes: {},

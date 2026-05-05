@@ -75,34 +75,29 @@ export class MockAdapter
    }
 
    async read(dataObject: DataObjectClass<any>): Promise<DataObjectClass<any>> {
-      return new Promise(async (resolve, reject) => {
-         const path = dataObject.path
-         const data = MockAdapter._fixtures[path]
+      const path = dataObject.path
+      const data = MockAdapter._fixtures[path]
 
-         if (data === undefined) {
-            reject(new NotFoundError(`[Mock] No data for ${path}`))
-            return
-         }
+      if (data === undefined) {
+         throw new NotFoundError(`[Mock] No data for ${path}`)
+      }
 
-         this.log(`[DAO] Populating ${dataObject.path}`)
-         resolve(await dataObject.populate(data))
-      })
+      this.log(`[DAO] Populating ${dataObject.path}`)
+      return await dataObject.populate(data)
    }
 
    async update(
       dataObject: DataObjectClass<any>
    ): Promise<DataObjectClass<any>> {
-      return new Promise(async (resolve, reject) => {
-         const path = dataObject.path
-         const data = MockAdapter._fixtures[path]
+      const path = dataObject.path
+      const data = MockAdapter._fixtures[path]
 
-         if (data === undefined) {
-            reject(new NotFoundError(`[Mock] No data for ${path}`))
-         }
-         this.log(`[DAO] Updating ${dataObject.path}`)
-         MockAdapter._fixtures[path] = { ...data, ...dataObject.toJSON() }
-         resolve(dataObject)
-      })
+      if (data === undefined) {
+         throw new NotFoundError(`[Mock] No data for ${path}`)
+      }
+      this.log(`[DAO] Updating ${dataObject.path}`)
+      MockAdapter._fixtures[path] = { ...data, ...dataObject.toJSON() }
+      return dataObject
    }
 
    async delete(

@@ -59,7 +59,7 @@ export class FileSystem {
    }
 
    static safeString(name: string) {
-      return name.replace(/\s+/g, '_')
+      return name.replaceAll(/\s+/g, '_')
    }
 
    /**
@@ -168,13 +168,13 @@ export class FileSystem {
                   bit_rate: bitrate,
                   nb_frames: nbFramees,
                } = metadata.streams[0]
-               const nb_frames: number = parseFloat(nbFramees as string)
-               const framerate = nb_frames / parseFloat(duration as string)
+               const nb_frames: number = Number.parseFloat(nbFramees as string)
+               const framerate = nb_frames / Number.parseFloat(duration as string)
                resolve({
                   width,
                   height,
-                  framerate: parseInt(framerate.toFixed(0)),
-                  duration: parseInt(duration as string),
+                  framerate: Number.parseInt(framerate.toFixed(0)),
+                  duration: Number.parseInt(duration as string),
                   bitrate,
                })
             })

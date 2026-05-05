@@ -70,7 +70,7 @@ export class MigrationManager {
     * If a model is provided, it generates standard CREATE TABLE statements.
     */
    async createMigration(name: string, modelOptions?: any): Promise<string> {
-      const prefix = new Date().toISOString().replace(/T/, '').replace(/:/g, '').replace(/-/g, '').slice(0, 14)
+      const prefix = new Date().toISOString().replace('T', '').replaceAll(':', '').replaceAll('-', '').slice(0, 14)
       const filename = `${prefix}_${name}.ts`
       const filepath = path.join(this.migrationsPath, filename)
 
@@ -140,7 +140,7 @@ export const down = async ({ context: adapter }: { context: AbstractBackendAdapt
          return null // No migration needed
       }
 
-      const prefix = new Date().toISOString().replace(/T/, '').replace(/:/g, '').replace(/-/g, '').slice(0, 14)
+      const prefix = new Date().toISOString().replace('T', '').replaceAll(':', '').replaceAll('-', '').slice(0, 14)
       const filename = `${prefix}_${name}.ts`
       const filepath = path.join(this.migrationsPath, filename)
 
