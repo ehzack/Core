@@ -101,6 +101,10 @@ export class PersistedBaseObject extends BaseObject {
             return this.fromObject(src)
          }
 
+         if (typeof src === 'string' && !src.includes('/')) {
+            src = `${this.COLLECTION}/${src}`
+         }
+
          const dao = await this.daoFactory(src, child)
 
          if (!src && dao.has('status') && dao.val('status') === undefined) {
@@ -172,7 +176,7 @@ export class PersistedBaseObject extends BaseObject {
       return this
    }
 
-   async delete(): Promise<DataObjectClass<any>> {
+   async delete(hardDelete = false): Promise<DataObjectClass<any>> {
       return await this._dataObject.delete()
    }
 }

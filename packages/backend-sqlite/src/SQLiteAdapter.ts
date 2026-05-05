@@ -3,7 +3,6 @@ import {
    NotFoundError,
    statuses,
    StringProperty,
-   ObjectProperty,
 } from '@quatrain/core'
 import {
    DataObjectClass,
@@ -23,7 +22,6 @@ import {
 import { randomUUID } from 'crypto'
 import sqlite3, { Statement } from 'sqlite3'
 import { open, Database } from 'sqlite'
-import { AbstractPropertyType } from '@quatrain/core/dist/properties/types/AbstractPropertyType'
 
 const operatorsMap: { [x: string]: string } = {
    equals: '=',
@@ -74,9 +72,18 @@ export class SQLiteAdapter extends AbstractBackendAdapter {
          path = `${dataObject.val(dataObject.parentProp).path}/${path}`
       }
 
-      Backend.log(`[SQLA] Record path is '${path}'`)
+      Backend.info(`[SQLA] Record path is '${path}'`)
 
       return path
+   }
+
+   /**
+    * Executes a raw query on the backend.
+    * Only supported by SQL adapters.
+    */
+   async rawQuery(sql: string, params: any[] = []): Promise<any> {
+      const connection = await this._connect()
+      return await connection.all(sql, params)
    }
 
    protected async _connect(): Promise<Database<sqlite3.Database>> {
@@ -171,7 +178,7 @@ export class SQLiteAdapter extends AbstractBackendAdapter {
          // Add columns based on dataObject properties
          Object.entries(dataObject.properties).forEach(
             ([prop, propDef]: [prop: string, propDef: any]) => {
-               const propName = prop.toLowerCase()
+               const propName = prop
                let columnType = 'TEXT'
 
                // Map property types to SQLite column types
@@ -187,13 +194,13 @@ export class SQLiteAdapter extends AbstractBackendAdapter {
                   columnType = 'TEXT' // Store reference ID
                }
 
-               query += `,\n${propName} ${columnType}`
+               query += `,\n"${propName}" ${columnType}`
             }
          )
 
          query += `)`
          await db.exec(query)
-         Backend.log(`[SQLA] Created table ${collection.toLowerCase()}`)
+         Backend.info(`[SQLA] Created table ${collection.toLowerCase()}`)
       }
    }
 
@@ -220,8 +227,11 @@ export class SQLiteAdapter extends AbstractBackendAdapter {
             // Make sure table exists
             await this._ensureTable(dataObject)
 
+            // Set uid before middlewares so they can use it
+            dataObject.uri.path = this._buildPath(dataObject, uid)
+
             // execute middlewares
-            await this.executeMiddlewares(dataObject, BackendAction.CREATE, {
+            await this.executeMiddlewares(dataObject, BackendAction.CREATE, 'before', {
                useDateFormat: true,
             })
 
@@ -241,7 +251,7 @@ export class SQLiteAdapter extends AbstractBackendAdapter {
 
             Object.entries(data).forEach(
                ([key, value]: [key: string, value: any]) => {
-                  columns.push(key.toLowerCase())
+                  columns.push(`"${key}"`)
                   placeholders.push('?')
 
                   // Convert arrays and objects to JSON strings
@@ -266,13 +276,17 @@ export class SQLiteAdapter extends AbstractBackendAdapter {
 
             await db.run(query, values)
 
-            dataObject.uri.path = this._buildPath(dataObject, uid)
+            // uri.path is already set before middlewares
             dataObject.uri.label = data && Reflect.get(data, 'name')
             dataObject.isPersisted(true)
 
             Backend.info(
                `[SQLA] Saved object "${data.name}" at path ${dataObject.path}`
             )
+
+            await this.executeMiddlewares(dataObject, BackendAction.CREATE, 'after', {
+               useDateFormat: true,
+            })
 
             resolve(dataObject)
          } catch (err) {
@@ -294,7 +308,7 @@ export class SQLiteAdapter extends AbstractBackendAdapter {
          )
       }
 
-      Backend.log(`[SQLA] Getting document ${path}`)
+      Backend.info(`[SQLA] Getting document ${path}`)
 
       if (!collection) {
          throw new BackendError(
@@ -325,7 +339,7 @@ export class SQLiteAdapter extends AbstractBackendAdapter {
             propDef.constructor.name === 'ObjectProperty' &&
             propDef.instanceOf
          ) {
-            const propValue = result[prop.toLowerCase()]
+            const propValue = result[prop]
 
             if (propValue) {
                let refTable = undefined
@@ -351,24 +365,22 @@ export class SQLiteAdapter extends AbstractBackendAdapter {
                   }
                }
             }
-         } else if (propDef.constructor.name === 'ArrayProperty') {
-            // Parse JSON arrays
+         } else if (propDef.constructor.name === 'ArrayProperty' || propDef.constructor.name === 'MapProperty') {
+            // Parse JSON arrays and objects
             try {
-               if (result[prop.toLowerCase()]) {
-                  result[prop] = JSON.parse(result[prop.toLowerCase()])
+               if (result[prop]) {
+                  result[prop] = JSON.parse(result[prop])
                }
             } catch (e) {
-               Backend.warn(`[SQLA] Failed to parse array for ${prop}: ${e}`)
+               Backend.warn(`[SQLA] Failed to parse JSON for ${prop}: ${e}`)
             }
          }
 
-         // Normalize property name case
-         if (prop.toLowerCase() !== prop) {
-            result[prop] = result[prop.toLowerCase()]
-         }
+
       }
 
       dataObject.populate(result)
+      await this.executeMiddlewares(dataObject, BackendAction.READ, 'after')
       return dataObject
    }
 
@@ -382,7 +394,7 @@ export class SQLiteAdapter extends AbstractBackendAdapter {
       Backend.info(`[SQLA] Updating document ${dataObject.path}`)
 
       // execute middlewares
-      await this.executeMiddlewares(dataObject, BackendAction.UPDATE)
+      await this.executeMiddlewares(dataObject, BackendAction.UPDATE, 'before')
 
       const data = dataObject.toJSON({
          withoutURIData: true,
@@ -397,8 +409,6 @@ export class SQLiteAdapter extends AbstractBackendAdapter {
          return dataObject
       }
 
-      Backend.debug(`[SQLA] Data to update ${JSON.stringify(data)}`)
-
       const db = await this._connect()
       const collection = this.getCollection(dataObject)
 
@@ -410,7 +420,7 @@ export class SQLiteAdapter extends AbstractBackendAdapter {
 
       Object.entries(data).forEach(
          ([key, value]: [key: string, value: any]) => {
-            updates.push(`${key.toLowerCase()} = ?`)
+            updates.push(`"${key}" = ?`)
 
             // Convert arrays and objects to JSON strings
             if (
@@ -437,6 +447,8 @@ export class SQLiteAdapter extends AbstractBackendAdapter {
       Backend.debug(`[SQLA] Values ${JSON.stringify(values)}`)
 
       await db.run(query, values)
+      
+      await this.executeMiddlewares(dataObject, BackendAction.UPDATE, 'after')
       return dataObject
    }
 
@@ -454,13 +466,13 @@ export class SQLiteAdapter extends AbstractBackendAdapter {
       }
 
       // execute middlewares
-      await this.executeMiddlewares(dataObject, BackendAction.DELETE, {
+      await this.executeMiddlewares(dataObject, BackendAction.DELETE, 'before', {
          useDateFormat: true,
       })
 
       const db = await this._connect()
 
-      if (!hardDelete) {
+      if (this._params.softDelete !== false && !hardDelete) {
          dataObject.set('status', statuses.DELETED)
          await db.run(
             `UPDATE ${collection.toLowerCase()} SET status = ? WHERE id = ?`,
@@ -473,6 +485,11 @@ export class SQLiteAdapter extends AbstractBackendAdapter {
       }
 
       dataObject.uri = new ObjectUri()
+
+      await this.executeMiddlewares(dataObject, BackendAction.DELETE, 'after', {
+         useDateFormat: true,
+      })
+
       return dataObject
    }
 
@@ -551,7 +568,7 @@ export class SQLiteAdapter extends AbstractBackendAdapter {
                   propDef.constructor.name === 'ObjectProperty' &&
                   propDef.instanceOf
                ) {
-                  const propName = prop.toLowerCase()
+                  const propName = prop
                   const joinAlias = `${propName}_table`
 
                   let table = undefined
@@ -590,7 +607,7 @@ export class SQLiteAdapter extends AbstractBackendAdapter {
             filters.forEach((filter, i) => {
                query.push(parent && i === 0 ? 'AND' : i > 0 ? 'AND' : 'WHERE')
 
-               let realProp: any = filter.prop.toLowerCase()
+               let realProp: any = filter.prop
                let realOperator: string = operatorsMap[filter.operator]
                let realValue = filter.value
 
@@ -600,7 +617,7 @@ export class SQLiteAdapter extends AbstractBackendAdapter {
                   const props = dataObject.getProperties(StringProperty.name)
                   Object.keys(props).forEach((rp) => {
                      keywordFilters.push(
-                        `${collection.toLowerCase()}.${rp.toLowerCase()} LIKE ?`
+                        `${collection.toLowerCase()}.${rp} LIKE ?`
                      )
                      params.push(`%${filter.value as string}%`)
                   })
@@ -619,7 +636,7 @@ export class SQLiteAdapter extends AbstractBackendAdapter {
                   realProp = 'id'
                } else {
                   const property = dataObject.get(filter.prop)
-                  realProp = filter.prop.toLowerCase()
+                  realProp = filter.prop
 
                   if (
                      property.constructor.name === 'ArrayProperty' &&
@@ -765,7 +782,7 @@ export class SQLiteAdapter extends AbstractBackendAdapter {
             pagination.sortings.forEach((sorting: Sorting, i) => {
                query.push(i === 0 ? `ORDER BY` : ',')
                query.push(
-                  `${collection.toLowerCase()}.${sorting.prop.toLowerCase()} ${
+                  `${collection.toLowerCase()}.${sorting.prop} ${
                      sorting.order
                   }`
                )
@@ -805,19 +822,17 @@ export class SQLiteAdapter extends AbstractBackendAdapter {
          for (let doc of results || []) {
             // Process document before populating
             Object.entries(dataObject.properties).forEach(([prop, propDef]: [prop: string, propDef: any]) => {
-               const lcProp = prop.toLowerCase()
-
                // Handle ObjectProperty references
                if (
                   propDef.constructor.name === 'ObjectProperty' &&
                   propDef.instanceOf
                ) {
-                  const refValue = doc[lcProp]
+                  const refValue = doc[prop]
                   if (refValue) {
                      const info = joinTables[prop]
                      
                      if (info) {
-                        const label = doc[`${lcProp}_table_name`] || ''
+                        const label = doc[`${prop}_table_name`] || ''
 
                         doc[prop] = {
                            ref: `${info.table}/${refValue}`,
@@ -844,24 +859,24 @@ export class SQLiteAdapter extends AbstractBackendAdapter {
                      }
                   }
                }
-               // Handle array properties
-               else if (propDef.constructor.name === 'ArrayProperty') {
+               // Handle array and map properties
+               else if (propDef.constructor.name === 'ArrayProperty' || propDef.constructor.name === 'MapProperty') {
                   try {
-                     if (doc[lcProp]) {
-                        doc[prop] = JSON.parse(doc[lcProp])
+                     if (doc[prop] && typeof doc[prop] === 'string') {
+                        doc[prop] = JSON.parse(doc[prop])
                      }
                   } catch (e) {
                      Backend.warn(
-                        `[SQLA] Failed to parse array for ${prop}: ${e}`
+                        `[SQLA] Failed to parse JSON for ${prop}: ${e}`
                      )
                   }
                }
-
-               // Ensure property is available with original case
-               if (prop !== lcProp) {
-                  doc[prop] = doc[lcProp]
-               }
             })
+
+            // Map SQLite 'id' column back to Quatrain 'uid' property
+            if (doc.id && !doc.uid) {
+               doc.uid = doc.id
+            }
 
             const newDataObject: DataObjectClass<any> = await dataObject.clone({
                ...doc,
@@ -912,5 +927,82 @@ export class SQLiteAdapter extends AbstractBackendAdapter {
          await this._connection.close()
          this._connection = undefined
       }
+   }
+
+   /**
+    * Generates the SQL up and down statements to create a collection table.
+    */
+   generateCreateSql(collection: string, properties: any[]): { upSql: string; downSql: string } {
+      let query = `CREATE TABLE IF NOT EXISTS "${collection.toLowerCase()}" (\n    id TEXT PRIMARY KEY`
+
+      properties.forEach((propDef: any) => {
+         const propName = propDef.name
+         let columnType = 'TEXT'
+
+         const type = propDef.type || propDef.constructor.name
+         if (type === 'NumberProperty') {
+            columnType = 'REAL'
+         } else if (type === 'BooleanProperty') {
+            columnType = 'INTEGER'
+         } else if (type === 'DateTimeProperty') {
+            columnType = 'INTEGER'
+         } else if (type === 'ArrayProperty') {
+            columnType = 'TEXT'
+         } else if (type === 'ObjectProperty') {
+            columnType = 'TEXT'
+         }
+
+         query += `,\n    "${propName}" ${columnType}`
+      })
+
+      query += `\n)`
+
+      return {
+         upSql: `await adapter.rawQuery(\`${query}\`)`,
+         downSql: `await adapter.rawQuery(\`DROP TABLE IF EXISTS "${collection.toLowerCase()}"\`)`,
+      }
+   }
+
+   /**
+    * Generates the SQL up and down statements to apply a schema delta to a collection.
+    */
+   generateDeltaSql(collection: string, delta: any): { upSql: string[]; downSql: string[] } {
+      const upSql: string[] = []
+      const downSql: string[] = []
+
+      // Added columns
+      delta.added.forEach((propDef: any) => {
+         const propName = propDef.name
+         let columnType = 'TEXT'
+
+         const type = propDef.type || propDef.constructor.name
+         if (type === 'NumberProperty') {
+            columnType = 'REAL'
+         } else if (type === 'BooleanProperty') {
+            columnType = 'INTEGER'
+         } else if (type === 'DateTimeProperty') {
+            columnType = 'INTEGER'
+         }
+
+         upSql.push(`await adapter.rawQuery(\`ALTER TABLE "${collection.toLowerCase()}" ADD COLUMN "${propName}" ${columnType}\`)`)
+         // SQLite < 3.35 doesn't support DROP COLUMN, so we add a comment but keep the syntax
+         downSql.push(`// NOTE: DROP COLUMN requires SQLite >= 3.35\n   // await adapter.rawQuery(\`ALTER TABLE "${collection.toLowerCase()}" DROP COLUMN "${propName}"\`)`)
+      })
+
+      // Removed columns
+      delta.removed.forEach((propDef: any) => {
+         const propName = propDef.name
+         let columnType = 'TEXT'
+         
+         const type = propDef.type || propDef.constructor.name
+         if (type === 'NumberProperty') columnType = 'REAL'
+         else if (type === 'BooleanProperty') columnType = 'INTEGER'
+         else if (type === 'DateTimeProperty') columnType = 'INTEGER'
+
+         upSql.push(`// NOTE: DROP COLUMN requires SQLite >= 3.35\n   // await adapter.rawQuery(\`ALTER TABLE "${collection.toLowerCase()}" DROP COLUMN "${propName}"\`)`)
+         downSql.push(`await adapter.rawQuery(\`ALTER TABLE "${collection.toLowerCase()}" ADD COLUMN "${propName}" ${columnType}\`)`)
+      })
+
+      return { upSql, downSql }
    }
 }

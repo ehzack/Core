@@ -1,0 +1,34 @@
+{
+  "name": "@quatrain/auth-pocketbase",
+  "version": "1.1.1",
+  "license": "AGPL-3.0-only",
+  "description": "PocketBase Auth Adapter for Quatrain Core",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bun": "src/index.ts",
+  "files": [
+    "src/",
+    "dist/"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Quatrain/Core.git",
+    "directory": "packages/auth-pocketbase"
+  },
+  "author": "Quatrain Développement SAS <developers@quatrain.com>",
+  "dependencies": {
+    "@quatrain/auth": "workspace:*",
+    "@quatrain/backend": "workspace:*",
+    "@quatrain/core": "workspace:*",
+    "cross-fetch": "^4.0.0",
+    "pocketbase": "^0.21.1"
+  },
+  "devDependencies": {
+    "@tsconfig/recommended": "^1.0.1",
+    "@types/node": "^22.10.1",
+    "typescript": "^5.1.5"
+  },
+  "scripts": {
+    "build": "tsc"
+  }
+}

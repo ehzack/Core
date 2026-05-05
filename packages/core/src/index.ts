@@ -24,6 +24,8 @@ import {
    CollectionPropertyType,
 } from './properties/CollectionProperty'
 import { ArrayProperty, ArrayPropertyType } from './properties/ArrayProperty'
+import { MapProperty, MapPropertyType } from './properties/MapProperty'
+import { FileProperty, FilePropertyType } from './properties/FileProperty'
 import { AbstractObject } from './components/AbstractObject'
 import { ObjectUri } from './components/ObjectUri'
 import { DataObjectClass } from './components/types/DataObjectClass'
@@ -43,6 +45,7 @@ import {
    ForbiddenError,
    NotFoundError,
    GoneError,
+   ValidationError,
 } from './common/ResourcesErrors'
 import * as htmlType from './properties/types/PropertyHTMLType'
 import { DataObjectParams } from './components/types/DataObjectParams'
@@ -63,6 +66,8 @@ export {
    NumberProperty,
    returnAs,
    StringProperty,
+   MapProperty,
+   FileProperty,
    ObjectUri,
    DataObject,
    AbstractObject,
@@ -76,6 +81,7 @@ export {
    ForbiddenError,
    NotFoundError,
    GoneError,
+   ValidationError,
 }
 
 export type {
@@ -90,6 +96,8 @@ export type {
    ObjectPropertyType,
    NumberPropertyType,
    StringPropertyType,
+   MapPropertyType,
+   FilePropertyType,
    DataObjectClass,
    DataObjectProperties,
    BaseObjectType,

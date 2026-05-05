@@ -1,0 +1,24 @@
+{
+  "name": "@quatrain/auth-oidc",
+  "version": "1.1.1",
+  "description": "Quatrain Embedded OIDC Auth Provider",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "source": "src/index.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "oidc-provider": "^8.4.6"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Quatrain/Core.git",
+    "directory": "packages/auth-oidc"
+  }
+}

@@ -5,6 +5,7 @@ import { BaseObjectType } from './types/BaseObjectType'
 import { BaseObjectProperties } from './BaseObjectProperties'
 import { AbstractObject } from './AbstractObject'
 import { DataObjectType } from './types/DataObjectType'
+import { ValidationError } from '../common/ResourcesErrors'
 
 export class BaseObject extends AbstractObject {
    // implements BaseObjectClass {
@@ -43,6 +44,12 @@ export class BaseObject extends AbstractObject {
    ): Promise<DataObjectType> {
       const dao = this.fillProperties(child)
 
+      if (src instanceof ObjectUri) {
+         dao.uri = src
+      } else if (typeof src === 'string') {
+         dao.uri.path = src
+      }
+
       return dao
    }
 
@@ -76,6 +83,10 @@ export class BaseObject extends AbstractObject {
       try {
          if (typeof src == 'object' && !(src instanceof ObjectUri)) {
             return this.fromObject(src)
+         }
+
+         if (typeof src === 'string' && !src.includes('/')) {
+            src = `${this.COLLECTION}/${src}`
          }
 
          const dao = await this.daoFactory(src, child)
@@ -119,5 +130,27 @@ export class BaseObject extends AbstractObject {
 
    asReference() {
       return this._dataObject.toReference()
+   }
+
+   /**
+    * Validates the object's properties against the model definition.
+    * Throws a ValidationError if any mandatory properties are missing or empty.
+    */
+   validate() {
+      const errors: Record<string, string> = {}
+      const props = Object.values(this._dataObject.properties) as any[]
+
+      for (const prop of props) {
+         if (prop.mandatory && !prop.protected) {
+            const val = prop.val()
+            if (val === undefined || val === null || val === '') {
+               errors[prop.name] = `${prop.name} is required`
+            }
+         }
+      }
+
+      if (Object.keys(errors).length > 0) {
+         throw new ValidationError('Validation failed', errors)
+      }
    }
 }

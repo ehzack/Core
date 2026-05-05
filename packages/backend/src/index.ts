@@ -3,6 +3,7 @@ import { AbstractBackendAdapter } from './AbstractBackendAdapter'
 import { MockAdapter } from './MockAdapter'
 import { BackendError } from './BackendError'
 import { BackendInterface } from './types/BackendInterface'
+import { SchemaDelta } from './types/SchemaDelta'
 import { PersistedBaseObject } from './PersistedBaseObject'
 import { BaseRepository } from './BaseRepository'
 import * as CollectionHierarchy from './types/CollectionHierarchy'
@@ -20,6 +21,7 @@ import { User } from './User'
 import { UserRepository } from './UserRepository'
 import { Repository } from './Repository'
 import { BackendContext, asyncContextMiddleware } from './BackendContext'
+import BackendMiddleware from './middlewares/Middleware'
 
 import {
    InjectKeywordsMiddleware,
@@ -32,8 +34,6 @@ import {
 export {
    Backend,
    BackendAction,
-   BackendParameters,
-   BackendInterface,
    PersistedBaseObject,
    BaseRepository,
    AbstractBackendAdapter,
@@ -41,8 +41,6 @@ export {
    MockAdapter,
    OperatorKeys,
    Query,
-   QueryResultType,
-   QueryMetaType,
    Filter,
    Filters,
    Sorting,
@@ -50,15 +48,24 @@ export {
    SortAndLimit,
    CollectionHierarchy,
    CollectionProperty,
-   DataObjectClass,
    PersistedDataObject,
    User,
    UserRepository,
    InjectKeywordsMiddleware,
-   InjectKeywordsMiddlewareParams,
    InjectMetaMiddleware,
-   InjectMetaMiddlewareParams,
    Repository,
    BackendContext,
    asyncContextMiddleware,
+}
+
+export type {
+   DataObjectClass,
+   BackendParameters,
+   BackendInterface,
+   QueryResultType,
+   QueryMetaType,
+   SchemaDelta,
+   InjectKeywordsMiddlewareParams,
+   InjectMetaMiddlewareParams,
+   BackendMiddleware,
 }
