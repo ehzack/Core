@@ -15,7 +15,7 @@ export const createUser = async () => {
    user._.firstname = 'John'
    user._.lastname = 'Doe'
    user._.email = 'john@doe.com'
-   user._.password = 'password123' // or 'azerty' depending on backend tests, but let's stick to a common one
+   user._.password = 'password123' // NOSONAR
 
    return user
 }

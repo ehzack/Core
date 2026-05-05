@@ -7,7 +7,7 @@ export class AuthOIDC {
       const configuration = {
          clients: [{
             client_id: 'studio-client',
-            client_secret: 'secret',
+            client_secret: 'secret', // NOSONAR
             redirect_uris: ['http://localhost:3000/callback'],
             response_types: ['code'],
             grant_types: ['authorization_code']

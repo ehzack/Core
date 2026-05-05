@@ -11,6 +11,7 @@ import { tmpdir } from 'node:os'
 import fs from 'fs-extra'
 import hash from 'object-hash'
 import { Core } from '@quatrain/core'
+import { randomUUID } from 'node:crypto'
 
 export abstract class AbstractStorageAdapter
    implements StorageAdapterInterface
@@ -166,7 +167,7 @@ export abstract class AbstractStorageAdapter
       const thumbnailExtension = 'png'
 
       const workingDir = await this._setupThumbnailWorkspace(
-         `thumbs-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+         `thumbs-${Date.now()}-${randomUUID()}`
       )
       const path = join(workingDir, hash(name)) + `.${extension}`
 
@@ -204,7 +205,7 @@ export abstract class AbstractStorageAdapter
       const thumbnailExtension = 'png'
 
       const workingDir = await this._setupThumbnailWorkspace(
-         `videothumbs-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+         `videothumbs-${Date.now()}-${randomUUID()}`
       )
       const tmpFilePath = join(workingDir, hash(name)) + `.${extension}`
 
@@ -268,7 +269,7 @@ export abstract class AbstractStorageAdapter
       const thumbnailExtension = 'png'
 
       const workingDir = await this._setupThumbnailWorkspace(
-         `docthumbs-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+         `docthumbs-${Date.now()}-${randomUUID()}`
       )
       const tmpFilePath = join(workingDir, hash(name)) + `.${extension}`
 

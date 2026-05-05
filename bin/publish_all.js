@@ -145,6 +145,12 @@ async function publishAll() {
         }
     }
 
+    const isBuildOnly = process.argv.includes('--build-only');
+    if (isBuildOnly) {
+        console.log('[POST-BUILD] --build-only flag detected, skipping publishing.');
+        return;
+    }
+
     for (const pkg of packages) {
         const pkgDir = path.join(packagesDir, pkg);
         if (!fs.statSync(pkgDir).isDirectory()) continue;
@@ -259,11 +265,7 @@ async function publishAll() {
         }
     }
     
-    const isBuildOnly = process.argv.includes('--build-only');
-    if (isBuildOnly) {
-        console.log('[POST-BUILD] --build-only flag detected, skipping publishing.');
-        return;
-    }
+
 
     if (changed) {
         console.log('[POST-PUBLISH] Recomputing stable hashes to account for automatic workspace version bumps...');

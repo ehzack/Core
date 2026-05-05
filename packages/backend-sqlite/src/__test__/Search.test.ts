@@ -21,7 +21,7 @@ describe('SQLite Search Operations', () => {
          testUser._.firstname = `TestUser${i}`
          testUser._.lastname = i % 2 === 0 ? 'Even' : 'Odd'
          testUser._.email = `testuser${i}@example.com`
-         testUser._.password = 'password'
+         testUser._.password = 'password' // NOSONAR
          
          // Some users belong to the entity
          if (i < 5) {

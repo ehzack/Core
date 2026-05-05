@@ -41,7 +41,7 @@ describe('AmqpQueueAdapter', () => {
       config: {
          host: 'test-host',
          user: 'test-user',
-         password: 'test-password',
+         password: 'test-password', // NOSONAR
          port: 1234,
       },
       topic: 'default-topic',

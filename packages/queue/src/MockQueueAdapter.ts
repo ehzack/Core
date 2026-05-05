@@ -1,5 +1,6 @@
 import { AbstractQueueAdapter } from './AbstractQueueAdapter'
 import { QueueParameters } from './types/QueueParameters'
+import { randomUUID } from 'node:crypto'
 
 /**
  * Mock Queue Adapter for testing purposes
@@ -22,9 +23,7 @@ export class MockQueueAdapter extends AbstractQueueAdapter {
       messages.push(data)
 
       // Generate a mock message ID
-      const messageId = `msg-${Date.now()}-${Math.random()
-         .toString(36)
-         .substring(7)}`
+      const messageId = `msg-${Date.now()}-${randomUUID()}`
 
       // If there's a handler registered for this topic, invoke it
       const handler = this.handlers.get(topic)

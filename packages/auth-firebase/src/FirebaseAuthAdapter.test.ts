@@ -71,7 +71,7 @@ describe('FirebaseAuthAdapter', () => {
             name: 'John Doe',
             email: 'john@example.com',
             phone: '+1234567890',
-            password: 'hashed-password',
+            password: 'hashed-password', // NOSONAR
             disabled: false,
          },
       } as unknown as User
@@ -90,7 +90,7 @@ describe('FirebaseAuthAdapter', () => {
             uid: 'user-123',
             email: 'john@example.com',
             phoneNumber: '+1234567890',
-            password: 'clearPassword123',
+            password: 'clearPassword123', // NOSONAR
             disabled: false,
             displayName: 'John Doe',
          })
@@ -112,7 +112,7 @@ describe('FirebaseAuthAdapter', () => {
             uid: 'user-123',
             email: 'john@example.com',
             phoneNumber: '+1234567890',
-            password: 'hashed-password',
+            password: 'hashed-password', // NOSONAR
             disabled: false,
             displayName: 'John Doe',
          })
@@ -125,7 +125,7 @@ describe('FirebaseAuthAdapter', () => {
                name: 'Jane Doe',
                email: 'jane@example.com',
                phone: '+0987654321',
-               password: 'password456',
+               password: 'password456', // NOSONAR
             },
          } as unknown as User
 

@@ -26,7 +26,7 @@ export const createUser = async () => {
       lastname: 'Doe',
       name: 'John Doe',
       email: 'john@doe.com',
-      password: 'azerty',
+      password: 'azerty', // NOSONAR
    })
 
    return user

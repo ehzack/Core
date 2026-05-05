@@ -208,7 +208,7 @@ describe('SQLiteAdapter Tests', () => {
             testUser._.firstname = `SearchUser${i}`
             testUser._.lastname = 'SearchTest'
             testUser._.email = `searchuser${i}@test.com`
-            testUser._.password = 'password'
+            testUser._.password = 'password' // NOSONAR
             await adapter.create(testUser.dataObject, undefined)
          }
       })
@@ -314,7 +314,7 @@ describe('SQLiteAdapter Tests', () => {
          newUser._.firstname = 'Auto'
          newUser._.lastname = 'Table'
          newUser._.email = 'auto@table.com'
-         newUser._.password = 'password'
+         newUser._.password = 'password' // NOSONAR
          
          // This should automatically create the table
          const result = await adapter.create(newUser.dataObject, undefined)
@@ -327,7 +327,7 @@ describe('SQLiteAdapter Tests', () => {
          user._.firstname = 'Table'
          user._.lastname = 'Exists'
          user._.email = 'table@exists.com'
-         user._.password = 'password'
+         user._.password = 'password' // NOSONAR
          
          await adapter.create(user.dataObject, undefined)
          
@@ -404,7 +404,7 @@ describe('SQLiteAdapter Tests', () => {
          testUser._.firstname = 'Ref'
          testUser._.lastname = 'Test'
          testUser._.email = 'ref@test.com'
-         testUser._.password = 'password'
+         testUser._.password = 'password' // NOSONAR
          testUser._.entity = entity
          
          const result = await adapter.create(testUser.dataObject, undefined)

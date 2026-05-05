@@ -82,7 +82,7 @@ describe('SupabaseAuthAdapter', () => {
             name: 'John Doe',
             email: 'john@example.com',
             phone: '+1234567890',
-            password: 'hashed-password',
+            password: 'hashed-password', // NOSONAR
          },
       } as unknown as User
 
@@ -101,7 +101,7 @@ describe('SupabaseAuthAdapter', () => {
 
          expect(mockAuthAdmin.createUser).toHaveBeenCalledWith({
             email: 'john@example.com',
-            password: 'clearPassword123',
+            password: 'clearPassword123', // NOSONAR
             email_confirm: true,
          })
 
@@ -123,7 +123,7 @@ describe('SupabaseAuthAdapter', () => {
 
          expect(mockAuthAdmin.createUser).toHaveBeenCalledWith({
             email: 'john@example.com',
-            password: 'hashed-password',
+            password: 'hashed-password', // NOSONAR
             email_confirm: true,
          })
       })
@@ -314,7 +314,7 @@ describe('SupabaseAuthAdapter', () => {
 
          expect(mockAuth.signInWithPassword).toHaveBeenCalledWith({
             email: 'test@example.com',
-            password: 'password123',
+            password: 'password123', // NOSONAR
          })
 
          expect(result).toEqual({
