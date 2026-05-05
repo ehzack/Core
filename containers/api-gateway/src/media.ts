@@ -26,16 +26,21 @@ export async function handleMediaRequest(req: Request, url: URL): Promise<Respon
     return new Response('Missing UID', { status: 400 })
   }
 
-  // 1. Call upstream server /auth endpoint (requesting native S3 url directly)
-  const authEndpoint = `${API_UPSTREAM_URL}/api/medias/${uid}/auth?action=${action}&native=true`
+  // 1. Call upstream server /internal endpoint
+  const authEndpoint = `${API_UPSTREAM_URL}/internal/medias/${uid}?action=${action}`
+  const gatewaySecret = process.env.GATEWAY_SECRET
   
   let authRes: Response
   try {
     authRes = await fetch(authEndpoint, {
-      headers: authHeader ? { 'Authorization': authHeader } : {}
+      headers: { 
+        'Authorization': `Bearer ${gatewaySecret}`,
+        // Forward the original user token in a custom header so the upstream can still authorize if needed
+        'X-User-Token': authHeader || ''
+      }
     })
   } catch (err) {
-    Api.error(`[MediaProxy] Failed to contact upstream auth API:`, err)
+    Api.error(`[MediaProxy] Failed to contact upstream internal API:`, err)
     return new Response('Gateway Error', { status: 502 })
   }
 
