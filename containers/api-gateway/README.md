@@ -72,6 +72,6 @@ services:
 *Note: Do not forget to disable the public Traefik labels on your `api-express`, as it should only be accessible via the Gateway (internal Docker network).*
 
 ### Cache Opt-Out
-If you develop an endpoint in the `api-express` API that returns highly volatile data that should never be cached (e.g., real-time data), simply return the following header:
+If you develop an endpoint in the API that returns highly volatile data that should never be cached (e.g., real-time data), simply return the following header:
 `Cache-Control: no-cache`
 The Bun Gateway will intercept this header and ensure that the payload is never stored in Redis.

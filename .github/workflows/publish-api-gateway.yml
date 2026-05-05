@@ -23,6 +23,23 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn install
+
+      - name: Build API Gateway
+        run: yarn workspace @quatrain/api-gateway build
+
       - name: Get version from package.json
         id: package-version
         run: echo "VERSION=$(jq -r .version containers/api-gateway/package.json)" >> $GITHUB_ENV
