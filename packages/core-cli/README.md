@@ -48,3 +48,13 @@ Scaffolds a new migration file.
 
 ## Language Guidelines
 > **Recommendation:** All text contents (such as console logs, commit messages, and comments) within the Quatrain ecosystem must be written in **International English**. This ensures accessibility and maintainability for developers worldwide.
+
+## HOWTO / Usage Examples
+
+```bash
+# Example of scaffolding a new project
+yarn global add @quatrain/core-cli
+quatrain generate scaffold my-app
+cd my-app
+yarn install
+```

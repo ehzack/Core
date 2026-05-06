@@ -12,3 +12,12 @@ The `@quatrain/studio` package contains the core configuration, meta-models, and
 - `StudioProject`: Represents an entire application project.
 - `StudioModel`: A model definition (e.g. `Invoice`, `User`).
 - `StudioProperty`: Properties attached to a model (e.g. `amount`, `name`), supporting granular configurations like `mandatory`, `maxLength`, etc.
+
+## HOWTO / Usage Examples
+
+```typescript
+import { StudioProject, StudioModel } from '@quatrain/studio'
+
+const project = await StudioProject.factory({ name: 'My Project' })
+const model = await StudioModel.factory({ name: 'User', project })
+```

@@ -6,7 +6,8 @@ The `@quatrain/ui` package is the foundational frontend layer of the Quatrain fr
 - By default, it exports the **Mantine** component library, ensuring that any downstream UI packages share the exact same style context and theme configuration.
 - It is designed to be framework-agnostic at its core, but currently integrates `MantineProvider` and basic CSS reset tokens for React.
 
-## Getting Started
+## HOWTO / Usage Examples
+
 
 To use it in your host application (like `studio-web`), wrap your root with the exported theme provider:
 
