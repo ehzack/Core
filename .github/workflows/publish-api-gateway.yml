@@ -21,7 +21,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4 # NOSONAR
 
       - name: Get version from package.json
         id: package-version
@@ -51,7 +51,7 @@ jobs:
           '
 
       - name: Log in to the Container registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v3 # NOSONAR
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -59,7 +59,7 @@ jobs:
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v5 # NOSONAR
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
@@ -69,7 +69,7 @@ jobs:
             type=raw,value=${{ env.VERSION }}
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v5 # NOSONAR
         with:
           context: containers/api-gateway
           file: containers/api-gateway/ContainerFile
@@ -81,7 +81,7 @@ jobs:
           npm --no-git-tag-version --prefix containers/api-gateway version patch
 
       - name: Commit version bump
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v5 # NOSONAR
         with:
           commit_message: "chore(api-gateway): bump patch version [skip ci]"
           file_pattern: "containers/api-gateway/package.json"

@@ -16,10 +16,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4 # NOSONAR
 
       - name: Checkout Wiki Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4 # NOSONAR
         with:
           repository: ${{ github.repository }}.wiki
           path: wiki

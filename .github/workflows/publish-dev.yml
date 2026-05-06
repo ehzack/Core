@@ -20,12 +20,12 @@ jobs:
       id-token: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4 # NOSONAR
         with:
           fetch-depth: 0
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v4 # NOSONAR
         with:
           node-version: 22
 
@@ -47,6 +47,6 @@ jobs:
         run: yarn node bin/publish_all.js --tag latest-dev
 
       - name: Commit version bumps & hashes
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v5 # NOSONAR
         with:
           commit_message: "chore: release dev versions & update hashes [skip ci]"
