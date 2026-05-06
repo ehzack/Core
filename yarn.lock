@@ -3196,9 +3196,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@quatrain/api-server@workspace:^, @quatrain/api-server@workspace:packages/api-server":
+"@quatrain/api-server-express@workspace:^, @quatrain/api-server-express@workspace:packages/api-server":
   version: 0.0.0-use.local
-  resolution: "@quatrain/api-server@workspace:packages/api-server"
+  resolution: "@quatrain/api-server-express@workspace:packages/api-server"
   dependencies:
     "@quatrain/api": "workspace:*"
     "@quatrain/backend": "workspace:*"
@@ -3904,7 +3904,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@quatrain/studio-api@workspace:apps/studio-api"
   dependencies:
-    "@quatrain/api-server": "workspace:^"
+    "@quatrain/api-server-express": "workspace:^"
     "@quatrain/app": "workspace:*"
     "@quatrain/backend": "workspace:^"
     "@quatrain/backend-sqlite": "workspace:^"
