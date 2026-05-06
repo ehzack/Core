@@ -25,6 +25,15 @@ export interface ServerAdapter {
    createRouter(path: string): ServerAdapter
    start(port: number, callback?: () => void): void
    getNativeInstance(): any
+   
+   /**
+    * Configures the server to serve static files from a specified folder.
+    * Automatically handles fallback routing for Single Page Applications (SPA).
+    * 
+    * @param folderPath The absolute path to the directory containing static files.
+    * @param apiPrefix The prefix used for API routes (ignored by SPA fallback).
+    */
+   serveStatic(folderPath: string, apiPrefix?: string): void
 
    addEndpoint(handler: EndpointHandler, endpointRoot: string, options?: EndpointOptions): void
 }

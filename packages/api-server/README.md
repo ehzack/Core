@@ -1,6 +1,6 @@
-# @quatrain/api-server
+# @quatrain/api-server-express
 
-The `@quatrain/api-server` package provides the backend REST layer for Quatrain, exposing the underlying DataObjects and Backend engines through HTTP endpoints.
+The `@quatrain/api-server-express` package provides the backend REST layer for Quatrain, exposing the underlying DataObjects and Backend engines through HTTP endpoints.
 
 ## Features
 - **Express Adapter**: A lightweight wrapper around Express to bootstrap APIs instantly.

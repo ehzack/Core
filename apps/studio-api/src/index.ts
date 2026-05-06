@@ -4,7 +4,7 @@ import { Backend, InjectMetaMiddleware } from '@quatrain/backend'
 import { SQLiteAdapter } from '@quatrain/backend-sqlite'
 import { returnAs, UserProperties } from '@quatrain/core'
 import { StudioModel, StudioProperty, StudioBackend, StudioDeployment, StudioProject, StudioEnvironment, StudioStorage, StudioAuth, StudioSecret, StudioWidget, StudioView, StudioHistory, StudioTarget } from '@quatrain/studio'
-import { ExpressAdapter, ListEndpoint, CrudEndpoint, ValuesEndpoint } from '@quatrain/api-server'
+import { ExpressAdapter, ListEndpoint, CrudEndpoint, ValuesEndpoint } from '@quatrain/api-server-express'
 import { Api } from '@quatrain/api'
 import { MigrationManager } from '@quatrain/backend-migrations'
 import { AppInfra } from '@quatrain/app'
@@ -28,6 +28,17 @@ const sqlitePath = path.resolve(process.cwd(), 'data/quatrain-studio.sqlite')
       // Initialize the API Server Adapter
       const server = new ExpressAdapter(undefined, { apiPrefix: '/api' })
       Api.addServer(server, 'default')
+      
+      // Serve frontend only if explicitly requested (e.g. via Container compose)
+      if (process.env.SERVE_FRONTEND === 'true') {
+         const webPath = path.resolve(process.cwd(), '../studio-web/dist')
+         if (fs.existsSync(webPath)) {
+            server.serveStatic(webPath, '/api')
+            Api.info('Front-end serving enabled (SERVE_FRONTEND=true)')
+         } else {
+            Api.warn(`Front-end serving enabled but directory not found: ${webPath}`)
+         }
+      }
 
       CrudEndpoint(StudioHistory)(server, '/api/history', {})
 

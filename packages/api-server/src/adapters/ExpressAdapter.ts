@@ -98,6 +98,24 @@ export class ExpressAdapter implements ServerAdapter {
       return this.appOrRouter
    }
 
+   /**
+    * Configures the server to serve static files from a specified folder.
+    * It also sets up a fallback route for SPA (Single Page Application) navigation,
+    * ensuring that non-API routes return the main index.html file.
+    * 
+    * @param folderPath The absolute path to the directory containing static files (e.g. built frontend).
+    * @param apiPrefix The prefix used for API routes, which will be ignored by the SPA fallback. Defaults to '/api'.
+    */
+   serveStatic(folderPath: string, apiPrefix: string = '/api'): void {
+      const path = require('node:path')
+      this.use(express.static(folderPath))
+      
+      ;(this.appOrRouter as express.Router).get('*', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+         if (req.path.startsWith(apiPrefix)) return next()
+         res.sendFile(path.join(folderPath, 'index.html'))
+      })
+   }
+
    addEndpoint(handler: EndpointHandler, endpointRoot: string, options: EndpointOptions = {}): void {
       const fullPath = this.config.apiPrefix ? `${this.config.apiPrefix}${endpointRoot}` : endpointRoot
       const router = this.createRouter(fullPath)

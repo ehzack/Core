@@ -134,7 +134,7 @@ ${layoutCode}         {/* --- Fin du layout --- */}
             "@quatrain/backend": targetNpmTag,
             "@quatrain/backend-sqlite": targetNpmTag,
             "@quatrain/api": targetNpmTag,
-            "@quatrain/api-server": targetNpmTag,
+            "@quatrain/api-server-express": targetNpmTag,
             "@quatrain/backend-migrations": targetNpmTag
          } as Record<string, string>
       }
@@ -226,7 +226,7 @@ export class ${className} extends PersistedBaseObject {
 
    private static generateApiEndpoints(config: any, targetDir: string, models: string[]): void {
       for (const className of models) {
-         const apiCode = `import { CrudEndpoint, ValuesEndpoint, ListEndpoint } from '@quatrain/api-server'
+         const apiCode = `import { CrudEndpoint, ValuesEndpoint, ListEndpoint } from '@quatrain/api-server-express'
 import { ServerAdapter, EndpointOptions } from '@quatrain/api'
 import { ${className} } from '../models/${className}'
 
@@ -251,7 +251,7 @@ export const ${className}Api = (router: ServerAdapter, path: string, options: En
       const indexCode = `import * as path from 'node:path'
 import { Backend, InjectMetaMiddleware } from '@quatrain/backend'
 import { ${adapterClass} } from '${adapterImport}'
-import { ExpressAdapter } from '@quatrain/api-server'
+import { ExpressAdapter } from '@quatrain/api-server-express'
 import { MigrationManager } from '@quatrain/backend-migrations'
 import { Log, DefaultLoggerAdapter, LogLevel } from '@quatrain/log'
 ${config.authMode === 'oauth' ? `import { AuthOIDC } from '@quatrain/auth-oidc'\n` : ''}

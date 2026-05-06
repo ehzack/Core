@@ -1,0 +1,18 @@
+services:
+  studio:
+    build:
+      context: ../..
+      dockerfile: containers/studio/ContainerFile
+    ports:
+      - "4000:4000"
+    volumes:
+      # Persist SQLite databases (studio state + client data)
+      - ./data:/app/apps/studio-api/data
+      # Persist Local Storage files
+      - ./storage:/app/apps/studio-api/storage
+    environment:
+      - PORT=4000
+      - NODE_ENV=production
+      - SERVE_FRONTEND=true
+    command: sh -c "bun run src/scripts/seed-container.ts && bun run start"
+    restart: unless-stopped

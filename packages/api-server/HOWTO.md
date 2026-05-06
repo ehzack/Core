@@ -1,13 +1,13 @@
-# HOWTO: Using @quatrain/api-server
+# HOWTO: Using @quatrain/api-server-express
 
-The `@quatrain/api-server` package allows you to expose your Quatrain models over HTTP instantly using an `ExpressAdapter`.
+The `@quatrain/api-server-express` package allows you to expose your Quatrain models over HTTP instantly using an `ExpressAdapter`.
 
 ## 1. Setting up the Express Adapter
 
 Initialize the `ExpressAdapter` and pass any standard Express middlewares (like CORS or JSON parsers).
 
 ```typescript
-import { ExpressAdapter } from '@quatrain/api-server';
+import { ExpressAdapter } from '@quatrain/api-server-express';
 
 const server = new ExpressAdapter();
 ```
@@ -17,7 +17,7 @@ const server = new ExpressAdapter();
 You can bind full CRUD endpoints to a specific model.
 
 ```typescript
-import { CrudEndpoint, ListEndpoint } from '@quatrain/api-server';
+import { CrudEndpoint, ListEndpoint } from '@quatrain/api-server-express';
 import { StudioModel } from '@quatrain/studio';
 import { Api } from '@quatrain/api';
 

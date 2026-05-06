@@ -1,0 +1,29 @@
+FROM node:22-alpine AS builder
+
+# Enable Corepack for Yarn
+RUN corepack enable
+
+WORKDIR /app
+
+# Copy the entire monorepo
+COPY . .
+
+# Install dependencies and build all workspaces
+RUN yarn install
+RUN yarn build
+
+# Final image
+FROM oven/bun:alpine
+
+WORKDIR /app
+
+# Copy the built monorepo
+COPY --from=builder /app /app
+
+# Set environment
+ENV PORT=4000
+EXPOSE 4000
+
+# Start Studio API (which now also serves Studio Web)
+WORKDIR /app/apps/studio-api
+CMD ["bun", "run", "start"]
