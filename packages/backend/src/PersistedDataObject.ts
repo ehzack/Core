@@ -1,4 +1,4 @@
-import { DataObject as CoreDO, ObjectUri } from '@quatrain/core'
+import { DataObject as CoreDO } from '@quatrain/core'
 import type { PersistedBaseObject } from './PersistedBaseObject'
 import { Backend } from './Backend'
 import { DataObjectClass } from './types/DataObjectClass'
