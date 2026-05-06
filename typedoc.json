@@ -1,5 +1,6 @@
 {
   "entryPointStrategy": "packages",
+  "tsconfig": "tsconfig.typedoc.json",
   "entryPoints": ["packages/*"],
   "out": "docs",
   "name": "Quatrain Core Documentation",
