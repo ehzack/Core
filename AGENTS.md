@@ -107,6 +107,13 @@ By default, Quatrain uses a "soft delete" system via the `status` property inher
 - ✅ **GOOD:** Using `spawn('podman', ['compose', 'up'], { shell: false })` or `spawnSync('yarn', ['build'], { shell: false })`.
 - If an external command relies heavily on shell features, find an equivalent cross-platform Node.js native API (e.g., using `fs.unlinkSync` instead of `rm -f`).
 
+### K. Strict Type Declarations
+
+- **CRITICAL:** Never declare a variable without an explicit type (or an implicitly strongly inferred type).
+- "Jamais de déclaration sans type !" Declarations like `let target` without a type are strictly forbidden. They prevent TypeScript from correctly inferring types across `try/catch` blocks and lead to `TS18046` errors under strict configurations.
+- ✅ **GOOD:** `let target: StudioTarget` or `let target: any` (if absolutely necessary to bypass the compiler).
+- ❌ **BAD:** `let target`
+
 ---
 
 ## 2. Monorepo & Production Workflow Skills

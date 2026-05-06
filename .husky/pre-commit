@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+
+echo "✅ [Quatrain Core] Running strict pre-commit checks (TypeScript & Monorepo Build)..."
+yarn build

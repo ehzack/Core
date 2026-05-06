@@ -225,7 +225,7 @@ describe('SupabaseAuthAdapter', () => {
             json: jest.fn().mockResolvedValue(mockResponse),
          }
 
-         ;(nativeFetch.fetch as jest.Mock).mockResolvedValue(mockFetchResponse)
+         ;(nativeFetch.fetch as unknown as jest.Mock).mockResolvedValue(mockFetchResponse)
 
          const result = await adapter.refreshToken('old-refresh-token')
 
@@ -253,11 +253,11 @@ describe('SupabaseAuthAdapter', () => {
             json: jest.fn().mockResolvedValue({}),
          }
 
-         ;(nativeFetch.fetch as jest.Mock).mockResolvedValue(mockFetchResponse)
+         ;(nativeFetch.fetch as unknown as jest.Mock).mockResolvedValue(mockFetchResponse)
 
          await adapter.refreshToken('refresh-token')
 
-         const callArgs = (nativeFetch.fetch as jest.Mock).mock.calls[0]
+         const callArgs = (nativeFetch.fetch as unknown as jest.Mock).mock.calls[0]
          expect(callArgs[0]).toBe(
             'https://test.supabase.co/auth/v1/token?grant_type=refresh_token'
          )

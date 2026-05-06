@@ -40,7 +40,7 @@ async function seed() {
    console.log(`Created Backend: ${backend.val('name')} (${backend.uid})`)
 
    // 3. Find Docker Local Target
-   let target
+   let target: any
    try {
       target = await StudioTarget.fromBackend('default-target-docker')
    } catch (e) {
