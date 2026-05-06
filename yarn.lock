@@ -3137,7 +3137,7 @@ __metadata:
   resolution: "@quatrain/ai-gemini@workspace:packages/ai-gemini"
   dependencies:
     "@google/genai": "npm:latest"
-    "@quatrain/ai": "npm:^1.1.1"
+    "@quatrain/ai": "npm:^1.1.2"
     "@quatrain/core": "npm:^1.2.5"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/jest": "npm:^29.5.12"
@@ -3152,7 +3152,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@quatrain/ai@npm:^1.1.1, @quatrain/ai@workspace:*, @quatrain/ai@workspace:packages/ai":
+"@quatrain/ai@npm:^1.1.2, @quatrain/ai@workspace:*, @quatrain/ai@workspace:packages/ai":
   version: 0.0.0-use.local
   resolution: "@quatrain/ai@workspace:packages/ai"
   dependencies:
@@ -3581,7 +3581,7 @@ __metadata:
   resolution: "@quatrain/code-github@workspace:packages/code-github"
   dependencies:
     "@octokit/rest": "npm:^20.0.2"
-    "@quatrain/code": "npm:^1.1.1"
+    "@quatrain/code": "npm:^1.1.2"
     "@quatrain/core": "npm:^1.2.5"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/jest": "npm:^29.5.12"
@@ -3596,7 +3596,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@quatrain/code@npm:^1.1.1, @quatrain/code@workspace:*, @quatrain/code@workspace:packages/code":
+"@quatrain/code@npm:^1.1.2, @quatrain/code@workspace:*, @quatrain/code@workspace:packages/code":
   version: 0.0.0-use.local
   resolution: "@quatrain/code@workspace:packages/code"
   dependencies:
@@ -3924,7 +3924,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@quatrain/studio-cli@workspace:apps/studio-cli"
   dependencies:
-    "@quatrain/studio": "npm:^1.1.4"
+    "@quatrain/studio": "npm:^1.1.5"
     "@tsconfig/recommended": "npm:^1.0.1"
     "@types/inquirer": "npm:^9.0.7"
     "@types/node": "npm:^22.10.1"
@@ -3958,7 +3958,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@quatrain/studio@npm:^1.1.4, @quatrain/studio@workspace:^, @quatrain/studio@workspace:packages/studio":
+"@quatrain/studio@npm:^1.1.5, @quatrain/studio@workspace:^, @quatrain/studio@workspace:packages/studio":
   version: 0.0.0-use.local
   resolution: "@quatrain/studio@workspace:packages/studio"
   dependencies:
