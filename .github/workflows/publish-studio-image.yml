@@ -8,6 +8,10 @@ on:
       - 'containers/studio-image/**'
       - 'apps/studio-api/**'
       - 'apps/studio-web/**'
+  workflow_run:
+    workflows: ["Publish Independent Packages"]
+    types:
+      - completed
   workflow_dispatch:
 
 env:
