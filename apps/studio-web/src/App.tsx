@@ -450,7 +450,7 @@ function AppContent() {
     setProperties(updatedProperties)
 
     try {
-      const promises = []
+      const promises: Promise<any>[] = []
       for (const p of updatedProperties) {
          const originalProp = properties.find(op => op.uid === p.uid)
          if (originalProp && originalProp.order !== p.order) {

@@ -12,6 +12,9 @@
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
+    "paths": {
+      "@quatrain/*": ["../../packages/*/src/index.ts", "../../packages/*/src"]
+    },
     "noEmit": true,
     "jsx": "react-jsx",
 
