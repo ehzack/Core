@@ -109,10 +109,10 @@ Use the CLI to quickly bootstrap a project or generate configurations:
 
 ```bash
 # Scaffold a new project
-quatrain generate scaffold my-app
+core generate scaffold my-app
 
 # Generate a unified quatrain.json config
-quatrain generate config
+core generate config
 ```
 
 Running migrations on your deployment target:

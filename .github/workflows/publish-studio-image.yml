@@ -1,17 +1,17 @@
-name: Publish Studio Container Image
+name: Publish Studio-Image Container
 
 on:
   push:
     branches:
       - main
     paths:
-      - 'containers/studio/**'
+      - 'containers/studio-image/**'
       - 'apps/studio-api/**'
       - 'apps/studio-web/**'
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository_owner }}/studio
+  IMAGE_NAME: ${{ github.repository_owner }}/studio-image
 
 jobs:
   build-and-push-image:
