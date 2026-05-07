@@ -17,7 +17,7 @@ export class FirebaseAuthAdapter extends AbstractAuthAdapter {
 
    public middleware(): ApiMiddleware {
       return async (req: ApiRequest, res: ApiResponse): Promise<boolean> => {
-         const bearer = ((req.headers.authorization as string) || '').split(' ')[1] || ''
+         const bearer = ((req.headers?.authorization as string) || '').split(' ')[1] || ''
          
          if (bearer) {
             try {

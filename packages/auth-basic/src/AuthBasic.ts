@@ -20,7 +20,7 @@ export class AuthBasic {
 
    public middleware(): ApiMiddleware {
       return async (req: ApiRequest, res: ApiResponse): Promise<boolean> => {
-         const b64auth = ((req.headers.authorization as string) || '').split(' ')[1] || ''
+         const b64auth = ((req.headers?.authorization as string) || '').split(' ')[1] || ''
          const [login, password] = Buffer.from(b64auth, 'base64').toString().split(':')
 
          if (login && password && login === this.user && password === this.pass) {
