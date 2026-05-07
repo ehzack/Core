@@ -3900,7 +3900,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@quatrain/studio-api@workspace:apps/studio-api":
+"@quatrain/studio-api@workspace:*, @quatrain/studio-api@workspace:apps/studio-api":
   version: 0.0.0-use.local
   resolution: "@quatrain/studio-api@workspace:apps/studio-api"
   dependencies:
@@ -3936,7 +3936,16 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@quatrain/studio-web@workspace:apps/studio-web":
+"@quatrain/studio-image@workspace:containers/studio-image":
+  version: 0.0.0-use.local
+  resolution: "@quatrain/studio-image@workspace:containers/studio-image"
+  dependencies:
+    "@quatrain/studio-api": "workspace:*"
+    "@quatrain/studio-web": "workspace:*"
+  languageName: unknown
+  linkType: soft
+
+"@quatrain/studio-web@workspace:*, @quatrain/studio-web@workspace:apps/studio-web":
   version: 0.0.0-use.local
   resolution: "@quatrain/studio-web@workspace:apps/studio-web"
   dependencies:
