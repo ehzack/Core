@@ -3,9 +3,6 @@ FROM node:22-alpine AS builder
 # Enable Corepack for Yarn
 RUN corepack enable
 
-# Install bun globally for workspaces that require it during build
-RUN npm install -g bun
-
 WORKDIR /app
 
 # Copy the entire monorepo
