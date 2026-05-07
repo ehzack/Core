@@ -20,7 +20,7 @@
   },
   "scripts": {
     "prepare": "husky",
-    "build": "yarn workspaces foreach -ptA --exclude core-monorepo run build",
+    "build": "turbo run build",
     "publish:all": "node bin/publish_all.js"
   },
   "private": true,

@@ -8,6 +8,7 @@ on:
       - 'containers/studio-image/**'
       - 'apps/studio-api/**'
       - 'apps/studio-web/**'
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io

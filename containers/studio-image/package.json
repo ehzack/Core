@@ -7,5 +7,9 @@
     "type": "git",
     "url": "git+https://github.com/Quatrain/Core.git",
     "directory": "containers/studio-image"
+  },
+  "dependencies": {
+    "@quatrain/studio-api": "workspace:*",
+    "@quatrain/studio-web": "workspace:*"
   }
 }

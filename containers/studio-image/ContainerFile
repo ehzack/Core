@@ -11,9 +11,11 @@ WORKDIR /app
 # Copy the entire monorepo
 COPY . .
 
-# Install dependencies and build all workspaces
+# Install dependencies
 RUN yarn install
-RUN yarn build
+
+# Build ONLY what is needed for the studio image (this skips api-gateway entirely)
+RUN npx turbo run build --filter=@quatrain/studio-image...
 
 # Final image
 FROM oven/bun:alpine
