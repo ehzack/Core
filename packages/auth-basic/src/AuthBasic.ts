@@ -1,4 +1,5 @@
 import { Api, ApiMiddleware, ApiRequest, ApiResponse } from '@quatrain/api'
+import { Buffer } from 'node:buffer'
 
 export class AuthBasic {
    private user: string

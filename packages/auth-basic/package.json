@@ -13,6 +13,7 @@
     "@quatrain/backend": "workspace:*"
   },
   "devDependencies": {
+    "@types/node": "^22.10.1",
     "typescript": "^5.1.5"
   },
   "repository": {
