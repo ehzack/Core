@@ -9,6 +9,7 @@ import { Api } from '@quatrain/api'
 import { MigrationManager } from '@quatrain/backend-migrations'
 import { AppInfra } from '@quatrain/app'
 import { HistoryMiddleware } from './middlewares/HistoryMiddleware'
+import { AuthBasic } from '@quatrain/auth-basic'
 
 // Initialize the backend with a persistent SQLite file for the Studio state
 const sqlitePath = path.resolve(process.cwd(), 'data/quatrain-studio.sqlite')
@@ -28,6 +29,38 @@ const sqlitePath = path.resolve(process.cwd(), 'data/quatrain-studio.sqlite')
       // Initialize the API Server Adapter
       const server = new ExpressAdapter(undefined, { apiPrefix: '/api' })
       Api.addServer(server, 'default')
+      
+      // Dynamic Authentication Loading
+      const authPackage = process.env.STUDIO_AUTH_PACKAGE
+      const authAdapter = process.env.STUDIO_AUTH_ADAPTER
+      
+      if (authPackage && authAdapter) {
+         try {
+            const pkg = require(authPackage)
+            const AdapterClass = pkg[authAdapter]
+            const configStr = process.env.STUDIO_AUTH_CONFIG || '{}'
+            const config = JSON.parse(configStr)
+            
+            const authInstance = AdapterClass.factory ? AdapterClass.factory(config) : new AdapterClass(config)
+            if (authInstance && authInstance.middleware) {
+               if (server.addMiddleware) {
+                  server.addMiddleware(authInstance.middleware())
+               }
+               Api.info(`Authentication enabled using ${authAdapter}`)
+            } else {
+               Api.warn(`Adapter ${authAdapter} does not provide a middleware() method.`)
+            }
+         } catch(e: any) {
+            Api.error(`Failed to load auth adapter ${authAdapter}: ${e.message}`)
+         }
+      } else {
+         // Fallback to basic auth using STUDIO_AUTH_USER and STUDIO_AUTH_PASS
+         const basicAuth = AuthBasic.factory(process.env.STUDIO_AUTH_USER, process.env.STUDIO_AUTH_PASS)
+         if (basicAuth && server.addMiddleware) {
+            server.addMiddleware(basicAuth.middleware())
+            Api.info('Basic Authentication enabled (fallback)')
+         }
+      }
       
       // Serve frontend only if explicitly requested (e.g. via Container compose)
       if (process.env.SERVE_FRONTEND === 'true') {

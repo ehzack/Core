@@ -2,6 +2,7 @@ export interface ApiRequest {
    body: any
    params: Record<string, string>
    query: Record<string, any>
+   headers?: Record<string, string | string[] | undefined>
 }
 
 export interface ApiResponse {
@@ -14,6 +15,7 @@ export interface ApiResponse {
 }
 
 export type ApiHandler = (req: ApiRequest, res: ApiResponse) => Promise<void> | void
+export type ApiMiddleware = (req: ApiRequest, res: ApiResponse) => Promise<boolean> | boolean
 
 export interface ServerAdapter {
    get(path: string, handler: ApiHandler): void
@@ -21,7 +23,8 @@ export interface ServerAdapter {
    put(path: string, handler: ApiHandler): void
    delete(path: string, handler: ApiHandler): void
    
-   use(middleware: any): void
+   use(middleware: ApiMiddleware | any): void
+   addMiddleware?(middleware: ApiMiddleware): void
    createRouter(path: string): ServerAdapter
    start(port: number, callback?: () => void): void
    getNativeInstance(): any

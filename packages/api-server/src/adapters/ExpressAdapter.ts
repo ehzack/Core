@@ -1,5 +1,5 @@
 import express from 'express'
-import { ServerAdapter, ApiHandler, ApiRequest, ApiResponse, EndpointHandler, EndpointOptions } from '@quatrain/api'
+import { ServerAdapter, ApiHandler, ApiRequest, ApiResponse, EndpointHandler, EndpointOptions, ApiMiddleware } from '@quatrain/api'
 
 export class ExpressAdapter implements ServerAdapter {
    constructor(
@@ -28,7 +28,8 @@ export class ExpressAdapter implements ServerAdapter {
             const apiReq: ApiRequest = {
                body: req.body,
                params: req.params,
-               query: req.query
+               query: req.query,
+               headers: req.headers
             }
 
             const apiRes: ApiResponse = {
@@ -78,6 +79,49 @@ export class ExpressAdapter implements ServerAdapter {
 
    use(middleware: any): void {
       (this.appOrRouter as express.Router).use(middleware)
+   }
+
+   addMiddleware(middleware: ApiMiddleware): void {
+      const expressMiddleware = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+         const apiReq: ApiRequest = {
+            body: req.body,
+            params: req.params,
+            query: req.query,
+            headers: req.headers as Record<string, string | string[] | undefined>
+         }
+
+         const apiRes: ApiResponse = {
+            status: (code: number) => {
+               res.status(code)
+               return apiRes
+            },
+            json: (data: any) => {
+               res.json(data)
+            },
+            send: (data: string) => {
+               res.send(data)
+            },
+            setHeader: (name: string, value: string) => {
+               res.setHeader(name, value)
+            },
+            write: (data: string) => {
+               res.write(data)
+            },
+            end: () => {
+               res.end()
+            }
+         }
+
+         try {
+            const shouldContinue = await middleware(apiReq, apiRes)
+            if (shouldContinue) {
+               next()
+            }
+         } catch (err) {
+            next(err)
+         }
+      }
+      (this.appOrRouter as express.Router).use(expressMiddleware)
    }
 
    createRouter(path: string): ServerAdapter {

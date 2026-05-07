@@ -12,5 +12,8 @@ services:
       - PORT=4000
       - NODE_ENV=production
       - SERVE_FRONTEND=true
+      # Enable Basic Authentication for the Studio (uncomment to activate)
+      # - STUDIO_AUTH_USER=admin
+      # - STUDIO_AUTH_PASS=secret123
     command: sh -c "bun run src/scripts/seed-container.ts && bun run start"
     restart: unless-stopped

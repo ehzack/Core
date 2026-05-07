@@ -5,14 +5,40 @@ import {
    AuthenticationError,
    AuthParameters,
 } from '@quatrain/auth'
+import { ApiMiddleware, ApiRequest, ApiResponse } from '@quatrain/api'
 import { CreateRequest, UpdateRequest, getAuth } from 'firebase-admin/auth'
 import { getApps, initializeApp } from 'firebase-admin/app'
 import * as nativeFetch from 'node-fetch-native'
 
 export class FirebaseAuthAdapter extends AbstractAuthAdapter {
+   static factory(config: any): FirebaseAuthAdapter {
+      return new FirebaseAuthAdapter({ config })
+   }
+
+   public middleware(): ApiMiddleware {
+      return async (req: ApiRequest, res: ApiResponse): Promise<boolean> => {
+         const bearer = ((req.headers.authorization as string) || '').split(' ')[1] || ''
+         
+         if (bearer) {
+            try {
+               const user = await this.getAuthToken(bearer)
+               if (user) {
+                  return true // Authorized
+               }
+            } catch(e) {
+               Auth.error(`[FirebaseAuthAdapter] Middleware token verification failed: ${(e as Error).message}`)
+            }
+         }
+
+         res.setHeader('WWW-Authenticate', 'Bearer realm="Core API"')
+         res.status(401).send('Authentication required.')
+         return false
+      }
+   }
+
    constructor(params: AuthParameters = {}) {
       super(params)
-      if (getApps().length === 0) {
+      if (getApps().length === 0 && params.config) {
          initializeApp(params.config)
       }
    }

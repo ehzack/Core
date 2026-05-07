@@ -19,6 +19,7 @@
   },
   "author": "Quatrain Développement SAS <developers@quatrain.com>",
   "dependencies": {
+    "@quatrain/api": "workspace:*",
     "@quatrain/auth": "^1.2.1",
     "@quatrain/backend": "^1.2.6",
     "@supabase/supabase-js": "^2.87.3",

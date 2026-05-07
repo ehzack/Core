@@ -2,7 +2,7 @@
 import Provider from 'oidc-provider'
 
 export class AuthOIDC {
-   public static init(issuer: string, config?: any) {
+   public static factory(issuer: string, config?: any) {
       // Basic minimal configuration for PoC
       const configuration = {
          clients: [{
