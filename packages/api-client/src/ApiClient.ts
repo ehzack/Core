@@ -74,7 +74,7 @@ export class ApiClient implements RestApi {
       return `api-${endpoint}|${options ? JSON.stringify(options) : ''}`
    }
 
-   static invalidate(prefix: string): void {
+   static invalidate(_prefix: string): void {
       // Stub
    }
 
@@ -185,7 +185,7 @@ export class ApiClient implements RestApi {
       throw error
    }
 
-   protected async buildReturn(response: Response, config: any, params: QueryOptions): Promise<ApiPayload> {
+   protected async buildReturn(response: Response, config: any, _params: QueryOptions): Promise<ApiPayload> {
       const payload: ApiPayload = {
          status: response.status,
          data: [],
