@@ -21,8 +21,8 @@
   "author": "Quatrain Développement SAS <developers@quatrain.com>",
   "dependencies": {
     "@faker-js/faker": "^7.6.0",
-    "@quatrain/core": "^1.2.5",
-    "@quatrain/log": "^1.2.1"
+    "@quatrain/core": "workspace:*",
+    "@quatrain/log": "workspace:*"
   },
   "devDependencies": {
     "@quatrain/testing": "workspace:*",

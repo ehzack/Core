@@ -5,6 +5,15 @@
       "dependsOn": ["^build"],
       "outputs": ["dist/**", "build/**", ".next/**", "public/dist/**"]
     },
+    "@quatrain/core#build": {
+      "dependsOn": ["@quatrain/log#build"]
+    },
+    "@quatrain/backend#build": {
+      "dependsOn": ["@quatrain/core#build", "@quatrain/log#build"]
+    },
+    "@quatrain/testing#build": {
+      "dependsOn": ["@quatrain/core#build", "@quatrain/backend#build"]
+    },
     "lint": {
       "dependsOn": ["^build"]
     },
