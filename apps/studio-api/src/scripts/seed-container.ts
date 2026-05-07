@@ -14,8 +14,8 @@ async function seedContainer() {
    })
    Backend.addBackend(adapter, 'default', true)
 
-   const backendsCount = await StudioBackend.query().count()
-   if (backendsCount === 0) {
+   const backends = await StudioBackend.query().execute()
+   if (backends.length === 0) {
       Api.info('Pre-seeding StudioBackend (sqlite) and StudioStorage (local)...')
       
       const backend = await StudioBackend.factory()
