@@ -27,7 +27,7 @@ jobs:
 
       - name: Get version from package.json
         id: package-version
-        run: echo "VERSION=$(jq -r .version apps/studio-api/package.json)" >> $GITHUB_ENV
+        run: echo "VERSION=$(jq -r .version containers/studio-image/package.json)" >> $GITHUB_ENV
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -64,10 +64,10 @@ jobs:
           
       - name: Bump package version
         run: |
-          npm --no-git-tag-version --prefix apps/studio-api version patch
+          npm --no-git-tag-version --prefix containers/studio-image version patch
 
       - name: Commit version bump
         uses: stefanzweifel/git-auto-commit-action@v5 # NOSONAR
         with:
-          commit_message: "chore(studio): bump patch version [skip ci]"
-          file_pattern: "apps/studio-api/package.json"
+          commit_message: "chore(studio-image): bump patch version [skip ci]"
+          file_pattern: "containers/studio-image/package.json"
