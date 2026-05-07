@@ -2803,7 +2803,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mantine/core@npm:^7.11.1, @mantine/core@npm:^7.15.0":
+"@mantine/core@npm:^7.11.1, @mantine/core@npm:^7.15.0, @mantine/core@npm:^7.8.0":
   version: 7.17.8
   resolution: "@mantine/core@npm:7.17.8"
   dependencies:
@@ -2821,7 +2821,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mantine/hooks@npm:^7.11.1, @mantine/hooks@npm:^7.15.0":
+"@mantine/hooks@npm:^7.11.1, @mantine/hooks@npm:^7.15.0, @mantine/hooks@npm:^7.8.0":
   version: 7.17.8
   resolution: "@mantine/hooks@npm:7.17.8"
   peerDependencies:
@@ -3170,7 +3170,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@quatrain/api-client@workspace:*, @quatrain/api-client@workspace:^, @quatrain/api-client@workspace:packages/api-client":
+"@quatrain/api-client@workspace:*, @quatrain/api-client@workspace:packages/api-client":
   version: 0.0.0-use.local
   resolution: "@quatrain/api-client@workspace:packages/api-client"
   dependencies:
@@ -3196,7 +3196,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@quatrain/api-server-express@workspace:^, @quatrain/api-server-express@workspace:packages/api-server":
+"@quatrain/api-server-express@workspace:*, @quatrain/api-server-express@workspace:packages/api-server":
   version: 0.0.0-use.local
   resolution: "@quatrain/api-server-express@workspace:packages/api-server"
   dependencies:
@@ -3425,7 +3425,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@quatrain/backend-sqlite@workspace:*, @quatrain/backend-sqlite@workspace:^, @quatrain/backend-sqlite@workspace:packages/backend-sqlite":
+"@quatrain/backend-sqlite@workspace:*, @quatrain/backend-sqlite@workspace:packages/backend-sqlite":
   version: 0.0.0-use.local
   resolution: "@quatrain/backend-sqlite@workspace:packages/backend-sqlite"
   dependencies:
@@ -3447,7 +3447,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@quatrain/backend@npm:^1.2.5, @quatrain/backend@workspace:*, @quatrain/backend@workspace:^, @quatrain/backend@workspace:packages/backend":
+"@quatrain/backend@npm:^1.2.5, @quatrain/backend@workspace:*, @quatrain/backend@workspace:packages/backend":
   version: 0.0.0-use.local
   resolution: "@quatrain/backend@workspace:packages/backend"
   dependencies:
@@ -3631,7 +3631,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@quatrain/core@npm:^1.2.5, @quatrain/core@workspace:*, @quatrain/core@workspace:^, @quatrain/core@workspace:packages/core":
+"@quatrain/core@npm:^1.2.5, @quatrain/core@workspace:*, @quatrain/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@quatrain/core@workspace:packages/core"
   dependencies:
@@ -3904,12 +3904,12 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@quatrain/studio-api@workspace:apps/studio-api"
   dependencies:
-    "@quatrain/api-server-express": "workspace:^"
+    "@quatrain/api-server-express": "workspace:*"
     "@quatrain/app": "workspace:*"
-    "@quatrain/backend": "workspace:^"
-    "@quatrain/backend-sqlite": "workspace:^"
-    "@quatrain/core": "workspace:^"
-    "@quatrain/studio": "workspace:^"
+    "@quatrain/backend": "workspace:*"
+    "@quatrain/backend-sqlite": "workspace:*"
+    "@quatrain/core": "workspace:*"
+    "@quatrain/studio": "workspace:*"
     "@types/cors": "npm:^2.8.17"
     "@types/express": "npm:^4.17.21"
     "@types/node": "npm:^22.10.1"
@@ -3940,11 +3940,14 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@quatrain/studio-web@workspace:apps/studio-web"
   dependencies:
-    "@quatrain/api-client": "workspace:^"
-    "@quatrain/studio": "workspace:^"
+    "@mantine/core": "npm:^7.8.0"
+    "@mantine/hooks": "npm:^7.8.0"
+    "@quatrain/api-client": "workspace:*"
+    "@quatrain/studio": "workspace:*"
     "@quatrain/ui": "workspace:*"
     "@quatrain/ui-form-react": "workspace:*"
     "@quatrain/ui-list-react": "workspace:*"
+    "@tabler/icons-react": "npm:^3.2.0"
     "@types/node": "npm:^22.10.1"
     "@types/react": "npm:^18.3.3"
     "@types/react-dom": "npm:^18.3.0"
@@ -3958,7 +3961,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@quatrain/studio@npm:^1.1.5, @quatrain/studio@workspace:^, @quatrain/studio@workspace:packages/studio":
+"@quatrain/studio@npm:^1.1.5, @quatrain/studio@workspace:*, @quatrain/studio@workspace:packages/studio":
   version: 0.0.0-use.local
   resolution: "@quatrain/studio@workspace:packages/studio"
   dependencies:
@@ -5527,10 +5530,28 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tabler/icons-react@npm:^3.2.0":
+  version: 3.43.0
+  resolution: "@tabler/icons-react@npm:3.43.0"
+  dependencies:
+    "@tabler/icons": "npm:3.43.0"
+  peerDependencies:
+    react: ">= 16"
+  checksum: 10c0/40c64016456e4584a7f0a9be28dba0c5340faec93d6c2fe23b9073d0612082c47a1fc58c266d5d82bff6aca2b827e73713978ef4de43c5f1a8504397d6293fc3
+  languageName: node
+  linkType: hard
+
 "@tabler/icons@npm:3.41.1":
   version: 3.41.1
   resolution: "@tabler/icons@npm:3.41.1"
   checksum: 10c0/b1238157fe6e57c0202f1f7153621ad937a6f73ff7c0f0af5a71fcbdace18a3281cddd6632229029c3a3df7c530ae8bcefa75c18e35db4b65e7f884282762cf1
+  languageName: node
+  linkType: hard
+
+"@tabler/icons@npm:3.43.0":
+  version: 3.43.0
+  resolution: "@tabler/icons@npm:3.43.0"
+  checksum: 10c0/9e0df5639063596a643ab95dc9bab8314d1612d4ca651dd42b28a2113b991ce1a39e13b78788f0ff6482c8ed0a78db3bcb86bd6c03790ed4103d72b73391b6ad
   languageName: node
   linkType: hard
 
