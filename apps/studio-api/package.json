@@ -12,12 +12,12 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@quatrain/api-server-express": "workspace:^",
+    "@quatrain/api-server-express": "workspace:*",
     "@quatrain/app": "workspace:*",
-    "@quatrain/backend": "workspace:^",
-    "@quatrain/backend-sqlite": "workspace:^",
-    "@quatrain/core": "workspace:^",
-    "@quatrain/studio": "workspace:^",
+    "@quatrain/backend": "workspace:*",
+    "@quatrain/backend-sqlite": "workspace:*",
+    "@quatrain/core": "workspace:*",
+    "@quatrain/studio": "workspace:*",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
     "express": "^4.19.2"

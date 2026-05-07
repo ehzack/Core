@@ -50,6 +50,12 @@ jobs:
             fs.writeFileSync(targetPkgPath, JSON.stringify(targetPkg, null, 2));
           '
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Log in to the Container registry
         uses: docker/login-action@v3 # NOSONAR
         with:
@@ -73,6 +79,7 @@ jobs:
         with:
           context: containers/api-gateway
           file: containers/api-gateway/ContainerFile
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
       - name: Bump package version
