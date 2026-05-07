@@ -69,6 +69,11 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           
+      - name: Sync with remote to avoid push conflicts
+        run: |
+          git config pull.rebase true
+          git pull origin main
+
       - name: Bump package version
         run: |
           npm --no-git-tag-version --prefix containers/studio-image version patch
