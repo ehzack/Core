@@ -23,7 +23,7 @@
     "@quatrain/core": "^1.2.5"
   },
   "dependencies": {
-    "@quatrain/backend": "^1.2.5",
+    "@quatrain/backend": "^1.2.6",
     "@quatrain/core": "^1.2.5",
     "firebase-admin": "^13.4.0"
   },
