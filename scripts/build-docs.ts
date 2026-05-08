@@ -69,6 +69,15 @@ function generateApiReference(): void {
     }
     fs.mkdirSync(API_REF_DIR, { recursive: true })
 
+    // Generate a temporary tsconfig.json that includes all entry points.
+    // The root tsconfig.json has "files": [], which causes TypeDoc to reject entry points.
+    const tempTsConfigPath = path.join(ROOT_DIR, 'tsconfig.typedoc.json')
+    const tempTsConfig = {
+        extends: './tsconfig.json',
+        include: ['packages/*/src/**/*']
+    }
+    fs.writeFileSync(tempTsConfigPath, JSON.stringify(tempTsConfig, null, 2))
+
     // We use yarn to run typedoc so it executes within the Plug'n'Play environment.
     // This allows TypeDoc to resolve workspace dependencies like @tsconfig/recommended.
     const result = spawnSync('yarn', [
@@ -76,13 +85,18 @@ function generateApiReference(): void {
         '--plugin', 'typedoc-plugin-markdown',
         '--out', API_REF_DIR,
         '--entryPointStrategy', 'resolve',
-        '--tsconfig', 'tsconfig.json',
+        '--tsconfig', 'tsconfig.typedoc.json',
         'packages/*/src/index.ts'
     ], {
         cwd: ROOT_DIR,
         shell: false,
         stdio: 'inherit'
     })
+
+    // Clean up temporary tsconfig
+    if (fs.existsSync(tempTsConfigPath)) {
+        fs.unlinkSync(tempTsConfigPath)
+    }
 
     if (result.error) {
         console.error('[ERROR] Failed to start TypeDoc process:', result.error)
