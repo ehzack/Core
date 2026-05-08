@@ -74,7 +74,18 @@ function generateApiReference(): void {
     const tempTsConfigPath = path.join(ROOT_DIR, 'tsconfig.typedoc.json')
     const tempTsConfig = {
         extends: './tsconfig.json',
-        include: ['packages/*/src/**/*']
+        include: ['packages/*/src/**/*'],
+        exclude: [
+            "node_modules",
+            "**/dist",
+            "**/lib",
+            "**/*.test.ts",
+            "**/*.spec.ts",
+            "**/__tests__/**/*",
+            "**/__mocks__/**/*",
+            "**/fixtures/**/*",
+            "**/*.fixture.ts"
+        ]
     }
     fs.writeFileSync(tempTsConfigPath, JSON.stringify(tempTsConfig, null, 2))
 
@@ -86,6 +97,11 @@ function generateApiReference(): void {
         '--out', API_REF_DIR,
         '--entryPointStrategy', 'resolve',
         '--tsconfig', 'tsconfig.typedoc.json',
+        '--exclude', '**/*.test.ts',
+        '--exclude', '**/*.spec.ts',
+        '--exclude', '**/__tests__/**/*',
+        '--exclude', '**/__mocks__/**/*',
+        '--exclude', '**/fixtures/**/*',
         'packages/*/src/index.ts'
     ], {
         cwd: ROOT_DIR,
