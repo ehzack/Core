@@ -27,6 +27,7 @@ RUN yarn ts-node scripts/build-docs.ts
 
 # Build the static Next.js documentation
 WORKDIR /app/docs
+RUN touch yarn.lock
 RUN yarn install
 RUN yarn build
 
