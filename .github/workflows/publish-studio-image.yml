@@ -94,6 +94,7 @@ jobs:
           
       - name: Sync with remote to avoid push conflicts
         run: |
+          git restore containers/studio-image/package.json
           git config pull.rebase true
           git pull origin main
 
