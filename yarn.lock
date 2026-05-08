@@ -7271,6 +7271,7 @@ __metadata:
     ts-node: "npm:^10.9.1"
     turbo: "npm:^2.7.2"
     typedoc: "npm:latest"
+    typedoc-plugin-markdown: "npm:^4.2.9"
     typescript: "npm:^5.2.2"
   languageName: unknown
   linkType: soft
@@ -13016,6 +13017,15 @@ __metadata:
     media-typer: "npm:0.3.0"
     mime-types: "npm:~2.1.24"
   checksum: 10c0/a23daeb538591b7efbd61ecf06b6feb2501b683ffdc9a19c74ef5baba362b4347e42f1b4ed81f5882a8c96a3bfff7f93ce3ffaf0cbbc879b532b04c97a55db9d
+  languageName: node
+  linkType: hard
+
+"typedoc-plugin-markdown@npm:^4.2.9":
+  version: 4.11.0
+  resolution: "typedoc-plugin-markdown@npm:4.11.0"
+  peerDependencies:
+    typedoc: 0.28.x
+  checksum: 10c0/03374acfd0b5bd5af13198c043ffc31324b097647f5ffd92959647a9a277f0ece665331ff6a650ddaefdf9ff33928e138c5483e7cddbac830eb77e69b6067803
   languageName: node
   linkType: hard
 
