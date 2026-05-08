@@ -29,6 +29,8 @@ RUN yarn ts-node scripts/build-docs.ts
 WORKDIR /app/docs
 RUN touch yarn.lock
 RUN yarn install
+# Increase Node.js memory limit to 8GB to prevent OOM during Nextra MDX compilation
+ENV NODE_OPTIONS="--max-old-space-size=8192"
 RUN yarn build
 
 # Stage 2: Runner
