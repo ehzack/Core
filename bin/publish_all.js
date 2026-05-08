@@ -83,20 +83,22 @@ async function publishAll() {
     // under nodeLinker: node-modules, causing TS2307 errors on incremental builds.
     console.log('[PREPARE] Cleaning stale tsconfig.tsbuildinfo files...');
     try {
-        runSync('find', [packagesDir, '-name', 'tsconfig.tsbuildinfo', '-delete'], { stdio: 'inherit' });
+        for (const dir of workspacesDirs) {
+            runSync('find', [dir, '-name', 'tsconfig.tsbuildinfo', '-delete'], { stdio: 'inherit' });
+        }
     } catch (e) {
         // Non-fatal: proceed even if find/delete fails
     }
 
-    const packages = fs.readdirSync(packagesDir);
+    const packages = getAllPkgs().map(p => p.name);
     const computedHashes = {};
     const previousDataMap = {};
     let anyPackageChanged = false;
     
     console.log('[PREPARE] Computing stable hashes prior to build...');
     for (const pkg of packages) {
-        const pkgDir = path.join(packagesDir, pkg);
-        if (!fs.statSync(pkgDir).isDirectory()) continue;
+        const pkgDir = getPkgDir(pkg);
+        if (!pkgDir || !fs.statSync(pkgDir).isDirectory()) continue;
         
         const pkgJsonPath = path.join(pkgDir, 'package.json');
         if (!fs.existsSync(pkgJsonPath)) continue;
@@ -124,7 +126,7 @@ async function publishAll() {
     } else {
         console.log('[PREPARE] Building all workspaces in explicit dependency order...');
     for (const pkg of BUILD_ORDER) {
-        const pkgDir = path.join(packagesDir, pkg);
+        const pkgDir = getPkgDir(pkg);
         if (!fs.existsSync(pkgDir)) {
             console.log(`[BUILD] Skipping unknown package '${pkg}'`);
             continue;
@@ -133,12 +135,12 @@ async function publishAll() {
         runSync('yarn', ['build'], { cwd: pkgDir, stdio: 'inherit' });
     }
     // Build anything not listed in BUILD_ORDER last (no guaranteed order)
-    const allPkgs = fs.readdirSync(packagesDir).filter(p =>
-        fs.statSync(path.join(packagesDir, p)).isDirectory() &&
+    const allPkgs = getAllPkgs().map(p => p.name).filter(p =>
+        fs.statSync(getPkgDir(p)).isDirectory() &&
         !BUILD_ORDER.includes(p)
     );
         for (const pkg of allPkgs) {
-            const pkgDir = path.join(packagesDir, pkg);
+            const pkgDir = getPkgDir(pkg);
             if (!fs.existsSync(path.join(pkgDir, 'package.json'))) continue;
             console.log(`[BUILD] Building ${pkg} (unlisted)...`);
             runSync('yarn', ['build'], { cwd: pkgDir, stdio: 'inherit' });
@@ -152,8 +154,8 @@ async function publishAll() {
     }
 
     for (const pkg of packages) {
-        const pkgDir = path.join(packagesDir, pkg);
-        if (!fs.statSync(pkgDir).isDirectory()) continue;
+        const pkgDir = getPkgDir(pkg);
+        if (!pkgDir || !fs.statSync(pkgDir).isDirectory()) continue;
         
         const pkgJsonPath = path.join(pkgDir, 'package.json');
         if (!fs.existsSync(pkgJsonPath)) continue;
@@ -183,7 +185,7 @@ async function publishAll() {
                             if (ver.startsWith('workspace:')) {
                                 const cleanName = dep.replace('@quatrain/', '');
                                 try {
-                                    const otherPkgJson = JSON.parse(fs.readFileSync(path.join(packagesDir, cleanName, 'package.json'), 'utf8'));
+                                    const otherPkgJson = JSON.parse(fs.readFileSync(path.join(getPkgDir(cleanName) || "", "package.json"), 'utf8'));
                                     updatedPkgJson[deptype][dep] = `^${otherPkgJson.version}`;
                                 } catch(e) {
                                     console.warn(`[WARNING] Could not resolve workspace version for ${dep}`);
@@ -270,8 +272,8 @@ async function publishAll() {
     if (changed) {
         console.log('[POST-PUBLISH] Recomputing stable hashes to account for automatic workspace version bumps...');
         for (const pkg of packages) {
-            const pkgDir = path.join(packagesDir, pkg);
-            if (!fs.statSync(pkgDir).isDirectory()) continue;
+            const pkgDir = getPkgDir(pkg);
+        if (!pkgDir || !fs.statSync(pkgDir).isDirectory()) continue;
             const pkgJsonPath = path.join(pkgDir, 'package.json');
             if (!fs.existsSync(pkgJsonPath)) continue;
             
