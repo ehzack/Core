@@ -6,19 +6,24 @@
       "outputs": ["dist/**", "build/**", ".next/**", "public/dist/**"]
     },
     "@quatrain/core#build": {
-      "dependsOn": ["@quatrain/log#build"]
+      "dependsOn": ["@quatrain/log#build"],
+      "outputs": ["dist/**"]
     },
     "@quatrain/backend#build": {
-      "dependsOn": ["@quatrain/core#build", "@quatrain/log#build"]
+      "dependsOn": ["@quatrain/core#build", "@quatrain/log#build"],
+      "outputs": ["dist/**"]
     },
     "@quatrain/testing#build": {
-      "dependsOn": ["@quatrain/core#build", "@quatrain/backend#build"]
+      "dependsOn": ["@quatrain/core#build", "@quatrain/backend#build"],
+      "outputs": ["dist/**"]
     },
     "@quatrain/api-server#build": {
-      "dependsOn": ["@quatrain/core#build", "@quatrain/backend#build", "@quatrain/api#build"]
+      "dependsOn": ["@quatrain/core#build", "@quatrain/backend#build", "@quatrain/api#build"],
+      "outputs": ["dist/**"]
     },
     "@quatrain/api-server-express#build": {
-      "dependsOn": ["@quatrain/api-server#build", "@quatrain/api#build"]
+      "dependsOn": ["@quatrain/api-server#build", "@quatrain/api#build"],
+      "outputs": ["dist/**"]
     },
     "lint": {
       "dependsOn": ["^build"]
