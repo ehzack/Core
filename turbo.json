@@ -14,6 +14,12 @@
     "@quatrain/testing#build": {
       "dependsOn": ["@quatrain/core#build", "@quatrain/backend#build"]
     },
+    "@quatrain/api-server#build": {
+      "dependsOn": ["@quatrain/core#build", "@quatrain/backend#build", "@quatrain/api#build"]
+    },
+    "@quatrain/api-server-express#build": {
+      "dependsOn": ["@quatrain/api-server#build", "@quatrain/api#build"]
+    },
     "lint": {
       "dependsOn": ["^build"]
     },
