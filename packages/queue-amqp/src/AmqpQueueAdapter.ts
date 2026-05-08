@@ -2,7 +2,7 @@ import { AbstractQueueAdapter, Queue } from '@quatrain/queue'
 import amqplib, { ChannelModel, ConsumeMessage, Message } from 'amqplib'
 
 export class AmqpQueueAdapter extends AbstractQueueAdapter {
-   protected _client: ChannelModel | undefined
+   declare protected _client: ChannelModel | undefined
    protected _logger: any
 
    constructor(params: any) {

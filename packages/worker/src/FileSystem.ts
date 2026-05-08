@@ -90,7 +90,7 @@ export class FileSystem {
                   'Content-Type': meta.contentType || mime,
                   'Content-length': String(size),
                },
-            })
+            } as any)
                .then(() => resolve({ ...meta, size, uploadUrl: undefined }))
                .catch((err) => {
                   Worker.error(
@@ -134,7 +134,7 @@ export class FileSystem {
                   'Content-Type': meta.contentType || mime,
                   'Content-length': String(size),
                },
-            })
+            } as any)
                .then(() => resolve({ ...meta, size, uploadUrl: undefined }))
                .catch((err) => {
                   Worker.error(
