@@ -1,6 +1,7 @@
 name: Publish Studio-Image Container
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
