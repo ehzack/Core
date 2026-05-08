@@ -24,6 +24,8 @@ function getPkgDir(pkg) {
     return null;
 }
 
+const pkgNameMap = {};
+
 function getAllPkgs() {
     const all = [];
     for (const dir of workspacesDirs) {
@@ -32,7 +34,12 @@ function getAllPkgs() {
         for (const item of items) {
             const p = path.join(dir, item);
             if (fs.statSync(p).isDirectory()) {
-                all.push({ name: item, dir: p });
+                const pkgJsonPath = path.join(p, "package.json");
+                if (fs.existsSync(pkgJsonPath)) {
+                    const pkgJson = JSON.parse(fs.readFileSync(pkgJsonPath, "utf8"));
+                    pkgNameMap[pkgJson.name] = p;
+                    all.push({ name: item, dir: p });
+                }
             }
         }
     }
@@ -142,10 +149,11 @@ async function publishAll() {
                     if (updatedPkgJson[deptype]) {
                         for (const [dep, ver] of Object.entries(updatedPkgJson[deptype])) {
                             if (ver.startsWith('workspace:')) {
-                                const cleanName = dep.replace('@quatrain/', '');
-                                try {
-                                    const otherPkgJson = JSON.parse(fs.readFileSync(path.join(getPkgDir(cleanName) || "", "package.json"), 'utf8'));
-                                    updatedPkgJson[deptype][dep] = `^${otherPkgJson.version}`;
+                                 try {
+                                     const targetDir = pkgNameMap[dep];
+                                     if (!targetDir) throw new Error("Package not found in workspaces");
+                                     const otherPkgJson = JSON.parse(fs.readFileSync(path.join(targetDir, "package.json"), 'utf8'));
+                                     updatedPkgJson[deptype][dep] = `^${otherPkgJson.version}`;
                                 } catch(e) {
                                     console.warn(`[WARNING] Could not resolve workspace version for ${dep}`);
                                 }

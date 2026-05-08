@@ -134,6 +134,7 @@ ${layoutCode}         {/* --- Fin du layout --- */}
             "@quatrain/backend": targetNpmTag,
             "@quatrain/backend-sqlite": targetNpmTag,
             "@quatrain/api": targetNpmTag,
+            "@quatrain/api-server": targetNpmTag,
             "@quatrain/api-server-express": targetNpmTag,
             "@quatrain/backend-migrations": targetNpmTag
          } as Record<string, string>
@@ -228,7 +229,7 @@ export class ${className} extends PersistedBaseObject {
 
    private static generateApiEndpoints(config: any, targetDir: string, models: string[]): void {
       for (const className of models) {
-         const apiCode = `import { CrudEndpoint, ValuesEndpoint, ListEndpoint } from '@quatrain/api-server-express'
+         const apiCode = `import { CrudEndpoint, ValuesEndpoint, ListEndpoint } from '@quatrain/api-server'
 import { ServerAdapter, EndpointOptions } from '@quatrain/api'
 import { ${className} } from '../models/${className}'
 

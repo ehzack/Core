@@ -1,25 +1,18 @@
-# HOWTO: Using @quatrain/api-server-express
+# HOWTO: Using @quatrain/api-server
 
-The `@quatrain/api-server-express` package allows you to expose your Quatrain models over HTTP instantly using an `ExpressAdapter`.
+The `@quatrain/api-server` package provides agnostic HTTP endpoints (like `CrudEndpoint`, `ListEndpoint`, `ValuesEndpoint`) that can be used with any web server adapter (such as `@quatrain/api-server-express`).
 
-## 1. Setting up the Express Adapter
-
-Initialize the `ExpressAdapter` and pass any standard Express middlewares (like CORS or JSON parsers).
-
-```typescript
-import { ExpressAdapter } from '@quatrain/api-server-express';
-
-const server = new ExpressAdapter();
-```
-
-## 2. Registering Endpoints
+## 1. Registering Endpoints
 
 You can bind full CRUD endpoints to a specific model.
 
 ```typescript
-import { CrudEndpoint, ListEndpoint } from '@quatrain/api-server-express';
+import { CrudEndpoint, ListEndpoint } from '@quatrain/api-server';
+// You must use an adapter, like ExpressAdapter from @quatrain/api-server-express
+import { ExpressAdapter } from '@quatrain/api-server-express';
 import { StudioModel } from '@quatrain/studio';
-import { Api } from '@quatrain/api';
+
+const server = new ExpressAdapter();
 
 // Create a GET /api/models endpoint to list models
 server.addEndpoint(
@@ -33,13 +26,4 @@ server.addEndpoint(
    CrudEndpoint(StudioModel), 
    { methods: ['CREATE', 'READ', 'UPDATE', 'DELETE'] }
 );
-```
-
-## 3. Starting the Server
-
-```typescript
-const PORT = 4000;
-server.start(PORT, () => {
-   Api.info(`Server listening on port ${PORT}`);
-});
 ```

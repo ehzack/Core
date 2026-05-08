@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@quatrain/api": "workspace:*",
+    "@quatrain/api-server": "workspace:*",
     "@quatrain/api-server-express": "workspace:*",
     "@quatrain/app": "workspace:*",
     "@quatrain/auth-basic": "workspace:*",

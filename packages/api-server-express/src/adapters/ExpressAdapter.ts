@@ -29,7 +29,7 @@ export class ExpressAdapter implements ServerAdapter {
                body: req.body,
                params: req.params,
                query: req.query,
-               headers: req.headers
+               headers: req.headers as Record<string, string | string[] | undefined>
             }
 
             const apiRes: ApiResponse = {

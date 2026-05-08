@@ -1,7 +1,7 @@
 {
-  "name": "@quatrain/api-server",
+  "name": "@quatrain/api-server-express",
   "version": "1.1.7",
-  "description": "API Server Utilities for Quatrain",
+  "description": "Express Adapter for Quatrain API Server",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bun": "src/index.ts",
@@ -15,12 +15,13 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Quatrain/Core.git",
-    "directory": "packages/api-server"
+    "directory": "packages/api-server-express"
   },
   "author": "Quatrain Développement SAS <developers@quatrain.com>",
   "license": "AGPL-3.0-only",
   "devDependencies": {
     "@tsconfig/recommended": "^1.0.1",
+    "@types/express": "^4.17.21",
     "@types/jest": "^29.5.12",
     "@types/node": "^22.10.1",
     "jest": "^29.7.0",
@@ -29,8 +30,8 @@
   },
   "dependencies": {
     "@quatrain/api": "workspace:*",
-    "@quatrain/backend": "workspace:*",
-    "@quatrain/core": "workspace:*"
+    "@quatrain/api-server": "workspace:*",
+    "express": "^4.19.2"
   },
   "scripts": {
     "test-ci": "jest --runInBand",
