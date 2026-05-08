@@ -98,7 +98,12 @@ async function publishAll() {
         console.log('[BUILD] No package changes detected and build artifacts present. Skipping build phase completely.');
     } else {
         console.log('[PREPARE] Building all workspaces using Turborepo...');
-        runSync('npx', ['turbo', 'run', 'build'], { cwd: path.join(__dirname, '..'), stdio: 'inherit' });
+        const filters = [];
+        for (const dir of workspacesDirs) {
+            const relDir = path.relative(path.join(__dirname, '..'), dir);
+            filters.push('--filter=./' + relDir + '/*');
+        }
+        runSync('npx', ['turbo', 'run', 'build', ...filters], { cwd: path.join(__dirname, '..'), stdio: 'inherit' });
     }
 
     const isBuildOnly = process.argv.includes('--build-only');
