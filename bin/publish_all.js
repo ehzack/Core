@@ -11,7 +11,33 @@ function runSync(command, args, options = {}) {
     }
     return result.stdout ? result.stdout.toString() : '';
 }
-const packagesDir = path.join(__dirname, '../packages');
+const workspacesDirs = [
+    path.join(__dirname, '../packages'),
+    path.join(__dirname, '../apps')
+];
+
+function getPkgDir(pkg) {
+    for (const dir of workspacesDirs) {
+        const p = path.join(dir, pkg);
+        if (fs.existsSync(p)) return p;
+    }
+    return null;
+}
+
+function getAllPkgs() {
+    const all = [];
+    for (const dir of workspacesDirs) {
+        if (!fs.existsSync(dir)) continue;
+        const items = fs.readdirSync(dir);
+        for (const item of items) {
+            const p = path.join(dir, item);
+            if (fs.statSync(p).isDirectory()) {
+                all.push({ name: item, dir: p });
+            }
+        }
+    }
+    return all;
+}
 const registryFile = path.join(__dirname, '../.version_hashes.json');
 const registry = JSON.parse(fs.readFileSync(registryFile, 'utf8'));
 
@@ -127,7 +153,7 @@ async function publishAll() {
         console.log('[PREPARE] Building all workspaces in explicit dependency order...');
     for (const pkg of BUILD_ORDER) {
         const pkgDir = getPkgDir(pkg);
-        if (!fs.existsSync(pkgDir)) {
+        if (!pkgDir || !fs.existsSync(pkgDir)) {
             console.log(`[BUILD] Skipping unknown package '${pkg}'`);
             continue;
         }
@@ -135,13 +161,10 @@ async function publishAll() {
         runSync('yarn', ['build'], { cwd: pkgDir, stdio: 'inherit' });
     }
     // Build anything not listed in BUILD_ORDER last (no guaranteed order)
-    const allPkgs = getAllPkgs().map(p => p.name).filter(p =>
-        fs.statSync(getPkgDir(p)).isDirectory() &&
-        !BUILD_ORDER.includes(p)
-    );
+    const allPkgs = getAllPkgs().map(p => p.name).filter(p => !BUILD_ORDER.includes(p));
         for (const pkg of allPkgs) {
             const pkgDir = getPkgDir(pkg);
-            if (!fs.existsSync(path.join(pkgDir, 'package.json'))) continue;
+            if (!pkgDir || !fs.existsSync(path.join(pkgDir, 'package.json'))) continue;
             console.log(`[BUILD] Building ${pkg} (unlisted)...`);
             runSync('yarn', ['build'], { cwd: pkgDir, stdio: 'inherit' });
         }
@@ -271,9 +294,8 @@ async function publishAll() {
 
     if (changed) {
         console.log('[POST-PUBLISH] Recomputing stable hashes to account for automatic workspace version bumps...');
-        for (const pkg of packages) {
-            const pkgDir = getPkgDir(pkg);
-        if (!pkgDir || !fs.statSync(pkgDir).isDirectory()) continue;
+        for (const pkgObj of getAllPkgs()) {
+            const pkgDir = pkgObj.dir;
             const pkgJsonPath = path.join(pkgDir, 'package.json');
             if (!fs.existsSync(pkgJsonPath)) continue;
             

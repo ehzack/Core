@@ -162,3 +162,29 @@ These skills define the expected workflow for modifying packages, managing depen
 ### F. Package Documentation (README & HOWTO)
 - **CRITICAL:** Every time a new package is created in the monorepo, it **MUST** include a comprehensive `README.md` file at its root.
 - The README must clearly explain the purpose of the package, provide basic usage examples (HOWTO), and list any important technical details or conventions. This is mandatory for maintainability and community contributions.
+
+---
+
+## 3. Infrastructure & CI/CD Rigor
+
+When writing or modifying build scripts, Dockerfiles, or GitHub Actions workflows, absolute rigor is mandatory. A modification must be holistically verified before declaring success.
+
+### A. Holistic Variable & Dependency Validation
+- **CRITICAL:** When modifying global scripts (e.g., `publish_all.js`, `build.js`), you MUST thoroughly test the script using `--build-only`, `--dry-run`, or by executing it locally in isolation. 
+- You must carefully verify that NO undefined variables, obsolete paths, or scoping issues remain. If you rename a variable (like `packagesDir` to `workspacesDirs`), you must trace and replace EVERY instance of that variable across the entire script. Do not rely on blind search-and-replace.
+
+### B. Workspace Context Awareness in Docker
+- **CRITICAL:** When modifying `ContainerFile` or `Dockerfile`, you MUST explicitly determine the Docker Build Context expected by the CI pipeline (`context: .` vs `context: containers/my-app`). 
+- Commands like `COPY src ./src` or `COPY package.json ./` will fatally fail if the context is misunderstood. You must cross-reference Dockerfiles with their corresponding `.github/workflows/*.yml` to ensure paths match perfectly.
+
+### C. Registry Resolution & Workspaces
+- **CRITICAL:** Remember that standard package managers (`npm`, `bun install`, `yarn`) cannot resolve `"workspace:*"` identifiers natively without the monorepo root context. 
+- If a container is built in isolation (without copying the entire monorepo), its GitHub Action MUST contain a pre-build step to rewrite `package.json` dependencies from `"workspace:*"` to fixed registry versions (e.g., via `npm view`).
+- You must verify that the packages required by the isolated container are actually published to the registry. If a container relies on private apps (e.g., `apps/studio-api`), those apps must be integrated into the publishing pipeline before isolated builds can succeed.
+
+### D. Testing & Dry-Runs
+- You must minimize CI trial-and-error. 
+- Before committing infrastructure changes, emulate the CI locally where possible (e.g., dry-running publish scripts, verifying path resolutions, checking `tsconfig` rules).
+
+### E. Defensive Programming in CI Scripts
+- Shell scripts and Node.js build scripts must be highly defensive. Check for the existence of directories before calling `readdirSync`. Catch exceptions when manipulating file systems (e.g., `unlink` permissions errors) and provide clear debug output.
