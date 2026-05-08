@@ -8,11 +8,17 @@ WORKDIR /app
 # Copy the entire monorepo
 COPY . .
 
+# Install build dependencies for native modules (sqlite3)
+RUN apk add --no-cache python3 make g++
+
 # Install dependencies
 RUN yarn install
 
 # Build ONLY what is needed for the studio image (this skips api-gateway entirely)
 RUN npx turbo run build --filter=@quatrain/studio-image...
+
+# Install bun in builder and rebuild native bindings for Bun's ABI
+RUN npm install -g bun && bun pm rebuild
 
 # Final image
 FROM oven/bun:alpine
@@ -24,8 +30,10 @@ COPY --from=builder /app /app
 
 # Set environment
 ENV PORT=4000
+ENV STUDIO_DATA_DIR=/app/data
+ENV STUDIO_STORAGE_DIR=/app/storage
 EXPOSE 4000
 
 # Start Studio API (which now also serves Studio Web)
-WORKDIR /app/apps/studio-api
-CMD ["bun", "run", "start"]
+WORKDIR /app/containers/studio-image
+CMD ["bun", "run", "src/index.ts"]

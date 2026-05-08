@@ -5,8 +5,9 @@ import { StudioBackend, StudioStorage } from '@quatrain/studio'
 import { Api } from '@quatrain/api'
 import { HistoryMiddleware } from '../middlewares/HistoryMiddleware'
 
-async function seedContainer() {
-   const sqlitePath = path.resolve(process.cwd(), 'data/quatrain-studio.sqlite')
+export async function seedContainer() {
+   const dataDir = process.env.STUDIO_DATA_DIR || path.resolve(process.cwd(), 'data')
+   const sqlitePath = path.join(dataDir, 'quatrain-studio.sqlite')
    const adapter = new SQLiteAdapter({ 
       config: { database: sqlitePath },
       middlewares: [new InjectMetaMiddleware(), new HistoryMiddleware()],
@@ -21,13 +22,15 @@ async function seedContainer() {
       const backend = await StudioBackend.factory()
       backend.set('name', 'Local SQLite')
       backend.set('engine', 'sqlite')
-      backend.set('filePath', 'data/quatrain-client.sqlite')
+      backend.set('filePath', path.join(dataDir, 'quatrain-client.sqlite'))
       backend.set('isDefault', true)
       await backend.save()
 
+      const storageDir = process.env.STUDIO_STORAGE_DIR || path.resolve(process.cwd(), 'data/storage')
       const storage = await StudioStorage.factory()
       storage.set('name', 'Local Storage')
       storage.set('provider', 'local')
+      storage.set('options', { basePath: storageDir })
       storage.set('isDefault', true)
       await storage.save()
       
@@ -35,11 +38,4 @@ async function seedContainer() {
    } else {
       Api.info('StudioBackend already exists, skipping seed.')
    }
-   
-   process.exit(0)
 }
-
-seedContainer().catch(err => {
-   console.error('Seeding failed:', err)
-   process.exit(1)
-})

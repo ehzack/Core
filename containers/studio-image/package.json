@@ -10,6 +10,10 @@
   },
   "dependencies": {
     "@quatrain/studio-api": "workspace:*",
-    "@quatrain/studio-web": "workspace:*"
+    "@quatrain/studio-web": "workspace:*",
+    "@quatrain/studio": "workspace:*",
+    "@quatrain/api": "workspace:*",
+    "@quatrain/storage": "workspace:*",
+    "@quatrain/storage-local": "workspace:*"
   }
 }

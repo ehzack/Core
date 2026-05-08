@@ -11,10 +11,11 @@ import { AppInfra } from '@quatrain/app'
 import { HistoryMiddleware } from './middlewares/HistoryMiddleware'
 import { AuthBasic } from '@quatrain/auth-basic'
 
-// Initialize the backend with a persistent SQLite file for the Studio state
-const sqlitePath = path.resolve(process.cwd(), 'data/quatrain-studio.sqlite')
-// Lancer les migrations SQLite (doit être fait dans une fonction async auto-exécutée)
-;(async () => {
+export { seedContainer } from './scripts/seed-container'
+
+const dataDir = process.env.STUDIO_DATA_DIR || path.resolve(process.cwd(), 'data')
+const sqlitePath = path.join(dataDir, 'quatrain-studio.sqlite')
+export async function startStudioApi() {
    try {
       const adapter = new SQLiteAdapter({ 
          config: { database: sqlitePath },
@@ -535,4 +536,4 @@ const sqlitePath = path.resolve(process.cwd(), 'data/quatrain-studio.sqlite')
       Api.error(`Échec du démarrage de l'API : ${error}`)
       process.exit(1)
    }
-})()
+}

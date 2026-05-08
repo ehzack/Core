@@ -5,9 +5,9 @@ services:
       - "4000:4000"
     volumes:
       # Persist SQLite databases (studio state + client data)
-      - ./data:/app/apps/studio-api/data
+      - ./data:/app/data
       # Persist Local Storage files
-      - ./storage:/app/apps/studio-api/storage
+      - ./storage:/app/storage
     environment:
       - PORT=4000
       - NODE_ENV=production
@@ -15,5 +15,5 @@ services:
       # Enable Basic Authentication for the Studio (uncomment to activate)
       # - STUDIO_AUTH_USER=admin
       # - STUDIO_AUTH_PASS=secret123
-    command: sh -c "bun run src/scripts/seed-container.ts && bun run start"
+    command: sh -c "bun run src/index.ts"
     restart: unless-stopped
