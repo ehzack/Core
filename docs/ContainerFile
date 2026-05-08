@@ -16,8 +16,8 @@ COPY . .
 RUN corepack enable && yarn install --immutable
 
 # Run the aggregation script (generates API ref and copies Markdown files)
-# We use tsx to execute the TypeScript file directly
-RUN npx tsx scripts/build-docs.ts
+# We use ts-node (which is in the root package.json) to execute the TypeScript file directly
+RUN yarn ts-node scripts/build-docs.ts
 
 # Build the static Next.js documentation
 WORKDIR /app/docs

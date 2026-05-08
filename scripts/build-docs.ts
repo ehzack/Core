@@ -69,11 +69,9 @@ function generateApiReference(): void {
     }
     fs.mkdirSync(API_REF_DIR, { recursive: true })
 
-    // We use npx to run typedoc. We must explicitly set shell: false as per AGENTS.md guidelines.
-    const result = spawnSync('npx', [
-        '-y',
-        '-p', 'typedoc',
-        '-p', 'typedoc-plugin-markdown',
+    // We use yarn to run typedoc so it executes within the Plug'n'Play environment.
+    // This allows TypeDoc to resolve workspace dependencies like @tsconfig/recommended.
+    const result = spawnSync('yarn', [
         'typedoc',
         '--plugin', 'typedoc-plugin-markdown',
         '--out', API_REF_DIR,

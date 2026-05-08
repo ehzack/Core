@@ -16,6 +16,7 @@
     "ts-node": "^10.9.1",
     "turbo": "^2.7.2",
     "typedoc": "latest",
+    "typedoc-plugin-markdown": "^4.2.9",
     "typescript": "^5.2.2"
   },
   "scripts": {
