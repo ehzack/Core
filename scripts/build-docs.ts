@@ -71,6 +71,9 @@ function generateApiReference(): void {
 
     // We use npx to run typedoc. We must explicitly set shell: false as per AGENTS.md guidelines.
     const result = spawnSync('npx', [
+        '-y',
+        '-p', 'typedoc',
+        '-p', 'typedoc-plugin-markdown',
         'typedoc',
         '--plugin', 'typedoc-plugin-markdown',
         '--out', API_REF_DIR,
