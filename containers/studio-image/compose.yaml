@@ -15,5 +15,5 @@ services:
       # Enable Basic Authentication for the Studio (uncomment to activate)
       # - STUDIO_AUTH_USER=admin
       # - STUDIO_AUTH_PASS=secret123
-    command: sh -c "bun run src/index.ts"
+    command: sh -c "bun run dist/index.js"
     restart: unless-stopped

@@ -8,6 +8,10 @@
     "url": "git+https://github.com/Quatrain/Core.git",
     "directory": "containers/studio-image"
   },
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "bun build src/index.ts --outdir dist --target bun --external '*'"
+  },
   "dependencies": {
     "@quatrain/studio-api": "workspace:*",
     "@quatrain/studio-web": "workspace:*",
