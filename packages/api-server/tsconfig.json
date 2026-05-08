@@ -1,20 +1,10 @@
 {
-  "extends": "@tsconfig/recommended/tsconfig.json",
-  "compilerOptions": {
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "target": "ES2022",
-    "module": "CommonJS",
-    "moduleResolution": "node",
-    "declaration": true,
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "composite": true,
-    "resolveJsonModule": true
-  },
-  "include": [
-    "src/**/*"
-  ]
+   "extends": "../../tsconfig.json",
+   "compilerOptions": {
+      "rootDir": "src",
+      "outDir": "dist",
+      "paths": {}
+   },
+   "include": ["src/**/*"],
+   "exclude": ["node_modules", "**/__tests__", "**/*.test.ts", "**/*.spec.ts"]
 }
