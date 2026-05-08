@@ -12,8 +12,14 @@ COPY .yarn ./.yarn
 # to all packages, apps, and containers for documentation extraction.
 COPY . .
 
-# Enable corepack and install dependencies using Yarn
-RUN corepack enable && yarn install --immutable
+# Enable corepack first so we use Yarn Berry
+RUN corepack enable
+
+# Switch to node-modules linker for maximum compatibility with TypeDoc's internal TS compiler
+RUN yarn config set nodeLinker node-modules
+
+# Install dependencies using Yarn
+RUN yarn install --immutable
 
 # Run the aggregation script (generates API ref and copies Markdown files)
 # We use ts-node (which is in the root package.json) to execute the TypeScript file directly
