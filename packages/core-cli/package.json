@@ -23,6 +23,7 @@
   },
   "author": "Quatrain Développement SAS <developers@quatrain.com>",
   "dependencies": {
+    "@quatrain/backend": "workspace:*",
     "@quatrain/core": "workspace:*",
     "@quatrain/log": "workspace:*",
     "commander": "^11.1.0",

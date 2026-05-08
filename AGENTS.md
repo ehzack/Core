@@ -186,5 +186,9 @@ When writing or modifying build scripts, Dockerfiles, or GitHub Actions workflow
 - You must minimize CI trial-and-error. 
 - Before committing infrastructure changes, emulate the CI locally where possible (e.g., dry-running publish scripts, verifying path resolutions, checking `tsconfig` rules).
 
-### E. Defensive Programming in CI Scripts
+### E. Proactive Extrapolation & Holistic Validation
+- **CRITICAL:** As an AI agent, you must not be strictly reactive. If you uncover a systemic issue in one package (e.g., a missing dependency declaration that broke Turborepo's graph), you MUST proactively extrapolate that this error might exist elsewhere.
+- You must write a script or use tools to audit the **entire monorepo** for similar omissions before considering your task complete. Do not wait for the developer to tell you to check the rest of the codebase.
+
+### F. Defensive Programming in CI Scripts
 - Shell scripts and Node.js build scripts must be highly defensive. Check for the existence of directories before calling `readdirSync`. Catch exceptions when manipulating file systems (e.g., `unlink` permissions errors) and provide clear debug output.

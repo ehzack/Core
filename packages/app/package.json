@@ -20,13 +20,20 @@
   },
   "author": "Quatrain Développement SAS <developers@quatrain.com>",
   "dependencies": {
+    "@quatrain/api": "workspace:*",
+    "@quatrain/api-client": "workspace:*",
+    "@quatrain/api-server-express": "workspace:*",
     "@quatrain/auth": "workspace:*",
+    "@quatrain/auth-basic": "workspace:*",
+    "@quatrain/auth-oidc": "workspace:*",
     "@quatrain/backend": "workspace:*",
+    "@quatrain/backend-migrations": "workspace:*",
     "@quatrain/core": "workspace:*",
     "@quatrain/log": "workspace:*",
     "@quatrain/messaging": "workspace:*",
     "@quatrain/queue": "workspace:*",
     "@quatrain/storage": "workspace:*",
+    "@quatrain/ui-form-react": "workspace:*",
     "yaml": "^2.4.0"
   },
   "devDependencies": {

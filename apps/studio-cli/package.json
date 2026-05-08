@@ -23,7 +23,11 @@
   },
   "author": "Quatrain Développement SAS <developers@quatrain.com>",
   "dependencies": {
-    "@quatrain/studio": "^1.1.5",
+    "@quatrain/ai": "workspace:*",
+    "@quatrain/ai-gemini": "workspace:*",
+    "@quatrain/backend": "workspace:*",
+    "@quatrain/backend-sqlite": "workspace:*",
+    "@quatrain/studio": "workspace:*",
     "commander": "^11.1.0",
     "inquirer": "^9.2.12"
   },
