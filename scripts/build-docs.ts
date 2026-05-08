@@ -74,6 +74,11 @@ function generateApiReference(): void {
     const tempTsConfigPath = path.join(ROOT_DIR, 'tsconfig.typedoc.json')
     const tempTsConfig = {
         extends: './tsconfig.json',
+        compilerOptions: {
+            jsx: "react-jsx",
+            isolatedModules: false,
+            skipLibCheck: true
+        },
         include: ['packages/*/src/**/*'],
         exclude: [
             "node_modules",
@@ -82,6 +87,7 @@ function generateApiReference(): void {
             "**/*.test.ts",
             "**/*.spec.ts",
             "**/__tests__/**/*",
+            "**/__test__/**/*",
             "**/__mocks__/**/*",
             "**/fixtures/**/*",
             "**/*.fixture.ts"
@@ -100,6 +106,7 @@ function generateApiReference(): void {
         '--exclude', '**/*.test.ts',
         '--exclude', '**/*.spec.ts',
         '--exclude', '**/__tests__/**/*',
+        '--exclude', '**/__test__/**/*',
         '--exclude', '**/__mocks__/**/*',
         '--exclude', '**/fixtures/**/*',
         'packages/*/src/index.ts'
