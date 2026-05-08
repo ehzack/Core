@@ -13,7 +13,6 @@ on:
     workflows: ["Publish Independent Packages"]
     types:
       - completed
-  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
