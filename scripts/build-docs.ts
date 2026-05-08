@@ -75,8 +75,9 @@ function generateApiReference(): void {
         'typedoc',
         '--plugin', 'typedoc-plugin-markdown',
         '--out', API_REF_DIR,
-        '--entryPointStrategy', 'packages',
-        'packages/*'
+        '--entryPointStrategy', 'resolve',
+        '--tsconfig', 'tsconfig.json',
+        'packages/*/src/index.ts'
     ], {
         cwd: ROOT_DIR,
         shell: false,
