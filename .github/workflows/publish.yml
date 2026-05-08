@@ -51,3 +51,4 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5 # NOSONAR
         with:
           commit_message: "chore: release versions & update hashes [skip ci]"
+          commit_options: '--no-verify'
