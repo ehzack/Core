@@ -13,11 +13,11 @@
     "build": "bun build src/index.ts --outdir dist --target bun --external '*'"
   },
   "dependencies": {
-    "@quatrain/studio-api": "workspace:*",
-    "@quatrain/studio-web": "workspace:*",
-    "@quatrain/studio": "workspace:*",
     "@quatrain/api": "workspace:*",
     "@quatrain/storage": "workspace:*",
-    "@quatrain/storage-local": "workspace:*"
+    "@quatrain/storage-local": "workspace:*",
+    "@quatrain/studio": "workspace:*",
+    "@quatrain/studio-api": "workspace:*",
+    "@quatrain/studio-web": "workspace:*"
   }
 }
