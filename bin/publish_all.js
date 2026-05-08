@@ -46,60 +46,7 @@ const options = {
     files: { include: ['*.js', '*.ts', '*.json', '*.md'] }
 };
 
-// Explicit build order respecting dependency graph.
-// 'yarn workspaces foreach -ptA' only orders by dependencies/devDependencies,
-// NOT peerDependencies — so packages that declare internal deps as peerDeps
-// (e.g. backend-firestore → @quatrain/backend) end up built out of order.
-const BUILD_ORDER = [
-    // Layer 0: no internal deps
-    'log',
-    // Layer 1: depends on log only
-    'core',
-    // Layer 2: depends on core
-    'backend',
-    'messaging',
-    'queue',
-    'storage',
-    'testing',
-    'ui',
-    'code',
-    'ai',
-    // Layer 3: depends on backend / queue / storage / ui / code / ai
-    'auth',
-    'cloudwrapper',         // depends on backend + storage
-    'backend-firestore',    // depends on backend (peerDep)
-    'backend-postgres',     // depends on backend
-    'backend-sqlite',       // depends on backend
-    'backend-migrations',
-    'queue-amqp',           // depends on queue
-    'queue-aws',            // depends on queue
-    'queue-gcp',            // depends on queue
-    'storage-firebase',     // depends on storage
-    'storage-s3',           // depends on storage
-    'storage-supabase',     // depends on storage
-    'storage-local',
-    'api',
-    'ui-form-react',
-    'ui-list-react',
-    'code-github',
-    'ai-gemini',
-    // Layer 4: depends on layer 3
-    'cloudwrapper-firebase',  // depends on cloudwrapper (peerDep) + backend (peerDep)
-    'cloudwrapper-supabase',  // depends on cloudwrapper + backend
-    'auth-firebase',          // depends on auth
-    'auth-supabase',          // depends on auth
-    'auth-pocketbase',
-    'auth-oidc',
-    'messaging-firebase',     // depends on messaging
-    'api-server',
-    'api-client',
-    // Layer 5:
-    'worker',
-    'studio',
-    'app',
-    // Layer 6:
-    'core-cli'
-];
+// BUILD_ORDER is removed in favor of Turborepo dependency graph resolution
 
 async function publishAll() {
     let changed = false;
@@ -150,24 +97,8 @@ async function publishAll() {
     if (!anyPackageChanged && !forceBuild) {
         console.log('[BUILD] No package changes detected and build artifacts present. Skipping build phase completely.');
     } else {
-        console.log('[PREPARE] Building all workspaces in explicit dependency order...');
-    for (const pkg of BUILD_ORDER) {
-        const pkgDir = getPkgDir(pkg);
-        if (!pkgDir || !fs.existsSync(pkgDir)) {
-            console.log(`[BUILD] Skipping unknown package '${pkg}'`);
-            continue;
-        }
-        console.log(`[BUILD] Building ${pkg}...`);
-        runSync('yarn', ['build'], { cwd: pkgDir, stdio: 'inherit' });
-    }
-    // Build anything not listed in BUILD_ORDER last (no guaranteed order)
-    const allPkgs = getAllPkgs().map(p => p.name).filter(p => !BUILD_ORDER.includes(p));
-        for (const pkg of allPkgs) {
-            const pkgDir = getPkgDir(pkg);
-            if (!pkgDir || !fs.existsSync(path.join(pkgDir, 'package.json'))) continue;
-            console.log(`[BUILD] Building ${pkg} (unlisted)...`);
-            runSync('yarn', ['build'], { cwd: pkgDir, stdio: 'inherit' });
-        }
+        console.log('[PREPARE] Building all workspaces using Turborepo...');
+        runSync('npx', ['turbo', 'run', 'build'], { cwd: path.join(__dirname, '..'), stdio: 'inherit' });
     }
 
     const isBuildOnly = process.argv.includes('--build-only');
