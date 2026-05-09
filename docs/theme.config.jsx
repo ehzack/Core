@@ -7,6 +7,10 @@ export default {
     placeholder: 'Search documentation...'
   },
   docsRepositoryBase: 'https://github.com/Quatrain/Core/tree/main/docs',
+  gitTimestamp: false,
+  editLink: {
+    component: null
+  },
   footer: {
     text: 'Quatrain Core Documentation'
   }
