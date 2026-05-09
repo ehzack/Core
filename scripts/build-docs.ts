@@ -9,7 +9,8 @@ import { spawnSync } from 'child_process'
 
 const ROOT_DIR: string = path.join(__dirname, '..')
 const DOCS_DIR: string = path.join(ROOT_DIR, 'docs', 'pages')
-const API_REF_DIR: string = path.join(DOCS_DIR, 'api-reference')
+// TypeDoc outputs pure HTML directly into the public folder, bypassing Next.js MDX parser
+const API_REF_DIR: string = path.join(ROOT_DIR, 'docs', 'public', 'api-reference')
 
 // Directories to scan for documentation
 const SCAN_DIRS: string[] = ['packages', 'apps', 'containers']
@@ -121,7 +122,6 @@ function generateApiReference(): void {
 
     const args = [
         'typedoc',
-        '--plugin', 'typedoc-plugin-markdown',
         '--out', API_REF_DIR,
         '--entryPointStrategy', 'resolve',
         '--excludePrivate',

@@ -32,8 +32,7 @@ RUN yarn ts-node scripts/build-docs.ts
 # Build Next.js
 WORKDIR /app/docs
 RUN yarn install
-# On utilise 10Go de RAM pour le build Next.js
-ENV NODE_OPTIONS="--max-old-space-size=10240"
+# No more memory limit needed! Next.js only processes hand-written guides now.
 RUN yarn exec next build --debug
 
 # Stage 2: Runner
