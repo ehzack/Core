@@ -1,0 +1,11 @@
+version: "3.8"
+
+services:
+  docs:
+    # Pull the image directly published by CI on GitHub Container Registry
+    image: ghcr.io/quatrain/core-docs:main
+    ports:
+      # Expose the documentation site on http://localhost:8080
+      - "8080:80"
+    container_name: quatrain-docs
+    restart: unless-stopped
