@@ -9,6 +9,11 @@ import { Query } from './Query'
 import { DataObjectClass } from './types/DataObjectClass'
 import { PersistedDataObject } from './PersistedDataObject'
 
+/**
+ * The fundamental class for all domain models that require database persistence.
+ * Extends the core `BaseObject` by adding backend-aware lifecycle methods (`save`, `delete`, `query`)
+ * and providing a factory to hydrate objects directly from the database.
+ */
 export class PersistedBaseObject extends BaseObject {
    static PROPS_DEFINITION: any /*DataObjectProperties*/ = BaseObjectProperties
 
@@ -92,6 +97,15 @@ export class PersistedBaseObject extends BaseObject {
       return obj
    }
 
+   /**
+    * Dynamically builds an instance of the class. It can hydrate from a raw data object,
+    * an `ObjectUri`, or a backend string path.
+    * 
+    * @param src - The source data: a string path, an `ObjectUri`, or raw object data.
+    * @param child - The specific child class constructor to instantiate.
+    * @returns A promise resolving to the fully constructed and hydrated model instance.
+    * @throws {Error} If instantiation fails.
+    */
    static async factory(
       src: string | ObjectUri | undefined = undefined,
       child: any = this
@@ -124,9 +138,11 @@ export class PersistedBaseObject extends BaseObject {
    }
 
    /**
-    * Fetches an object from its backend path
-    * @param path
-    * @returns
+    * Fetches and hydrates an object directly from its backend storage path.
+    * If the path doesn't contain a collection prefix, it automatically prepends the class's default collection.
+    * 
+    * @param path - The backend unique identifier or full URI path (e.g. "users/123" or "123").
+    * @returns A promise resolving to the populated class instance.
     */
    static async fromBackend<T>(path: string): Promise<T> {
       if (!path.includes('/')) {
@@ -151,17 +167,20 @@ export class PersistedBaseObject extends BaseObject {
    }
 
    /**
-    * Create a query based on given class where parent is current instance
-    * @param obj
-    * @returns Query
+    * Creates a chained query for child records originating from the current instance.
+    * Used mainly for NoSQL backends to query subcollections seamlessly.
+    * 
+    * @param obj - The child class definition (e.g., `LogModel`) to query.
+    * @returns A new `Query` builder scoped to this parent instance.
     */
    query(obj: any) {
       return new Query(obj, this)
    }
 
    /**
-    * Create a query based on current class
-    * @returns Query
+    * Initializes a static query builder for the current class.
+    * 
+    * @returns A new `Query` builder scoped to the current collection.
     */
    static query() {
       return new Query(this)
@@ -171,11 +190,24 @@ export class PersistedBaseObject extends BaseObject {
       return this._dataObject
    }
 
+   /**
+    * Persists the current state of the object to the configured backend database.
+    * Triggers creation or update operations depending on whether the object already exists.
+    * 
+    * @returns A promise resolving to the instance itself for chaining.
+    */
    async save(): Promise<this> {
       await this._dataObject.save()
       return this
    }
 
+   /**
+    * Deletes the object from the backend database.
+    * By default, it performs a soft-delete (modifying the `status` property) unless `hardDelete` is enabled.
+    * 
+    * @param hardDelete - If true, permanently removes the record from the database.
+    * @returns A promise resolving to the underlying `DataObjectClass`.
+    */
    async delete(hardDelete = false): Promise<DataObjectClass<any>> {
       return await this._dataObject.delete()
    }

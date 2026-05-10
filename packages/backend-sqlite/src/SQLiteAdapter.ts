@@ -40,7 +40,9 @@ const operatorsMap: { [x: string]: string } = {
 }
 
 /**
- * SQLite Backend Adapter for Quatrain
+ * Backend adapter implementation for SQLite databases.
+ * Uses the `sqlite` driver to provide a fast, local relational store without external dependencies.
+ * Highly useful for local development, CI/CD testing environments, or lightweight local deployments.
  */
 export class SQLiteAdapter extends AbstractBackendAdapter {
    protected _connection: undefined | Database<sqlite3.Database>
@@ -78,8 +80,11 @@ export class SQLiteAdapter extends AbstractBackendAdapter {
    }
 
    /**
-    * Executes a raw query on the backend.
-    * Only supported by SQL adapters.
+    * Executes an arbitrary raw SQL query against the SQLite database.
+    * 
+    * @param sql - The SQL statement with optional `?` parameterized placeholders.
+    * @param params - The array of parameter values.
+    * @returns A promise resolving to the SQLite result rows.
     */
    async rawQuery(sql: string, params: any[] = []): Promise<any> {
       const connection = await this._connect()
@@ -205,10 +210,12 @@ export class SQLiteAdapter extends AbstractBackendAdapter {
    }
 
    /**
-    * Create record in backend
-    * @param dataObject DataObject instance to persist in backend
-    * @param desiredUid Desired unique ID for record
-    * @returns DataObject
+    * Translates a DataObject creation request into an `INSERT INTO` SQL query.
+    * SQLite handles JSON by parsing array properties internally.
+    * 
+    * @param dataObject - The DataObject payload.
+    * @param desiredUid - Optional explicit UUID.
+    * @returns A promise resolving to the saved DataObject.
     */
    async create(
       dataObject: DataObjectClass<any>,
@@ -295,6 +302,13 @@ export class SQLiteAdapter extends AbstractBackendAdapter {
       }
    }
 
+   /**
+    * Executes a `SELECT *` query to retrieve a document by its UID.
+    * Handles mapping of JSON text columns back into arrays/objects.
+    * 
+    * @param dataObject - The empty DataObject containing the target path.
+    * @returns A promise resolving to the hydrated DataObject.
+    */
    async read(dataObject: DataObjectClass<any>): Promise<DataObjectClass<any>> {
       const path = dataObject.path
       const collection = this.getCollection(dataObject)
@@ -382,6 +396,13 @@ export class SQLiteAdapter extends AbstractBackendAdapter {
       return dataObject
    }
 
+   /**
+    * Processes an `UPDATE` command for modified object properties.
+    * Automatically ensures the table exists and properly escapes JSON-backed properties.
+    * 
+    * @param dataObject - The modified DataObject.
+    * @returns A promise resolving to the updated instance.
+    */
    async update(
       dataObject: DataObjectClass<any>
    ): Promise<DataObjectClass<any>> {
@@ -450,6 +471,13 @@ export class SQLiteAdapter extends AbstractBackendAdapter {
       return dataObject
    }
 
+   /**
+    * Generates a `DELETE FROM` or `UPDATE` query depending on the `hardDelete` parameter.
+    * 
+    * @param dataObject - The DataObject to remove.
+    * @param hardDelete - Force permanent deletion over soft delete.
+    * @returns A promise resolving upon completion.
+    */
    async delete(
       dataObject: DataObjectClass<any>,
       hardDelete = false
@@ -491,6 +519,12 @@ export class SQLiteAdapter extends AbstractBackendAdapter {
       return dataObject
    }
 
+   /**
+    * Wipes all records from a table by executing a blanket `DELETE FROM`.
+    * 
+    * @param collection - The table name to purge.
+    * @param batchSize - Ignored for SQLite bulk deletes.
+    */
    async deleteCollection(collection: string, batchSize = 500): Promise<void> {
       Backend.log(`Deleting all records from collection '${collection}'`)
       const db = await this._connect()
@@ -517,12 +551,14 @@ export class SQLiteAdapter extends AbstractBackendAdapter {
    }
 
    /**
-    * Execute a query on a collection
-    * @param dataObject
-    * @param filters
-    * @param pagination
-    * @params parent
-    * @returns
+    * Translates the Quatrain `Filters` logic into SQLite query syntax.
+    * Employs internal `json_each` extensions for Array-contains searches when JSON1 is available.
+    * 
+    * @param dataObject - The targeted collection object.
+    * @param filters - Requested Query filters.
+    * @param pagination - Query Limits & Pagination rules.
+    * @param parent - Optional parent linkage.
+    * @returns A promise resolving to hydrated objects and metadata.
     */
    async find(
       dataObject: DataObjectClass<any>,

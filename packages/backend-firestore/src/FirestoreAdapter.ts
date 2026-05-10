@@ -45,7 +45,13 @@ const operatorsMap: { [x: string]: WhereFilterOp } = {
    containsAny: 'array-contains-any',
 }
 
+/**
+ * Backend adapter implementation for Google Cloud Firestore.
+ * Maps Quatrain's DataObjects and Queries to Firestore documents and collections.
+ * Inherits all baseline CRUD and Query logic from `AbstractBackendAdapter`.
+ */
 export class FirestoreAdapter extends AbstractBackendAdapter {
+   /** The reserved field path identifier for a document's primary key in Firestore. */
    static PKEY_IDENTIFIER = FieldPath.documentId()
 
    constructor(params: BackendParameters = {}) {
@@ -124,6 +130,14 @@ export class FirestoreAdapter extends AbstractBackendAdapter {
       }
    }
 
+   /**
+    * Retrieves a document from Firestore by its path and populates the given DataObject.
+    * 
+    * @param dataObject - The target DataObject containing the path/UID to fetch.
+    * @returns A promise resolving to the populated DataObject.
+    * @throws {NotFoundError} If no document exists at the calculated path.
+    * @throws {BackendError} If the path is improperly formatted.
+    */
    async read(dataObject: DataObjectClass<any>): Promise<DataObjectClass<any>> {
       const path = dataObject.path
 
@@ -149,6 +163,14 @@ export class FirestoreAdapter extends AbstractBackendAdapter {
       return dataObject
    }
 
+   /**
+    * Updates an existing document in Firestore with the current state of the DataObject.
+    * Executes attached middlewares before and after the transaction.
+    * 
+    * @param dataObject - The DataObject containing the updated payload.
+    * @returns A promise resolving to the updated DataObject.
+    * @throws {BackendError} If the parent references are invalid or the object has no UID.
+    */
    async update(
       dataObject: DataObjectClass<any>
    ): Promise<DataObjectClass<any>> {
@@ -187,6 +209,15 @@ export class FirestoreAdapter extends AbstractBackendAdapter {
       return dataObject
    }
 
+   /**
+    * Removes a document from Firestore.
+    * If `softDelete` is enabled in backend parameters and `hardDelete` is false,
+    * it updates the document's `status` to `DELETED` instead of destroying the record.
+    * 
+    * @param dataObject - The DataObject representing the document to delete.
+    * @param hardDelete - Force absolute removal even if `softDelete` is globally enabled.
+    * @returns A promise resolving to the processed DataObject (with cleared URI if hard deleted).
+    */
    async delete(
       dataObject: DataObjectClass<any>,
       hardDelete = false
@@ -211,6 +242,14 @@ export class FirestoreAdapter extends AbstractBackendAdapter {
       return dataObject
    }
 
+   /**
+    * Completely obliterates an entire collection by batch-deleting all its documents recursively.
+    * Use with extreme caution.
+    * 
+    * @param collection - The name of the root collection to delete.
+    * @param batchSize - The number of documents to delete per transaction chunk.
+    * @returns A promise resolving when the collection is empty.
+    */
    async deleteCollection(collection: string, batchSize = 500): Promise<void> {
       Backend.log(`Deleting all records from collection '${collection}'`)
       const collectionRef = getFirestore().collection(collection)
@@ -426,10 +465,18 @@ export class FirestoreAdapter extends AbstractBackendAdapter {
       }
    }
 
+   /**
+    * Generates raw SQL for creating a table.
+    * @throws {BackendError} Always throws because Firestore is a NoSQL database and does not support SQL generation.
+    */
    generateCreateSql(collection: string, properties: any[]): { upSql: string, downSql: string } {
       throw new BackendError(`Raw queries are not supported on this adapter`)
    }
 
+   /**
+    * Generates raw SQL for altering a table schema.
+    * @throws {BackendError} Always throws because Firestore does not support relational schema deltas.
+    */
    generateDeltaSql(collection: string, delta: any): { upSql: string[], downSql: string[] } {
       throw new BackendError(`Raw queries are not supported on this adapter`)
    }

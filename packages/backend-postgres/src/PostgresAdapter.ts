@@ -54,6 +54,10 @@ const operatorsMap: { [x: string]: string } = {
 }
 
 /**
+ * Backend adapter implementation for PostgreSQL databases.
+ * Translates Quatrain's DataObjects and Queries into raw SQL queries using the `pg` client.
+ * Supports relational schema mapping, JSONB arrays, and advanced filtering.
+ * 
  * https://en.wikipedia.org/wiki/List_of_SQL_reserved_words
  */
 export class PostgresAdapter extends AbstractBackendAdapter {
@@ -126,6 +130,13 @@ export class PostgresAdapter extends AbstractBackendAdapter {
       }
    }
 
+   /**
+    * Executes an arbitrary raw SQL query against the Postgres database.
+    * 
+    * @param sql - The SQL statement with optional $1, $2 parameterized placeholders.
+    * @param params - The array of parameter values to inject into the query.
+    * @returns A promise resolving to the pg `QueryResult`.
+    */
    async rawQuery(sql: string, params?: any[]): Promise<any> {
       return this._query(sql, params)
    }
@@ -178,10 +189,13 @@ export class PostgresAdapter extends AbstractBackendAdapter {
    }
 
    /**
-    * Create record in backend
-    * @param dataObject DataObject instance to persist in backend
-    * @param desiredUid Desired unique ID for record
-    * @returns DataObject
+    * Translates a DataObject creation request into an `INSERT INTO` SQL query.
+    * Generates a UUID automatically if none is requested.
+    * 
+    * @param dataObject - The DataObject payload.
+    * @param desiredUid - Optional explicit UUID to use as primary key.
+    * @returns A promise resolving to the saved DataObject.
+    * @throws {BackendError} If a UID already exists on the object.
     */
    async create(
       dataObject: DataObjectClass<any>,
@@ -244,6 +258,14 @@ export class PostgresAdapter extends AbstractBackendAdapter {
       }
    }
 
+   /**
+    * Translates a read request into a `SELECT * ... LEFT JOIN ...` query.
+    * Automatically handles joins for relational `ObjectProperty` fields.
+    * 
+    * @param dataObject - The DataObject to populate, containing the UID to fetch.
+    * @returns A promise resolving to the populated DataObject.
+    * @throws {NotFoundError} If the query returns 0 rows.
+    */
    async read(dataObject: DataObjectClass<any>): Promise<DataObjectClass<any>> {
       const path = dataObject.path
       const collection = this.getCollection(dataObject)
@@ -327,6 +349,13 @@ export class PostgresAdapter extends AbstractBackendAdapter {
       return dataObject
    }
 
+   /**
+    * Translates an update request into an `UPDATE ... SET ...` query.
+    * Uses `ignoreUnchanged` to efficiently update only modified fields.
+    * 
+    * @param dataObject - The DataObject containing modifications.
+    * @returns A promise resolving to the updated DataObject.
+    */
    async update(
       dataObject: DataObjectClass<any>
    ): Promise<DataObjectClass<any>> {
@@ -410,6 +439,14 @@ export class PostgresAdapter extends AbstractBackendAdapter {
       return dataObject
    }
 
+   /**
+    * Handles object deletion. Converts to an `UPDATE` query setting `status` if soft-deleted,
+    * or a `DELETE FROM` query if `hardDelete` is forced.
+    * 
+    * @param dataObject - The DataObject to remove.
+    * @param hardDelete - Force an absolute SQL DELETE regardless of softDelete configs.
+    * @returns A promise resolving to the processed DataObject.
+    */
    async delete(
       dataObject: DataObjectClass<any>,
       hardDelete = false
@@ -443,6 +480,12 @@ export class PostgresAdapter extends AbstractBackendAdapter {
       return dataObject
    }
 
+   /**
+    * Clears an entire table using a high-speed SQL `TRUNCATE TABLE` command.
+    * 
+    * @param collection - The table name to truncate.
+    * @param batchSize - Ignored in Postgres as TRUNCATE handles all rows.
+    */
    async deleteCollection(collection: string, batchSize = 500): Promise<void> {
       Backend.debug(`Deleting all records from collection '${collection}'`)
       await this._query(`TRUNCATE TABLE ${collection}`)
@@ -466,12 +509,14 @@ export class PostgresAdapter extends AbstractBackendAdapter {
    }
 
    /**
-    * Execute a query on a collection
-    * @param dataObject
-    * @param filters
-    * @param pagination
-    * @params parent
-    * @returns
+    * Translates Quatrain's `Query` logic (Filters, Limits) into a complex SQL `SELECT` statement.
+    * Supports ILIKE string searches, JSONB array traversals, and relational joins.
+    * 
+    * @param dataObject - The template DataObject defining the table and mapping.
+    * @param filters - Active `Filters` limiting the result set.
+    * @param pagination - Limit, batch size, and sorting configurations.
+    * @param parent - Optional parent context for scoping queries.
+    * @returns A promise resolving to hydrated objects and count metadata.
     */
    async find(
       dataObject: DataObjectClass<any>,
@@ -762,7 +807,12 @@ export class PostgresAdapter extends AbstractBackendAdapter {
    }
 
    /**
-    * Generates the SQL up and down statements to create a collection table.
+    * Generates the SQL `CREATE TABLE` and `DROP TABLE` statements required to initialize
+    * a collection's storage in PostgreSQL, mapping Quatrain Property types to SQL Column types.
+    * 
+    * @param collection - The table name.
+    * @param properties - The property dictionary of the model.
+    * @returns Up and Down migration SQL strings.
     */
    generateCreateSql(collection: string, properties: any[]): { upSql: string; downSql: string } {
       let query = `CREATE TABLE IF NOT EXISTS "${collection.toLowerCase()}" (\n    id VARCHAR(255) PRIMARY KEY`
@@ -796,8 +846,13 @@ export class PostgresAdapter extends AbstractBackendAdapter {
    }
 
    /**
-    * Generates the SQL up and down statements to apply a schema delta to a collection.
+    * Generates the SQL `ALTER TABLE` statements to apply a schema delta (add/drop columns).
+    * 
+    * @param collection - The table name.
+    * @param delta - The SchemaDelta tracking property additions/removals.
+    * @returns Arrays of Up and Down migration SQL statements.
     */
+   generateDeltaSql(collection: string, delta: any): { upSql: string[]; downSql: string[] } {
    generateDeltaSql(collection: string, delta: any): { upSql: string[]; downSql: string[] } {
       const upSql: string[] = []
       const downSql: string[] = []

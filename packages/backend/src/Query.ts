@@ -28,13 +28,28 @@ export type QueryResultType<T> = {
    meta: QueryMetaType
 }
 
+/**
+ * A fluent interface for building and executing database queries across all backend adapters.
+ * Manages filters, sort orders, and pagination limits dynamically.
+ * 
+ * @example
+ * ```typescript
+ * const query = new Query(User);
+ * query.where('status', 'active').sortBy('createdAt', 'desc').batch(20);
+ * const results = await query.execute(returnAs.AS_INSTANCES);
+ * ```
+ */
 export class Query<T extends typeof PersistedBaseObject> {
    protected _obj: T
    protected _parent: T | undefined
 
+   /** Array of instantiated `Filter` objects defining the query conditions. */
    filters: Filter[]
+   /** Array of `Sorting` conditions dictating the order of returned results. */
    sortings: Sorting[]
+   /** Pagination rules defining limits, batches, and offsets. */
    limits: Limits
+   /** Execution metadata populated by the backend after fetching (e.g. total count, execution time). */
    meta: any
 
    constructor(obj: T, parent?: T) {
@@ -70,6 +85,15 @@ export class Query<T extends typeof PersistedBaseObject> {
    setParentName(parent: string) {
       this._obj.PARENT_PROP = parent
    }
+   /**
+    * Appends a new filter condition to the query.
+    * Can accept an instantiated `Filter` object or raw field parameters.
+    * 
+    * @param param - The `Filter` object or the string name of the field to filter on.
+    * @param value - The value to match (ignored if param is a `Filter`).
+    * @param operator - The `OperatorKeys` comparison operator (e.g., equals, gt, lt). Defaults to `equals`.
+    * @returns The query instance for chaining.
+    */
    where(
       param: Filter | string | any,
       value: any = null,
@@ -88,6 +112,13 @@ export class Query<T extends typeof PersistedBaseObject> {
       return this
    }
 
+   /**
+    * Specifies a sorting rule for the query results.
+    * 
+    * @param param - The `Sorting` object or the string name of the field to sort by.
+    * @param order - The direction of the sort: `'asc'` or `'desc'`.
+    * @returns The query instance for chaining.
+    */
    sortBy(param: Sorting | string, order: any = 'asc') {
       if (typeof param == 'object') {
          this.sortings.push(param)
@@ -98,16 +129,34 @@ export class Query<T extends typeof PersistedBaseObject> {
       return this
    }
 
+   /**
+    * Directly assigns a preconfigured `Limits` object for pagination.
+    * 
+    * @param limits - The `Limits` pagination configuration.
+    * @returns The query instance for chaining.
+    */
    setLimits(limits: Limits) {
       this.limits = limits
       return this
    }
 
+   /**
+    * Sets the starting offset for pagination.
+    * 
+    * @param offset - The number of records to skip before returning results. Defaults to 0.
+    * @returns The query instance for chaining.
+    */
    offset(offset: number = 0) {
       this.limits.offset = offset
       return this
    }
 
+   /**
+    * Sets the maximum number of records to return (batch size).
+    * 
+    * @param batch - The limit of records to fetch. Defaults to 10.
+    * @returns The query instance for chaining.
+    */
    batch(batch: number = 10) {
       this.limits.batch = batch
       return this
@@ -117,12 +166,25 @@ export class Query<T extends typeof PersistedBaseObject> {
       return new SortAndLimit(this.sortings, this.limits)
    }
 
+   /**
+    * Internal: Executes the query against the backend and returns raw `DataObjectClass` wrappers.
+    * 
+    * @param backend - The backend adapter to query against. Defaults to the global default backend.
+    * @returns A promise resolving to the raw DataObject results and execution metadata.
+    */
    async fetch(
       backend: BackendInterface = Backend.getBackend()
    ): Promise<QueryResultType<DataObjectClass<any>>> {
       return backend.query(this)
    }
 
+   /**
+    * Executes the query and returns only the `ObjectUri` references of the matching records.
+    * Efficient for relational operations where full object hydration is unnecessary.
+    * 
+    * @param backend - The backend adapter to query against.
+    * @returns A promise resolving to an array of URIs.
+    */
    async fetchAsUri(
       backend: BackendInterface = Backend.getBackend()
    ): Promise<QueryResultType<ObjectUri>> {
@@ -131,6 +193,13 @@ export class Query<T extends typeof PersistedBaseObject> {
       return { items: await Promise.all(items.map((dao) => dao.uri)), meta }
    }
 
+   /**
+    * Executes the query and fully hydrates the results into instances of the target class.
+    * This is the standard data retrieval path for applications.
+    * 
+    * @param backend - The backend adapter to query against.
+    * @returns A promise resolving to an array of fully instantiated model classes.
+    */
    async fetchAsInstances(
       backend: BackendInterface = Backend.getBackend()
    ): Promise<QueryResultType<T>> {
@@ -145,6 +214,14 @@ export class Query<T extends typeof PersistedBaseObject> {
       return { items: instances, meta }
    }
 
+   /**
+    * Primary execution handler for the query. Transforms the output based on the requested `returnAs` format.
+    * 
+    * @param as - The desired output format (`AS_DATAOBJECTS`, `AS_OBJECTURIS`, or `AS_INSTANCES`).
+    * @param backend - The backend adapter to query against.
+    * @returns A promise resolving to the query results in the specified format.
+    * @throws {Error} If an unknown output mode is requested.
+    */
    async execute(
       as: returnAs = returnAs.AS_DATAOBJECTS,
       backend: BackendInterface = Backend.getBackend()

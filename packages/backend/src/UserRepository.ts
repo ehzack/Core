@@ -4,11 +4,21 @@ import { BaseRepository } from './BaseRepository'
 import { NotFoundError } from '@quatrain/core'
 import { User, UserType } from './User'
 
+/**
+ * Specific repository implementation handling `User` model persistence and querying logic.
+ */
 export class UserRepository extends BaseRepository<UserType> {
    constructor(backendAdapter?: BackendInterface) {
       super(User, backendAdapter)
    }
 
+   /**
+    * Finds and loads a user profile based on an exact email match.
+    * 
+    * @param email - The email address to search for.
+    * @returns A promise resolving to the found User object.
+    * @throws {NotFoundError} If no user is associated with this email.
+    */
    async getFromEmail(email: string) {
       const query = new Query<typeof User>(User)
 

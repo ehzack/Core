@@ -7,8 +7,9 @@ import { Persisted } from './types/Persisted'
 
 /**
  * Data objects constitute the agnostic glue between objects and backends.
- * They handle data and identifiers in a protected registry
+ * They handle data and identifiers in a protected registry.
  * This is what backends and objects manipulate, oblivious of the other.
+ * It manages the actual "dirty" state, paths, and values mapped from the database.
  */
 export class PersistedDataObject extends CoreDO implements Persisted {
    protected declare _proxied: any
@@ -28,8 +29,11 @@ export class PersistedDataObject extends CoreDO implements Persisted {
    }
 
    /**
-    * Populate data object from instant data or backend query
-    * @param data
+    * Populates the internal properties with given data or triggers a backend fetch
+    * if the object possesses a path but hasn't been loaded yet.
+    * 
+    * @param data - Optional predefined data dictionary to hydrate immediately.
+    * @returns A promise resolving to the hydrated data object.
     */
    async populate(
       data: { name: string; [x: string]: unknown } | undefined = undefined
@@ -51,8 +55,10 @@ export class PersistedDataObject extends CoreDO implements Persisted {
    }
 
    /**
-    * Populate data object from backend query
-    * @param data
+    * Forces a read operation from the configured backend adapter using the current URI path,
+    * populating internal properties with the retrieved database values.
+    * 
+    * @returns A promise resolving to the populated data object.
     */
    async populateFromBackend(): Promise<PersistedDataObject> {
       if (this._populated === false) {
@@ -69,6 +75,11 @@ export class PersistedDataObject extends CoreDO implements Persisted {
       return this
    }
 
+   /**
+    * Retrieves the specific backend alias bound to this object's URI.
+    * 
+    * @returns The string alias of the backend adapter (e.g., 'default', 'firestore').
+    */
    get backend() {
       return this._objectUri ? this._objectUri.backend : undefined
    }
@@ -152,10 +163,22 @@ export class PersistedDataObject extends CoreDO implements Persisted {
       }
    }
 
+   /**
+    * Checks whether a specific property exists in the data object's definition.
+    * 
+    * @param key - The property name to verify.
+    * @returns True if the property is defined, false otherwise.
+    */
    has(key: string) {
       return Reflect.has(this._properties, key)
    }
 
+   /**
+    * Instructs the global backend adapter to read and return the raw data object state.
+    * 
+    * @returns A promise resolving to the fetched DataObjectClass.
+    * @throws {Error} If the read operation fails at the adapter level.
+    */
    async read(): Promise<DataObjectClass<any>> {
       try {
          return await Backend.getBackend().read(this)
@@ -165,6 +188,12 @@ export class PersistedDataObject extends CoreDO implements Persisted {
       }
    }
 
+   /**
+    * Pushes the current object state to the backend adapter.
+    * Determines automatically whether an 'update' or 'create' operation is needed based on the UID.
+    * 
+    * @returns A promise resolving to the updated DataObjectClass.
+    */
    async save(): Promise<DataObjectClass<any>> {
       const backend = Backend.getBackend(this.backend || Backend.defaultBackend)
       this._persisted = true
@@ -173,6 +202,12 @@ export class PersistedDataObject extends CoreDO implements Persisted {
       return this.uid ? backend.update(this) : backend.create(this)
    }
 
+   /**
+    * Requests the backend adapter to delete the object from persistence.
+    * The 'hardDelete' behavior is usually controlled by the parent `PersistedBaseObject`.
+    * 
+    * @returns A promise resolving upon successful deletion.
+    */
    async delete(): Promise<DataObjectClass<any>> {
       const backend = Backend.getBackend(this.backend || Backend.defaultBackend)
       this._persisted = false

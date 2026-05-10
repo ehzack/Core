@@ -22,7 +22,18 @@ export interface RestAdapterOptions {
    querySerializer?: QuerySerializer
 }
 
+/**
+ * Backend adapter implementation bridging Quatrain's DataObjects to an external REST API.
+ * Maps CRUD operations to standard HTTP methods (POST, GET, PATCH, DELETE).
+ */
 export class RestBackendAdapter extends AbstractBackendAdapter {
+   /**
+    * Executes a DELETE request targeting an entire collection endpoint.
+    * 
+    * @param collection - The collection name mapping to the target API endpoint.
+    * @returns A promise resolving upon successful deletion.
+    * @throws {BackendError} If the DELETE action is not permitted.
+    */
    async deleteCollection(collection: string): Promise<void> {
       this.checkMethodAllowed(BackendAction.DELETE)
       const client = this.getClient()
@@ -77,6 +88,13 @@ export class RestBackendAdapter extends AbstractBackendAdapter {
       return client
    }
 
+   /**
+    * Performs an HTTP POST request to create a new resource on the remote API.
+    * 
+    * @param dataObject - The DataObject payload to serialize and transmit.
+    * @param desiredUid - Ignored by REST (usually assigned by the remote API).
+    * @returns A promise resolving to the data object populated with the API response UID.
+    */
    async create(dataObject: DataObjectClass<any>, desiredUid?: string): Promise<DataObjectClass<any>> {
       this.checkMethodAllowed(BackendAction.CREATE)
       const client = this.getClient()
@@ -95,6 +113,12 @@ export class RestBackendAdapter extends AbstractBackendAdapter {
       return dataObject
    }
 
+   /**
+    * Performs an HTTP GET request to retrieve a specific resource by its UID.
+    * 
+    * @param dataObject - The empty DataObject containing the collection and UID.
+    * @returns A promise resolving to the populated DataObject.
+    */
    async read(dataObject: DataObjectClass<any>): Promise<DataObjectClass<any>> {
       this.checkMethodAllowed(BackendAction.READ)
       const client = this.getClient()
@@ -109,6 +133,12 @@ export class RestBackendAdapter extends AbstractBackendAdapter {
       return dataObject
    }
 
+   /**
+    * Performs an HTTP PATCH request to update an existing remote resource.
+    * 
+    * @param dataObject - The DataObject payload containing the modified data.
+    * @returns A promise resolving to the updated DataObject.
+    */
    async update(dataObject: DataObjectClass<any>): Promise<DataObjectClass<any>> {
       this.checkMethodAllowed(BackendAction.UPDATE)
       const client = this.getClient()
@@ -123,6 +153,12 @@ export class RestBackendAdapter extends AbstractBackendAdapter {
       return dataObject
    }
 
+   /**
+    * Performs an HTTP DELETE request to remove a specific resource from the API.
+    * 
+    * @param dataObject - The DataObject referencing the resource to delete.
+    * @returns A promise resolving upon successful deletion.
+    */
    async delete(dataObject: DataObjectClass<any>): Promise<DataObjectClass<any>> {
       this.checkMethodAllowed(BackendAction.DELETE)
       const client = this.getClient()
@@ -136,6 +172,16 @@ export class RestBackendAdapter extends AbstractBackendAdapter {
       return dataObject
    }
 
+   /**
+    * Performs an HTTP GET request to query a collection endpoint.
+    * Serializes filters and pagination into URL query parameters.
+    * 
+    * @param dataObject - The template DataObject defining the collection.
+    * @param filters - Active search filters.
+    * @param pagination - Limits and batch offsets.
+    * @param parent - Optional parent context for nested endpoints.
+    * @returns A promise resolving to an array of populated DataObjects and metadata.
+    */
    async find(
       dataObject: DataObjectClass<any>,
       filters: Filters | Filter[] | undefined,
@@ -166,10 +212,18 @@ export class RestBackendAdapter extends AbstractBackendAdapter {
       }
    }
 
+   /**
+    * Generates raw SQL for creating a table.
+    * @throws {BackendError} Always throws because REST APIs do not support local schema generation.
+    */
    generateCreateSql(collection: string, properties: any[]): { upSql: string; downSql: string } {
       throw new BackendError('generateCreateSql is not supported on REST API adapter')
    }
 
+   /**
+    * Generates raw SQL for altering a table schema.
+    * @throws {BackendError} Always throws because REST APIs do not support local schema deltas.
+    */
    generateDeltaSql(collection: string, delta: SchemaDelta): { upSql: string[]; downSql: string[] } {
       throw new BackendError('generateDeltaSql is not supported on REST API adapter')
    }
