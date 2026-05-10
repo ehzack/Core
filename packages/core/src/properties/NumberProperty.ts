@@ -8,6 +8,20 @@ export type NumberType =
    | typeof NumberProperty.TYPE_INTEGER
    | typeof NumberProperty.TYPE_FLOAT
 
+/**
+ * Configuration dictionary for instantiating a `NumberProperty`.
+ * Enforces numeric bounds, types (integer vs float), signs, and UI formatting.
+ *
+ * | Parameter | Type | Description | Default |
+ * | :--- | :--- | :--- | :--- |
+ * | `minVal` | number | The minimum allowed value (inclusive). | `undefined` |
+ * | `maxVal` | number | The maximum allowed value (inclusive). | `undefined` |
+ * | `sign` | NumberSign | Restricts the number to `signed` or `unsigned` (positive only). | `TYPE_SIGNED` |
+ * | `type` | NumberType | The numeric type: `integer` (floored) or `float`. | `TYPE_INTEGER` |
+ * | `prefix` | string | A string prepended to the formatted output (e.g., "$"). | `""` |
+ * | `suffix` | string | A string appended to the formatted output (e.g., "kg"). | `""` |
+ * | `precision` | number | Number of decimal places for floats. | `0` |
+ */
 export interface NumberPropertyType extends BasePropertyType {
    minVal?: number
    maxVal?: number
@@ -18,16 +32,42 @@ export interface NumberPropertyType extends BasePropertyType {
    precision?: number
 }
 
+/**
+ * A property type strictly validating and formatting numeric values.
+ * Allows enforcement of integers, positive-only limits, and boundary checking.
+ * 
+ * @example
+ * ```typescript
+ * const price = new NumberProperty({
+ *    name: 'price',
+ *    type: NumberProperty.TYPE_FLOAT,
+ *    sign: NumberProperty.TYPE_UNSIGNED,
+ *    prefix: '$',
+ *    minVal: 0
+ * });
+ * 
+ * price.set(19.99);
+ * console.log(price.val(NumberProperty.TRANSFORM_FORMATTED)); // "$ 19.99"
+ * price.set(-5); // Throws Error: Value must be unsigned
+ * ```
+ */
 export class NumberProperty extends BaseProperty {
+   /** The string literal type identifier for this property. */
    static TYPE = 'number'
+   /** Constraint flag for signed numbers (positive and negative). */
    static TYPE_SIGNED = 'signed'
+   /** Constraint flag for unsigned numbers (positive only). */
    static TYPE_UNSIGNED = 'unsigned'
 
+   /** Type flag indicating an integer value. */
    static TYPE_INTEGER = 'integer'
+   /** Type flag indicating a floating-point value. */
    static TYPE_FLOAT = 'float'
 
+   /** Default separator used for string formatting. */
    static SEPARATOR = ' '
 
+   /** Transformation identifier to return the number as a formatted string. */
    static TRANSFORM_FORMATTED = 'formatted'
 
    protected _minVal: number | undefined = undefined
@@ -58,6 +98,15 @@ export class NumberProperty extends BaseProperty {
       }
    }
 
+   /**
+    * Assigns a new numeric value while strictly enforcing boundary, sign, and type constraints.
+    * If configured as an integer, the input is floored.
+    * 
+    * @param value - The number to assign.
+    * @param setChanged - Whether to mark the property as modified.
+    * @returns The property instance for chaining.
+    * @throws {Error} If the number violates the min, max, or sign constraints.
+    */
    set(value: number, setChanged = true) {
       if (this._sign === NumberProperty.TYPE_UNSIGNED && value < 0) {
          throw new Error(`Value must be unsigned`)
@@ -78,6 +127,12 @@ export class NumberProperty extends BaseProperty {
       return super.set(value, setChanged)
    }
 
+   /**
+    * Retrieves the numeric value, optionally applying UI string formatting.
+    * 
+    * @param transform - Use `TRANSFORM_FORMATTED` to return a string with the configured prefix and suffix.
+    * @returns The raw number or the formatted string representation.
+    */
    val(transform: string | undefined = undefined) {
       switch (transform) {
          case NumberProperty.TRANSFORM_FORMATTED:

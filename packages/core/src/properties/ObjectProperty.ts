@@ -12,13 +12,39 @@ export enum returnAs {
    AS_IS = 'asIs',
 }
 
+/**
+ * Configuration dictionary for instantiating an `ObjectProperty`.
+ * Defines the class type of the expected object.
+ *
+ * | Parameter | Type | Description | Default |
+ * | :--- | :--- | :--- | :--- |
+ * | `instanceOf` | any | The class constructor or class name string the object must match. | **Required** |
+ */
 export interface ObjectPropertyType extends BasePropertyType {
    instanceOf: any //Function | string | Object
 }
 
+/**
+ * A relational property type designed to store references to other `BaseObjectClass` instances.
+ * Handles polymorphic resolution between raw `ObjectUri`, underlying `DataObject`, or the full class instance.
+ * 
+ * @example
+ * ```typescript
+ * const owner = new ObjectProperty({
+ *    name: 'owner',
+ *    instanceOf: User
+ * });
+ * 
+ * owner.set(userInstance);
+ * const uri = owner.val(returnAs.AS_OBJECTURIS); // Returns just the reference
+ * ```
+ */
 export class ObjectProperty extends BaseProperty {
+   /** The string literal type identifier for this property. */
    static TYPE = 'object'
+   /** The internal stored value, either a class instance or a URI. */
    _value: BaseObjectClass | ObjectUri | undefined = undefined
+   /** The class constructor or class name string the object must match. */
    _instanceOf: any //Function | string | Object
 
    constructor(config: ObjectPropertyType) {
@@ -30,6 +56,12 @@ export class ObjectProperty extends BaseProperty {
       return this._instanceOf
    }
 
+   /**
+    * Retrieves the object, optionally resolving it to a specific representation.
+    * 
+    * @param transform - The desired format (`returnAs.AS_OBJECTURIS`, `AS_DATAOBJECTS`, `AS_INSTANCES`).
+    * @returns The resolved object, data object, or URI based on the requested transform.
+    */
    val(transform: string | undefined = undefined) {
       try {
          if (typeof this._instanceOf === 'string') {
@@ -89,6 +121,15 @@ export class ObjectProperty extends BaseProperty {
       }
    }
 
+   /**
+    * Assigns an object or an object reference to the property.
+    * Validates that the provided object matches the `instanceOf` class definition.
+    * 
+    * @param value - The `BaseObjectClass`, `DataObject`, or `ObjectUri` to assign.
+    * @param setChanged - Whether to mark the property as modified.
+    * @returns The property instance for chaining.
+    * @throws {Error} If the assigned value is not an instance of the configured class.
+    */
    set(value: object, setChanged = true) {
       if (
          value! instanceof ObjectUri &&
@@ -105,6 +146,11 @@ export class ObjectProperty extends BaseProperty {
       return super.set(value, setChanged)
    }
 
+   /**
+    * Serializes the object property into a reference format suitable for storage.
+    * 
+    * @returns The `ObjectUri` JSON representation, or a reference object.
+    */
    toJSON() {
       if (this._value instanceof ObjectUri) {
          return this._value.toJSON()

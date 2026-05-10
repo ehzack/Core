@@ -7,6 +7,21 @@ export type EventTypes =
    | typeof BaseProperty.EVENT_ONCHANGE
    | typeof BaseProperty.EVENT_ONDELETE
 
+/**
+ * Configuration dictionary for instantiating a BaseProperty.
+ * Defines the behavior, constraints, and default state of a property within a Quatrain DataObject.
+ *
+ * | Parameter | Type | Description | Default |
+ * | :--- | :--- | :--- | :--- |
+ * | `name` | string | The canonical name of the property. | **Required** |
+ * | `id` | string | The internal identifier (defaults to lowercase `name`). | `name.toLowerCase()` |
+ * | `parent` | DataObjectClass | The parent object containing this property. | `undefined` |
+ * | `protected` | boolean | If true, the value can only be set once and becomes read-only. | `false` |
+ * | `mandatory` | boolean | If true, the property must have a value before saving. | `false` |
+ * | `defaultValue` | any | The default value or a function returning the default value. | `undefined` |
+ * | `htmlType` | PropertyHTMLType | The suggested HTML input type for rendering in a UI. | `'off'` |
+ * | `onChange` | function | Callback triggered whenever the property value is modified. | `undefined` |
+ */
 export interface BasePropertyType extends AbstractPropertyType {
    parent?: DataObjectClass<any>
    protected?: boolean
@@ -17,9 +32,30 @@ export interface BasePropertyType extends AbstractPropertyType {
 }
 
 // TODO: add `meta: boolean`. If meta is true, it is a meta-property strictly manipulated by the backend, and read-only for the user.
+
+/**
+ * The core foundation class for all Quatrain properties.
+ * It manages the state, immutability (protected), change tracking, and events of a data field.
+ * 
+ * @example
+ * ```typescript
+ * const myProp = new BaseProperty({
+ *    name: 'status',
+ *    defaultValue: 'active',
+ *    protected: false,
+ *    onChange: (dao) => console.log('Status changed on', dao.id)
+ * });
+ * 
+ * myProp.set('inactive');
+ * console.log(myProp.val()); // "inactive"
+ * ```
+ */
 export class BaseProperty implements PropertyClassType {
+   /** The string literal type identifier for this property. */
    static TYPE = 'any'
+   /** Event name triggered when the property value changes. */
    static EVENT_ONCHANGE = 'onChange'
+   /** Event name triggered when the property is deleted. */
    static EVENT_ONDELETE = 'onDelete'
 
    protected _parent: DataObjectClass<any> | undefined
@@ -86,6 +122,14 @@ export class BaseProperty implements PropertyClassType {
       this._hasChanged = val
    }
 
+   /**
+    * Sets a new value for the property and triggers the `onChange` event if modified.
+    * 
+    * @param value - The new value to assign.
+    * @param setChanged - Whether to mark the property as modified (defaults to true).
+    * @returns The current property instance for chaining.
+    * @throws {Error} If the property is marked as `protected` and already has a value.
+    */
    set(value: any, setChanged: boolean = true) {
       if (
          this._value !== undefined &&
@@ -113,6 +157,12 @@ export class BaseProperty implements PropertyClassType {
       return this
    }
 
+   /**
+    * Retrieves the current value of the property, or its default value if currently undefined.
+    * 
+    * @param transform - An optional transformation function applied to the value before returning it.
+    * @returns The raw or transformed property value.
+    */
    val(transform: any = undefined): any {
       // console.log(transform && transform(this._value), typeof transform);
       return typeof transform === 'function'
@@ -126,10 +176,20 @@ export class BaseProperty implements PropertyClassType {
       return value === undefined || value === true
    }
 
+   /**
+    * Serializes the property for JSON stringification.
+    * 
+    * @returns The raw internal value of the property.
+    */
    toJSON() {
       return this._value
    }
 
+   /**
+    * Creates a deep clone of the current property instance, preserving its prototype chain.
+    * 
+    * @returns A new independent instance of the property.
+    */
    clone() {
       const cloned = Object.create(
          Object.getPrototypeOf(this),
