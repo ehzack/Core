@@ -77,10 +77,21 @@ export const StudioEnvironmentProperties: any = [
    }
 ]
 
+/**
+ * Core domain model representing a StudioEnvironment within the Quatrain Studio ecosystem.
+ */
 export class StudioEnvironment extends PersistedBaseObject {
+   /** The schema definition dictating the properties of this model. */
    static PROPS_DEFINITION = StudioEnvironmentProperties
+   /** The underlying database collection or table name. */
    static COLLECTION = 'studio_environment'
 
+   /**
+    * Instantiates a new `StudioEnvironment` or loads one from the database.
+    * 
+    * @param src - Initial data or an existing URI/ID.
+    * @returns A promise resolving to the model instance.
+    */
    static async factory(src: any = undefined): Promise<StudioEnvironment> {
       return super.factory(src, StudioEnvironment)
    }

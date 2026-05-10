@@ -1,6 +1,9 @@
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 
+/**
+ * Handles saving and loading local schema snapshots for migration diffing.
+ */
 export class SnapshotManager {
    private snapshotPath: string
 

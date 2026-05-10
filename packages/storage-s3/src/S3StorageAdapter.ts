@@ -19,6 +19,10 @@ import {
    ListBucketsCommand,
 } from '@aws-sdk/client-s3'
 
+/**
+ * Storage adapter implementation for AWS S3 compatible services.
+ * Implements direct stream uploads, presigned URLs, and multipart handling.
+ */
 export class S3StorageAdapter extends AbstractStorageAdapter {
    protected _client: S3Client
 
@@ -44,6 +48,11 @@ export class S3StorageAdapter extends AbstractStorageAdapter {
       )
    }
 
+   /**
+    * Validates the connection to the configured S3 endpoint by attempting to list buckets.
+    * 
+    * @returns True if the connection succeeds and buckets are accessible.
+    */
    async test(): Promise<boolean> {
       try {
          const command = new ListBucketsCommand()
@@ -56,10 +65,22 @@ export class S3StorageAdapter extends AbstractStorageAdapter {
       }
    }
 
+   /**
+    * Exposes the underlying AWS S3 Client instance.
+    * 
+    * @returns The `S3Client` instance.
+    */
    getDriver() {
       return this._client
    }
 
+   /**
+    * Helper utility converting a Node.js Stream into a raw Buffer.
+    * Required for S3 payloads when streaming sizes are indeterminate.
+    * 
+    * @param stream - The input stream.
+    * @returns A promise resolving to the concatenated Buffer.
+    */
    async streamToBuffer(stream: Stream): Promise<Buffer> {
       return new Promise<Buffer>((resolve, reject) => {
          const _buf: any[] = []
@@ -70,6 +91,14 @@ export class S3StorageAdapter extends AbstractStorageAdapter {
       })
    }
 
+   /**
+    * Uploads a file stream directly into an S3 Bucket.
+    * 
+    * @param file - Target file metadata.
+    * @param stream - The content readable stream.
+    * @returns A promise resolving to the uploaded FileType metadata.
+    * @throws {Error} If the upload fails.
+    */
    async create(file: FileType, stream: Readable): Promise<FileType> {
       try {
          const input = {
@@ -98,6 +127,12 @@ export class S3StorageAdapter extends AbstractStorageAdapter {
       }
    }
 
+   /**
+    * Copies an existing object within S3 to a new destination key or bucket.
+    * 
+    * @param file - Source file.
+    * @param destFile - Destination file.
+    */
    async copy(file: FileType, destFile: FileType) {
       Storage.debug(
          `Copying file ${file.bucket}/${file.ref} to ${file.bucket}/${destFile.ref}`
@@ -141,6 +176,15 @@ export class S3StorageAdapter extends AbstractStorageAdapter {
       return destFile
    }
 
+   /**
+    * Generates a temporary, presigned GET URL for public or secure access.
+    * 
+    * @param file - Target file.
+    * @param expiresIn - URL expiration time in seconds.
+    * @param action - The requested action ('read', etc.).
+    * @param extra - Extra parameters such as 'cacheControl'.
+    * @returns A promise resolving to the generated URL and expiration payload.
+    */
    async _getUrl(file: FileType, expiresIn = 3600, action: any = 'read', extra: any = {}) {
       const commandArgs: any = {
          Bucket: file.bucket,
@@ -159,6 +203,12 @@ export class S3StorageAdapter extends AbstractStorageAdapter {
       return { url, expiresIn }
    }
 
+   /**
+    * Deletes an object from the S3 Bucket.
+    * 
+    * @param file - The file to remove.
+    * @returns A promise resolving to true on success.
+    */
    async delete(file: FileType) {
       Storage.debug(`Deleting file ${file.bucket}/${file.ref}`)
       const command = new DeleteObjectCommand({
@@ -172,6 +222,12 @@ export class S3StorageAdapter extends AbstractStorageAdapter {
       return true
    }
 
+   /**
+    * Downloads an S3 object and returns it as a Node.js Readable stream.
+    * 
+    * @param file - The target file.
+    * @returns A promise resolving to the ReadStream.
+    */
    async getReadable(file: FileType): Promise<Readable> {
       Storage.debug(`GET Readable for ${file.ref}`)
       const command = new GetObjectCommand({
@@ -188,6 +244,13 @@ export class S3StorageAdapter extends AbstractStorageAdapter {
       return readable
    }
 
+   /**
+    * Issues a HEAD request to fetch S3 object metadata like size and content-type
+    * without downloading the actual payload.
+    * 
+    * @param file - The file footprint.
+    * @returns A promise resolving to the augmented metadata.
+    */
    async getMetaData(file: FileType): Promise<FileType> {
       const command = new HeadObjectCommand({
          Bucket: file.bucket,
@@ -204,6 +267,13 @@ export class S3StorageAdapter extends AbstractStorageAdapter {
       return meta
    }
 
+   /**
+    * Directly pipes an S3 object to an external HTTP response or stream.
+    * 
+    * @param file - Target file.
+    * @param res - The response or writable stream.
+    * @returns The piped stream instance.
+    */
    async stream(file: FileType, res: any) {
       const command = new GetObjectCommand({
          Bucket: file.bucket,
@@ -219,6 +289,13 @@ export class S3StorageAdapter extends AbstractStorageAdapter {
       return readable.pipe(res)
    }
 
+   /**
+    * Downloads an S3 object and writes it directly to the local filesystem.
+    * 
+    * @param file - The remote file.
+    * @param meta - Local download path instructions.
+    * @returns A promise resolving to the local file path.
+    */
    async download(file: FileType, meta: DownloadFileMetaType) {
       const stream: Readable = await this.getReadable(file)
       await new Promise((res) =>
@@ -228,6 +305,13 @@ export class S3StorageAdapter extends AbstractStorageAdapter {
       return meta.path
    }
 
+   /**
+    * Generates a presigned PUT URL allowing clients to upload directly to S3, bypassing the backend.
+    * 
+    * @param file - The requested upload file destination.
+    * @param expiresIn - Token expiration in seconds.
+    * @returns A promise resolving to the upload URL instructions.
+    */
    async getUploadUrl(
       file: FileType,
       expiresIn = 3600

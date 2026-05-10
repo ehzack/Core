@@ -41,10 +41,21 @@ export const StudioStorageProperties: any = [
    }
 ]
 
+/**
+ * Core domain model representing a StudioStorage within the Quatrain Studio ecosystem.
+ */
 export class StudioStorage extends PersistedBaseObject {
+   /** The schema definition dictating the properties of this model. */
    static PROPS_DEFINITION = StudioStorageProperties
+   /** The underlying database collection or table name. */
    static COLLECTION = 'studio_storage'
 
+   /**
+    * Instantiates a new `StudioStorage` or loads one from the database.
+    * 
+    * @param src - Initial data or an existing URI/ID.
+    * @returns A promise resolving to the model instance.
+    */
    static async factory(src: any = undefined): Promise<StudioStorage> {
       return super.factory(src, StudioStorage)
    }

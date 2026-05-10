@@ -16,6 +16,12 @@ export class PersistedDataObject extends CoreDO implements Persisted {
 
    protected _persisted: boolean = false
 
+   /**
+    * Checks or updates the persisted state of the DataObject.
+    * 
+    * @param set - If true, flags the object as fully saved and resets property modification trackers.
+    * @returns True if the object was explicitly persisted.
+    */
    isPersisted(set = false) {
       if (set === true) {
          // Reset all properties 'hasChanged' flags, typically after object was saved

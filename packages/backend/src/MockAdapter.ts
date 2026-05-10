@@ -11,6 +11,11 @@ import { AbstractBackendAdapter } from './AbstractBackendAdapter'
 import { BackendInterface } from './types/BackendInterface'
 import { BackendRecordType } from './Backend'
 
+/**
+ * In-memory mock adapter used strictly for testing and validation.
+ * Intercepts database calls and reads/writes to a static local fixture dictionary.
+ * Does not support SQL operations.
+ */
 export class MockAdapter
    extends AbstractBackendAdapter
    implements BackendInterface
@@ -29,6 +34,12 @@ export class MockAdapter
       }
    }
 
+   /**
+    * Helper translating DataObjects references to backend string URIs.
+    * 
+    * @param data - The Backend record footprint.
+    * @returns A promise resolving to the processed object.
+    */
    static dao2backend(data: BackendRecordType): Promise<any> {
       const processed: any = {}
       Object.keys(data).forEach((key: any) => {
@@ -45,14 +56,32 @@ export class MockAdapter
       return processed
    }
 
+   /**
+    * Returns the complete dictionary of injected fixtures.
+    * 
+    * @returns The fixture store object.
+    */
    static getFixtures(): any[] {
       return MockAdapter._fixtures
    }
 
+   /**
+    * Retrieves a single fixture by its collection URI.
+    * 
+    * @param key - The URI key.
+    * @returns The raw object fixture.
+    */
    static getFixture(key: string): any {
       return MockAdapter._fixtures[key]
    }
 
+   /**
+    * Mocks the `create` database action, storing the item in the local fixture map.
+    * Generates a random alphanumeric ID via faker.
+    * 
+    * @param dataObject - The DataObject to save.
+    * @returns A promise resolving to the DataObject populated with the new URI.
+    */
    create(dataObject: DataObjectClass<any>): Promise<DataObjectClass<any>> {
       const uri = `${this.getCollection(
          dataObject
@@ -74,6 +103,13 @@ export class MockAdapter
       })
    }
 
+   /**
+    * Mocks the `read` action by looking up the URI in the local fixtures.
+    * 
+    * @param dataObject - The unpopulated DataObject with a target URI.
+    * @returns A promise resolving to the hydrated DataObject.
+    * @throws {NotFoundError} If the fixture isn't found.
+    */
    async read(dataObject: DataObjectClass<any>): Promise<DataObjectClass<any>> {
       const path = dataObject.path
       const data = MockAdapter._fixtures[path]
@@ -86,6 +122,13 @@ export class MockAdapter
       return await dataObject.populate(data)
    }
 
+   /**
+    * Mocks the `update` action by merging the new state into the static fixture dictionary.
+    * 
+    * @param dataObject - The mutated DataObject.
+    * @returns A promise resolving to the DataObject.
+    * @throws {NotFoundError} If the target doesn't exist.
+    */
    async update(
       dataObject: DataObjectClass<any>
    ): Promise<DataObjectClass<any>> {
@@ -100,6 +143,12 @@ export class MockAdapter
       return dataObject
    }
 
+   /**
+    * Mocks the `delete` action by removing the key from the static fixture map.
+    * 
+    * @param dataObject - The target DataObject.
+    * @returns A promise resolving to the cleared DataObject.
+    */
    async delete(
       dataObject: DataObjectClass<any>
    ): Promise<DataObjectClass<any>> {
@@ -118,6 +167,13 @@ export class MockAdapter
       })
    }
 
+   /**
+    * Mocks the `deleteCollection` action by looping through all fixtures and deleting matches.
+    * 
+    * @param collection - The collection name prefix.
+    * @param batchSize - Unused in Mock adapter.
+    * @returns A promise resolving on completion.
+    */
    async deleteCollection(
       collection: string,
       batchSize?: number | undefined
@@ -130,6 +186,14 @@ export class MockAdapter
       return new Promise(() => null)
    }
 
+   /**
+    * Mocks the `find` action by executing manual object comparison over the local fixtures array.
+    * 
+    * @param dataObject - The query context target.
+    * @param filters - Iterated list of filters.
+    * @param pagination - Extracted sorting/limit conditions.
+    * @returns A promise resolving to the found items array and metadata.
+    */
    async find(
       dataObject: DataObjectClass<any>,
       filters: Filters | Filter[] | undefined = undefined,
@@ -218,10 +282,18 @@ export class MockAdapter
       }
    }
 
+   /**
+    * Unsupported stub for creating tables.
+    * @returns Empty strings.
+    */
    generateCreateSql(collection: string, properties: any[]): { upSql: string, downSql: string } {
       return { upSql: '', downSql: '' }
    }
 
+   /**
+    * Unsupported stub for altering schemas.
+    * @returns Empty arrays.
+    */
    generateDeltaSql(collection: string, delta: any): { upSql: string[], downSql: string[] } {
       return { upSql: [], downSql: [] }
    }

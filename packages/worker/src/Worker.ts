@@ -4,8 +4,14 @@ import axios from 'axios'
 import { spawn } from 'node:child_process'
 import { HandlerParameters } from './types/HandlerParameters'
 
+/**
+ * The core orchestration class for background task workers.
+ * Manages event reporting, child process execution, and queue listening.
+ */
 export class Worker extends Core {
+   /** The HTTP endpoint used to push worker status events. */
    static endpoint: string = ''
+   /** Dedicated logger instance for the worker subsystem. */
    static readonly logger = this.addLogger('Worker')
 
    /**

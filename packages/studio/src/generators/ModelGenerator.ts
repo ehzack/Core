@@ -1,6 +1,10 @@
 import { StudioModel } from '../models/StudioModel'
 import { StudioProperty } from '../models/StudioProperty'
 
+/**
+ * Specialized generator responsible for emitting Quatrain Data Models.
+ * Produces the class, properties array, and TypeScript interface definition.
+ */
 export class ModelGenerator {
    /**
     * Generate the complete TypeScript code for a given Quatrain model

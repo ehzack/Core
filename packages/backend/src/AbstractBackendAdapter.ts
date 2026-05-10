@@ -1,4 +1,5 @@
 import {
+   Backend,
    BackendAction,
    BackendParameters,
    BackendParametersKeys,
@@ -16,7 +17,14 @@ import { SchemaDelta } from './types/SchemaDelta'
 
 interface BM extends BackendMiddleware {}
 
+/**
+ * The baseline abstract class defining the contract for all Quatrain database adapters.
+ * Implementations must extend this class to translate agnostic CRUD operations into
+ * specific database queries (e.g., PostgreSQL, Firestore).
+ * It also handles middleware execution lifecycles.
+ */
 export abstract class AbstractBackendAdapter implements BackendInterface {
+   /** The string identifier for primary keys, mapped to 'id' by default. */
    static PKEY_IDENTIFIER: any = 'id'
 
    protected _alias: string = ''
@@ -29,14 +37,33 @@ export abstract class AbstractBackendAdapter implements BackendInterface {
       this._params = params
    }
 
+   /**
+    * Overrides or adds a backend configuration parameter dynamically.
+    * 
+    * @param key - The parameter key to modify.
+    * @param value - The new value to assign.
+    */
    setParam(key: BackendParametersKeys, value: any) {
       this._params[key] = value
    }
 
+   /**
+    * Retrieves a specific configuration parameter.
+    * 
+    * @param key - The parameter key to fetch.
+    * @returns The value associated with the key, or undefined.
+    */
    getParam(key: BackendParametersKeys) {
       return this._params[key]
    }
 
+   /**
+    * Attaches a new middleware to the adapter's execution pipeline.
+    * Middlewares are triggered before or after database actions.
+    * 
+    * @param middleware - The instantiated middleware to attach.
+    * @throws {BackendError} If a middleware with the same class name is already attached.
+    */
    addMiddleware(middleware: BM) {
       if (this.hasMiddleware(middleware.constructor.name)) {
          throw new BackendError(
@@ -46,6 +73,11 @@ export abstract class AbstractBackendAdapter implements BackendInterface {
       this._middlewares.push(middleware)
    }
 
+   /**
+    * Removes a middleware from the pipeline by its class name.
+    * 
+    * @param middlewareClassName - The exact name of the middleware class to remove.
+    */
    deleteMiddleware(middlewareClassName: string) {
       this._middlewares = this._middlewares.filter(
          (middleware) => middleware.constructor.name !== middlewareClassName
@@ -76,27 +108,64 @@ export abstract class AbstractBackendAdapter implements BackendInterface {
       return this._alias
    }
 
+   /**
+    * Helper method to extract the destination collection name from a DataObject.
+    * 
+    * @param dao - The DataObject evaluating the context.
+    * @returns The resolved collection string.
+    */
    getCollection(dao: DataObjectClass<any>) {
       return dao.uri.collection
    }
 
+   /**
+    * Adapter-specific implementation for inserting new records.
+    * 
+    * @param dataObject - The payload.
+    * @param desiredUid - Optional explicit UID to use.
+    * @returns A promise resolving to the created object.
+    */
    abstract create(
       dataObject: DataObjectClass<any>,
       desiredUid?: string | undefined
    ): Promise<DataObjectClass<any>>
 
+   /**
+    * Adapter-specific implementation for reading a record by its UID/path.
+    * 
+    * @param dataObject - Empty object holding the target URI path.
+    * @returns A promise resolving to the populated DataObject.
+    */
    abstract read(
       dataObject: DataObjectClass<any>
    ): Promise<DataObjectClass<any>>
 
+   /**
+    * Adapter-specific implementation for modifying an existing record.
+    * 
+    * @param dataObject - The modified DataObject payload.
+    * @returns A promise resolving to the updated DataObject.
+    */
    abstract update(
       dataObject: DataObjectClass<any>
    ): Promise<DataObjectClass<any>>
 
+   /**
+    * Adapter-specific implementation for deleting an existing record.
+    * 
+    * @param dataObject - The object to delete.
+    * @returns A promise resolving to the deleted object footprint.
+    */
    abstract delete(
       dataObject: DataObjectClass<any>
    ): Promise<DataObjectClass<any>>
 
+   /**
+    * Adapter-specific implementation for removing an entire collection.
+    * 
+    * @param collection - The collection name.
+    * @param batchSize - The pagination batch limit for NoSQL sequential deletes.
+    */
    abstract deleteCollection(
       collection: string,
       batchSize?: number
@@ -121,6 +190,15 @@ export abstract class AbstractBackendAdapter implements BackendInterface {
       )
    }
 
+   /**
+    * Adapter-specific implementation translating complex Query constructs into raw database statements.
+    * 
+    * @param dataObject - Base template object representing the queried collection.
+    * @param filters - The compiled list of WHERE filters.
+    * @param pagination - Limits, offsets, and sorting directions.
+    * @param parent - Optional linked parent object for nested lookups.
+    * @returns A promise resolving to an array of objects and result metadata.
+    */
    abstract find(
       dataObject: DataObjectClass<any>,
       filters: Filters | Filter[] | undefined,
@@ -128,12 +206,27 @@ export abstract class AbstractBackendAdapter implements BackendInterface {
       parent: any
    ): Promise<QueryResultType<any>>
 
+   /**
+    * Outputs an adapter-level diagnostic message to the console if `debug` mode is enabled.
+    * 
+    * @param message - The textual content to log.
+    * @deprecated Use `Backend.debug()` or `Backend.log()` (which itself is deprecated in favor of specific levels) instead.
+    */
    log(message: string) {
       if (this._params['debug'] === true) {
-         console.log(message)
+         Backend.debug(message)
       }
    }
 
+   /**
+    * Orchestrates the sequential execution of all attached middlewares for a given action.
+    * 
+    * @param dataObject - The payload traversing the middlewares.
+    * @param action - The context (READ, CREATE, UPDATE, DELETE).
+    * @param timing - Whether to run the `before` or `after` pipeline.
+    * @param params - Optional parameters passed down to the middlewares.
+    * @returns A promise resolving to the potentially mutated DataObject.
+    */
    async executeMiddlewares(
       dataObject: DataObjectClass<any>,
       action: BackendAction,

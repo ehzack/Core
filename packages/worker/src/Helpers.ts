@@ -1,8 +1,12 @@
 import { Worker } from './Worker'
 import path from 'node:path'
 
+/**
+ * General utility class providing common static helpers for workers.
+ */
 export class Helpers {
-   static FFMPEG = '/usr/bin/ffmpeg'
+   /** Default absolute path to the system's FFmpeg binary. */
+   static FFMPEG = Worker.getSystemCommandPath('ffmpeg')
 
    /**
     * Generate a thubnail from a video file at given frame position
@@ -35,6 +39,6 @@ export class Helpers {
 
       Worker.info(`Generating Thumbnail : ${outputPath}`)
 
-      return await Worker.execPromise(Helpers.FFMPEG, ffmpegParams)
+      return await Worker.execPromise(await Helpers.FFMPEG, ffmpegParams)
    }
 }

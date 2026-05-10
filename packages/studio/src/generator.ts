@@ -1,6 +1,10 @@
 import { StudioModel } from './models/StudioModel'
 import { StudioProperty } from './models/StudioProperty'
 
+/**
+ * Core utility for programmatically generating Quatrain model TypeScript code.
+ * Transforms `StudioModel` and its properties into valid TS classes and interfaces.
+ */
 export class CodeGenerator {
    /**
     * Generate the complete TypeScript code for a given Quatrain model

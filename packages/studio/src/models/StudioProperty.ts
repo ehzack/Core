@@ -68,10 +68,21 @@ export const StudioPropertyDef: any = [
    }
 ]
 
+/**
+ * Core domain model representing a StudioProperty within the Quatrain Studio ecosystem.
+ */
 export class StudioProperty extends PersistedBaseObject {
+   /** The schema definition dictating the properties of this model. */
    static PROPS_DEFINITION = StudioPropertyDef
+   /** The underlying database collection or table name. */
    static COLLECTION = 'studio_property'
 
+   /**
+    * Instantiates a new `StudioProperty` or loads one from the database.
+    * 
+    * @param src - Initial data or an existing URI/ID.
+    * @returns A promise resolving to the model instance.
+    */
    static async factory(src: any = undefined): Promise<StudioProperty> {
       return super.factory(src, StudioProperty)
    }

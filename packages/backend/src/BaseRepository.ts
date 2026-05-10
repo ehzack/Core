@@ -35,10 +35,12 @@ export class BaseRepository<T extends BaseObjectType> {
       }
    }
 
+   /** Toggle indicating whether to automatically parse formats natively as Date. */
    static useDateFormat: boolean = true
 
    //implements RepositoryClass<T>
    protected _model: typeof PersistedBaseObject
+   /** The specific backend adapter designated for this repository's requests. */
    backendAdapter: BackendInterface
 
    constructor(
@@ -84,11 +86,25 @@ export class BaseRepository<T extends BaseObjectType> {
       return dataObject
    }
 
+   /**
+    * Creates a new persistent record for the provided base object instance.
+    * 
+    * @param obj - The new model instance.
+    * @param uid - Optional explicit identifier.
+    * @returns A promise resolving to the saved and repopulated model instance.
+    */
    async create<B extends PersistedBaseObject>(obj: B, uid?: string) {
       const savedObj = await this.backendAdapter.create(obj.dataObject, uid)
       return this._model.fromDataObject(savedObj)
    }
 
+   /**
+    * Internal utility transforming a string key or path into a ready-to-use DataObject.
+    * 
+    * @param key - The short UID or full database path.
+    * @returns A promise resolving to the newly initialized DataObjectClass.
+    * @throws {Error} If key is empty or malformed.
+    */
    async getDataObject(key: string) {
       if (!key) {
          throw new Error(
@@ -164,6 +180,12 @@ export class BaseRepository<T extends BaseObjectType> {
       }
    }
 
+   /**
+    * Updates an existing database record using the mutated object instance.
+    * 
+    * @param obj - The modified object instance.
+    * @returns A promise resolving to the updated object footprint.
+    */
    async update<B extends PersistedBaseObject>(obj: B) {
       const dataObject = obj.dataObject || obj
       const savedObj = await this.backendAdapter.update(dataObject)
@@ -180,6 +202,12 @@ export class BaseRepository<T extends BaseObjectType> {
       return await this.backendAdapter.delete(dataObject, hardDelete)
    }
 
+   /**
+    * Executes an advanced `Query` using the current repository's backend adapter.
+    * 
+    * @param query - The configured Query builder instance.
+    * @returns A promise resolving to an array of model instances matching the query.
+    */
    async query(query: Query<any>): Promise<QueryResultType<T>> {
       return await query.fetchAsInstances(this.backendAdapter)
    }

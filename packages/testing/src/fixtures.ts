@@ -1,10 +1,22 @@
 import { User, PersistedBaseObject } from '@quatrain/backend'
 import { Entity as CoreEntity } from '@quatrain/core'
 
+/**
+ * A mock persisted entity used across unit and integration tests.
+ * Extends `PersistedBaseObject` to simulate database interactions.
+ */
 export class Entity extends PersistedBaseObject {
+   /** The mock collection name where this entity would be stored. */
    static COLLECTION = 'entities'
+   /** The schema definition inherited from `CoreEntity`. */
    static PROPS_DEFINITION = CoreEntity.PROPS_DEFINITION
 
+   /**
+    * Instantiates a new test `Entity` with optional mock data.
+    * 
+    * @param src - Initial mock data or object URI.
+    * @returns A promise resolving to the instantiated entity.
+    */
    static async factory(src: any = undefined): Promise<Entity> {
       return super.factory(src, Entity)
    }

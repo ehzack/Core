@@ -41,10 +41,21 @@ export const StudioAuthProperties: any = [
    }
 ]
 
+/**
+ * Core domain model representing a StudioAuth within the Quatrain Studio ecosystem.
+ */
 export class StudioAuth extends PersistedBaseObject {
+   /** The schema definition dictating the properties of this model. */
    static PROPS_DEFINITION = StudioAuthProperties
+   /** The underlying database collection or table name. */
    static COLLECTION = 'studio_auth'
 
+   /**
+    * Instantiates a new `StudioAuth` or loads one from the database.
+    * 
+    * @param src - Initial data or an existing URI/ID.
+    * @returns A promise resolving to the model instance.
+    */
    static async factory(src: any = undefined): Promise<StudioAuth> {
       return super.factory(src, StudioAuth)
    }

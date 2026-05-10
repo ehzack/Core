@@ -42,10 +42,21 @@ export const StudioWidgetDef: any = [
    }
 ]
 
+/**
+ * Core domain model representing a StudioWidget within the Quatrain Studio ecosystem.
+ */
 export class StudioWidget extends PersistedBaseObject {
+   /** The schema definition dictating the properties of this model. */
    static PROPS_DEFINITION = StudioWidgetDef
+   /** The underlying database collection or table name. */
    static COLLECTION = 'studio_widget'
 
+   /**
+    * Instantiates a new `StudioWidget` or loads one from the database.
+    * 
+    * @param src - Initial data or an existing URI/ID.
+    * @returns A promise resolving to the model instance.
+    */
    static async factory(src: any = undefined): Promise<StudioWidget> {
       return super.factory(src, StudioWidget)
    }

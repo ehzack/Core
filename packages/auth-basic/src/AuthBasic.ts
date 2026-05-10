@@ -1,6 +1,10 @@
 import { Api, ApiMiddleware, ApiRequest, ApiResponse } from '@quatrain/api'
 import { Buffer } from 'node:buffer'
 
+/**
+ * A rudimentary Basic Authentication implementation (RFC 7617).
+ * Parses `Authorization: Basic <base64>` headers for hardcoded credentials.
+ */
 export class AuthBasic {
    private user: string
    private pass: string
@@ -10,6 +14,13 @@ export class AuthBasic {
       this.pass = pass
    }
 
+   /**
+    * Instantiates a new Basic Auth verifier.
+    * 
+    * @param userOrConfig - Username string, or a config object containing `{user, pass}`.
+    * @param pass - Password string.
+    * @returns The generated instance, or null if params are invalid.
+    */
    static factory(userOrConfig?: string | any, pass?: string): AuthBasic | null {
       if (typeof userOrConfig === 'object') {
          if (!userOrConfig.user || !userOrConfig.pass) return null
@@ -19,6 +30,12 @@ export class AuthBasic {
       return new AuthBasic(userOrConfig, pass)
    }
 
+   /**
+    * Returns an Express-compatible API middleware.
+    * Validates the request headers against the configured Basic credentials.
+    * 
+    * @returns The middleware function.
+    */
    public middleware(): ApiMiddleware {
       return async (req: ApiRequest, res: ApiResponse): Promise<boolean> => {
          const b64auth = ((req.headers?.authorization as string) || '').split(' ')[1] || ''

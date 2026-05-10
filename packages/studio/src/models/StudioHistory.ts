@@ -51,10 +51,21 @@ export const StudioHistoryDef: any = [
    }
 ]
 
+/**
+ * Core domain model representing a StudioHistory within the Quatrain Studio ecosystem.
+ */
 export class StudioHistory extends PersistedBaseObject {
+   /** The schema definition dictating the properties of this model. */
    static PROPS_DEFINITION = StudioHistoryDef
+   /** The underlying database collection or table name. */
    static COLLECTION = 'studio_history'
 
+   /**
+    * Instantiates a new `StudioHistory` or loads one from the database.
+    * 
+    * @param src - Initial data or an existing URI/ID.
+    * @returns A promise resolving to the model instance.
+    */
    static async factory(src: any = undefined): Promise<StudioHistory> {
       return super.factory(src, StudioHistory)
    }

@@ -45,6 +45,15 @@ jobs:
           echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
           echo "//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}" >> ~/.npmrc
 
+      - name: Audit JSDoc for regressions
+        run: |
+          OUTPUT=$(npx ts-node scripts/audit-jsdoc.ts | grep -E "\\[Missing\\] packages/(auth|backend|storage|studio|testing|worker)" || true)
+          if [ ! -z "$OUTPUT" ]; then
+            echo "JSDoc missing in audited packages:"
+            echo "$OUTPUT"
+            exit 1
+          fi
+
       - name: Publish all changed packages
         run: yarn publish:all
 

@@ -46,6 +46,7 @@ export interface CollectionPropertyType extends BasePropertyType {
  * ```
  */
 export class CollectionProperty extends BaseProperty {
+   /** Type identifier for the property registry. */
    static TYPE = 'collection'
    protected _value:
       | Array<any>

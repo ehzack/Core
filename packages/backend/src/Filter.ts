@@ -15,11 +15,14 @@ export interface FilterType {
 }
 
 /**
- * Filter object
+ * Represents a single atomic filtering condition for a database query.
  */
 export class Filter implements FilterType {
+   /** The precise property name in the collection to apply the filter against. */
    prop: string
+   /** The logic operator evaluating the condition (e.g., 'equals', 'greater', 'contains'). */
    operator: FilterOperatorType
+   /** The raw value, array of values, or object reference to compare against. */
    value: FilterValueType<any>
 
    constructor(

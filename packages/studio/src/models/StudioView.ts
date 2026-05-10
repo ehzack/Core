@@ -32,10 +32,21 @@ export const StudioViewDef: any = [
    }
 ]
 
+/**
+ * Core domain model representing a StudioView within the Quatrain Studio ecosystem.
+ */
 export class StudioView extends PersistedBaseObject {
+   /** The schema definition dictating the properties of this model. */
    static PROPS_DEFINITION = StudioViewDef
+   /** The underlying database collection or table name. */
    static COLLECTION = 'studio_view'
 
+   /**
+    * Instantiates a new `StudioView` or loads one from the database.
+    * 
+    * @param src - Initial data or an existing URI/ID.
+    * @returns A promise resolving to the model instance.
+    */
    static async factory(src: any = undefined): Promise<StudioView> {
       return super.factory(src, StudioView)
    }

@@ -87,10 +87,21 @@ export const StudioBackendDef: any = [
    }
 ]
 
+/**
+ * Core domain model representing a StudioBackend within the Quatrain Studio ecosystem.
+ */
 export class StudioBackend extends PersistedBaseObject {
+   /** The schema definition dictating the properties of this model. */
    static PROPS_DEFINITION = StudioBackendDef
+   /** The underlying database collection or table name. */
    static COLLECTION = 'studio_backend'
 
+   /**
+    * Instantiates a new `StudioBackend` or loads one from the database.
+    * 
+    * @param src - Initial data or an existing URI/ID.
+    * @returns A promise resolving to the model instance.
+    */
    static async factory(src: any = undefined): Promise<StudioBackend> {
       return super.factory(src, StudioBackend)
    }

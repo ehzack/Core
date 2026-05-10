@@ -13,6 +13,10 @@ import hash from 'object-hash'
 import { Core } from '@quatrain/core'
 import { randomUUID } from 'node:crypto'
 
+/**
+ * Base abstract class defining the contract for all storage adapters.
+ * Implements common logic for media thumbnailing and URL routing via gateways.
+ */
 export abstract class AbstractStorageAdapter
    implements StorageAdapterInterface
 {
@@ -25,16 +29,56 @@ export abstract class AbstractStorageAdapter
       this._params = params
    }
 
+   /**
+    * Returns the underlying SDK or driver instance.
+    * 
+    * @returns The raw storage client.
+    */
    abstract getDriver(): any
 
+   /**
+    * Uploads a file stream to the storage backend.
+    * 
+    * @param file - Target file metadata.
+    * @param stream - Readable data stream.
+    * @returns A promise resolving to the uploaded File footprint.
+    */
    abstract create(file: FileType, stream: Readable): Promise<FileType>
 
+   /**
+    * Downloads a remote file to a local destination.
+    * 
+    * @param file - File footprint to download.
+    * @param path - Download configuration and destination path.
+    * @returns A promise resolving to the local file path or raw data.
+    */
    abstract download(file: FileType, path: DownloadFileMetaType): Promise<any>
 
+   /**
+    * Copies an existing file natively within the backend.
+    * 
+    * @param file - Source footprint.
+    * @param destFile - Destination footprint.
+    */
    abstract copy(file: FileType, destFile: FileType): Promise<any>
 
+   /**
+    * Moves/renames a file natively within the backend.
+    * 
+    * @param file - Source footprint.
+    * @param destFile - Destination footprint.
+    */
    abstract move(file: FileType, destFile: FileType): Promise<any>
 
+   /**
+    * Internal adapter method to generate a raw provider URL (e.g. S3 presigned URL).
+    * 
+    * @param file - The target file footprint.
+    * @param expiresIn - URL expiration in seconds.
+    * @param action - Action context.
+    * @param extra - Provider-specific overrides.
+    * @returns A promise resolving to the native URL.
+    */
    abstract _getUrl(
       file: FileType,
       expiresIn?: number,
@@ -42,6 +86,16 @@ export abstract class AbstractStorageAdapter
       extra?: any
    ): Promise<any>
 
+   /**
+    * Generates an access URL for the given file, automatically rewriting the link
+    * through an API Gateway if configured via `GATEWAY_URL`, factoring in sizing and mimetype exclusions.
+    * 
+    * @param file - The target file.
+    * @param expiresIn - Signature validity duration.
+    * @param action - Intended action ('read', 'write').
+    * @param extra - Custom parameters (e.g., `native: true` bypasses the gateway).
+    * @returns A promise resolving to the final routable URL payload.
+    */
    public async getUrl(
       file: FileType,
       expiresIn?: number,
@@ -78,14 +132,44 @@ export abstract class AbstractStorageAdapter
       return rewrittenUrl
    }
 
+   /**
+    * Deletes a file from the backend storage.
+    * 
+    * @param file - The target file.
+    * @returns True if successful.
+    */
    abstract delete(file: FileType): Promise<boolean>
 
+   /**
+    * Directly pipes the remote file to a given local stream or HTTP response.
+    * 
+    * @param file - File footprint.
+    * @param res - Output writable stream.
+    */
    abstract stream(file: FileType, res: any): Promise<any>
 
+   /**
+    * Generates a direct-to-provider upload URL, bypassing the application server.
+    * 
+    * @param filePath - The intended file footprint.
+    * @param expiresIn - Expiration of the upload link.
+    */
    abstract getUploadUrl(filePath: FileType, expiresIn?: number): Promise<any>
 
+   /**
+    * Connects to the backend and returns a Node Readable stream of the file content.
+    * 
+    * @param file - Target file.
+    * @returns A promise resolving to the ReadStream.
+    */
    abstract getReadable(file: FileType): Promise<Readable>
 
+   /**
+    * Retrieves extended object metadata (like byte size and content-type) from the backend.
+    * 
+    * @param file - Target footprint.
+    * @returns The augmented metadata block.
+    */
    abstract getMetaData(file: FileType): Promise<FileType>
 
    protected async _setupThumbnailWorkspace(
@@ -161,6 +245,13 @@ export abstract class AbstractStorageAdapter
       )
    }
 
+   /**
+    * Downloads an image, generates resized thumbnails via `sharp`, and uploads them back.
+    * 
+    * @param file - Original image footprint.
+    * @param sizes - Array of desired thumbnail dimensions (px).
+    * @returns A mapping of generated thumbnail identifiers to their respective storage refs.
+    */
    async generateImageThumbnail(file: FileType, sizes: number[]): Promise<any> {
       Storage.info(`Generating image thumbnail(s) for ${file.ref}`)
       const { name, bucketDir, extension } = this._getFileInfo(file)
@@ -199,6 +290,13 @@ export abstract class AbstractStorageAdapter
       }
    }
 
+   /**
+    * Extracts a single frame from a remote video via `ffmpeg`, resizes it, and uploads the frame as an image thumbnail.
+    * 
+    * @param file - Original video footprint.
+    * @param sizes - Array of desired thumbnail dimensions (px).
+    * @returns A mapping of generated thumbnail identifiers to their respective storage refs.
+    */
    async generateVideoThumbnail(file: FileType, sizes: number[]): Promise<any> {
       Storage.info(`Generating video thumbnail(s) for ${file.ref}`)
       const { name, bucketDir, extension } = this._getFileInfo(file)
@@ -260,6 +358,13 @@ export abstract class AbstractStorageAdapter
       }
    }
 
+   /**
+    * Extracts the first page of a document (e.g. PDF) via `ImageMagick`, resizes it, and uploads it as a thumbnail.
+    * 
+    * @param file - Original document footprint.
+    * @param sizes - Array of desired thumbnail dimensions (px).
+    * @returns A mapping of generated thumbnail identifiers to their respective storage refs.
+    */
    async generateDocumentThumbnail(
       file: FileType,
       sizes: number[]
@@ -324,6 +429,14 @@ export abstract class AbstractStorageAdapter
       }
    }
 
+   /**
+    * Entry point for thumbnail generation. Analyzes the content type and automatically
+    * delegates to the appropriate generation strategy (Image, Video, or Document).
+    * 
+    * @param file - Target file footprint.
+    * @param sizes - Desired dimensions.
+    * @returns The generated thumbnail map, or an empty object if unsupported/failed.
+    */
    async generateThumbnail(file: FileType, sizes: number[]): Promise<any> {
       const [type] = file.contentType
          ? file.contentType.split('/')

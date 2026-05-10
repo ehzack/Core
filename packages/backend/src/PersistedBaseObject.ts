@@ -15,6 +15,7 @@ import { PersistedDataObject } from './PersistedDataObject'
  * and providing a factory to hydrate objects directly from the database.
  */
 export class PersistedBaseObject extends BaseObject {
+   /** The overarching property schema definition inherited and merged from `BaseObject`. */
    static PROPS_DEFINITION: any /*DataObjectProperties*/ = BaseObjectProperties
 
    protected _dataObject: DataObjectClass<any>
@@ -24,12 +25,24 @@ export class PersistedBaseObject extends BaseObject {
       this._dataObject = dao
    }
 
+   /**
+    * Looks up a property definition by its name from the merged `PROPS_DEFINITION`.
+    * 
+    * @param key - The property name.
+    * @returns The property definition object if found.
+    */
    static getProperty(key: string) {
       return PersistedBaseObject.PROPS_DEFINITION.find(
          (prop: any) => prop.name === key
       )
    }
 
+   /**
+    * Merges the parent class property definitions with the child's explicit properties.
+    * 
+    * @param child - The specific child class.
+    * @returns A factory-initialized DataObject representing the merged structure.
+    */
    static fillProperties(child: any = this) {
       // merge base properties with additional or redefined ones
       const base = [...PersistedBaseObject.PROPS_DEFINITION]
@@ -53,6 +66,14 @@ export class PersistedBaseObject extends BaseObject {
       return dao
    }
 
+   /**
+    * Orchestrates the creation of a DataObject linked to this class schema.
+    * Can dynamically read state from the backend if a URI is provided.
+    * 
+    * @param src - The initialization source (ObjectUri, string path, or existing DAO).
+    * @param child - The child class definition.
+    * @returns A promise resolving to the fully instantiated DataObject.
+    */
    static async daoFactory(
       src: string | ObjectUri | DataObjectClass<any> | undefined = undefined,
       child: any = this
@@ -162,6 +183,12 @@ export class PersistedBaseObject extends BaseObject {
       return obj //.toProxy()
    }
 
+   /**
+    * Generates a lightweight Reference representation of the object.
+    * Commonly used for NoSQL or object relational mapping.
+    * 
+    * @returns A standardized object reference.
+    */
    asReference() {
       return this._dataObject.toReference()
    }

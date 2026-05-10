@@ -1,7 +1,18 @@
 // @ts-ignore
 import Provider from 'oidc-provider'
 
+/**
+ * OpenID Connect provider factory implementing `oidc-provider`.
+ * Can be used to run a fully functional OAuth2 / OIDC server locally.
+ */
 export class AuthOIDC {
+   /**
+    * Creates an OIDC Provider instance.
+    * 
+    * @param issuer - The base URL issuer (e.g. `http://localhost:3000`).
+    * @param config - Overrides for the underlying OIDC configuration.
+    * @returns An `oidc-provider` instance.
+    */
    public static factory(issuer: string, config?: any) {
       // Basic minimal configuration for PoC
       const configuration = {

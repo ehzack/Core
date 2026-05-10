@@ -1,5 +1,8 @@
 import { SchemaDelta } from '@quatrain/backend'
 
+/**
+ * Utility class for computing structural differences between two schema property lists.
+ */
 export class SchemaDiffer {
    /**
     * Compares two sets of properties and returns the delta.

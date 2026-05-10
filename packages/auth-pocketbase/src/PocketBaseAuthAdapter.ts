@@ -3,6 +3,10 @@ import { User } from '@quatrain/backend'
 import PocketBase from 'pocketbase'
 import 'cross-fetch/polyfill'
 
+/**
+ * Authentication adapter implementing the PocketBase backend logic.
+ * Exposes login, registration, and token management via the official `pocketbase` JS SDK.
+ */
 export class PocketBaseAuthAdapter extends AbstractAuthAdapter {
    protected _client: PocketBase
 
@@ -13,6 +17,14 @@ export class PocketBaseAuthAdapter extends AbstractAuthAdapter {
       Auth.info(`Created PocketBase client for ${url}`)
    }
 
+   /**
+    * Registers a new user directly in PocketBase.
+    * 
+    * @param user - Target user entity.
+    * @param clearPassword - The plaintext password string.
+    * @returns The created user record.
+    * @throws {AuthenticationError} If registration fails.
+    */
    async register(user: User, clearPassword?: string): Promise<any> {
       try {
          const {
@@ -39,6 +51,13 @@ export class PocketBaseAuthAdapter extends AbstractAuthAdapter {
       }
    }
 
+   /**
+    * Authenticates a user against PocketBase via email and password.
+    * 
+    * @param login - Login identifier.
+    * @param password - Plaintext password.
+    * @returns The authenticated session wrapper containing user state and the JWT token.
+    */
    async signup(login: string, password: string): Promise<any> {
       try {
          const authData = await this._client.collection('users').authWithPassword(login, password)
@@ -49,11 +68,22 @@ export class PocketBaseAuthAdapter extends AbstractAuthAdapter {
       }
    }
 
+   /**
+    * Discards the active local SDK authentication store.
+    * 
+    * @param user - Target user.
+    */
    async signout(user?: User): Promise<any> {
       this._client.authStore.clear()
       return true
    }
 
+   /**
+    * Modifies a PocketBase user collection record.
+    * 
+    * @param user - Target user.
+    * @param updatable - Property patches.
+    */
    async update(user: User, updatable: any): Promise<any> {
       try {
          if (Object.keys(updatable).length > 0) {
@@ -66,6 +96,11 @@ export class PocketBaseAuthAdapter extends AbstractAuthAdapter {
       }
    }
 
+   /**
+    * Destroys a PocketBase user record.
+    * 
+    * @param user - Target user.
+    */
    async delete(user: User): Promise<any> {
       try {
          await this._client.collection('users').delete(user.uid)
@@ -76,6 +111,12 @@ export class PocketBaseAuthAdapter extends AbstractAuthAdapter {
       }
    }
 
+   /**
+    * Validates and returns user session context from a raw JWT via the PocketBase SDK.
+    * 
+    * @param token - The raw authentication token.
+    * @returns The associated user record.
+    */
    async getAuthToken(token: string): Promise<any> {
       try {
          this._client.authStore.save(token, null)
@@ -86,6 +127,12 @@ export class PocketBaseAuthAdapter extends AbstractAuthAdapter {
       }
    }
 
+   /**
+    * Attempts to renew the SDK auth token via a refresh flow.
+    * 
+    * @param refreshToken - The refresh token.
+    * @returns An object containing the new access token.
+    */
    async refreshToken(refreshToken: string): Promise<any> {
       try {
          this._client.authStore.save(refreshToken, null)
@@ -96,11 +143,22 @@ export class PocketBaseAuthAdapter extends AbstractAuthAdapter {
       }
    }
 
+   /**
+    * Clears the current stored context mapping to the given token.
+    * 
+    * @param token - The token to revoke.
+    */
    async revokeAuthToken(token: string): Promise<any> {
       this.signout()
       return true
    }
 
+   /**
+    * Modifies metadata claims mapped to the internal `user_metadata` field.
+    * 
+    * @param id - The user ID.
+    * @param claims - The payload to store.
+    */
    async setCustomUserClaims(id: string, claims: any): Promise<any> {
       Auth.debug(`[PocketBase] Setting custom claims for user ${id}`)
       try {

@@ -6,7 +6,17 @@ import fetch from 'node-fetch-native'
 import * as ffmpeg from 'fluent-ffmpeg'
 import { FileType } from '@quatrain/storage'
 
+/**
+ * Utility class providing synchronous and asynchronous file system operations
+ * specifically tailored for the worker environment (e.g., managing temp folders, downloading remote files).
+ */
 export class FileSystem {
+   /**
+    * Prepares a clean processing directory, creating it along with required subdirectories (`images`, `vecto`).
+    * Any existing folder with the same name will be deleted first.
+    * 
+    * @param folder - The base directory path to set up.
+    */
    static prepare(folder: string) {
       Worker.debug(`Setting up process folder ${folder}`)
       this.removeFolder(folder)
@@ -16,10 +26,22 @@ export class FileSystem {
       fs.mkdirSync(folder + path.sep + 'vecto')
    }
 
+   /**
+    * Synchronously creates a single directory.
+    * 
+    * @param folder - The directory path.
+    */
    static makeFolder(folder: string) {
       fs.mkdirSync(folder)
    }
 
+   /**
+    * Recursively and synchronously removes a folder and its entire contents.
+    * 
+    * @param folder - The target directory to destroy.
+    * @param recursively - Whether to traverse and delete nested folders. Defaults to true.
+    * @throws {Error} If `recursively` is false but nested folders are encountered.
+    */
    static removeFolder(folder: string, recursively = true) {
       if (fs.existsSync(folder)) {
          fs.readdirSync(folder).forEach((element) => {
@@ -38,6 +60,14 @@ export class FileSystem {
       }
    }
 
+   /**
+    * Downloads a file from an external HTTP/HTTPS URL into the local filesystem.
+    * 
+    * @param url - The remote resource URL.
+    * @param filepath - The local destination path.
+    * @returns A promise resolving when the download finishes.
+    * @throws {Error} If the HTTP request or stream fails.
+    */
    static async downloadFile(url: string, filepath: string) {
       try {
          Worker.debug(`Downloading file at ${url} to ${filepath}`)
@@ -58,6 +88,12 @@ export class FileSystem {
       }
    }
 
+   /**
+    * Sanitizes a string to be used safely as a filename by replacing spaces with underscores.
+    * 
+    * @param name - The original string.
+    * @returns The sanitized string.
+    */
    static safeString(name: string) {
       return name.replaceAll(/\s+/g, '_')
    }

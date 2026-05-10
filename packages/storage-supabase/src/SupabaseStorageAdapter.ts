@@ -12,6 +12,11 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import fs from 'node:fs'
 
+/**
+ * Storage adapter implementation targeting Supabase Storage.
+ * Interfaces with the `@supabase/storage-js` client to manage buckets,
+ * secure signed URLs, and file uploads.
+ */
 export class SupabaseStorageAdapter extends AbstractStorageAdapter {
    protected _client: StorageClient
 
@@ -25,14 +30,30 @@ export class SupabaseStorageAdapter extends AbstractStorageAdapter {
       Storage.info(`[SSA] Supabase Storage Adapter initialized`)
    }
 
+   /**
+    * Exposes the underlying Supabase `StorageClient` instance.
+    * 
+    * @returns The storage client.
+    */
    getDriver() {
       return this._client
    }
 
+   /**
+    * Retrieves file metadata. Currently acts as a passthrough for Supabase.
+    * 
+    * @param file - Target file footprint.
+    * @returns The file metadata.
+    */
    getMetaData(file: FileType): Promise<FileType> {
       return new Promise(() => file)
    }
 
+   /**
+    * Validates backend connectivity by listing available buckets in the Supabase project.
+    * 
+    * @returns True if connected.
+    */
    async test(): Promise<boolean> {
       try {
          const { data, error } = await this._client.listBuckets()
@@ -53,6 +74,12 @@ export class SupabaseStorageAdapter extends AbstractStorageAdapter {
       }
    }
 
+   /**
+    * Helper converting a node stream to a Buffer, essential for Blob creation.
+    * 
+    * @param stream - The input stream.
+    * @returns A promise resolving to the concatenated Buffer.
+    */
    async streamToBuffer(stream: Stream): Promise<Buffer> {
       return new Promise<Buffer>((resolve, reject) => {
          const _buf: any[] = []
@@ -63,6 +90,12 @@ export class SupabaseStorageAdapter extends AbstractStorageAdapter {
       })
    }
 
+   /**
+    * Internal helper to convert a Buffer into a native ArrayBuffer.
+    * 
+    * @param buffer - The raw Buffer.
+    * @returns The ArrayBuffer representation.
+    */
    toArrayBuffer(buffer: Buffer): ArrayBuffer {
       const arrayBuffer = new ArrayBuffer(buffer.length)
       const view = new Uint8Array(arrayBuffer)
@@ -72,6 +105,14 @@ export class SupabaseStorageAdapter extends AbstractStorageAdapter {
       return arrayBuffer
    }
 
+   /**
+    * Uploads a local file path or stream to the Supabase storage bucket.
+    * 
+    * @param file - Target file schema.
+    * @param stream - Readable stream or string path to the file.
+    * @returns A promise resolving to the created file footprint.
+    * @throws {Error} If upload is rejected.
+    */
    async create(file: FileType, stream: Readable | string): Promise<FileType> {
       Storage.info(`[SSA] Uploading ${file.ref} to ${file.bucket}`)
 
@@ -108,6 +149,12 @@ export class SupabaseStorageAdapter extends AbstractStorageAdapter {
       return file
    }
 
+   /**
+    * Copies a file to a new destination key natively on the Supabase backend.
+    * 
+    * @param file - Original file.
+    * @param destFile - Target destination.
+    */
    async copy(file: FileType, destFile: FileType) {
       try {
          const response = await this._client
@@ -120,6 +167,14 @@ export class SupabaseStorageAdapter extends AbstractStorageAdapter {
       }
    }
 
+   /**
+    * Moves/Renames an existing file natively within Supabase Storage.
+    * 
+    * @param file - The source file.
+    * @param destFile - The target file.
+    * @returns A promise resolving to the newly placed destination file.
+    * @throws {Error} If the move operation fails.
+    */
    async move(file: FileType, destFile: FileType) {
       Storage.info(
          `Moving file ${file.ref} to ${destFile.ref} in same bucket ${file.bucket}`
@@ -138,6 +193,16 @@ export class SupabaseStorageAdapter extends AbstractStorageAdapter {
       return destFile
    }
 
+   /**
+    * Generates a secure, temporary GET link to access the object remotely.
+    * 
+    * @param file - The file footprint.
+    * @param expiresIn - URL expiration in seconds.
+    * @param action - Intended action context.
+    * @param extra - Optional parameters (e.g. cache configurations).
+    * @returns A promise resolving to the signed URL payload.
+    * @throws {Error} If signature creation fails.
+    */
    async _getUrl(file: FileType, expiresIn = 3600, action: any = 'read', extra: any = {}) {
       Storage.debug(
          `Getting signed url for file ${file.ref} in bucket ${file.bucket}`
@@ -160,6 +225,12 @@ export class SupabaseStorageAdapter extends AbstractStorageAdapter {
       return { url: data?.signedUrl, expiresIn }
    }
 
+   /**
+    * Permanently removes the file from the Supabase bucket.
+    * 
+    * @param file - Target file.
+    * @returns True upon success.
+    */
    async delete(file: FileType) {
       Storage.info(`Deleting file ${file.ref} in bucket ${file.bucket}`)
       const { error } = await this._client.from(file.bucket).remove([file.ref])
@@ -173,6 +244,12 @@ export class SupabaseStorageAdapter extends AbstractStorageAdapter {
       return true
    }
 
+   /**
+    * Downloads the file content to a temporary location and returns a Readable stream.
+    * 
+    * @param file - File to read.
+    * @returns The content as a stream.
+    */
    async getReadable(file: FileType): Promise<Readable> {
       Storage.debug(`GET Readable : ${file.ref}`)
 
@@ -186,6 +263,13 @@ export class SupabaseStorageAdapter extends AbstractStorageAdapter {
       return readable
    }
 
+   /**
+    * Fetches and pipes the file content into the given response stream.
+    * 
+    * @param file - File to stream.
+    * @param res - Writable stream or HTTP response object.
+    * @returns The piped stream instance.
+    */
    async stream(file: FileType, res: any) {
       Storage.debug(`GET Stream : ${file.ref}`)
 
@@ -199,6 +283,13 @@ export class SupabaseStorageAdapter extends AbstractStorageAdapter {
       return readable.pipe(res)
    }
 
+   /**
+    * Downloads the file directly, either returning the blob content or saving it locally.
+    * 
+    * @param file - File footprint.
+    * @param meta - Options dictating save path or return format.
+    * @returns A promise resolving to the blob or local file path.
+    */
    async download(
       file: FileType,
       meta: DownloadFileMetaType

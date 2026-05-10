@@ -11,6 +11,10 @@ export interface MigrationOptions {
    backendAlias?: string
 }
 
+/**
+ * Core manager for orchestrating database migrations.
+ * Wraps `umzug` to provide atomic execution, generation, and diffing.
+ */
 export class MigrationManager {
    private umzug: Umzug<AbstractBackendAdapter>
    private migrationsPath: string

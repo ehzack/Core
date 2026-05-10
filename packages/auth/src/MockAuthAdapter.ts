@@ -14,6 +14,13 @@ export class MockAuthAdapter extends AbstractAuthAdapter {
       super(params)
    }
 
+   /**
+    * Mock registration. Stores the user in memory mapped by email.
+    * 
+    * @param user - Target user.
+    * @param clearPassword - Ignored in mock context.
+    * @returns A mock success promise.
+    */
    async register(user: User, clearPassword?: string): Promise<any> {
       if (this.registeredUsers.has(user._.email)) {
          throw new Error('User email already exists')
@@ -22,6 +29,13 @@ export class MockAuthAdapter extends AbstractAuthAdapter {
       return { success: true, user }
    }
 
+   /**
+    * Mock signup. Generates mock JWT tokens assuming the login is valid.
+    * 
+    * @param login - Mock user identifier.
+    * @param password - Mock password.
+    * @returns Emulated auth response payload.
+    */
    async signup(login: string, password: string): Promise<any> {
       const user = this.registeredUsers.get(login)
       if (!user) {
@@ -42,6 +56,11 @@ export class MockAuthAdapter extends AbstractAuthAdapter {
       }
    }
 
+   /**
+    * Deletes active tokens tied to the provided mock user.
+    * 
+    * @param user - User instance to sign out.
+    */
    async signout(user: User): Promise<any> {
       // Remove all tokens associated with this user
       for (const [token, data] of this.tokens.entries()) {
@@ -52,6 +71,12 @@ export class MockAuthAdapter extends AbstractAuthAdapter {
       return { success: true }
    }
 
+   /**
+    * Mock user state update in memory.
+    * 
+    * @param user - Target user.
+    * @param updatable - Property modifications.
+    */
    async update(user: User, updatable: any): Promise<any> {
       const existingUser = this.registeredUsers.get(user._.email)
       if (!existingUser) {
@@ -64,6 +89,11 @@ export class MockAuthAdapter extends AbstractAuthAdapter {
       return { success: true, user: updatedUser }
    }
 
+   /**
+    * Evicts the user and all associated mock tokens from memory.
+    * 
+    * @param user - User instance to delete.
+    */
    async delete(user: User): Promise<any> {
       if (!this.registeredUsers.has(user._.email)) {
          throw new Error('User not found')
@@ -75,6 +105,11 @@ export class MockAuthAdapter extends AbstractAuthAdapter {
       return { success: true }
    }
 
+   /**
+    * Reads the cached token data payload.
+    * 
+    * @param token - Raw mock token string.
+    */
    getAuthToken(token: string): any {
       const tokenData = this.tokens.get(token)
       if (!tokenData) {
@@ -83,6 +118,11 @@ export class MockAuthAdapter extends AbstractAuthAdapter {
       return tokenData
    }
 
+   /**
+    * Cycles an old refresh token for a completely new session pair.
+    * 
+    * @param refreshToken - Active mock refresh token string.
+    */
    async refreshToken(refreshToken: string): Promise<any> {
       const oldToken = this.refreshTokens.get(refreshToken)
       if (!oldToken) {
@@ -113,6 +153,11 @@ export class MockAuthAdapter extends AbstractAuthAdapter {
       }
    }
 
+   /**
+    * Blacklists a specific access token.
+    * 
+    * @param token - Target mock token to drop.
+    */
    revokeAuthToken(token: string): any {
       if (!this.tokens.has(token)) {
          throw new Error('Token not found')
@@ -134,6 +179,12 @@ export class MockAuthAdapter extends AbstractAuthAdapter {
       return { success: true }
    }
 
+   /**
+    * Manually appends structural role claims onto a registered mock user.
+    * 
+    * @param id - Mock user ID.
+    * @param claims - Payload to merge.
+    */
    setCustomUserClaims(id: string, claims: any): any {
       // Find user by id and set custom claims
       for (const [email, user] of this.registeredUsers.entries()) {
@@ -146,16 +197,25 @@ export class MockAuthAdapter extends AbstractAuthAdapter {
    }
 
    // Helper methods for testing
+   /**
+    * Test utility: Flushes all internal registers.
+    */
    clearAll(): void {
       this.registeredUsers.clear()
       this.tokens.clear()
       this.refreshTokens.clear()
    }
 
+   /**
+    * Test utility: Retrieves user instance by its stored key (email).
+    */
    getUserByEmail(email: string): User | undefined {
       return this.registeredUsers.get(email)
    }
 
+   /**
+    * Test utility: Asserts the existence of an active token.
+    */
    hasToken(token: string): boolean {
       return this.tokens.has(token)
    }

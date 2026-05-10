@@ -4,7 +4,19 @@ import BackendMiddleware from './Middleware'
 
 export interface InjectKeywordsMiddlewareParams {}
 
+/**
+ * Backend middleware that automatically generates searchable keywords for an object.
+ * It scans all string properties marked with `fullSearch: true` and generates substrings
+ * to enable fast type-ahead searches on platforms like Firestore.
+ */
 export class InjectKeywordsMiddleware implements BackendMiddleware {
+   /**
+    * Hooks into the backend execution pipeline before CREATE or UPDATE actions.
+    * Computes and injects an array of substrings into the `keywords` property.
+    * 
+    * @param dataObject - The payload traversing the backend.
+    * @param action - The requested database action.
+    */
    beforeExecute(dataObject: DataObjectClass<any>, action: BackendAction) {
       if (!dataObject.has('keywords')) {
          dataObject.addProperty(new ArrayProperty({ name: 'keywords' }))

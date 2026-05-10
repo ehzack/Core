@@ -8,6 +8,11 @@ export interface InjectMetaMiddlewareParams {
    user?: User
 }
 
+/**
+ * Backend middleware that automatically timestamps and logs user activity.
+ * Injects `createdAt`, `updatedAt`, `deletedAt` and corresponding `By` relations
+ * using the current Context user when the object undergoes CRUD operations.
+ */
 export class InjectMetaMiddleware implements BackendMiddleware {
    protected _user: User | undefined
 
@@ -15,6 +20,13 @@ export class InjectMetaMiddleware implements BackendMiddleware {
       this._user = params?.user
    }
 
+   /**
+    * Intercepts the request right before execution to append tracking metadata.
+    * 
+    * @param dataObject - The DataObject entering the database operation.
+    * @param action - CREATE, UPDATE, or DELETE context.
+    * @param params - Optional parameters passed via the adapter execution pipeline.
+    */
    beforeExecute(
       dataObject: DataObjectClass<any>,
       action: BackendAction,
