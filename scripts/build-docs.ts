@@ -109,21 +109,59 @@ function generateApiReference(): void {
     }
     fs.writeFileSync(tempTsConfigPath, JSON.stringify(tempTsConfig, null, 2))
 
+    // Write a tsconfig.typedoc.json in each package and override package.json types to point to src/
+    const createdConfigs: string[] = []
+    const modifiedPackages: string[] = []
+    const packagesDir = path.join(ROOT_DIR, 'packages')
+    if (fs.existsSync(packagesDir)) {
+        for (const p of fs.readdirSync(packagesDir)) {
+            const pkgDir = path.join(packagesDir, p)
+            if (fs.existsSync(path.join(pkgDir, 'src', 'index.ts'))) {
+                const pkgTsConfigPath = path.join(pkgDir, 'tsconfig.typedoc.json')
+                const pkgTsConfig = {
+                    extends: './tsconfig.json',
+                    compilerOptions: {
+                        baseUrl: '../../',
+                        rootDir: '../../',
+                        paths: {
+                            "@quatrain/*": ["packages/*/src/index.ts", "apps/*/src/index.ts"]
+                        }
+                    }
+                }
+                fs.writeFileSync(pkgTsConfigPath, JSON.stringify(pkgTsConfig, null, 2))
+                createdConfigs.push(pkgTsConfigPath)
+
+                // Temporarily rewrite package.json to point directly to src instead of dist
+                const pkgJsonPath = path.join(pkgDir, 'package.json')
+                if (fs.existsSync(pkgJsonPath)) {
+                    const backupPath = path.join(pkgDir, 'package.json.bak')
+                    fs.copyFileSync(pkgJsonPath, backupPath)
+                    modifiedPackages.push(pkgDir)
+
+                    const pkgData = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8'))
+                    pkgData.main = 'src/index.ts'
+                    pkgData.types = 'src/index.ts'
+                    fs.writeFileSync(pkgJsonPath, JSON.stringify(pkgData, null, 2))
+                }
+            }
+        }
+    }
+
     // DEBUG: Permettre de limiter aux 5 premiers packages si DOCS_DEBUG est défini
-    let entryPoints = ['packages/*/src/index.ts']
+    let entryPoints = ['packages/*']
     if (process.env.DOCS_DEBUG) {
         console.info('[DEBUG] DOCS_DEBUG mode: limiting to first 5 packages')
         const allPackages = fs.readdirSync(path.join(ROOT_DIR, 'packages'))
             .filter(p => fs.existsSync(path.join(ROOT_DIR, 'packages', p, 'src', 'index.ts')))
             .slice(0, 5)
-            .map(p => `packages/${p}/src/index.ts`)
+            .map(p => `packages/${p}`)
         entryPoints = allPackages
     }
 
     const args = [
         'typedoc',
         '--out', API_REF_DIR,
-        '--entryPointStrategy', 'resolve',
+        '--entryPointStrategy', 'packages',
         '--excludePrivate',
         '--excludeInternal',
         '--skipErrorChecking', // IGNORER les erreurs TypeScript pour accélérer et éviter les blocages
@@ -140,6 +178,17 @@ function generateApiReference(): void {
     })
 
     if (fs.existsSync(tempTsConfigPath)) fs.unlinkSync(tempTsConfigPath)
+    for (const configPath of createdConfigs) {
+        if (fs.existsSync(configPath)) fs.unlinkSync(configPath)
+    }
+    for (const pkgDir of modifiedPackages) {
+        const pkgJsonPath = path.join(pkgDir, 'package.json')
+        const backupPath = path.join(pkgDir, 'package.json.bak')
+        if (fs.existsSync(backupPath)) {
+            fs.copyFileSync(backupPath, pkgJsonPath)
+            fs.unlinkSync(backupPath)
+        }
+    }
 
     if (result.error || result.status !== 0) {
         console.error(`[ERROR] TypeDoc failed (code ${result.status}):`, result.error || '')

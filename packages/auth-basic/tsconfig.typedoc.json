@@ -1,0 +1,10 @@
+{
+   "extends": "./tsconfig.json",
+   "compilerOptions": {
+      "baseUrl": "../../",
+      "rootDir": "../../",
+      "paths": {
+         "@quatrain/*": ["packages/*/src/index.ts", "apps/*/src/index.ts"]
+      }
+   }
+}

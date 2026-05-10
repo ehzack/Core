@@ -853,7 +853,6 @@ export class PostgresAdapter extends AbstractBackendAdapter {
     * @returns Arrays of Up and Down migration SQL statements.
     */
    generateDeltaSql(collection: string, delta: any): { upSql: string[]; downSql: string[] } {
-   generateDeltaSql(collection: string, delta: any): { upSql: string[]; downSql: string[] } {
       const upSql: string[] = []
       const downSql: string[] = []
 
