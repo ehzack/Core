@@ -42,23 +42,48 @@ type ApiPayload = {
 
 const apiInstances: Record<string, ApiClient> = {}
 
+/**
+ * Universal isomorphic REST API Client for making structured requests 
+ * towards a Quatrain backend or other standard REST APIs.
+ */
 export class ApiClient implements RestApi {
+   /** Controls detailed logging of the requests. */
    static debug: boolean = typeof process !== 'undefined' && process.env?.NODE_ENV === 'development'
 
+   /** Default instance name. */
    static DEFAULT: string = 'default'
+   /** Default base URL prefix. */
    static DEFAULT_URL: string = ''
+   /** Default API endpoint path. */
    static DEFAULT_ENDPOINT: string = 'api'
    
    // Cache configuration (Stubs only for now)
+   /** Cache status flag. */
    static CACHE_ACTIVE = true
+   /** Default cache TTL in seconds. */
    static CACHE_TTL: number = 60 * 60
+   /** Magic string indicating cache eviction. */
    static CACHE_REMOVE: string = '__force_cache_removal__'
 
+   /**
+    * Retrieves or creates a named singleton instance of the ApiClient.
+    * 
+    * @param url - Optional base URL.
+    * @param name - Instance name.
+    * @returns The ApiClient instance.
+    */
    static instance(url: string | null = null, name: string = ApiClient.DEFAULT): ApiClient {
       return apiInstances[name] || new ApiClient(url)
    }
 
    // Cache stubs
+   /**
+    * Cache data access method (currently a stub).
+    * 
+    * @param key - The cache key.
+    * @param data - The data payload to store, or a signal to remove.
+    * @returns The stored data or false.
+    */
    static cache(key: string, data: any = undefined): any {
       if (data) {
          if (data === ApiClient.CACHE_REMOVE) {
@@ -69,17 +94,32 @@ export class ApiClient implements RestApi {
       return false
    }
 
+   /**
+    * Generates a unique cache key based on the endpoint and query options.
+    * 
+    * @param endpoint - The API endpoint.
+    * @param options - Additional query configurations.
+    * @returns A string cache key.
+    */
    static getCacheKey(endpoint: string, options: any = null): string {
       // Hash is stubbed out for now, return a basic key
       return `api-${endpoint}|${options ? JSON.stringify(options) : ''}`
    }
 
+   /**
+    * Invalidates all cache entries starting with a specific prefix.
+    * 
+    * @param _prefix - The prefix string to invalidate.
+    */
    static invalidate(_prefix: string): void {
       // Stub
    }
 
+   /** Instance specific debug flag. */
    public debug = false
+   /** Default request query parameters/options. */
    public params: QueryOptions = {}
+   /** Native HTTP client / wrapper. */
    public client: any
    private baseURL: string
    private authProvider?: AuthProvider
@@ -96,30 +136,79 @@ export class ApiClient implements RestApi {
       apiInstances[name] = this
    }
 
+   /**
+    * Injects an authentication provider strategy.
+    * 
+    * @param authProvider - An AuthProvider implementation.
+    */
    public setAuthProvider(authProvider: AuthProvider) {
       this.authProvider = authProvider
    }
 
+   /**
+    * Performs an HTTP POST request.
+    * 
+    * @param endpoint - The API path.
+    * @param payload - The body data.
+    * @returns The API response payload.
+    */
    public async post(endpoint: string, payload: object) {
       return this.query(endpoint, Method.POST, payload)
    }
 
+   /**
+    * Performs an HTTP PATCH request.
+    * 
+    * @param endpoint - The API path.
+    * @param payload - The delta body data.
+    * @returns The API response payload.
+    */
    public async patch(endpoint: string, payload: object) {
       return this.query(endpoint, Method.PATCH, payload)
    }
 
+   /**
+    * Performs an HTTP PUT request.
+    * 
+    * @param endpoint - The API path.
+    * @param payload - The body data.
+    * @returns The API response payload.
+    */
    public async put(endpoint: string, payload: object) {
       return this.query(endpoint, Method.PUT, payload)
    }
 
+   /**
+    * Performs an HTTP GET request.
+    * 
+    * @param endpoint - The API path.
+    * @param params - Query parameters.
+    * @returns The API response payload.
+    */
    public async get(endpoint: string, params: QueryOptions = {}) {
       return this.query(endpoint, Method.GET, {}, params)
    }
 
+   /**
+    * Performs an HTTP DELETE request.
+    * 
+    * @param endpoint - The API path.
+    * @param payload - Optional body data for the delete request.
+    * @returns The API response payload.
+    */
    public async delete(endpoint: string, payload: object) {
       return this.query(endpoint, Method.DELETE, payload)
    }
 
+   /**
+    * Unified query dispatcher.
+    * 
+    * @param url - The target endpoint.
+    * @param method - The HTTP verb.
+    * @param payload - The body content.
+    * @param params - Additional query strings and headers.
+    * @returns A constructed Quatrain API response payload.
+    */
    public async query(
       url: string,
       method: Method = Method.GET,

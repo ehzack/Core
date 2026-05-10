@@ -6,6 +6,9 @@ import fs from 'node:fs'
 import { InfraBuilder } from './InfraBuilder'
 import { CodeGenerator } from './CodeGenerator'
 
+/**
+ * Manages the local deployment infrastructure lifecycle (start/stop) using podman-compose/docker-compose.
+ */
 export class AppInfra {
    /**
     * Démarrer l'infrastructure locale (bases de données, storages, brokers)

@@ -27,6 +27,9 @@ export type FirebaseParams = {
    serviceAccount?: string
 }
 
+/**
+ * Concrete implementation adapting Firebase / Google Cloud platform functions and triggers.
+ */
 export class FirebaseCloudWrapper extends AbstractCloudWrapper {
    protected _isInitialized = false
 
@@ -38,6 +41,13 @@ export class FirebaseCloudWrapper extends AbstractCloudWrapper {
       }
    }
 
+   /**
+    * Registers a new Firebase HTTPS/HTTP function.
+    * 
+    * @param func - The cloud function handler logic.
+    * @param params - Resource options (memory, timeout).
+    * @returns The constructed HTTPS function.
+    */
    httpsTrigger(
       func: any,
       params: HttpsOptions = { memory: '4GiB', timeoutSeconds: 500 }
@@ -68,6 +78,14 @@ export class FirebaseCloudWrapper extends AbstractCloudWrapper {
    //    }
    // }
 
+   /**
+    * Registers a Firebase Storage finalized trigger.
+    * 
+    * @param func - The execution callback payload.
+    * @param eventType - Event tracking action (e.g. CREATE).
+    * @returns The generated CloudFunction event handler.
+    * @throws {Error} If action type is unknown.
+    */
    storageTrigger(func: any, eventType: BackendAction) {
       this._initialize()
       switch (eventType) {

@@ -13,6 +13,11 @@ export class OAuthProvider implements AuthProvider {
       this.tokenFetcher = tokenFetcher
    }
 
+   /**
+    * Generates the structured auth headers by invoking the dynamic OAuth fetcher callback.
+    * 
+    * @returns A promise resolving to the headers record.
+    */
    public async getHeaders(): Promise<Record<string, string>> {
       const token = await this.tokenFetcher()
       return {

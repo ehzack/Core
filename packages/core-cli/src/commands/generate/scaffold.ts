@@ -1,6 +1,12 @@
 import fs from 'node:fs'
 import path from 'node:path'
 
+/**
+ * Bootstraps a completely new, production-ready Quatrain project structure.
+ * Creates monorepo configuration files (package.json, tsconfig.json) and standard directories.
+ * 
+ * @param projectName - The name and path of the target project directory.
+ */
 export async function generateScaffold(projectName: string) {
    const projectDir = path.resolve(process.cwd(), projectName)
 

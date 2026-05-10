@@ -7,14 +7,31 @@ import { AbstractObject } from './AbstractObject'
 import { DataObjectType } from './types/DataObjectType'
 import { ValidationError } from '../common/ResourcesErrors'
 
+/**
+ * Base generic model class. All Quatrain models inherit from this object.
+ * Provides the lifecycle methods and structural properties logic.
+ */
 export class BaseObject extends AbstractObject {
    // implements BaseObjectClass {
+   /** Standard properties inherited by all children models. */
    static PROPS_DEFINITION: any /*DataObjectProperties*/ = BaseObjectProperties
 
+   /**
+    * Returns the definition of a specific property from the model schema.
+    * 
+    * @param key - The property name.
+    * @returns The property definition object.
+    */
    static getProperty(key: string) {
       return BaseObject.PROPS_DEFINITION.find((prop: any) => prop.name === key)
    }
 
+   /**
+    * Compiles the merged properties of a given child class down to its parents.
+    * 
+    * @param child - The target child class.
+    * @returns The resulting populated DataObject.
+    */
    static fillProperties(child: any = this) {
       // merge base properties with additional or redefined ones
       const base = [...BaseObject.PROPS_DEFINITION]
@@ -38,6 +55,13 @@ export class BaseObject extends AbstractObject {
       return dao
    }
 
+   /**
+    * Instantiates the DataObject for a specific model class.
+    * 
+    * @param src - Potential source path or object.
+    * @param child - The class constructor context.
+    * @returns A promise resolving to the inner DataObject payload.
+    */
    static async daoFactory(
       src: string | ObjectUri | DataObjectType | undefined = undefined,
       child: any = this
@@ -76,6 +100,14 @@ export class BaseObject extends AbstractObject {
       return obj
    }
 
+   /**
+    * Main initialization factory. Evaluates path or object sources and returns a fully
+    * initialized model instance.
+    * 
+    * @param src - Source data payload or path reference.
+    * @param child - Model subclass context.
+    * @returns The generated model instance.
+    */
    static async factory(
       src: string | ObjectUri | BaseObjectType | undefined = undefined,
       child: any = this
@@ -128,6 +160,11 @@ export class BaseObject extends AbstractObject {
       return obj //.toProxy()
    }
 
+   /**
+    * Serializes the object down to an identifier reference map.
+    * 
+    * @returns The Object reference payload.
+    */
    asReference() {
       return this._dataObject.toReference()
    }

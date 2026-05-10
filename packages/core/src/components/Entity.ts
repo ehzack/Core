@@ -10,9 +10,15 @@ export interface EntityType extends BaseObjectType {
    //   users?: User[]
 }
 
+/**
+ * Represents a generic grouping structure, such as a company or organization, 
+ * to which Users may be associated.
+ */
 export class Entity extends BaseObject {
+   /** Base collection scope name. */
    static COLLECTION = 'entities'
 
+   /** Component structure declaration. */
    static PROPS_DEFINITION = [
       ...BaseObjectProperties,
       {
@@ -32,6 +38,12 @@ export class Entity extends BaseObject {
       // },
    ]
 
+   /**
+    * Entity creation factory.
+    * 
+    * @param src - Identifier or content array.
+    * @returns The generated Entity instance.
+    */
    static async factory(src: any = undefined): Promise<Entity> {
       return super.factory(src, Entity)
    }

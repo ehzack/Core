@@ -2,6 +2,10 @@ import inquirer from 'inquirer'
 import fs from 'node:fs'
 import path from 'node:path'
 
+/**
+ * Triggers an interactive CLI prompt to generate a root `quatrain.json` configuration file.
+ * Automatically configures backend, authentication, queueing, and storage parameters.
+ */
 export async function generateConfig() {
    console.log('--- Initializing Quatrain Configuration ---\n')
 

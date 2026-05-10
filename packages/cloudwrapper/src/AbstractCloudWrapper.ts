@@ -1,3 +1,6 @@
+/**
+ * Base abstraction for Cloud platform wrappers.
+ */
 export class AbstractCloudWrapper {
    protected _params: any
 

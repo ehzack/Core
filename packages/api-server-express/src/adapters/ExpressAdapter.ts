@@ -1,6 +1,10 @@
 import express from 'express'
 import { ServerAdapter, ApiHandler, ApiRequest, ApiResponse, EndpointHandler, EndpointOptions, ApiMiddleware } from '@quatrain/api'
 
+/**
+ * Api Server adapter wrapping the `express` framework.
+ * Maps Quatrain's standardized `ServerAdapter` interfaces to native Express mechanisms.
+ */
 export class ExpressAdapter implements ServerAdapter {
    constructor(
       private appOrRouter: express.Application | express.Router = express(),
@@ -61,26 +65,60 @@ export class ExpressAdapter implements ServerAdapter {
       }
    }
 
+   /**
+    * Registers a GET endpoint.
+    * 
+    * @param path - The URI path.
+    * @param handler - The standard Quatrain ApiHandler.
+    */
    get(path: string, handler: ApiHandler): void {
       (this.appOrRouter as express.Router).get(path, this.wrapHandler(handler))
    }
 
+   /**
+    * Registers a POST endpoint.
+    * 
+    * @param path - The URI path.
+    * @param handler - The standard Quatrain ApiHandler.
+    */
    post(path: string, handler: ApiHandler): void {
       (this.appOrRouter as express.Router).post(path, this.wrapHandler(handler))
    }
 
+   /**
+    * Registers a PUT endpoint.
+    * 
+    * @param path - The URI path.
+    * @param handler - The standard Quatrain ApiHandler.
+    */
    put(path: string, handler: ApiHandler): void {
       (this.appOrRouter as express.Router).put(path, this.wrapHandler(handler))
    }
 
+   /**
+    * Registers a DELETE endpoint.
+    * 
+    * @param path - The URI path.
+    * @param handler - The standard Quatrain ApiHandler.
+    */
    delete(path: string, handler: ApiHandler): void {
       (this.appOrRouter as express.Router).delete(path, this.wrapHandler(handler))
    }
 
+   /**
+    * Attaches a native Express middleware or sub-router.
+    * 
+    * @param middleware - The Express RequestHandler or Router.
+    */
    use(middleware: any): void {
       (this.appOrRouter as express.Router).use(middleware)
    }
 
+   /**
+    * Injects a Quatrain-compatible API middleware into the flow.
+    * 
+    * @param middleware - The Quatrain ApiMiddleware function.
+    */
    addMiddleware(middleware: ApiMiddleware): void {
       const expressMiddleware = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
          const apiReq: ApiRequest = {
@@ -124,12 +162,24 @@ export class ExpressAdapter implements ServerAdapter {
       (this.appOrRouter as express.Router).use(expressMiddleware)
    }
 
+   /**
+    * Spawns an isolated routing scope (sub-router).
+    * 
+    * @param path - The prefix path for the router.
+    * @returns A new ExpressAdapter instance controlling the sub-router.
+    */
    createRouter(path: string): ServerAdapter {
       const router = express.Router()
       ;(this.appOrRouter as express.Router).use(path, router)
       return new ExpressAdapter(router)
    }
 
+   /**
+    * Binds the server to the network and starts listening.
+    * 
+    * @param port - The network port.
+    * @param callback - Optional completion callback.
+    */
    start(port: number, callback?: () => void): void {
       if ('listen' in this.appOrRouter && typeof this.appOrRouter.listen === 'function') {
          this.appOrRouter.listen(port, callback)
@@ -138,6 +188,11 @@ export class ExpressAdapter implements ServerAdapter {
       }
    }
 
+   /**
+    * Retrieves the underlying native framework instance.
+    * 
+    * @returns The raw Express Application or Router instance.
+    */
    getNativeInstance(): any {
       return this.appOrRouter
    }
@@ -160,6 +215,13 @@ export class ExpressAdapter implements ServerAdapter {
       })
    }
 
+   /**
+    * Composes and mounts a full EndpointHandler block at a specific root.
+    * 
+    * @param handler - The endpoint initialization logic.
+    * @param endpointRoot - The base URI.
+    * @param options - Middlewares and operational options.
+    */
    addEndpoint(handler: EndpointHandler, endpointRoot: string, options: EndpointOptions = {}): void {
       const fullPath = this.config.apiPrefix ? `${this.config.apiPrefix}${endpointRoot}` : endpointRoot
       const router = this.createRouter(fullPath)

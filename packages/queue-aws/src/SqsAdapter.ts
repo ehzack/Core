@@ -6,6 +6,9 @@ import {
 } from '@aws-sdk/client-sqs'
 import { Queue, AbstractQueueAdapter, QueueParameters } from '@quatrain/queue'
 
+/**
+ * Amazon Web Services SQS adapter utilizing the official SDK V3.
+ */
 export class SqsAdapter extends AbstractQueueAdapter {
    protected _logger: any
    constructor(params: QueueParameters) {
@@ -35,6 +38,13 @@ export class SqsAdapter extends AbstractQueueAdapter {
       })
    }
 
+   /**
+    * Dispatches the AWS SQS SendMessageCommand.
+    * 
+    * @param data - Payload.
+    * @param topic - Partial Queue URL / Queue name.
+    * @returns The newly returned MessageId.
+    */
    async send(data: any, topic: string): Promise<string> {
       let QueueUrl =
          this._params.config.endpoint ||

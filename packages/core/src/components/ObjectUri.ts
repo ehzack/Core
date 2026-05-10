@@ -1,5 +1,11 @@
+/**
+ * Unique global reference system for all Quatrain models.
+ * Used for backend identification and cross-system relational links.
+ */
 export class ObjectUri {
+   /** Root path divider. */
    static DEFAULT = '/'
+   /** Placeholder used when collections cannot be guessed. */
    static MISSING_COLLECTION = '_?_'
 
    protected _str: string
@@ -164,6 +170,11 @@ export class ObjectUri {
       }
    }
 
+   /**
+    * Output pure object dictionary representation.
+    * 
+    * @returns Rendered URI block.
+    */
    toJSON() {
       return {
          backend: this._backend,

@@ -10,6 +10,9 @@ import { credential } from 'firebase-admin'
 import { getApps, initializeApp, ServiceAccount } from 'firebase-admin/app'
 import { getMessaging, Message } from 'firebase-admin/messaging'
 
+/**
+ * Implementation to send Firebase Cloud Messaging (FCM) notifications using `firebase-admin`.
+ */
 export class FirebaseMessagingAdapter
    extends AbstractMessagingAdapter
    implements NotificationCapableAdapter
@@ -84,6 +87,13 @@ export class FirebaseMessagingAdapter
       }
    }
 
+   /**
+    * Dispatches a batch push notification payload to multiple devices simultaneously.
+    * 
+    * @param recipients - Array of target contacts containing their FCM tokens.
+    * @param message - The Notification schema.
+    * @returns Response summarizing successful and failed deliveries.
+    */
    async sendNotifications(
       recipients: MessagingRecipient[],
       message: NotificationMessage

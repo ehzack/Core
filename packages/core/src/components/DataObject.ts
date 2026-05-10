@@ -83,6 +83,11 @@ export class DataObject implements DataObjectType {
       })
    }
 
+   /**
+    * Forces a completely new set of properties into the registry.
+    * 
+    * @param properties - The dictionary of PropertyClassType entities.
+    */
    public setProperties(properties: Properties) {
       // TODO check if doable
       this._properties = properties
@@ -108,6 +113,11 @@ export class DataObject implements DataObjectType {
       return this._properties
    }
 
+   /**
+    * Appends a new property definition instance to the registry dynamically.
+    * 
+    * @param property - The instantiated Property element.
+    */
    public addProperty(property: PropertyClassType) {
       if (Object.keys(this._properties).includes(property.name)) {
          throw new Error(`Property ${property.name} already exists`)
@@ -178,6 +188,11 @@ export class DataObject implements DataObjectType {
       return this
    }
 
+   /**
+    * State check indicating if the object is fully populated.
+    * 
+    * @returns true if populated.
+    */
    isPopulated() {
       return this._populated
    }
@@ -232,6 +247,12 @@ export class DataObject implements DataObjectType {
       this._parentProp = str
    }
 
+   /**
+    * Checks if a specific property exists.
+    * 
+    * @param key - The property name.
+    * @returns Boolean indicating existence.
+    */
    has(key: string) {
       return Reflect.has(this._properties, key)
    }
@@ -248,6 +269,13 @@ export class DataObject implements DataObjectType {
       return Reflect.get(this._properties, key)
    }
 
+   /**
+    * Modifies a property value directly.
+    * 
+    * @param key - The property name.
+    * @param val - The desired value.
+    * @returns The updated DataObject for chaining.
+    */
    set(key: string, val: any) {
       if (!this.has(key)) {
          throw new Error(`Unknown property in data object: ${key}`)
@@ -272,6 +300,12 @@ export class DataObject implements DataObjectType {
       }
    }
 
+   /**
+    * Serializes the data object using advanced configuration params.
+    * 
+    * @param params - Serialization settings (e.g. resolve references, remove nulls).
+    * @returns The raw serialized dictionary.
+    */
    toJSON(params: boolean | toJSONParams = false): { [x: string]: any } {
       let objectsAsReferences: boolean = false,
          withoutURIData: boolean = false,
@@ -300,6 +334,11 @@ export class DataObject implements DataObjectType {
       }
    }
 
+   /**
+    * Flattens the object to a standard ObjectUri wrapper reference format.
+    * 
+    * @returns Reference object format.
+    */
    toReference() {
       return {
          ...this._objectUri.toReference(),
@@ -400,6 +439,12 @@ export class DataObject implements DataObjectType {
       }
    }
 
+   /**
+    * Returns a completely duplicated payload and registry.
+    * 
+    * @param data - Optional data overrides.
+    * @returns The cloned DataObject.
+    */
    async clone(data: any = {}): Promise<DataObject> {
       const cloned = await (this.constructor as any).factory()
       cloned.uri.class = this.uri.class

@@ -3,6 +3,9 @@ export interface CommitFile {
    content: string
 }
 
+/**
+ * Base blueprint for defining repository source control adapters.
+ */
 export abstract class AbstractRepositoryAdapter {
    /**
     * Pull latest changes from remote repository

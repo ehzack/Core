@@ -13,12 +13,24 @@ export type QueueParametersKeys =
 
 export type QueueRegistry<T extends AbstractQueueAdapter> = { [x: string]: T }
 
+/**
+ * Singleton Registry dispatching abstract asynchronous tasks.
+ */
 export class Queue extends Core {
+   /** Reference ID for the primary default queue. */
    static defaultQueue = '@default'
+   /** Domain specific Core Logger. */
    static logger = this.addLogger('Queue')
 
    protected static _queues: QueueRegistry<any> = {}
 
+   /**
+    * Appends a new instantiated queue handler logic block into the system map.
+    * 
+    * @param queue - The underlying provider adapter.
+    * @param alias - The lookup name.
+    * @param setDefault - True to switch standard queue router.
+    */
    static addQueue(
       queue: AbstractQueueAdapter,
       alias: string,
@@ -30,6 +42,13 @@ export class Queue extends Core {
       }
    }
 
+   /**
+    * Look up and returns a bound active adapter by its name.
+    * 
+    * @param alias - Provider mapping string.
+    * @returns Instantiated provider.
+    * @throws When binding is missing.
+    */
    static getQueue<T extends AbstractQueueAdapter>(
       alias: string = this.defaultQueue
    ): T {

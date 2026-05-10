@@ -2,6 +2,9 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { Log } from '@quatrain/log'
 
+/**
+ * Responsible for generating application boilerplate code and scaffolding out project structures.
+ */
 export class CodeGenerator {
    /**
     * Génère une application complète dans le dossier cible

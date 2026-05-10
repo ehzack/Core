@@ -1,6 +1,11 @@
 import fs from 'node:fs'
 import path from 'node:path'
 
+/**
+ * Creates a new timestamp-prefixed migration script scaffold within the local `migrations/` folder.
+ * 
+ * @param name - The semantic suffix name of the migration.
+ */
 export async function generateMigration(name: string) {
    if (!name) {
       console.error('Error: Migration name is required.')

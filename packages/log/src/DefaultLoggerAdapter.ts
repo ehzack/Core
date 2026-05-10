@@ -2,6 +2,9 @@ import { AbstractLoggerAdapter, LogLevel } from './AbstractLoggerAdapter'
 import logger from 'loglevel'
 import chalk from 'chalk'
 
+/**
+ * Default internal implementation relying on `loglevel` and `chalk` for colored console outputs.
+ */
 export class DefaultLoggerAdapter extends AbstractLoggerAdapter {
    constructor(prefix = '', level: LogLevel = LogLevel.DEBUG) {
       super(prefix, level)
@@ -53,27 +56,57 @@ export class DefaultLoggerAdapter extends AbstractLoggerAdapter {
       }
    }
 
+   /**
+    * Updates the logger to a new verbosity log level.
+    * 
+    * @param level - The target LogLevel enum.
+    */
    logLevel(level: LogLevel): void {
       super.logLevel(level)
       this._logger.setLevel(level)
    }
 
+   /**
+    * Debug level shortcut.
+    * 
+    * @param messages - Variadic payload.
+    */
    debug(...messages: any): void {
       this.log(messages, LogLevel.DEBUG)
    }
 
+   /**
+    * Warning level shortcut.
+    * 
+    * @param messages - Variadic payload.
+    */
    warn(...messages: any): void {
       this.log(messages, LogLevel.WARN)
    }
 
+   /**
+    * Info level shortcut.
+    * 
+    * @param messages - Variadic payload.
+    */
    info(...messages: any): void {
       this.log(messages, LogLevel.INFO)
    }
 
+   /**
+    * Error level shortcut.
+    * 
+    * @param messages - Variadic payload.
+    */
    error(...messages: any): void {
       this.log(messages, LogLevel.ERROR)
    }
 
+   /**
+    * Trace level shortcut.
+    * 
+    * @param messages - Variadic payload.
+    */
    trace(...messages: any): void {
       this.log(messages, LogLevel.TRACE)
    }

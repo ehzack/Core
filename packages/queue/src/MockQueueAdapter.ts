@@ -13,6 +13,13 @@ export class MockQueueAdapter extends AbstractQueueAdapter {
       super(params)
    }
 
+   /**
+    * Mock implementation tracking the dispatched messages in memory.
+    * 
+    * @param data - Payload.
+    * @param topic - Queue topic.
+    * @returns A fake message ID.
+    */
    async send(data: any, topic: string): Promise<string> {
       // Store message in the topic's message array
       if (!this.messages.has(topic)) {
@@ -35,6 +42,14 @@ export class MockQueueAdapter extends AbstractQueueAdapter {
       return messageId
    }
 
+   /**
+    * Mocks a listener binding to intercept immediate future send() calls.
+    * 
+    * @param topic - Queue topic.
+    * @param handler - Callback logic.
+    * @param params - Context options.
+    * @returns The listener context.
+    */
    listen(
       topic: string,
       handler: Function,
@@ -53,10 +68,21 @@ export class MockQueueAdapter extends AbstractQueueAdapter {
    }
 
    // Helper methods for testing
+   /**
+    * Retrieves all fake messages routed to a topic.
+    * 
+    * @param topic - Target topic.
+    * @returns The intercepted messages.
+    */
    getMessages(topic: string): any[] {
       return this.messages.get(topic) || []
    }
 
+   /**
+    * Clears intercepted messages for a topic.
+    * 
+    * @param topic - Target topic or all if undefined.
+    */
    clearMessages(topic?: string): void {
       if (topic) {
          this.messages.delete(topic)
@@ -65,6 +91,11 @@ export class MockQueueAdapter extends AbstractQueueAdapter {
       }
    }
 
+   /**
+    * Unbinds registered listeners.
+    * 
+    * @param topic - Target topic or all if undefined.
+    */
    clearHandlers(topic?: string): void {
       if (topic) {
          this.handlers.delete(topic)
@@ -73,15 +104,30 @@ export class MockQueueAdapter extends AbstractQueueAdapter {
       }
    }
 
+   /**
+    * Full reset of the mock adapter.
+    */
    clearAll(): void {
       this.clearMessages()
       this.clearHandlers()
    }
 
+   /**
+    * Confirms if a listener is bound.
+    * 
+    * @param topic - Topic name.
+    * @returns True if bound.
+    */
    hasHandler(topic: string): boolean {
       return this.handlers.has(topic)
    }
 
+   /**
+    * Computes total payloads saved.
+    * 
+    * @param topic - Topic name.
+    * @returns Count amount.
+    */
    getMessageCount(topic: string): number {
       return this.getMessages(topic).length
    }

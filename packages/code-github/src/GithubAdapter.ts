@@ -1,6 +1,9 @@
 import { AbstractRepositoryAdapter, CommitFile } from '@quatrain/code'
 import { Octokit } from '@octokit/rest'
 
+/**
+ * Repository integration logic specifically adapting GitHub via the official Octokit SDK.
+ */
 export class GithubAdapter extends AbstractRepositoryAdapter {
    protected _octokit: Octokit
    protected _owner: string
@@ -13,6 +16,11 @@ export class GithubAdapter extends AbstractRepositoryAdapter {
       this._repo = repo
    }
 
+   /**
+    * Fetches the latest reference for a specific branch from GitHub.
+    * 
+    * @param branch - The branch name to pull.
+    */
    async pull(branch: string = 'main'): Promise<void> {
       // In a real implementation, this would fetch latest refs
       // Since this adapter is primarily to push changes from Studio, pull might be a no-op or fetch ref.
@@ -22,6 +30,13 @@ export class GithubAdapter extends AbstractRepositoryAdapter {
       })
    }
 
+   /**
+    * Commits and pushes a set of files to a specified GitHub branch.
+    * 
+    * @param files - List of files to commit.
+    * @param message - The commit message.
+    * @param branch - The target branch name.
+    */
    async push(files: CommitFile[], message: string, branch: string = 'main'): Promise<void> {
       // 1. Get latest commit SHA for branch
       const { data: refData } = await this._octokit.git.getRef({
@@ -84,6 +99,12 @@ export class GithubAdapter extends AbstractRepositoryAdapter {
       })
    }
 
+   /**
+    * Creates a new branch via the GitHub API based on an existing branch's latest commit.
+    * 
+    * @param branchName - The new branch name.
+    * @param fromBranch - The source branch name.
+    */
    async createBranch(branchName: string, fromBranch: string = 'main'): Promise<void> {
       const { data: refData } = await this._octokit.git.getRef({
          owner: this._owner,

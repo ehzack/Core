@@ -25,6 +25,9 @@ export const eventMap = {
    [BackendAction.DELETE]: 'DELETE',
 }
 
+/**
+ * Concrete implementation adapting Supabase realtime channels and functions.
+ */
 export class SupabaseCloudWrapper extends AbstractCloudWrapper {
    protected _supabaseClient: SupabaseClient | undefined
    protected _isInitialized = false
@@ -36,6 +39,13 @@ export class SupabaseCloudWrapper extends AbstractCloudWrapper {
       this._initialize()
    }
 
+   /**
+    * Binds a PostgreSQL Realtime subscription to track CRUD events on tables.
+    * 
+    * @param trigger - Configuration defining the targeted table, event, and callback script.
+    * @returns Event subscription payload params.
+    * @throws {TypeError} If script or client is improperly configured.
+    */
    databaseTrigger(trigger: DatabaseTriggerType) {
       this._initialize()
 
@@ -95,6 +105,12 @@ export class SupabaseCloudWrapper extends AbstractCloudWrapper {
       }
    }
 
+   /**
+    * Binds a Storage object modification realtime subscription.
+    * 
+    * @param trigger - Configuration specifying file bucket logic constraints.
+    * @returns Event subscription payload params.
+    */
    storageTrigger(trigger: StorageTriggerType) {
       this._initialize()
 

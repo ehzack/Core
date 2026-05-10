@@ -1,5 +1,9 @@
 import { AuthProvider } from './AuthProvider'
 
+/**
+ * Basic Authentication HTTP provider that sets `Authorization: Basic <base64>`
+ * headers using either a raw string or username/password combinations.
+ */
 export class BasicAuthProvider implements AuthProvider {
    private token: string
 
@@ -13,6 +17,11 @@ export class BasicAuthProvider implements AuthProvider {
       }
    }
 
+   /**
+    * Generates the structured auth headers for fetch.
+    * 
+    * @returns A promise resolving to the headers record.
+    */
    public async getHeaders(): Promise<Record<string, string>> {
       return {
          Authorization: `Basic ${this.token}`,

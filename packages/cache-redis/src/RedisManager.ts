@@ -1,6 +1,9 @@
 import Redis, { RedisOptions } from 'ioredis'
 import { Log } from '@quatrain/log'
 
+/**
+ * Singleton connection manager encapsulating the active ioredis client.
+ */
 export class RedisManager {
    private static _instance: RedisManager
    private _client: Redis
@@ -21,6 +24,12 @@ export class RedisManager {
       })
    }
 
+   /**
+    * Instantiates or returns the active Redis connection singleton.
+    * 
+    * @param options - Configuration URI or settings.
+    * @returns The active RedisManager instance.
+    */
    public static getInstance(options?: RedisOptions | string): RedisManager {
       if (!RedisManager._instance) {
          RedisManager._instance = new RedisManager(options)

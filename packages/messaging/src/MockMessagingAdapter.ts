@@ -30,6 +30,13 @@ export class MockMessagingAdapter
       super(params)
    }
 
+   /**
+    * Mock tracking of a single notification dispatch.
+    * 
+    * @param recipient - Target info.
+    * @param message - Payload.
+    * @returns Mock response object.
+    */
    async sendNotification(
       recipient: MessagingRecipient,
       message: NotificationMessage
@@ -48,6 +55,13 @@ export class MockMessagingAdapter
       }
    }
 
+   /**
+    * Mock tracking of a batch notification dispatch.
+    * 
+    * @param recipients - Array of targets.
+    * @param message - Payload.
+    * @returns Mock batch response object.
+    */
    async sendNotifications(
       recipients: MessagingRecipient[],
       message: NotificationMessage
@@ -66,6 +80,13 @@ export class MockMessagingAdapter
       }
    }
 
+   /**
+    * Mock tracking of a single email dispatch.
+    * 
+    * @param recipient - Target info.
+    * @param message - Payload.
+    * @returns Mock response object.
+    */
    async sendEmail(
       recipient: MessagingRecipient,
       message: NotificationMessage
@@ -84,6 +105,13 @@ export class MockMessagingAdapter
       }
    }
 
+   /**
+    * Mock tracking of a batch email dispatch.
+    * 
+    * @param recipients - Array of targets.
+    * @param message - Payload.
+    * @returns Mock batch response object.
+    */
    async sendEmails(
       recipients: MessagingRecipient[],
       message: NotificationMessage
@@ -102,6 +130,13 @@ export class MockMessagingAdapter
       }
    }
 
+   /**
+    * Mock tracking of a single SMS dispatch.
+    * 
+    * @param recipient - Target info.
+    * @param message - Payload.
+    * @returns Mock response object.
+    */
    async sendTextMessage(
       recipient: MessagingRecipient,
       message: NotificationMessage
@@ -120,6 +155,13 @@ export class MockMessagingAdapter
       }
    }
 
+   /**
+    * Mock tracking of a batch SMS dispatch.
+    * 
+    * @param recipients - Array of targets.
+    * @param message - Payload.
+    * @returns Mock batch response object.
+    */
    async sendTextMessages(
       recipients: MessagingRecipient[],
       message: NotificationMessage
@@ -139,6 +181,12 @@ export class MockMessagingAdapter
    }
 
    // Helper methods for testing
+   /**
+    * Testing utility to retrieve sent messages by category.
+    * 
+    * @param type - Optional filter tag.
+    * @returns Array of saved payloads.
+    */
    getSentMessages(type?: 'notification' | 'email' | 'text'): SentMessage[] {
       if (type) {
          return this.sentMessages.filter((msg) => msg.type === type)
@@ -146,14 +194,29 @@ export class MockMessagingAdapter
       return this.sentMessages
    }
 
+   /**
+    * Erases the internal mock history log.
+    */
    clearMessages(): void {
       this.sentMessages = []
    }
 
+   /**
+    * Retrieves the total count of mock-sent payloads.
+    * 
+    * @param type - Optional filter tag.
+    * @returns Total matching elements.
+    */
    getMessageCount(type?: 'notification' | 'email' | 'text'): number {
       return this.getSentMessages(type).length
    }
 
+   /**
+    * Peeks at the most recently dispatched message.
+    * 
+    * @param type - Optional filter tag.
+    * @returns SentMessage representation.
+    */
    getLastMessage(
       type?: 'notification' | 'email' | 'text'
    ): SentMessage | undefined {

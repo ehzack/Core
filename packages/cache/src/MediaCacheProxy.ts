@@ -2,6 +2,9 @@ import type { StorageAdapterInterface, FileType } from '@quatrain/storage'
 import { Log } from '@quatrain/log'
 import { CacheAdapterInterface } from './CacheAdapterInterface'
 
+/**
+ * A proxy layer that attempts to serve media files from a cache adapter before falling back to storage.
+ */
 export class MediaCacheProxy {
    protected _storage: StorageAdapterInterface
    protected _cache: CacheAdapterInterface

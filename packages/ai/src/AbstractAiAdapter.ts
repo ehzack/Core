@@ -1,3 +1,6 @@
+/**
+ * Abstract blueprint for AI model provider adapters.
+ */
 export abstract class AbstractAiAdapter {
    /**
     * Adapter specific initialization

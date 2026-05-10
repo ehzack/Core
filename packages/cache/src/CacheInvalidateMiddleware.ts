@@ -6,6 +6,9 @@ import { Cache } from './Cache'
 
 export type PrefixResolver = (dataObject: DataObjectClass<any>, action: BackendAction) => string[]
 
+/**
+ * Middleware that intercepts backend data modifications to trigger cache invalidation.
+ */
 export class CacheInvalidateMiddleware implements BackendMiddleware {
    protected _prefixResolver: PrefixResolver
 
@@ -27,6 +30,13 @@ export class CacheInvalidateMiddleware implements BackendMiddleware {
       }
    }
 
+   /**
+    * Hooks into the backend action lifecycle to clear relevant cache entries after a mutation.
+    * 
+    * @param dataObject - The object that was modified.
+    * @param action - The backend action executed (CREATE, UPDATE, DELETE).
+    * @param params - Additional execution context.
+    */
    public async afterExecute(
       dataObject: DataObjectClass<any>,
       action: BackendAction,

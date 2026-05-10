@@ -1,6 +1,9 @@
 import { AbstractQueueAdapter, Queue } from '@quatrain/queue'
 import amqplib, { ChannelModel, ConsumeMessage, Message } from 'amqplib'
 
+/**
+ * AMQP Protocol compatible adapter (RabbitMQ, etc.) using `amqplib`.
+ */
 export class AmqpQueueAdapter extends AbstractQueueAdapter {
    declare protected _client: ChannelModel | undefined
    protected _logger: any
@@ -31,6 +34,13 @@ export class AmqpQueueAdapter extends AbstractQueueAdapter {
       await this._client?.close()
    }
 
+   /**
+    * Enqueues data using the active amqplib channel.
+    * 
+    * @param data - Raw payload.
+    * @param topic - Specific queue name.
+    * @returns Result string identifier.
+    */
    async send(data: any, topic: string): Promise<string> {
       await this._connect()
 

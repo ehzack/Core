@@ -10,6 +10,9 @@ import { Queue } from '@quatrain/queue'
 import { Storage } from '@quatrain/storage'
 import { Messaging } from '@quatrain/messaging'
 
+/**
+ * Central initialization registry that boots the application environment from a JSON configuration.
+ */
 export class AppBootloader {
    /**
     * Remplace récursivement toutes les chaînes 'env(NAME)' par la variable d'environnement correspondante.

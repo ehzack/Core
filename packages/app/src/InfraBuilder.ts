@@ -20,6 +20,9 @@ export interface ComposeFile {
    networks?: Record<string, any>
 }
 
+/**
+ * Generates compose and dockerfile specifications dynamically based on application configurations.
+ */
 export class InfraBuilder {
    /**
     * Génère le contenu des fichiers compose.yaml, .env et Containerfile en fonction de la configuration de l'application

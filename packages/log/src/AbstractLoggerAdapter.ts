@@ -25,6 +25,10 @@ export const loglevelNames = [
    'SILENT',
 ]
 
+/**
+ * Base abstraction for creating custom logging adapters.
+ * Ensures consistent log levels and signature formats across implementations.
+ */
 export abstract class AbstractLoggerAdapter implements LoggerType {
    protected _me: string = ''
    protected _logLevel: LogLevel = LogLevel.WARN
@@ -34,6 +38,11 @@ export abstract class AbstractLoggerAdapter implements LoggerType {
       this._me = prefix
    }
 
+   /**
+    * Overrides the current log verbosity level.
+    * 
+    * @param level - The target LogLevel enum.
+    */
    logLevel(level: LogLevel) {
       this._logLevel = level
    }
@@ -47,6 +56,14 @@ export abstract class AbstractLoggerAdapter implements LoggerType {
       return new (this.constructor as any)(newPrefix, this._logLevel)
    }
 
+   /**
+    * Safely stringifies and combines all parts of a log payload into a single string.
+    * 
+    * @param messages - Array of items to log.
+    * @param _loglevel - Severity of the log.
+    * @param tag - A specific label for the line.
+    * @returns Formatted output string.
+    */
    formatLogMessage = (
       messages: any[],
       _loglevel: LogLevel = LogLevel.INFO,
@@ -78,22 +95,47 @@ export abstract class AbstractLoggerAdapter implements LoggerType {
       throw new Error(`This method needs to be implemtend in child class`)
    }
 
+   /**
+    * Trigger a debug-level log.
+    * 
+    * @param _messages - Items to log.
+    */
    debug(..._messages: any[]): void {
       throw new Error(`This method needs to be implemtend in child class`)
    }
 
+   /**
+    * Trigger a warn-level log.
+    * 
+    * @param _messages - Items to log.
+    */
    warn(..._messages: any[]): void {
       throw new Error(`This method needs to be implemtend in child class`)
    }
 
+   /**
+    * Trigger an info-level log.
+    * 
+    * @param _messages - Items to log.
+    */
    info(..._messages: any[]): void {
       throw new Error(`This method needs to be implemtend in child class`)
    }
 
+   /**
+    * Trigger an error-level log.
+    * 
+    * @param _messages - Items to log.
+    */
    error(..._messages: any[]): void {
       throw new Error(`This method needs to be implemtend in child class`)
    }
 
+   /**
+    * Trigger a trace-level log.
+    * 
+    * @param _messages - Items to log.
+    */
    trace(..._messages: any[]): void {
       throw new Error(`This method needs to be implemtend in child class`)
    }

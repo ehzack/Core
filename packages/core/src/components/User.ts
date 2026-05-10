@@ -101,10 +101,22 @@ export const UserProperties: any = [
    },
 ]
 
+/**
+ * Built-in User representation model handling authentication, profiles, 
+ * and entity bindings out of the box.
+ */
 export class User extends BaseObject {
+   /** User internal schema layout. */
    static PROPS_DEFINITION = UserProperties
+   /** Standard persistence namespace. */
    static COLLECTION = 'user'
 
+   /**
+    * Constructs a new User.
+    * 
+    * @param src - Values or identifier.
+    * @returns The generated user object.
+    */
    static async factory(src: any = undefined): Promise<User> {
       return super.factory(src, User)
    }
