@@ -8,7 +8,7 @@ RUN corepack enable
 ENV NPMJS_QUATRAIN_TOKEN=dummy_token
 
 # Copy configuration
-COPY package.json yarn.lock turbo.json .yarnrc.yml ./
+COPY package.json yarn.lock turbo.json .yarnrc.ym[l] ./
 COPY .yarn ./.yarn
 
 # Copy all workspaces
