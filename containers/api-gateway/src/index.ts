@@ -127,3 +127,10 @@ try {
 }
 
 Api.info(`🚀 API Gateway (Bun) v${pkg.version} running on port ${PORT} (Built: ${buildDate})`)
+
+const gatewaySecret = process.env.GATEWAY_SECRET
+if (gatewaySecret) {
+  Api.info(`[API Gateway] GATEWAY_SECRET is configured (length: ${gatewaySecret.length})`)
+} else {
+  Api.warn(`[API Gateway] GATEWAY_SECRET is NOT configured! Internal requests may fail.`)
+}

@@ -31,16 +31,21 @@ export interface GatewayRouterOptions {
  */
 export function createGatewayRouter(options: GatewayRouterOptions): Router {
   const router = Router()
+  
+  if (options.secret) {
+    console.log(`[GatewayUpstream] Initialized with secret (length: ${options.secret.length})`)
+  } else {
+    console.warn('[GatewayUpstream] No secret configured. This internal endpoint is unsecured.')
+  }
 
   // Middleware to validate the gateway secret
   router.use((req: Request, res: Response, next: NextFunction) => {
     if (options.secret) {
       const secretHeader = req.headers['x-gateway-secret']
       if (!secretHeader || secretHeader !== options.secret) {
+        console.error(`[GatewayUpstream] Forbidden: Invalid Gateway Secret. Expected length: ${options.secret.length}, Received: ${secretHeader ? 'length ' + secretHeader.length : 'none'}`)
         return res.status(403).json({ error: 'Forbidden: Invalid Gateway Secret' })
       }
-    } else {
-      console.warn('[GatewayUpstream] No secret configured. This internal endpoint is unsecured.')
     }
     next()
   })
