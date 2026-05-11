@@ -56,6 +56,13 @@ jobs:
       - name: Publish all changed packages (latest-dev)
         run: yarn node bin/publish_all.js --tag latest-dev
 
+      - name: Sync with remote to prevent push rejection
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin ${{ github.ref_name }}
+          git pull --rebase origin ${{ github.ref_name }} --autostash
+
       - name: Commit version bumps & hashes
         uses: stefanzweifel/git-auto-commit-action@v5 # NOSONAR
         with:
