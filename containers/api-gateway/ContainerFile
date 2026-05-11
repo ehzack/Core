@@ -9,6 +9,7 @@ COPY tsconfig.json ./
 
 # Build the executable or run directly
 RUN bun build src/index.ts --outdir dist --target bun
+RUN date > dist/build_date.txt
 
 FROM oven/bun:alpine
 WORKDIR /app

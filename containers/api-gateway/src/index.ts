@@ -2,6 +2,8 @@ import { extractUserIdFromAuthHeader } from './jwt'
 import { getCachedPayload, setCachedPayload } from './cache'
 import { handleMediaRequest } from './media'
 import { Api } from '@quatrain/api'
+import { readFileSync } from 'fs'
+import pkg from '../package.json'
 
 import { PORT, API_UPSTREAM_URL } from './config'
 
@@ -117,4 +119,11 @@ Bun.serve({
   }
 })
 
-Api.info(`🚀 API Gateway (Bun) running on port ${PORT}`)
+let buildDate = 'Unknown Date'
+try {
+  buildDate = readFileSync('./dist/build_date.txt', 'utf-8').trim()
+} catch (e) {
+  // Ignore if file doesn't exist (e.g. during local dev)
+}
+
+Api.info(`🚀 API Gateway (Bun) v${pkg.version} running on port ${PORT} (Built: ${buildDate})`)
