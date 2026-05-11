@@ -35,8 +35,8 @@ export function createGatewayRouter(options: GatewayRouterOptions): Router {
   // Middleware to validate the gateway secret
   router.use((req: Request, res: Response, next: NextFunction) => {
     if (options.secret) {
-      const authHeader = req.headers.authorization
-      if (!authHeader || authHeader !== `Bearer ${options.secret}`) {
+      const secretHeader = req.headers['x-gateway-secret']
+      if (!secretHeader || secretHeader !== options.secret) {
         return res.status(403).json({ error: 'Forbidden: Invalid Gateway Secret' })
       }
     } else {
