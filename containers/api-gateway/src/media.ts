@@ -34,9 +34,8 @@ export async function handleMediaRequest(req: Request, url: URL): Promise<Respon
   try {
     authRes = await fetch(authEndpoint, {
       headers: { 
-        'Authorization': `Bearer ${gatewaySecret}`,
-        // Forward the original user token in a custom header so the upstream can still authorize if needed
-        'X-User-Token': authHeader || ''
+        'X-Gateway-Secret': gatewaySecret || '',
+        'Authorization': authHeader || ''
       }
     })
   } catch (err) {
