@@ -14,6 +14,7 @@ import { API_UPSTREAM_URL, MAX_CACHE_SIZE_MB } from './config'
  * @returns A promise resolving to a Fetch API Response object containing the media stream or an error message.
  */
 export async function handleMediaRequest(req: Request, url: URL): Promise<Response> {
+  Api.info(`[MediaProxy] Received request for ${url.pathname}`)
   const authHeader = req.headers.get('authorization')
   
   // Extract UID and action from the path. Assuming: /api/medias/:uid/file
@@ -24,6 +25,20 @@ export async function handleMediaRequest(req: Request, url: URL): Promise<Respon
 
   if (!uid) {
     return new Response('Missing UID', { status: 400 })
+  }
+
+  // Default immutable caching headers for static media
+  const responseHeaders = new Headers({
+    'Cache-Control': 'public, max-age=31536000, immutable',
+    'Content-Type': 'application/octet-stream',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': '*'
+  })
+
+  // Immediately return 204 for OPTIONS preflight requests
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { status: 204, headers: responseHeaders })
   }
 
   // 1. Call upstream server /internal endpoint
@@ -61,14 +76,8 @@ export async function handleMediaRequest(req: Request, url: URL): Promise<Respon
   const sizeMB = size / (1024 * 1024)
   const shouldCache = isImage && sizeMB <= MAX_CACHE_SIZE_MB
 
-  // Default immutable caching headers for static media
-  const responseHeaders = new Headers({
-    'Cache-Control': 'public, max-age=31536000, immutable',
-    'Content-Type': mimeType,
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': '*'
-  })
+  // Update response content type from metadata
+  responseHeaders.set('Content-Type', mimeType)
 
   // 2. Fetch from S3 (with Redis cache if applicable)
   const cacheKey = `media:${uid}:${action}`
