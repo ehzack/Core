@@ -14,7 +14,7 @@
     "trace-unhandled": "^2.0.1",
     "ts-jest": "^29.4.6",
     "ts-node": "^10.9.1",
-    "turbo": "^2.7.2",
+    "turbo": "^2.9.12",
     "typedoc": "latest",
     "typedoc-plugin-markdown": "^4.2.9",
     "typescript": "^5.2.2"
