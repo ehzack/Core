@@ -1,12 +1,9 @@
 name: Documentation Factory Pipeline
 
 on:
-  push:
-    branches:
-      - "*"
-    tags:
-      - 'v*.*.*'
   workflow_dispatch:
+  schedule:
+    - cron: '0 3 * * *' # Tous les jours à 03:00 UTC
 
 env:
   REGISTRY: ghcr.io
