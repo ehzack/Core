@@ -75,19 +75,23 @@ export async function handleMediaRequest(req: Request, url: URL): Promise<Respon
   }
 
   // 1.5. Check Excluded Mimes and Size
+  const sizeMB = (size / (1024 * 1024)).toFixed(2)
+  
   if (GATEWAY_EXCLUDED_MIMES.includes(mimeType)) {
-    Api.info(`[MediaProxy] MIME type ${mimeType} is excluded. Redirecting to Storage.`)
+    Api.info(`[MediaProxy] Strategy: REDIRECTION | Reason: Excluded MIME (${mimeType}) | Size: ${sizeMB} MB`)
     return Response.redirect(storageUrl, 302)
   }
   
   if (GATEWAY_MAXSIZE !== null && size > GATEWAY_MAXSIZE) {
-    Api.info(`[MediaProxy] Size ${size} exceeds GATEWAY_MAXSIZE. Redirecting to Storage.`)
+    const maxSizeMB = (GATEWAY_MAXSIZE / (1024 * 1024)).toFixed(2)
+    Api.info(`[MediaProxy] Strategy: REDIRECTION | Reason: Size exceeds GATEWAY_MAXSIZE (${sizeMB} MB > ${maxSizeMB} MB)`)
     return Response.redirect(storageUrl, 302)
   }
 
   const isImage = mimeType.startsWith('image/')
-  const sizeMB = size / (1024 * 1024)
-  const shouldCache = isImage && sizeMB <= MAX_CACHE_SIZE_MB
+  const shouldCache = isImage && (size / (1024 * 1024)) <= MAX_CACHE_SIZE_MB
+
+  Api.info(`[MediaProxy] Strategy: STREAMING | Size: ${sizeMB} MB | MIME: ${mimeType} | Caching: ${shouldCache}`)
 
   // Update response content type from metadata
   responseHeaders.set('Content-Type', mimeType)
