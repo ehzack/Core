@@ -13,3 +13,6 @@ export const GATEWAY_MAXSIZE = process.env.GATEWAY_MAXSIZE ? Number.parseInt(pro
 export const GATEWAY_EXCLUDED_MIMES = process.env.GATEWAY_EXCLUDED_MIMES 
   ? process.env.GATEWAY_EXCLUDED_MIMES.split(',').map(m => m.trim())
   : []
+
+const envMaxAge = process.env.GATEWAY_CACHE_MAX_AGE ? Number.parseInt(process.env.GATEWAY_CACHE_MAX_AGE, 10) : 31536000
+export const GATEWAY_CACHE_MAX_AGE = Math.max(envMaxAge, 2592000) // Minimum 1 month

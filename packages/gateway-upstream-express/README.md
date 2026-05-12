@@ -30,3 +30,7 @@ app.use('/internal', createGatewayRouter({
 
 ## Security
 This endpoint is protected by a shared secret (`GATEWAY_SECRET`). The Gateway will automatically append this secret in the `Authorization: Bearer <secret>` header when proxying media requests.
+
+## Documentation
+
+For a detailed explanation of the architecture, the sequence of operations, and a diagram of the workflow, please refer to the [How-To Guide](HOWTO.md).

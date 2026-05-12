@@ -1,13 +1,15 @@
 import { getMediaBuffer, setMediaBuffer } from './cache'
 import { Api } from '@quatrain/api'
 
-import { API_UPSTREAM_URL, MAX_CACHE_SIZE_MB, GATEWAY_EXCLUDED_MIMES, GATEWAY_MAXSIZE } from './config'
+import { API_UPSTREAM_URL, MAX_CACHE_SIZE_MB, GATEWAY_EXCLUDED_MIMES, GATEWAY_MAXSIZE, GATEWAY_CACHE_MAX_AGE } from './config'
 
 /**
  * Handles incoming HTTP requests for media files (e.g. /api/medias/:uid/file).
- * Contacts the upstream API to authorize the request and retrieve a signed S3 URL.
- * Depending on the file size and type, it either streams the file directly from S3
- * or buffers it into Redis for subsequent fast delivery.
+ * Contacts the upstream API to authorize the request and retrieve a signed Storage URL.
+ * Depending on the file size and type, it either:
+ * - Redirects directly to Storage (if the MIME type is excluded or size exceeds MAX_CACHE_SIZE_MB/GATEWAY_MAXSIZE)
+ * - Streams the file transparently from Storage
+ * - Buffers it into Redis for subsequent fast delivery (if cacheable).
  * 
  * @param req - The incoming Fetch API Request object.
  * @param url - The parsed URL object for the incoming request.
@@ -29,7 +31,7 @@ export async function handleMediaRequest(req: Request, url: URL): Promise<Respon
 
   // Default immutable caching headers for static media
   const responseHeaders = new Headers({
-    'Cache-Control': 'public, max-age=31536000, immutable',
+    'Cache-Control': `public, max-age=${GATEWAY_CACHE_MAX_AGE}, immutable`,
     'Content-Type': 'application/octet-stream',
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, OPTIONS',
@@ -64,23 +66,23 @@ export async function handleMediaRequest(req: Request, url: URL): Promise<Respon
   }
 
   const mediaInfo = await authRes.json()
-  const s3Url = mediaInfo.url
+  const storageUrl = mediaInfo.url
   const mimeType = mediaInfo.mimeType || 'application/octet-stream'
   const size = mediaInfo.size || 0
 
-  if (!s3Url) {
+  if (!storageUrl) {
     return new Response('No media URL provided by API', { status: 404 })
   }
 
   // 1.5. Check Excluded Mimes and Size
   if (GATEWAY_EXCLUDED_MIMES.includes(mimeType)) {
-    Api.info(`[MediaProxy] MIME type ${mimeType} is excluded. Redirecting to S3.`)
-    return Response.redirect(s3Url, 302)
+    Api.info(`[MediaProxy] MIME type ${mimeType} is excluded. Redirecting to Storage.`)
+    return Response.redirect(storageUrl, 302)
   }
   
   if (GATEWAY_MAXSIZE !== null && size > GATEWAY_MAXSIZE) {
-    Api.info(`[MediaProxy] Size ${size} exceeds GATEWAY_MAXSIZE. Redirecting to S3.`)
-    return Response.redirect(s3Url, 302)
+    Api.info(`[MediaProxy] Size ${size} exceeds GATEWAY_MAXSIZE. Redirecting to Storage.`)
+    return Response.redirect(storageUrl, 302)
   }
 
   const isImage = mimeType.startsWith('image/')
@@ -90,7 +92,7 @@ export async function handleMediaRequest(req: Request, url: URL): Promise<Respon
   // Update response content type from metadata
   responseHeaders.set('Content-Type', mimeType)
 
-  // 2. Fetch from S3 (with Redis cache if applicable)
+  // 2. Fetch from Storage (with Redis cache if applicable)
   const cacheKey = `media:${uid}:${action}`
 
   if (shouldCache) {
@@ -102,32 +104,32 @@ export async function handleMediaRequest(req: Request, url: URL): Promise<Respon
     }
   }
 
-  Api.info(`[MediaProxy] Proxying stream from S3 for ${uid} (cache=${shouldCache})`)
+  Api.info(`[MediaProxy] Proxying stream from Storage for ${uid} (cache=${shouldCache})`)
   
-  let s3Res: Response
+  let storageRes: Response
   try {
-    s3Res = await fetch(s3Url)
+    storageRes = await fetch(storageUrl)
   } catch (err) {
-    Api.error(`[MediaProxy] Failed to fetch from S3:`, err)
+    Api.error(`[MediaProxy] Failed to fetch from Storage:`, err)
     return new Response('Failed to download media', { status: 502 })
   }
 
-  if (!s3Res.ok) {
-    return new Response('S3 Error', { status: s3Res.status })
+  if (!storageRes.ok) {
+    return new Response('Storage Error', { status: storageRes.status })
   }
 
   if (shouldCache) {
     // To cache it, we must read it into a buffer
-    const arrayBuffer = await s3Res.arrayBuffer()
+    const arrayBuffer = await storageRes.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
     
     // Save to Redis asynchronously
-    setMediaBuffer(cacheKey, buffer, 31536000) // cache for 1 year
+    setMediaBuffer(cacheKey, buffer, GATEWAY_CACHE_MAX_AGE)
     
     return new Response(buffer, { headers: responseHeaders })
   }
 
   // 3. Direct Streaming (Zero-Copy-ish)
   // Bun optimizes streaming Responses heavily.
-  return new Response(s3Res.body, { headers: responseHeaders })
+  return new Response(storageRes.body, { headers: responseHeaders })
 }

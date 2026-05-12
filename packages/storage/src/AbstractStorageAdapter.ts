@@ -71,13 +71,13 @@ export abstract class AbstractStorageAdapter
    abstract move(file: FileType, destFile: FileType): Promise<any>
 
    /**
-    * Internal adapter method to generate a raw provider URL (e.g. S3 presigned URL).
+    * Generates a raw, natively routable provider URL (e.g., S3 presigned URL).
     * 
     * @param file - The target file footprint.
-    * @param expiresIn - URL expiration in seconds.
-    * @param action - Action context.
-    * @param extra - Provider-specific overrides.
-    * @returns A promise resolving to the native URL.
+    * @param expiresIn - Signature expiration in seconds.
+    * @param action - Intended action ('read', 'write').
+    * @param extra - Provider-specific overrides (e.g. { native: true }).
+    * @returns A promise resolving to the final native URL payload.
     */
    abstract getUrl(
       file: FileType,

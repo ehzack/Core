@@ -60,7 +60,7 @@ async function getAvatarUrl(userId: string) {
     
     try {
         // getUrl returns a fully qualified public URL
-        const url = await storage.getUrl('user-avatars', `${userId}/avatar.png`)
+        const url = await storage.getUrl({ bucket: 'user-avatars', ref: `${userId}/avatar.png` })
         return url
     } catch (err) {
         console.error('File not found')
