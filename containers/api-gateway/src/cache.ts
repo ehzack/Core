@@ -68,3 +68,35 @@ export async function setMediaBuffer(key: string, buffer: Buffer, ttlSeconds: nu
     Api.error(`[Redis] Failed to set media buffer for key ${key}:`, err)
   }
 }
+
+/**
+ * Invalidates all JSON cache keys for a specific resource path across ALL users.
+ * 
+ * @param path - The resource path (e.g. /api/environments/...)
+ * @returns A promise resolving when the operation completes.
+ */
+export async function invalidateResourceCache(path: string): Promise<void> {
+  try {
+    const parts = path.split('/')
+    if (parts.length < 3) return
+    
+    // Extract base path, e.g., "/api/environments"
+    const basePath = `/${parts[1]}/${parts[2]}`
+
+    let cursor = '0'
+    let count = 0
+    do {
+      const [newCursor, keys] = await redis.scan(cursor, 'MATCH', `api:cache:*:${basePath}*`, 'COUNT', 100)
+      cursor = newCursor
+      if (keys.length > 0) {
+        await redis.del(...keys)
+        count += keys.length
+      }
+    } while (cursor !== '0')
+    if (count > 0) {
+      Api.info(`[Redis] Invalidated ${count} cache keys for resource ${basePath}`)
+    }
+  } catch (err) {
+    Api.error(`[Redis] Failed to invalidate cache for resource ${path}:`, err)
+  }
+}

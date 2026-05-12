@@ -1,5 +1,5 @@
 import { extractUserIdFromAuthHeader } from './jwt'
-import { getCachedPayload, setCachedPayload } from './cache'
+import { getCachedPayload, setCachedPayload, invalidateResourceCache } from './cache'
 import { handleMediaRequest } from './media'
 import { Api } from '@quatrain/api'
 import { readFileSync } from 'fs'
@@ -78,6 +78,12 @@ Bun.serve({
     } catch (err) {
       Api.error(`[API Gateway] Upstream error:`, err)
       return new Response('Bad Gateway', { status: 502 })
+    }
+
+    // Invalidate global resource cache on successful mutations
+    if (!isGet && upstreamRes.ok) {
+      // We do this asynchronously to avoid blocking the response
+      invalidateResourceCache(path)
     }
 
     // 4. Cache the response if applicable
