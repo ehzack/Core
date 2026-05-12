@@ -136,7 +136,7 @@ export class FirebaseStorageAdapter extends AbstractStorageAdapter {
     * @param extra - Optional Firebase signed URL overrides.
     * @returns A promise resolving to the signed URL payload.
     */
-   async _getUrl(
+   async getUrl(
       fileData: FileType,
       expiresIn: number = 7200,
       action?: string,

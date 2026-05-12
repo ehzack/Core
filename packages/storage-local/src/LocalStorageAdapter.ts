@@ -110,7 +110,7 @@ export class LocalStorageAdapter extends AbstractStorageAdapter {
    * @param extra - Ignored.
    * @returns A promise resolving to the local file URI string.
    */
-  async _getUrl(file: FileType, expiresIn?: number, action?: string, extra?: any): Promise<any> {
+  async getUrl(file: FileType, expiresIn?: number, action?: string, extra?: any): Promise<any> {
     return `file://${this._getFullPath(file)}`;
   }
 

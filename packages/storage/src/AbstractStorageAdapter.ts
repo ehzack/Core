@@ -79,58 +79,14 @@ export abstract class AbstractStorageAdapter
     * @param extra - Provider-specific overrides.
     * @returns A promise resolving to the native URL.
     */
-   abstract _getUrl(
+   abstract getUrl(
       file: FileType,
       expiresIn?: number,
       action?: string,
       extra?: any
    ): Promise<any>
 
-   /**
-    * Generates an access URL for the given file, automatically rewriting the link
-    * through an API Gateway if configured via `GATEWAY_URL`, factoring in sizing and mimetype exclusions.
-    * 
-    * @param file - The target file.
-    * @param expiresIn - Signature validity duration.
-    * @param action - Intended action ('read', 'write').
-    * @param extra - Custom parameters (e.g., `native: true` bypasses the gateway).
-    * @returns A promise resolving to the final routable URL payload.
-    */
-   public async getUrl(
-      file: FileType,
-      expiresIn?: number,
-      action?: string,
-      extra?: any
-   ): Promise<any> {
-      const publicUrl = await this._getUrl(file, expiresIn, action, extra)
 
-      const gatewayUrl = process.env.GATEWAY_URL
-      if (!gatewayUrl || (action && action !== 'read') || extra?.native) return publicUrl
-
-      // Check max size
-      const maxSizeStr = process.env.GATEWAY_MAXSIZE
-      if (maxSizeStr && file.size && file.size > Number.parseInt(maxSizeStr, 10)) {
-         return publicUrl
-      }
-
-      // Check excluded mimes
-      const excludedMimesStr = process.env.GATEWAY_EXCLUDED_MIMES
-      if (excludedMimesStr && file.contentType) {
-         const excludedMimes = excludedMimesStr.split(',').map((m) => m.trim())
-         if (excludedMimes.includes(file.contentType)) {
-            return publicUrl
-         }
-      }
-
-      const refWithoutSlash = file.ref.replace(/^\//, '')
-      const gatewayUrlClean = gatewayUrl.replace(/\/$/, '')
-      const rewrittenUrl = `${gatewayUrlClean}/${file.bucket}/${refWithoutSlash}`
-
-      if (typeof publicUrl === 'object' && publicUrl !== null) {
-         return { ...publicUrl, url: rewrittenUrl }
-      }
-      return rewrittenUrl
-   }
 
    /**
     * Deletes a file from the backend storage.

@@ -203,7 +203,7 @@ export class SupabaseStorageAdapter extends AbstractStorageAdapter {
     * @returns A promise resolving to the signed URL payload.
     * @throws {Error} If signature creation fails.
     */
-   async _getUrl(file: FileType, expiresIn = 3600, action: any = 'read', extra: any = {}) {
+   async getUrl(file: FileType, expiresIn = 3600, action: any = 'read', extra: any = {}) {
       Storage.debug(
          `Getting signed url for file ${file.ref} in bucket ${file.bucket}`
       )

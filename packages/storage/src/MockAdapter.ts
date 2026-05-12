@@ -89,7 +89,7 @@ export class MockAdapter extends AbstractStorageAdapter {
     * @param file - Target footprint.
     * @returns A mock string URL.
     */
-   async _getUrl(file: FileType): Promise<any> {
+   async getUrl(file: FileType): Promise<any> {
       return `https://mock-storage.com/${file.ref}`
    }
 

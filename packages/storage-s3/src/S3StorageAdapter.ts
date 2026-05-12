@@ -185,7 +185,7 @@ export class S3StorageAdapter extends AbstractStorageAdapter {
     * @param extra - Extra parameters such as 'cacheControl'.
     * @returns A promise resolving to the generated URL and expiration payload.
     */
-   async _getUrl(file: FileType, expiresIn = 3600, action: any = 'read', extra: any = {}) {
+   async getUrl(file: FileType, expiresIn = 3600, action: any = 'read', extra: any = {}) {
       const commandArgs: any = {
          Bucket: file.bucket,
          Key: encodeURI(file.ref),
