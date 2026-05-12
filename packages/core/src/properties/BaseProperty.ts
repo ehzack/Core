@@ -142,10 +142,27 @@ export class BaseProperty implements PropertyClassType {
          )
       }
 
-      if (
-         JSON.stringify({ value: value }) !==
-         JSON.stringify({ value: this._value })
-      ) {
+      let isDifferent = false
+
+      if (typeof value === 'object' && value !== null) {
+         if (value === this._value) {
+            // Same reference implies it was mutated in place, force change
+            isDifferent = true
+         } else {
+            try {
+               isDifferent =
+                  JSON.stringify({ value: value }) !==
+                  JSON.stringify({ value: this._value })
+            } catch (e) {
+               // Fallback for circular references or other stringify errors
+               isDifferent = true
+            }
+         }
+      } else {
+         isDifferent = value !== this._value
+      }
+
+      if (isDifferent) {
          this._value = value
          this._hasChanged = setChanged
       }

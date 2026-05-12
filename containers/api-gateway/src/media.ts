@@ -65,7 +65,11 @@ export async function handleMediaRequest(req: Request, url: URL): Promise<Respon
     return new Response(authRes.body, { status: authRes.status, headers: authRes.headers })
   }
 
-  const mediaInfo = await authRes.json()
+  const mediaInfo = (await authRes.json()) as {
+    url?: string
+    mimeType?: string
+    size?: number
+  }
   const storageUrl = mediaInfo.url
   const mimeType = mediaInfo.mimeType || 'application/octet-stream'
   const size = mediaInfo.size || 0

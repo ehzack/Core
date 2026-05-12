@@ -76,4 +76,35 @@ describe('BaseProperty', () => {
       propStr.set('')
       expect(propStr.val()).toBe('')
    })
+
+   it('should set hasChanged to true when mutating an object by reference and setting it again', () => {
+      const prop = new BaseProperty({ name: 'obj' })
+      const arr = [1, 2]
+      prop.set(arr)
+      expect(prop.hasChanged).toBe(true)
+      
+      prop.hasChanged = false
+      arr.push(3)
+      prop.set(arr)
+      expect(prop.hasChanged).toBe(true)
+   })
+
+   it('should set hasChanged to false when setting a different object reference with identical contents', () => {
+      const prop = new BaseProperty({ name: 'obj' })
+      prop.set([1, 2])
+      expect(prop.hasChanged).toBe(true)
+      
+      prop.hasChanged = false
+      prop.set([1, 2])
+      expect(prop.hasChanged).toBe(false)
+   })
+
+   it('should handle circular references safely without throwing and mark as changed', () => {
+      const prop = new BaseProperty({ name: 'circular' })
+      const obj: any = { a: 1 }
+      obj.self = obj
+      
+      expect(() => prop.set(obj)).not.toThrow()
+      expect(prop.hasChanged).toBe(true)
+   })
 })
