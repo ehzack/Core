@@ -255,7 +255,8 @@ export class SupabaseStorageAdapter extends AbstractStorageAdapter {
 
       const path = join(tmpdir(), String(Date.now()))
       const item = await this.download(file, { path, onlyContent: true })
-      const buffer = Buffer.from(item.toString(), 'base64')
+      const arrayBuffer = await (item as Blob).arrayBuffer()
+      const buffer = Buffer.from(arrayBuffer)
       const readable = new Readable()
       readable.push(buffer)
       readable.push(null)
@@ -275,7 +276,8 @@ export class SupabaseStorageAdapter extends AbstractStorageAdapter {
 
       const path = join(tmpdir(), String(Date.now()))
       const item = await this.download(file, { path, onlyContent: true })
-      const buffer = Buffer.from(item.toString(), 'base64')
+      const arrayBuffer = await (item as Blob).arrayBuffer()
+      const buffer = Buffer.from(arrayBuffer)
       const readable = new Readable()
       readable.push(buffer)
       readable.push(null)
