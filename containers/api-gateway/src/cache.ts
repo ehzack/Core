@@ -100,3 +100,44 @@ export async function invalidateResourceCache(path: string): Promise<void> {
     Api.error(`[Redis] Failed to invalidate cache for resource ${path}:`, err)
   }
 }
+
+let lastUsedMemory = 0
+let lastLogTime = 0
+
+async function logCacheStats() {
+  try {
+    const memoryInfo = await redis.info('memory')
+    
+    // Parse the output
+    const usedMatch = memoryInfo.match(/used_memory:(\d+)/)
+    const maxMatch = memoryInfo.match(/maxmemory:(\d+)/)
+    
+    if (usedMatch) {
+      const usedMemory = parseInt(usedMatch[1], 10)
+      const maxMemory = maxMatch ? parseInt(maxMatch[1], 10) : 0
+      
+      const now = Date.now()
+      const timeSinceLastLog = now - lastLogTime
+      
+      // Log if memory changed OR if 5 minutes have passed
+      if (usedMemory !== lastUsedMemory || timeSinceLastLog >= 5 * 60 * 1000) {
+        let pct = 'N/A'
+        if (maxMemory > 0) {
+          pct = ((usedMemory / maxMemory) * 100).toFixed(2) + '%'
+        }
+        const usedMB = (usedMemory / (1024 * 1024)).toFixed(2)
+        const maxMB = maxMemory > 0 ? (maxMemory / (1024 * 1024)).toFixed(2) : 'Unlimited'
+        
+        Api.info(`[Redis] Cache stats: ${usedMB} MB / ${maxMB} MB (${pct} filled)`)
+        
+        lastUsedMemory = usedMemory
+        lastLogTime = now
+      }
+    }
+  } catch (err) {
+    Api.error(`[Redis] Failed to retrieve memory stats:`, err)
+  }
+}
+
+// Check every minute
+setInterval(logCacheStats, 60 * 1000)

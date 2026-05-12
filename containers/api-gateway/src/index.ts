@@ -65,7 +65,7 @@ Bun.serve({
     // Avoid upstream gzip so we can cache raw string easily (optional, but safer)
     headers.delete('accept-encoding') 
 
-    const upstreamReq = new Request(targetUrl, {
+    const upstreamReq = new Request(targetUrl.toString(), {
       method: req.method,
       headers: headers,
       body: req.body,
@@ -81,7 +81,8 @@ Bun.serve({
     }
 
     // Invalidate global resource cache on successful mutations
-    if (!isGet && upstreamRes.ok) {
+    const isMutation = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)
+    if (isMutation && upstreamRes.ok) {
       // We do this asynchronously to avoid blocking the response
       invalidateResourceCache(path)
     }
