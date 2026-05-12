@@ -1,7 +1,7 @@
 import { getMediaBuffer, setMediaBuffer } from './cache'
 import { Api } from '@quatrain/api'
 
-import { API_UPSTREAM_URL, MAX_CACHE_SIZE_MB } from './config'
+import { API_UPSTREAM_URL, MAX_CACHE_SIZE_MB, GATEWAY_EXCLUDED_MIMES, GATEWAY_MAXSIZE } from './config'
 
 /**
  * Handles incoming HTTP requests for media files (e.g. /api/medias/:uid/file).
@@ -70,6 +70,17 @@ export async function handleMediaRequest(req: Request, url: URL): Promise<Respon
 
   if (!s3Url) {
     return new Response('No media URL provided by API', { status: 404 })
+  }
+
+  // 1.5. Check Excluded Mimes and Size
+  if (GATEWAY_EXCLUDED_MIMES.includes(mimeType)) {
+    Api.info(`[MediaProxy] MIME type ${mimeType} is excluded. Redirecting to S3.`)
+    return Response.redirect(s3Url, 302)
+  }
+  
+  if (GATEWAY_MAXSIZE !== null && size > GATEWAY_MAXSIZE) {
+    Api.info(`[MediaProxy] Size ${size} exceeds GATEWAY_MAXSIZE. Redirecting to S3.`)
+    return Response.redirect(s3Url, 302)
   }
 
   const isImage = mimeType.startsWith('image/')
