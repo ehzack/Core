@@ -104,7 +104,15 @@ export async function invalidateResourceCache(path: string): Promise<void> {
 let lastUsedMemory = 0
 let lastLogTime = 0
 
-async function logCacheStats() {
+/**
+ * Periodically retrieves and logs the Redis memory usage statistics.
+ * Logs output every minute if the memory footprint has changed, or every 5 minutes as a heartbeat otherwise.
+ * 
+ * @async
+ * @function logCacheStats
+ * @returns {Promise<void>} Resolves when the statistics have been evaluated and logged.
+ */
+async function logCacheStats(): Promise<void> {
   try {
     const memoryInfo = await redis.info('memory')
     

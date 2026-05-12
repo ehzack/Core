@@ -65,6 +65,7 @@ Bun.serve({
     // Avoid upstream gzip so we can cache raw string easily (optional, but safer)
     headers.delete('accept-encoding') 
 
+    // Convert URL object to string to satisfy strict TypeScript DOM typings for Request constructor
     const upstreamReq = new Request(targetUrl.toString(), {
       method: req.method,
       headers: headers,
@@ -80,7 +81,8 @@ Bun.serve({
       return new Response('Bad Gateway', { status: 502 })
     }
 
-    // Invalidate global resource cache on successful mutations
+    // Invalidate global resource cache on successful data mutations (POST, PUT, PATCH, DELETE).
+    // This explicitly prevents cache invalidation on non-mutating preflight requests (OPTIONS) or HEAD.
     const isMutation = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)
     if (isMutation && upstreamRes.ok) {
       // We do this asynchronously to avoid blocking the response

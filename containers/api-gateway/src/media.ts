@@ -71,11 +71,27 @@ export async function handleMediaRequest(req: Request, url: URL): Promise<Respon
     size?: number
   }
   const storageUrl = mediaInfo.url
-  const mimeType = mediaInfo.mimeType || 'application/octet-stream'
-  const size = mediaInfo.size || 0
+  let mimeType = mediaInfo.mimeType || 'application/octet-stream'
+  let size = mediaInfo.size || 0
 
   if (!storageUrl) {
     return new Response('No media URL provided by API', { status: 404 })
+  }
+
+  // If the internal API returns a size of 0 (common for dynamically generated thumbnails or missing metadata),
+  // proactively perform a lightweight HEAD request directly to the storage bucket.
+  // This accurately populates content-length for proper cache sizing and content-type verification.
+  if (size === 0) {
+    try {
+      const headRes = await fetch(storageUrl, { method: 'HEAD' })
+      const cl = headRes.headers.get('content-length')
+      if (cl) size = parseInt(cl, 10)
+      
+      const ct = headRes.headers.get('content-type')
+      if (ct) mimeType = ct
+    } catch (err) {
+      Api.debug(`[MediaProxy] Failed to HEAD storage URL for exact size:`, err)
+    }
   }
 
   // 1.5. Check Excluded Mimes and Size
@@ -123,7 +139,11 @@ export async function handleMediaRequest(req: Request, url: URL): Promise<Respon
   }
 
   if (!storageRes.ok) {
-    return new Response('Storage Error', { status: storageRes.status })
+    // S3 and similar storages return 403 Forbidden instead of 404 Not Found when a file doesn't exist
+    // on a bucket configured without `s3:ListBucket` permissions.
+    // Since upstream validation already passed, a 403 here strictly means the file is missing.
+    const status = storageRes.status === 403 ? 404 : storageRes.status
+    return new Response('Storage Error or Not Found', { status })
   }
 
   if (shouldCache) {
