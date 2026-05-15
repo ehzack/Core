@@ -21,15 +21,13 @@ export async function handleMediaRequest(req: Request, url: URL): Promise<Respon
   const tokenQuery = url.searchParams.get('token')
   const finalAuthHeader = authHeader || (tokenQuery ? `Bearer ${tokenQuery}` : '')
   
-  // Extract UID and action from the path. Assuming: /api/medias/:uid/file
-  // Parts: ['', 'api', 'medias', 'UID', 'ACTION']
-  const pathParts = url.pathname.split('/')
-  const uid = pathParts[3]
-  const action = pathParts[4] || 'file'
-
-  if (!uid) {
-    return new Response('Missing UID', { status: 400 })
+  // Extract UID and action from the path. Assuming: /blob/medias/:uid/file or /api/blob/...
+  const match = url.pathname.match(/^\/?(api\/)?blob\/(.+)\/(file|thumbnail)$/)
+  if (!match) {
+    return new Response('Invalid media path', { status: 400 })
   }
+  const uid = match[2]
+  const action = match[3]
 
   // Default immutable caching headers for static media
   const responseHeaders = new Headers({
@@ -46,7 +44,7 @@ export async function handleMediaRequest(req: Request, url: URL): Promise<Respon
   }
 
   // 1. Call upstream server /internal endpoint
-  const authEndpoint = `${API_UPSTREAM_URL}/internal/medias/${uid}?action=${action}`
+  const authEndpoint = `${API_UPSTREAM_URL}/internal/${uid}?action=${action}`
   const gatewaySecret = process.env.GATEWAY_SECRET
   
   let authRes: Response

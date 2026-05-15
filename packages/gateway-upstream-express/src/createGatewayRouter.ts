@@ -50,8 +50,8 @@ export function createGatewayRouter(options: GatewayRouterOptions): Router {
     next()
   })
 
-  // Media resolution endpoint
-  router.get('/medias/:uid', async (req: Request, res: Response) => {
+  // Blob resolution endpoint
+  router.get('/:uid(*)', async (req: Request, res: Response) => {
     try {
       const uid = req.params.uid
       const action = (req.query.action as string) || 'file'
