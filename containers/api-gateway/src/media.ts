@@ -18,6 +18,8 @@ import { API_UPSTREAM_URL, MAX_CACHE_SIZE_MB, GATEWAY_EXCLUDED_MIMES, GATEWAY_MA
 export async function handleMediaRequest(req: Request, url: URL): Promise<Response> {
   Api.info(`[MediaProxy] Received request for ${url.pathname}`)
   const authHeader = req.headers.get('authorization')
+  const tokenQuery = url.searchParams.get('token')
+  const finalAuthHeader = authHeader || (tokenQuery ? `Bearer ${tokenQuery}` : '')
   
   // Extract UID and action from the path. Assuming: /api/medias/:uid/file
   // Parts: ['', 'api', 'medias', 'UID', 'ACTION']
@@ -52,7 +54,7 @@ export async function handleMediaRequest(req: Request, url: URL): Promise<Respon
     authRes = await fetch(authEndpoint, {
       headers: { 
         'X-Gateway-Secret': gatewaySecret || '',
-        'Authorization': authHeader || ''
+        'Authorization': finalAuthHeader
       }
     })
   } catch (err) {
