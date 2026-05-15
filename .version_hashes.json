@@ -225,9 +225,9 @@
     "last_published": "2026-05-11T13:55:14.206Z"
   },
   "@quatrain/gateway-upstream-express": {
-    "version": "1.0.4",
-    "hash": "8sBOq9iV/8ChDXpxvDmasc65zFs=-e7dbe07d55a0c58652bf01c6e8dfd25715aff25427513d3f41a32442202f4283",
-    "last_published": "2026-05-12T07:43:13.288Z"
+    "version": "1.0.5",
+    "hash": "hmoT4QM6IBaw8ZlovRMqYAaAtJA=-e7dbe07d55a0c58652bf01c6e8dfd25715aff25427513d3f41a32442202f4283",
+    "last_published": "2026-05-15T13:36:43.943Z"
   },
   "@quatrain/api-server-express": {
     "version": "1.1.10",
