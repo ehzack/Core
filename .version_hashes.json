@@ -115,9 +115,9 @@
     "last_published": "2026-07-19T14:46:21.821Z"
   },
   "@quatrain/ai-gemini": {
-    "version": "1.1.4",
-    "hash": "AwkS4d9o9MtSjLw/Xd+mBvthjeo=-cfd14c1444f47abbdae2c00c42b2d58f653746a6852254a1d2e0334cf0f4f92f",
-    "last_published": "2026-07-19T14:46:28.460Z"
+    "version": "1.1.5",
+    "hash": "b9FoJDkRA+BcIrHH2OIiy6Gwp6U=-cfd14c1444f47abbdae2c00c42b2d58f653746a6852254a1d2e0334cf0f4f92f",
+    "last_published": "2026-07-26T10:06:47.679Z"
   },
   "@quatrain/api": {
     "version": "1.1.7",
