@@ -300,9 +300,9 @@
     "last_published": "2026-07-06T12:02:48.839Z"
   },
   "@quatrain/skills": {
-    "version": "1.0.3",
-    "hash": "B62ijATymL/4Kw4CFWkZTP3XIdw=-de2b63f25a23e85de19976c8a42ed839bf094db20d1f4817a9c9db1e574c39c4",
-    "last_published": "2026-07-06T08:03:27.399Z"
+    "version": "1.0.4",
+    "hash": "YSOjD1punNKCKBvuCHz6REWVhM8=-a7e069dadf31da32722275b512402a3eb4d189ee868cec21b5da189de7a70993",
+    "last_published": "2026-07-26T20:12:54.259Z"
   },
   "@quatrain/auth": {
     "version": "1.2.10",

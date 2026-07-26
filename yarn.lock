@@ -3812,6 +3812,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@quatrain/skills@workspace:packages/skills"
   dependencies:
+    "@quatrain/api-client": "workspace:*"
     "@quatrain/core": "workspace:*"
     "@quatrain/log": "workspace:*"
     "@tsconfig/recommended": "npm:^1.0.1"

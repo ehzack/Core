@@ -1,6 +1,6 @@
 {
   "name": "@quatrain/skills",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Shared TypeScript CLI utilities for Quatrain Agent skills",
   "main": "dist/index.js",
   "module": "src/index.ts",
