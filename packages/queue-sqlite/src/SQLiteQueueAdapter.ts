@@ -169,12 +169,12 @@ export class SQLiteQueueAdapter extends AbstractQueueAdapter {
    }
 
    /**
-    * Retries a failed task by setting its status back to pending.
+    * Retries a failed or stuck processing task by setting its status back to pending.
     */
    async retryTask(taskId: string): Promise<boolean> {
       const connection = await this._connect();
       const task = await connection.get(`SELECT * FROM queue_messages WHERE id = ?`, [taskId]);
-      if (!task || task.status !== 'failed') return false;
+      if (!task) return false;
 
       await connection.run(
          `UPDATE queue_messages SET status = 'pending', progress = 0, error = NULL, started_at = NULL, completed_at = NULL WHERE id = ?`,
@@ -184,12 +184,12 @@ export class SQLiteQueueAdapter extends AbstractQueueAdapter {
    }
 
    /**
-    * Deletes a task from the queue database if it's not currently processing.
+    * Deletes a task from the queue database.
     */
    async deleteTask(taskId: string): Promise<boolean> {
       const connection = await this._connect();
       const task = await connection.get(`SELECT * FROM queue_messages WHERE id = ?`, [taskId]);
-      if (!task || task.status === 'processing') return false;
+      if (!task) return false;
 
       await connection.run(`DELETE FROM queue_messages WHERE id = ?`, [taskId]);
       return true;

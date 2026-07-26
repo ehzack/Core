@@ -3,6 +3,7 @@
   "$id": "https://schema.quatrain.dev/package-interchange-v1.json",
   "title": "Quatrain Package Interchange & Application Composition Specification (v1)",
   "description": "Explicit JSON schema for Quatrain packages, skills, UX components, and service manifests.",
+  "license": "MIT",
   "type": "object",
   "required": [
     "id",
