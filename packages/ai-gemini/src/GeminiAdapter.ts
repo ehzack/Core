@@ -17,7 +17,7 @@ export class GeminiAdapter extends AbstractAiAdapter {
     * Initializes the internal GoogleGenAI client with the provided API key.
     */
    init(): void {
-      this._ai = new GoogleGenAI({ apiKey: this._apiKey })
+      this._ai = new GoogleGenAI({ apiKey: this._apiKey });
    }
 
    /**
