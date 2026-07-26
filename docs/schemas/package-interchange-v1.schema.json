@@ -1,0 +1,163 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schema.quatrain.dev/package-interchange-v1.json",
+  "title": "Quatrain Package Interchange & Application Composition Specification (v1)",
+  "description": "Explicit JSON schema for Quatrain packages, skills, UX components, and service manifests.",
+  "type": "object",
+  "required": [
+    "id",
+    "fields"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "format": "uri",
+      "description": "JSON Schema URI for IDE validation and autocompletion."
+    },
+    "extends": {
+      "type": "string",
+      "description": "Relative path to base metadata file (e.g. package.json, pyproject.toml, Cargo.toml) to inherit name, version, description."
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^(@[a-z0-9-]+/)?[a-z0-9-]+$",
+      "description": "Unique namespaced package identifier (e.g., @quatrain/skills-jellyfin)."
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable display name of the package/skill. Inherited from base metadata file if 'extends' is specified."
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9.]+)?$",
+      "description": "Semantic versioning string (e.g. 0.1.0). Inherited from base metadata file if 'extends' is specified."
+    },
+    "description": {
+      "type": "string",
+      "description": "Concise summary of the skill or component responsibility."
+    },
+    "icon": {
+      "type": "string",
+      "description": "Emoji character or SVG icon identifier for UI rendering."
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "skill",
+        "ux-component",
+        "recipe",
+        "adapter",
+        "service"
+      ],
+      "default": "skill",
+      "description": "The category kind of the Quatrain extension."
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "media",
+        "knowledge",
+        "erp",
+        "communication",
+        "utility",
+        "system"
+      ],
+      "description": "Functional domain category."
+    },
+    "entrypoint": {
+      "type": "string",
+      "description": "Relative entrypoint file path (e.g. ./JellyfinSkillAdapter.ts)."
+    },
+    "fields": {
+      "type": "array",
+      "description": "Declarative list of configuration fields required to activate the extension.",
+      "items": {
+        "$ref": "#/definitions/SkillField"
+      }
+    },
+    "capabilities": {
+      "type": "object",
+      "description": "Optional capability flags (e.g. MCP support, storage requirements).",
+      "properties": {
+        "mcp": {
+          "type": "boolean",
+          "default": true
+        },
+        "tools": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "SkillField": {
+      "type": "object",
+      "required": [
+        "name",
+        "label"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_]+$",
+          "description": "Unique key name of the field variable."
+        },
+        "label": {
+          "type": "string",
+          "description": "Human-readable UI label for the field."
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "text",
+            "password",
+            "number",
+            "boolean",
+            "select",
+            "textarea"
+          ],
+          "default": "text",
+          "description": "Form input field type."
+        },
+        "placeholder": {
+          "type": "string",
+          "description": "Placeholder text for UI inputs."
+        },
+        "description": {
+          "type": "string",
+          "description": "Helper hint or tooltip text."
+        },
+        "required": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether the configuration field is mandatory."
+        },
+        "default": {
+          "description": "Default initial value for the field."
+        },
+        "options": {
+          "type": "array",
+          "description": "Available option list when field type is 'select'.",
+          "items": {
+            "type": "object",
+            "required": [
+              "label",
+              "value"
+            ],
+            "properties": {
+              "label": {
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
