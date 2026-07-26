@@ -1,6 +1,4 @@
-import { describe, it, expect, beforeEach, mock } from 'bun:test';
 import { Skills, writeOutput } from './index';
-import * as fsPromises from 'node:fs/promises';
 
 describe('Skills package', () => {
   it('should register package and activate skill correctly', async () => {

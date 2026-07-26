@@ -19,6 +19,7 @@
   "author": "Quatrain Développement SAS <developers@quatrain.com>",
   "license": "AGPL-3.0-only",
   "dependencies": {
+    "@quatrain/api-client": "workspace:*",
     "@quatrain/core": "workspace:*",
     "@quatrain/log": "workspace:*"
   },
