@@ -355,9 +355,9 @@
     "last_published": "2026-07-19T14:47:23.927Z"
   },
   "@quatrain/queue-sqlite": {
-    "version": "1.0.1",
-    "hash": "CtuO4np8IkG7z1i17RQoQnQj+xw=-b85b453b835a61d073e3021c39962140be627eb78506543637cf0c8cd6b8e58c",
-    "last_published": "2026-07-19T14:47:36.951Z"
+    "version": "1.0.2",
+    "hash": "ixSCOFDQ8jUdoDwUCyyShJmCdtw=-b85b453b835a61d073e3021c39962140be627eb78506543637cf0c8cd6b8e58c",
+    "last_published": "2026-07-26T16:30:42.351Z"
   },
   "@quatrain/storage-git": {
     "version": "1.0.2",
