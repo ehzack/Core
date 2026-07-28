@@ -1,7 +1,6 @@
 import { AbstractAuthAdapter } from './AbstractAuthAdapter'
 import { AuthParameters } from './Auth'
 import { User } from '@quatrain/backend'
-import * as nativeFetch from 'node-fetch-native'
 
 /**
  * Abstract class summarizing typical OAuth2 Web Application Flows.
@@ -69,7 +68,7 @@ export abstract class AbstractOAuthAdapter extends AbstractAuthAdapter {
          body.redirect_uri = redirectUri
       }
 
-      const response = await nativeFetch.fetch(this._tokenEndpoint, {
+      const response = await fetch(this._tokenEndpoint, {
          method: 'POST',
          headers: {
             'Content-Type': 'application/json',
