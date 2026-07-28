@@ -2,10 +2,19 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { FileSystem } from './FileSystem'
 import axios from 'axios'
+import fetch from 'node-fetch-native'
 import * as ffmpeg from 'fluent-ffmpeg'
 import { PassThrough, Readable } from 'node:stream'
 
 jest.mock('axios')
+jest.mock('node-fetch-native', () => {
+   const fn = jest.fn()
+   return {
+      __esModule: true,
+      default: fn,
+      fetch: fn,
+   }
+})
 jest.mock('fluent-ffmpeg', () => ({
    ffprobe: jest.fn()
 }))
@@ -74,16 +83,20 @@ describe('FileSystem Utilities (Worker)', () => {
       })
 
       // Setup base temp folder if needed
-      if (originalExistsSync(testBaseDir)) {
-         fs.rmSync(testBaseDir, { recursive: true, force: true })
-      }
+      try {
+         if (originalExistsSync(testBaseDir)) {
+            fs.rmSync(testBaseDir, { recursive: true, force: true })
+         }
+      } catch {}
    })
 
    afterEach(() => {
       // Clean up base temp folder
-      if (originalExistsSync(testBaseDir)) {
-         fs.rmSync(testBaseDir, { recursive: true, force: true })
-      }
+      try {
+         if (originalExistsSync(testBaseDir)) {
+            fs.rmSync(testBaseDir, { recursive: true, force: true })
+         }
+      } catch {}
       jest.clearAllMocks()
       jest.restoreAllMocks()
    })

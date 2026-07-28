@@ -4005,6 +4005,7 @@ __metadata:
     fs-extra: "npm:^11.2.0"
     jest: "npm:^29.7.0"
     jest-node-exports-resolver: "npm:^1.1.6"
+    node-fetch-native: "npm:^1.6.4"
     trace-unhandled: "npm:^2.0.1"
     ts-jest: "npm:^29.4.6"
     ts-node: "npm:^10.4.0"
@@ -10264,6 +10265,13 @@ __metadata:
   version: 0.0.0
   resolution: "node-ensure@npm:0.0.0"
   checksum: 10c0/7af391aee024a8b7df77c239ed8b90417e3f2539824fa06b60f243ce14c75ee455766464c7c3ba9407d5b1e4d1d74ed5cf5f8af10c67b0fc05aa6e29f5d2462b
+  languageName: node
+  linkType: hard
+
+"node-fetch-native@npm:^1.6.4":
+  version: 1.6.7
+  resolution: "node-fetch-native@npm:1.6.7"
+  checksum: 10c0/8b748300fb053d21ca4d3db9c3ff52593d5e8f8a2d9fe90cbfad159676e324b954fdaefab46aeca007b5b9edab3d150021c4846444e4e8ab1f4e44cd3807be87
   languageName: node
   linkType: hard
 

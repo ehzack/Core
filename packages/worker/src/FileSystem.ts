@@ -2,6 +2,7 @@ import fs, { readFileSync } from 'node:fs'
 import path from 'node:path'
 import axios from 'axios'
 import { Worker } from './Worker'
+import fetch from 'node-fetch-native'
 import * as ffmpeg from 'fluent-ffmpeg'
 import { FileType } from '@quatrain/storage'
 
