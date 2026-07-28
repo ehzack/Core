@@ -2,11 +2,9 @@ import { SupabaseAuthAdapter } from './SupabaseAuthAdapter'
 import { User } from '@quatrain/backend'
 import { AuthenticationError } from '@quatrain/auth'
 import { createClient } from '@supabase/supabase-js'
-import * as nativeFetch from 'node-fetch-native'
 
 // Mock the dependencies
 jest.mock('@supabase/supabase-js')
-jest.mock('node-fetch-native')
 
 describe('SupabaseAuthAdapter', () => {
    let adapter: SupabaseAuthAdapter
@@ -17,6 +15,7 @@ describe('SupabaseAuthAdapter', () => {
    beforeEach(() => {
       // Clear all mocks before each test
       jest.clearAllMocks()
+      global.fetch = jest.fn()
 
       // Create mock Supabase client structure
       mockAuthAdmin = {
@@ -225,11 +224,11 @@ describe('SupabaseAuthAdapter', () => {
             json: jest.fn().mockResolvedValue(mockResponse),
          }
 
-         ;(nativeFetch.fetch as unknown as jest.Mock).mockResolvedValue(mockFetchResponse)
+         ;(global.fetch as unknown as jest.Mock).mockResolvedValue(mockFetchResponse)
 
          const result = await adapter.refreshToken('old-refresh-token')
 
-         expect(nativeFetch.fetch).toHaveBeenCalledWith(
+         expect(global.fetch).toHaveBeenCalledWith(
             'https://test.supabase.co/auth/v1/token?grant_type=refresh_token',
             {
                method: 'POST',
@@ -253,11 +252,11 @@ describe('SupabaseAuthAdapter', () => {
             json: jest.fn().mockResolvedValue({}),
          }
 
-         ;(nativeFetch.fetch as unknown as jest.Mock).mockResolvedValue(mockFetchResponse)
+         ;(global.fetch as unknown as jest.Mock).mockResolvedValue(mockFetchResponse)
 
          await adapter.refreshToken('refresh-token')
 
-         const callArgs = (nativeFetch.fetch as unknown as jest.Mock).mock.calls[0]
+         const callArgs = (global.fetch as unknown as jest.Mock).mock.calls[0]
          expect(callArgs[0]).toBe(
             'https://test.supabase.co/auth/v1/token?grant_type=refresh_token'
          )

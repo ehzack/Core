@@ -10,6 +10,9 @@ export default {
       }],
    },
    testMatch: ['**/?(*.)+(spec|test).ts'],
+   moduleNameMapper: {
+      '^@quatrain/([^/]+)$': '<rootDir>/packages/$1/src',
+   },
 }
 
 

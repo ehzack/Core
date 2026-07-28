@@ -39,8 +39,7 @@
     "@quatrain/storage": "^1.2.13",
     "axios": "^1.7.7",
     "fluent-ffmpeg": "^2.1.2",
-    "fs-extra": "^11.2.0",
-    "node-fetch-native": "^1.6.4"
+    "fs-extra": "^11.2.0"
   },
   "scripts": {
     "test-ci": "jest --runInBand",

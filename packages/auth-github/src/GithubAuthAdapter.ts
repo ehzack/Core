@@ -1,6 +1,5 @@
 import { AbstractOAuthAdapter } from '@quatrain/auth'
 import { GithubAuthApi } from './GithubAuthApi'
-import * as nativeFetch from 'node-fetch-native'
 
 /**
  * Authentication adapter for GitHub OAuth 2.0 Web Application Flow.
@@ -30,7 +29,7 @@ export class GithubAuthAdapter extends AbstractOAuthAdapter {
     * Returns user details from GitHub by validating the access token.
     */
    async getAuthToken(accessToken: string): Promise<any> {
-      const response = await nativeFetch.fetch(this._userProfileEndpoint, {
+      const response = await fetch(this._userProfileEndpoint, {
          headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Accept': 'application/json',
@@ -49,7 +48,7 @@ export class GithubAuthAdapter extends AbstractOAuthAdapter {
     * Custom GitHub API call to check repository existence.
     */
    async checkRepositoryExists(accessToken: string, owner: string, name: string): Promise<boolean> {
-      const response = await nativeFetch.fetch(`https://api.github.com/repos/${owner}/${name}`, {
+      const response = await fetch(`https://api.github.com/repos/${owner}/${name}`, {
          headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Accept': 'application/json',
@@ -63,7 +62,7 @@ export class GithubAuthAdapter extends AbstractOAuthAdapter {
     * Custom GitHub API call to create a repository.
     */
    async createRepository(accessToken: string, name: string, options: { private?: boolean; description?: string; autoInit?: boolean } = {}): Promise<any> {
-      const response = await nativeFetch.fetch('https://api.github.com/user/repos', {
+      const response = await fetch('https://api.github.com/user/repos', {
          method: 'POST',
          headers: {
             'Authorization': `Bearer ${accessToken}`,

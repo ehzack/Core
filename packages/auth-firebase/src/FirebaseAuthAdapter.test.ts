@@ -3,12 +3,10 @@ import { User } from '@quatrain/backend'
 import { AuthenticationError } from '@quatrain/auth'
 import { getAuth } from 'firebase-admin/auth'
 import { getApps, initializeApp } from 'firebase-admin/app'
-import * as nativeFetch from 'node-fetch-native'
 
 // Mock the dependencies
 jest.mock('firebase-admin/auth')
 jest.mock('firebase-admin/app')
-jest.mock('node-fetch-native')
 
 describe('FirebaseAuthAdapter', () => {
    let adapter: FirebaseAuthAdapter
@@ -17,6 +15,7 @@ describe('FirebaseAuthAdapter', () => {
    beforeEach(() => {
       // Clear all mocks before each test
       jest.clearAllMocks()
+      global.fetch = jest.fn()
 
       // Mock Firebase Admin SDK
       mockAuth = {
@@ -263,11 +262,11 @@ describe('FirebaseAuthAdapter', () => {
             json: jest.fn().mockResolvedValue(mockResponse),
          }
 
-         ;(nativeFetch.fetch as unknown as jest.Mock).mockResolvedValue(mockFetchResponse)
+         ;(global.fetch as unknown as jest.Mock).mockResolvedValue(mockFetchResponse)
 
          const result = await adapter.refreshToken('old-refresh-token')
 
-         expect(nativeFetch.fetch).toHaveBeenCalledWith(
+         expect(global.fetch).toHaveBeenCalledWith(
             'https://securetoken.googleapis.com/v1/token?key=test-api-key',
             {
                method: 'POST',
@@ -294,7 +293,7 @@ describe('FirebaseAuthAdapter', () => {
          const result = await adapterWithoutKey.refreshToken('refresh-token')
 
          expect(result).toEqual({})
-         expect(nativeFetch.fetch).not.toHaveBeenCalled()
+         expect(global.fetch).not.toHaveBeenCalled()
       })
 
       it('should construct correct URL with API key', async () => {
@@ -302,11 +301,11 @@ describe('FirebaseAuthAdapter', () => {
             json: jest.fn().mockResolvedValue({}),
          }
 
-         ;(nativeFetch.fetch as unknown as jest.Mock).mockResolvedValue(mockFetchResponse)
+         ;(global.fetch as unknown as jest.Mock).mockResolvedValue(mockFetchResponse)
 
          await adapter.refreshToken('refresh-token')
 
-         const callArgs = (nativeFetch.fetch as unknown as jest.Mock).mock.calls[0]
+         const callArgs = (global.fetch as unknown as jest.Mock).mock.calls[0]
          expect(callArgs[0]).toBe(
             'https://securetoken.googleapis.com/v1/token?key=test-api-key'
          )

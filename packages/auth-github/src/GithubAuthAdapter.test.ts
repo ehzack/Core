@@ -1,13 +1,11 @@
 import { GithubAuthAdapter } from './GithubAuthAdapter'
-import * as nativeFetch from 'node-fetch-native'
-
-jest.mock('node-fetch-native')
 
 describe('GithubAuthAdapter', () => {
    let adapter: GithubAuthAdapter
 
    beforeEach(() => {
       jest.clearAllMocks()
+      global.fetch = jest.fn()
 
       adapter = new GithubAuthAdapter({
          config: {
@@ -56,11 +54,11 @@ describe('GithubAuthAdapter', () => {
                scope: 'repo',
             }),
          }
-         ;(nativeFetch.fetch as jest.Mock).mockResolvedValue(mockResponse)
+         ;(global.fetch as jest.Mock).mockResolvedValue(mockResponse)
 
          const result = await adapter.exchangeCodeForToken('code-123', 'http://callback')
          expect(result.access_token).toBe('github-access-token-123')
-         expect(nativeFetch.fetch).toHaveBeenCalledWith(
+         expect(global.fetch).toHaveBeenCalledWith(
             'https://github.com/login/oauth/access_token',
             expect.objectContaining({
                method: 'POST',
@@ -80,7 +78,7 @@ describe('GithubAuthAdapter', () => {
             ok: false,
             statusText: 'Bad Request',
          }
-         ;(nativeFetch.fetch as jest.Mock).mockResolvedValue(mockResponse)
+         ;(global.fetch as jest.Mock).mockResolvedValue(mockResponse)
 
          await expect(
             adapter.exchangeCodeForToken('code-123')
@@ -98,11 +96,11 @@ describe('GithubAuthAdapter', () => {
                name: 'The Octocat',
             }),
          }
-         ;(nativeFetch.fetch as jest.Mock).mockResolvedValue(mockResponse)
+         ;(global.fetch as jest.Mock).mockResolvedValue(mockResponse)
 
          const result = await adapter.getAuthToken('token-123')
          expect(result.login).toBe('octocat')
-         expect(nativeFetch.fetch).toHaveBeenCalledWith(
+         expect(global.fetch).toHaveBeenCalledWith(
             'https://api.github.com/user',
             expect.objectContaining({
                headers: {
@@ -118,11 +116,11 @@ describe('GithubAuthAdapter', () => {
    describe('checkRepositoryExists()', () => {
       it('should return true if repo exists', async () => {
          const mockResponse = { status: 200 }
-         ;(nativeFetch.fetch as jest.Mock).mockResolvedValue(mockResponse)
+         ;(global.fetch as jest.Mock).mockResolvedValue(mockResponse)
 
          const exists = await adapter.checkRepositoryExists('token-123', 'owner', 'repo')
          expect(exists).toBe(true)
-         expect(nativeFetch.fetch).toHaveBeenCalledWith(
+         expect(global.fetch).toHaveBeenCalledWith(
             'https://api.github.com/repos/owner/repo',
             expect.any(Object)
          )
@@ -130,7 +128,7 @@ describe('GithubAuthAdapter', () => {
 
       it('should return false if repo does not exist', async () => {
          const mockResponse = { status: 404 }
-         ;(nativeFetch.fetch as jest.Mock).mockResolvedValue(mockResponse)
+         ;(global.fetch as jest.Mock).mockResolvedValue(mockResponse)
 
          const exists = await adapter.checkRepositoryExists('token-123', 'owner', 'repo')
          expect(exists).toBe(false)
@@ -147,7 +145,7 @@ describe('GithubAuthAdapter', () => {
                full_name: 'octocat/new-repo',
             }),
          }
-         ;(nativeFetch.fetch as jest.Mock).mockResolvedValue(mockResponse)
+         ;(global.fetch as jest.Mock).mockResolvedValue(mockResponse)
 
          const result = await adapter.createRepository('token-123', 'new-repo', {
             private: true,
@@ -155,7 +153,7 @@ describe('GithubAuthAdapter', () => {
          })
 
          expect(result.name).toBe('new-repo')
-         expect(nativeFetch.fetch).toHaveBeenCalledWith(
+         expect(global.fetch).toHaveBeenCalledWith(
             'https://api.github.com/user/repos',
             expect.objectContaining({
                method: 'POST',

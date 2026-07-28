@@ -8,7 +8,6 @@ import {
 
 import { CreateRequest, UpdateRequest, getAuth } from 'firebase-admin/auth'
 import { getApps, initializeApp } from 'firebase-admin/app'
-import * as nativeFetch from 'node-fetch-native'
 
 /**
  * Authentication adapter implementing the Google Firebase Auth ecosystem.
@@ -149,7 +148,7 @@ export class FirebaseAuthAdapter extends AbstractAuthAdapter {
          Auth.warn(`Can't get refresh token, no API key provided`)
          return {}
       }
-      const response = await nativeFetch.fetch(
+      const response = await fetch(
          `https://securetoken.googleapis.com/v1/token?key=${this._params.config.apiKey}`,
          {
             method: 'POST',
@@ -190,7 +189,7 @@ export class FirebaseAuthAdapter extends AbstractAuthAdapter {
          }
       }
 
-      const response = await nativeFetch.fetch(
+      const response = await fetch(
          `https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${this._params.config.apiKey}`,
          {
             method: 'POST',

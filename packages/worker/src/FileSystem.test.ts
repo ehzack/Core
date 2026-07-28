@@ -2,12 +2,10 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { FileSystem } from './FileSystem'
 import axios from 'axios'
-import fetch from 'node-fetch-native'
 import * as ffmpeg from 'fluent-ffmpeg'
 import { PassThrough, Readable } from 'node:stream'
 
 jest.mock('axios')
-jest.mock('node-fetch-native')
 jest.mock('fluent-ffmpeg', () => ({
    ffprobe: jest.fn()
 }))
