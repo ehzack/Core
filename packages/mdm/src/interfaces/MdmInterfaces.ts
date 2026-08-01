@@ -16,11 +16,11 @@ export interface MdmCommCapabilityInterface {
    frequencyBands?: string[]
    modulation?: string
    networkTypes?: string[]
-   simFormat?: string;
-   strategy?: string;
-   primary?: string;
-   secondary?: string;
-   tertiary?: string;
+   simFormat?: string
+   strategy?: string
+   primary?: string
+   secondary?: string
+   tertiary?: string
 }
 
 /**
@@ -71,25 +71,7 @@ export interface MdmServiceCapabilitiesInterface {
    dataCapMb?: number
 }
 
-/**
- * Standardized Garment Specifications Interface
- */
-export interface MdmGarmentSpecificationsInterface {
-   sizes: string[]
-   colors: string[]
-   materials: string[]
-   washCare?: string
-   brand?: string
-}
-
-/**
- * Standardized Disk Specifications Interface
- */
-export interface MdmDiskSpecificationsInterface {
-   format: MdmMediaDiskFormat | string
-   durationSec: number
-   trackCount: number
-   rpm?: number
-   genre?: string
-   label?: string
-}
+export type { TextileGarmentSpecInterface } from '../domain/TextileDomain'
+export type { MediaDiskSpecInterface } from '../domain/MediaDomain'
+export type { HardwareDeviceSpecInterface } from '../domain/HardwareDomain'
+export type { VirtualKeychainSpecInterface } from '../domain/VirtualDomain'

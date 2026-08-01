@@ -9,10 +9,10 @@ import {
 import { AbstractMdmObject } from './AbstractMdmObject'
 import { MdmArchetypeSpec } from './MdmArchetypeSpec'
 import { MdmNature } from './enums/MdmEnums'
-import { GarmentSize, TextileColor, TextileMaterial, TextileWashCare, ITextileGarmentSpec } from './domain/TextileDomain'
-import { MediaDiskFormat, VinylRpm, IMediaDiskSpec } from './domain/MediaDomain'
-import { CommTechnology, PowerSource, IHardwareDeviceSpec } from './domain/HardwareDomain'
-import { AuthMechanism, IVirtualKeychainSpec } from './domain/VirtualDomain'
+import { GarmentSize, TextileColor, TextileMaterial, TextileWashCare, TextileGarmentSpecInterface } from './domain/TextileDomain'
+import { MediaDiskFormat, VinylRpm, MediaDiskSpecInterface } from './domain/MediaDomain'
+import { CommTechnology, PowerSource, HardwareDeviceSpecInterface } from './domain/HardwareDomain'
+import { AuthMechanism, VirtualKeychainSpecInterface } from './domain/VirtualDomain'
 
 /**
  * Concrete T-Shirt MDM Model for HOWTO verification
@@ -31,8 +31,8 @@ class TShirtMdmObject extends AbstractMdmObject {
       }
    }
 
-   public get specifications(): ITextileGarmentSpec {
-      return this.dataObject.val('specifications') as ITextileGarmentSpec
+   public get specifications(): TextileGarmentSpecInterface {
+      return this.dataObject.val('specifications') as TextileGarmentSpecInterface
    }
 }
 
@@ -48,13 +48,13 @@ describe('@quatrain/mdm Pivot Class, ENUMs, Interfaces & AbstractMdmObject Test 
       expect(adapter.alias).toBe('default')
    })
 
-   it('should create and validate a T-Shirt product variant and inventory unit as documented in HOWTO.md', () => {
+   it('should create and validate a T-Shirt product variant and inventory unit using TextileGarmentSpecInterface and GarmentSize.MEDIUM', () => {
       const tshirtSample = new TShirtMdmObject({ name: 'T-Shirt Archetype' } as any)
       Mdm.registerArchetype(tshirtSample.getArchetypeSpec())
       Mdm.registerModel('textile.tshirt', TShirtMdmObject)
 
-      const tshirtSpec: ITextileGarmentSpec = {
-         sizes: [GarmentSize.S, GarmentSize.M, GarmentSize.L, GarmentSize.XL],
+      const tshirtSpec: TextileGarmentSpecInterface = {
+         sizes: [GarmentSize.SMALL, GarmentSize.MEDIUM, GarmentSize.LARGE, GarmentSize.EXTRA_LARGE],
          colors: [TextileColor.NAVY_BLUE, TextileColor.WHITE, TextileColor.BLACK],
          materials: [TextileMaterial.ORGANIC_COTTON, TextileMaterial.ELASTANE],
          washCare: [TextileWashCare.WASH_30C, TextileWashCare.NO_BLEACH, TextileWashCare.IRON_MEDIUM],
@@ -76,6 +76,8 @@ describe('@quatrain/mdm Pivot Class, ENUMs, Interfaces & AbstractMdmObject Test 
       expect(tshirtVariant.validateArchetypeSpecs()).toBe(true)
       expect(tshirtVariant.specifications.colors).toContain(TextileColor.NAVY_BLUE)
       expect(tshirtVariant.specifications.materials).toContain(TextileMaterial.ORGANIC_COTTON)
+      expect(tshirtVariant.specifications.sizes).toContain(GarmentSize.MEDIUM)
+      expect(tshirtVariant.specifications.sizes).toContain(GarmentSize.LARGE)
       expect(tshirtVariant.specifications.customCollar).toBe('V-Neck')
 
       const tshirtUnit = TShirtMdmObject.fromObject({
@@ -86,7 +88,7 @@ describe('@quatrain/mdm Pivot Class, ENUMs, Interfaces & AbstractMdmObject Test 
          nature: MdmNature.PHYSICAL,
          lifecycleState: 'AVAILABLE',
          specifications: {
-            selectedSize: GarmentSize.M,
+            selectedSize: GarmentSize.MEDIUM,
             selectedColor: TextileColor.NAVY_BLUE,
             barcode: '3760000000042'
          }
@@ -105,7 +107,7 @@ describe('@quatrain/mdm Pivot Class, ENUMs, Interfaces & AbstractMdmObject Test 
          nature: MdmNature.PHYSICAL,
          lifecycleState: 'AVAILABLE',
          specifications: {
-            sizes: [GarmentSize.M],
+            sizes: [GarmentSize.MEDIUM],
             // Missing required 'colors' and 'materials'
          },
       })
@@ -113,8 +115,8 @@ describe('@quatrain/mdm Pivot Class, ENUMs, Interfaces & AbstractMdmObject Test 
       expect(() => invalidGarment.validateArchetypeSpecs()).toThrow(/MdmValidationError/)
    })
 
-   it('should support MediaDiskFormat ENUM and IMediaDiskSpec interface', () => {
-      const diskSpec: IMediaDiskSpec = {
+   it('should support MediaDiskFormat ENUM and MediaDiskSpecInterface interface', () => {
+      const diskSpec: MediaDiskSpecInterface = {
          format: MediaDiskFormat.VINYL_12IN,
          durationSec: 2580,
          trackCount: 10,
@@ -137,7 +139,7 @@ describe('@quatrain/mdm Pivot Class, ENUMs, Interfaces & AbstractMdmObject Test 
    })
 
    it('should support Virtual Keychain Credentials and IoT Hardware Device archetypes using ENUMs', () => {
-      const hardwareSpec: IHardwareDeviceSpec = {
+      const hardwareSpec: HardwareDeviceSpecInterface = {
          serialNumber: 'SN-BRAD-2026-99',
          commCapabilities: [CommTechnology.LORAWAN_TERRESTRIAL, CommTechnology.LORAWAN_SATELLITE, CommTechnology.CELLULAR_GSM],
          powerCapabilities: [PowerSource.SOLAR_MPPT, PowerSource.PRIMARY_LITHIUM]
@@ -152,7 +154,7 @@ describe('@quatrain/mdm Pivot Class, ENUMs, Interfaces & AbstractMdmObject Test 
          specifications: hardwareSpec,
       })
 
-      const keychainSpec: IVirtualKeychainSpec = {
+      const keychainSpec: VirtualKeychainSpecInterface = {
          authMechanism: AuthMechanism.X509_CERTIFICATE,
          targetNetwork: 'chirpstack_wss',
          scopes: ['gateway:connect']

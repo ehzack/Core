@@ -1,14 +1,14 @@
 import { AbstractMdmObject } from './AbstractMdmObject'
 import { MdmArchetypeSpec } from './MdmArchetypeSpec'
 import { MdmNature } from './enums/MdmEnums'
-import { ITextileGarmentSpec, GarmentSize, TextileColor, TextileMaterial } from './domain/TextileDomain'
-import { IMediaDiskSpec, MediaDiskFormat } from './domain/MediaDomain'
-import { IHardwareDeviceSpec, CommTechnology } from './domain/HardwareDomain'
-import { IVirtualKeychainSpec, AuthMechanism } from './domain/VirtualDomain'
+import { TextileGarmentSpecInterface } from './domain/TextileDomain'
+import { MediaDiskSpecInterface } from './domain/MediaDomain'
+import { HardwareDeviceSpecInterface } from './domain/HardwareDomain'
+import { VirtualKeychainSpecInterface } from './domain/VirtualDomain'
 
 /**
  * Concrete Garment MDM Object Class (Extends AbstractMdmObject)
- * Enforces standardized and extensible ITextileGarmentSpec interface (sizes, colors, materials, etc.).
+ * Enforces standardized and extensible TextileGarmentSpecInterface (sizes, colors, materials, etc.).
  */
 export class GarmentMdmObject extends AbstractMdmObject {
    static COLLECTION = 'mdm.garments'
@@ -24,14 +24,14 @@ export class GarmentMdmObject extends AbstractMdmObject {
       }
    }
 
-   public get specifications(): ITextileGarmentSpec {
-      return this.dataObject.val('specifications') as ITextileGarmentSpec
+   public get specifications(): TextileGarmentSpecInterface {
+      return this.dataObject.val('specifications') as TextileGarmentSpecInterface
    }
 }
 
 /**
  * Concrete Audio/Video Disk MDM Object Class (Extends AbstractMdmObject)
- * Enforces standardized and extensible IMediaDiskSpec interface (format, durationSec, trackCount, etc.).
+ * Enforces standardized and extensible MediaDiskSpecInterface (format, durationSec, trackCount, etc.).
  */
 export class DiskMdmObject extends AbstractMdmObject {
    static COLLECTION = 'mdm.disks'
@@ -47,14 +47,14 @@ export class DiskMdmObject extends AbstractMdmObject {
       }
    }
 
-   public get specifications(): IMediaDiskSpec {
-      return this.dataObject.val('specifications') as IMediaDiskSpec
+   public get specifications(): MediaDiskSpecInterface {
+      return this.dataObject.val('specifications') as MediaDiskSpecInterface
    }
 }
 
 /**
  * Concrete Hardware IoT Device MDM Object Class (Extends AbstractMdmObject)
- * Enforces standardized and extensible IHardwareDeviceSpec interface (serialNumber, commCapabilities, etc.).
+ * Enforces standardized and extensible HardwareDeviceSpecInterface (serialNumber, commCapabilities, etc.).
  */
 export class HardwareDeviceMdmObject extends AbstractMdmObject {
    static COLLECTION = 'mdm.devices'
@@ -70,14 +70,14 @@ export class HardwareDeviceMdmObject extends AbstractMdmObject {
       }
    }
 
-   public get specifications(): IHardwareDeviceSpec {
-      return this.dataObject.val('specifications') as IHardwareDeviceSpec
+   public get specifications(): HardwareDeviceSpecInterface {
+      return this.dataObject.val('specifications') as HardwareDeviceSpecInterface
    }
 }
 
 /**
  * Concrete Virtual Keychain MDM Object Class (Extends AbstractMdmObject)
- * Enforces standardized and extensible IVirtualKeychainSpec interface (authMechanism, targetNetwork, etc.).
+ * Enforces standardized and extensible VirtualKeychainSpecInterface (authMechanism, targetNetwork, etc.).
  */
 export class VirtualKeychainMdmObject extends AbstractMdmObject {
    static COLLECTION = 'mdm.keychains'
@@ -93,7 +93,7 @@ export class VirtualKeychainMdmObject extends AbstractMdmObject {
       }
    }
 
-   public get specifications(): IVirtualKeychainSpec {
-      return this.dataObject.val('specifications') as IVirtualKeychainSpec
+   public get specifications(): VirtualKeychainSpecInterface {
+      return this.dataObject.val('specifications') as VirtualKeychainSpecInterface
    }
 }

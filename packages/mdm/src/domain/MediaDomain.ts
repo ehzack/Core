@@ -5,8 +5,8 @@ export enum MediaDiskFormat {
    VINYL_7IN = 'vinyl_7in',
    VINYL_10IN = 'vinyl_10in',
    VINYL_12IN = 'vinyl_12in',
-   CD = 'compact_disc',
-   SACD = 'super_audio_cd',
+   COMPACT_DISC = 'compact_disc',
+   SUPER_AUDIO_CD = 'super_audio_cd',
    DVD = 'dvd',
    BLURAY = 'bluray',
    BLURAY_4K = 'bluray_4k',
@@ -23,9 +23,9 @@ export enum VinylRpm {
 }
 
 /**
- * Standardized and Extensible Media Disk Specification Interface
+ * Standardized and Extensible Media Disk Specification Interface (ends with 'Interface')
  */
-export interface IMediaDiskSpec extends Record<string, unknown> {
+export interface MediaDiskSpecInterface extends Record<string, unknown> {
    format: MediaDiskFormat | string
    durationSec: number
    trackCount: number

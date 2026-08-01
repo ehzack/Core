@@ -13,7 +13,7 @@ import {
    AbstractMdmObject, 
    MdmArchetypeSpec, 
    MdmNature, 
-   ITextileGarmentSpec 
+   TextileGarmentSpecInterface 
 } from '@quatrain/mdm';
 
 /**
@@ -33,8 +33,8 @@ export class TShirtMdmObject extends AbstractMdmObject {
       }
    }
 
-   public get specifications(): ITextileGarmentSpec {
-      return this.dataObject.val('specifications') as ITextileGarmentSpec
+   public get specifications(): TextileGarmentSpecInterface {
+      return this.dataObject.val('specifications') as TextileGarmentSpecInterface
    }
 }
 ```
@@ -61,7 +61,7 @@ Mdm.registerModel('textile.tshirt', TShirtMdmObject);
 
 ## 3. Instantiate & Validate a T-Shirt Product Variant
 
-Use standardized ENUMs (`GarmentSize`, `TextileColor`, `TextileMaterial`, `TextileWashCare`) and extend the interface with custom properties (`customCollar`):
+Use standardized ENUMs (`GarmentSize.SMALL`, `GarmentSize.MEDIUM`, `GarmentSize.LARGE`, `TextileColor`, `TextileMaterial`, `TextileWashCare`) and extend the interface with custom properties (`customCollar`):
 
 ```typescript
 import { 
@@ -69,13 +69,13 @@ import {
    TextileColor, 
    TextileMaterial, 
    TextileWashCare, 
-   ITextileGarmentSpec,
+   TextileGarmentSpecInterface,
    MdmNature
 } from '@quatrain/mdm';
 
 // 1. Build standardized and extended specifications
-const tshirtSpec: ITextileGarmentSpec = {
-   sizes: [GarmentSize.S, GarmentSize.M, GarmentSize.L, GarmentSize.XL],
+const tshirtSpec: TextileGarmentSpecInterface = {
+   sizes: [GarmentSize.SMALL, GarmentSize.MEDIUM, GarmentSize.LARGE, GarmentSize.EXTRA_LARGE],
    colors: [TextileColor.NAVY_BLUE, TextileColor.WHITE, TextileColor.BLACK],
    materials: [TextileMaterial.ORGANIC_COTTON, TextileMaterial.ELASTANE],
    washCare: [TextileWashCare.WASH_30C, TextileWashCare.NO_BLEACH, TextileWashCare.IRON_MEDIUM],
@@ -110,13 +110,13 @@ Create an individual physical unit (serialized item or SKU instance) and manage 
 // Create an individual physical unit instance
 const tshirtUnit = TShirtMdmObject.fromObject({
    uid: 'unit_tshirt_sn_2026_0042',
-   name: 'Quatrain T-Shirt - Size M Navy',
+   name: 'Quatrain T-Shirt - Size Medium Navy',
    archetypeId: 'textile.tshirt',
    parentUid: tshirtVariant.dataObject.uid,
    nature: MdmNature.PHYSICAL,
    lifecycleState: 'AVAILABLE',
    specifications: {
-      selectedSize: GarmentSize.M,
+      selectedSize: GarmentSize.MEDIUM,
       selectedColor: TextileColor.NAVY_BLUE,
       barcode: '3760000000042'
    }

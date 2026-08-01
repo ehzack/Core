@@ -1,16 +1,16 @@
 /**
- * Standard Garment Sizes
+ * Standard Garment Sizes (Full explicit terms, no single-letter abbreviations)
  */
 export enum GarmentSize {
-   XXS = 'XXS',
-   XS = 'XS',
-   S = 'S',
-   M = 'M',
-   L = 'L',
-   XL = 'XL',
-   XXL = 'XXL',
-   XXXL = '3XL',
-   ONE_SIZE = 'one_size',
+   EXTRA_EXTRA_SMALL = 'XXS',
+   EXTRA_SMALL = 'XS',
+   SMALL = 'Small',
+   MEDIUM = 'Medium',
+   LARGE = 'Large',
+   EXTRA_LARGE = 'Extra-Large',
+   DOUBLE_EXTRA_LARGE = '2XL',
+   TRIPLE_EXTRA_LARGE = '3XL',
+   ONE_SIZE = 'One-Size',
 }
 
 /**
@@ -60,9 +60,9 @@ export enum TextileWashCare {
 }
 
 /**
- * Standardized and Extensible Textile Garment Specification Interface
+ * Standardized and Extensible Textile Garment Specification Interface (ends with 'Interface')
  */
-export interface ITextileGarmentSpec extends Record<string, unknown> {
+export interface TextileGarmentSpecInterface extends Record<string, unknown> {
    sizes: Array<GarmentSize | string>
    colors: Array<TextileColor | string>
    materials: Array<TextileMaterial | string>

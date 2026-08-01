@@ -11,9 +11,9 @@ export enum AuthMechanism {
 }
 
 /**
- * Standardized and Extensible Virtual Product Specification Interface
+ * Standardized and Extensible Virtual Product Specification Interface (ends with 'Interface')
  */
-export interface IVirtualKeychainSpec extends Record<string, unknown> {
+export interface VirtualKeychainSpecInterface extends Record<string, unknown> {
    authMechanism: AuthMechanism | string
    targetNetwork: string
    scopes?: string[]

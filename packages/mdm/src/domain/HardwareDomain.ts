@@ -32,9 +32,9 @@ export enum SensorBus {
 }
 
 /**
- * Standardized and Extensible Hardware IoT Device Specification Interface
+ * Standardized and Extensible Hardware IoT Device Specification Interface (ends with 'Interface')
  */
-export interface IHardwareDeviceSpec extends Record<string, unknown> {
+export interface HardwareDeviceSpecInterface extends Record<string, unknown> {
    serialNumber: string
    commCapabilities: Array<CommTechnology | string>
    powerCapabilities?: Array<PowerSource | string>
