@@ -8,10 +8,10 @@ import { VirtualKeychainSpecInterface, VIRTUAL_KEYCHAIN_ONTOLOGY_DEFAULT } from 
 
 /**
  * Concrete Garment MDM Object Class (Extends AbstractMdmObject)
- * Enforces standardized GS1/Schema.org ontology mapping & TextileGarmentSpecInterface.
+ * Collection name 'garments' is 100% compatible with SQL (SQLite/PostgreSQL/Supabase) and NoSQL.
  */
 export class GarmentMdmObject extends AbstractMdmObject {
-   static COLLECTION = 'mdm.garments'
+   static COLLECTION = 'garments'
 
    getArchetypeSpec(): MdmArchetypeSpec {
       return {
@@ -32,10 +32,10 @@ export class GarmentMdmObject extends AbstractMdmObject {
 
 /**
  * Concrete Audio/Video Disk MDM Object Class (Extends AbstractMdmObject)
- * Enforces standardized Schema.org/GS1 Media ontology mapping & MediaDiskSpecInterface.
+ * Collection name 'disks' is 100% compatible with SQL and NoSQL backends.
  */
 export class DiskMdmObject extends AbstractMdmObject {
-   static COLLECTION = 'mdm.disks'
+   static COLLECTION = 'disks'
 
    getArchetypeSpec(): MdmArchetypeSpec {
       return {
@@ -56,10 +56,10 @@ export class DiskMdmObject extends AbstractMdmObject {
 
 /**
  * Concrete Hardware IoT Device MDM Object Class (Extends AbstractMdmObject)
- * Enforces W3C SOSA / W3C WoT ontology mapping & HardwareDeviceSpecInterface.
+ * Collection name 'devices' is 100% compatible with SQL and NoSQL backends.
  */
 export class HardwareDeviceMdmObject extends AbstractMdmObject {
-   static COLLECTION = 'mdm.devices'
+   static COLLECTION = 'devices'
 
    getArchetypeSpec(): MdmArchetypeSpec {
       return {
@@ -80,10 +80,10 @@ export class HardwareDeviceMdmObject extends AbstractMdmObject {
 
 /**
  * Concrete Virtual Keychain MDM Object Class (Extends AbstractMdmObject)
- * Enforces ISO/IEC 19770 ontology mapping & VirtualKeychainSpecInterface.
+ * Collection name 'keychains' is 100% compatible with SQL and NoSQL backends.
  */
 export class VirtualKeychainMdmObject extends AbstractMdmObject {
-   static COLLECTION = 'mdm.keychains'
+   static COLLECTION = 'keychains'
 
    getArchetypeSpec(): MdmArchetypeSpec {
       return {

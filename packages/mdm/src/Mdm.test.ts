@@ -19,7 +19,7 @@ import { MdmStandardOntologies } from './domain/OntologyDomain'
  * Concrete T-Shirt MDM Model for HOWTO verification
  */
 class TShirtMdmObject extends AbstractMdmObject {
-   static COLLECTION = 'mdm.garments.tshirts'
+   static COLLECTION = 'tshirts'
 
    getArchetypeSpec(): MdmArchetypeSpec {
       return {
@@ -65,7 +65,7 @@ describe('@quatrain/mdm Pivot Class, ENUMs, Recognized Ontologies & AbstractMdmO
       expect(Mdm.getArchetype('virtual.keychain')?.ontologyMapping?.ontologyUri).toBe(MdmStandardOntologies.ISO_IEC_19770)
    })
 
-   it('should create and validate a T-Shirt product variant with GS1 / Schema.org ontology mapping', () => {
+   it('should create and validate a T-Shirt product variant with GS1 / Schema.org ontology mapping and clean COLLECTION name', () => {
       const tshirtSample = TShirtMdmObject.fromObject({ name: 'T-Shirt Archetype', archetypeId: 'textile.tshirt', nature: MdmNature.PHYSICAL })
       Mdm.registerArchetype(tshirtSample.getArchetypeSpec())
       Mdm.registerModel('textile.tshirt', TShirtMdmObject)
@@ -96,6 +96,24 @@ describe('@quatrain/mdm Pivot Class, ENUMs, Recognized Ontologies & AbstractMdmO
       expect(tshirtVariant.specifications.materials).toContain(TextileMaterial.ORGANIC_COTTON)
       expect(tshirtVariant.specifications.sizes).toContain(GarmentSize.MEDIUM)
       expect(tshirtVariant.specifications.ontologyMapping?.gs1GpcCode).toBe('10000024')
+
+      const tshirtUnit = TShirtMdmObject.fromObject({
+         uid: 'unit_tshirt_sn_2026_0042',
+         name: 'Quatrain T-Shirt - Size M Navy',
+         archetypeId: 'textile.tshirt',
+         parentUid: tshirtVariant.dataObject.uid,
+         nature: MdmNature.PHYSICAL,
+         lifecycleState: 'AVAILABLE',
+         specifications: {
+            selectedSize: GarmentSize.MEDIUM,
+            selectedColor: TextileColor.NAVY_BLUE,
+            barcode: '3760000000042'
+         }
+      })
+
+      expect(tshirtUnit.getSubcollectionName('certifications')).toBe(
+         'tshirts/unit_tshirt_sn_2026_0042/certifications'
+      )
    })
 
    it('should validate missing required textile properties', () => {
@@ -136,5 +154,41 @@ describe('@quatrain/mdm Pivot Class, ENUMs, Recognized Ontologies & AbstractMdmO
       expect(vinylDisk.validateArchetypeSpecs()).toBe(true)
       expect(vinylDisk.specifications.format).toBe(MediaDiskFormat.VINYL_12IN)
       expect(vinylDisk.specifications.ontologyMapping?.schemaOrgType).toBe('https://schema.org/MusicAlbum')
+   })
+
+   it('should support Virtual Keychain Credentials and IoT Hardware Device archetypes using ENUMs and universal COLLECTION paths', () => {
+      const hardwareSpec: HardwareDeviceSpecInterface = {
+         serialNumber: 'SN-BRAD-2026-99',
+         commCapabilities: [CommTechnology.LORAWAN_TERRESTRIAL, CommTechnology.LORAWAN_SATELLITE, CommTechnology.CELLULAR_GSM],
+         powerCapabilities: [PowerSource.SOLAR_MPPT, PowerSource.PRIMARY_LITHIUM]
+      }
+
+      const probeDevice = HardwareDeviceMdmObject.fromObject({
+         uid: 'dev_probe_001',
+         name: 'Soil Probe V2',
+         archetypeId: 'hardware.device',
+         nature: MdmNature.PHYSICAL,
+         lifecycleState: 'ASSOCIATED',
+         specifications: hardwareSpec,
+      })
+
+      const keychainSpec: VirtualKeychainSpecInterface = {
+         authMechanism: AuthMechanism.X509_CERTIFICATE,
+         targetNetwork: 'chirpstack_wss',
+         scopes: ['gateway:connect']
+      }
+
+      const keychain = VirtualKeychainMdmObject.fromObject({
+         uid: 'keychain_wss_001',
+         name: 'ChirpStack WSS Key',
+         archetypeId: 'virtual.keychain',
+         nature: MdmNature.VIRTUAL,
+         lifecycleState: 'ACTIVE',
+         specifications: keychainSpec,
+      })
+
+      expect(probeDevice.validateArchetypeSpecs()).toBe(true)
+      expect(keychain.validateArchetypeSpecs()).toBe(true)
+      expect(probeDevice.getSubcollectionName('keychains')).toBe('devices/dev_probe_001/keychains')
    })
 })

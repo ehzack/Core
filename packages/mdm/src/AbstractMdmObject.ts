@@ -4,9 +4,11 @@ import { MdmArchetypeSpec } from './MdmArchetypeSpec'
 /**
  * Abstract Base Class for all MDM Domain Objects.
  * MUST be extended by concrete object definitions (e.g. GarmentMdmObject, DiskMdmObject, HardwareDeviceMdmObject).
+ * Collection names use clean, universal identifiers without dots to guarantee compatibility across
+ * all Quatrain backend adapters (SQLite, PostgreSQL, Supabase, Firestore).
  */
 export abstract class AbstractMdmObject extends PersistedBaseObject {
-   static COLLECTION = 'mdm.objects'
+   static COLLECTION = 'objects'
    static PROPS_DEFINITION = [
       { name: 'id', type: 'string', required: false },
       { name: 'uid', type: 'string', required: false },
@@ -49,8 +51,8 @@ export abstract class AbstractMdmObject extends PersistedBaseObject {
    }
 
    /**
-    * Returns the subcollection name for attaching N child subitems linked to this parent object.
-    * Scheme: <COLLECTION>.<uid>.<subcollection>
+    * Returns the subcollection path for attaching N child subitems linked to this parent object.
+    * Scheme: <COLLECTION>/<uid>/<subcollection>
     */
    public getSubcollectionName(subcollection: string): string {
       const uid =
@@ -59,7 +61,7 @@ export abstract class AbstractMdmObject extends PersistedBaseObject {
          this.dataObject.uid ||
          ''
       const collectionName = (this.constructor as typeof AbstractMdmObject).COLLECTION
-      return `${collectionName}.${uid}.${subcollection}`
+      return `${collectionName}/${uid}/${subcollection}`
    }
 }
 
@@ -67,5 +69,5 @@ export abstract class AbstractMdmObject extends PersistedBaseObject {
  * Base Repository for AbstractMdmObject child models
  */
 export class AbstractMdmObjectRepository extends BaseRepository<any> {
-   public static readonly COLLECTION_NAME = 'mdm.objects'
+   public static readonly COLLECTION_NAME = 'objects'
 }

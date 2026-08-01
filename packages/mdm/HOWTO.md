@@ -6,7 +6,8 @@ This guide demonstrates how to create a concrete **T-Shirt** garment product usi
 
 ## 1. Define the Concrete `TShirtMdmObject` Model Class
 
-Extend `AbstractMdmObject` and define the mandatory `getArchetypeSpec()` schema specifying required and optional properties:
+Extend `AbstractMdmObject` and define the mandatory `getArchetypeSpec()` schema specifying required and optional properties.
+*Note: Collection names use clean, universal identifiers (e.g. `'tshirts'` or `'garments'`) compatible across SQL (SQLite, PostgreSQL, Supabase) and NoSQL backends.*
 
 ```typescript
 import { 
@@ -20,7 +21,7 @@ import {
  * Concrete T-Shirt MDM Object Model
  */
 export class TShirtMdmObject extends AbstractMdmObject {
-   static COLLECTION = 'mdm.garments.tshirts'
+   static COLLECTION = 'tshirts'
 
    getArchetypeSpec(): MdmArchetypeSpec {
       return {
@@ -129,5 +130,5 @@ const tshirtUnit = TShirtMdmObject.fromObject({
 
 // Resolve child subcollection path for N attached certifications / tags
 const certificationsCollection = tshirtUnit.getSubcollectionName('certifications');
-// Result: 'mdm.garments.tshirts.unit_tshirt_sn_2026_0042.certifications'
+// Result: 'tshirts/unit_tshirt_sn_2026_0042/certifications'
 ```
