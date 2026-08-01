@@ -40,7 +40,7 @@ class TeeShirt extends AbstractMdmObject {
    }
 }
 
-describe('@quatrain/mdm Pivot Class, Specification, Vendor & ObjectUri Test Suite', () => {
+describe('@quatrain/mdm Pivot Class, Native PersistedBaseObject.val() & ObjectUri Test Suite', () => {
    beforeEach(() => {
       const adapter = new MockMdmAdapter('default')
       Mdm.addAdapter(adapter, 'default', true)
@@ -52,7 +52,7 @@ describe('@quatrain/mdm Pivot Class, Specification, Vendor & ObjectUri Test Suit
       expect(adapter.alias).toBe('default')
    })
 
-   it('should instantiate Specification model extending PersistedBaseObject', () => {
+   it('should instantiate Specification model extending PersistedBaseObject and read values via native .val()', () => {
       const spec = Specification.fromObject({
          name: 'sizes',
          key: 'sizes',
@@ -61,13 +61,13 @@ describe('@quatrain/mdm Pivot Class, Specification, Vendor & ObjectUri Test Suit
          group: 'textile_dimensions'
       })
 
-      expect(spec.key).toBe('sizes')
-      expect(spec.value).toEqual([GarmentSize.MEDIUM, GarmentSize.LARGE])
-      expect(spec.unit).toBe('size_code')
-      expect(spec.group).toBe('textile_dimensions')
+      expect(spec.val('key')).toBe('sizes')
+      expect(spec.val('value')).toEqual([GarmentSize.MEDIUM, GarmentSize.LARGE])
+      expect(spec.val('unit')).toBe('size_code')
+      expect(spec.val('group')).toBe('textile_dimensions')
    })
 
-   it('should instantiate Vendor model extending PersistedBaseObject', () => {
+   it('should instantiate Vendor model extending PersistedBaseObject and read values via native .val()', () => {
       const vendor = Vendor.fromObject({
          name: 'EcoApparel Corp',
          vendorSku: 'VEND-ECO-9942',
@@ -75,10 +75,10 @@ describe('@quatrain/mdm Pivot Class, Specification, Vendor & ObjectUri Test Suit
          url: 'https://ecoapparel.example.com'
       })
 
-      expect(vendor.name).toBe('EcoApparel Corp')
-      expect(vendor.vendorSku).toBe('VEND-ECO-9942')
-      expect(vendor.role).toBe('manufacturer')
-      expect(vendor.url).toBe('https://ecoapparel.example.com')
+      expect(vendor.val('name')).toBe('EcoApparel Corp')
+      expect(vendor.val('vendorSku')).toBe('VEND-ECO-9942')
+      expect(vendor.val('role')).toBe('manufacturer')
+      expect(vendor.val('url')).toBe('https://ecoapparel.example.com')
    })
 
    it('should support multiple vendors on AbstractMdmObject via createVendor & getVendors', () => {
@@ -94,10 +94,10 @@ describe('@quatrain/mdm Pivot Class, Specification, Vendor & ObjectUri Test Suit
 
       const vendors = tshirtVariant.getVendors()
       expect(vendors.length).toBe(2)
-      expect(vendors[0].name).toBe('EcoApparel Mills')
-      expect(vendors[0].role).toBe('manufacturer')
-      expect(vendors[1].name).toBe('Textile Global Distro')
-      expect(vendors[1].role).toBe('distributor')
+      expect(vendors[0].val('name')).toBe('EcoApparel Mills')
+      expect(vendors[0].val('role')).toBe('manufacturer')
+      expect(vendors[1].val('name')).toBe('Textile Global Distro')
+      expect(vendors[1].val('role')).toBe('distributor')
    })
 
    it('should create and validate a TeeShirt product variant and inventory unit using Specification & Vendor collections', () => {
@@ -191,7 +191,7 @@ describe('@quatrain/mdm Pivot Class, Specification, Vendor & ObjectUri Test Suit
 
       expect(vinylDisk.validateArchetypeSpecs()).toBe(true)
       expect(vinylDisk.specifications.format).toBe(MediaDiskFormat.VINYL_12IN)
-      expect(vinylDisk.getVendors()[0].name).toBe('Harvest Records')
+      expect(vinylDisk.getVendors()[0].val('name')).toBe('Harvest Records')
    })
 
    it('should support VirtualKeychain and HardwareDevice archetypes', () => {

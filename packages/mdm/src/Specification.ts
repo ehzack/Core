@@ -20,22 +20,6 @@ export class Specification extends PersistedBaseObject {
    constructor(dao: DataObjectClass<any>) {
       super(dao)
    }
-
-   get key(): string {
-      return this.dataObject.val('key') || this.dataObject.val('name')
-   }
-
-   get value(): any {
-      return this.dataObject.val('value')
-   }
-
-   get unit(): string | undefined {
-      return this.dataObject.val('unit')
-   }
-
-   get group(): string | undefined {
-      return this.dataObject.val('group')
-   }
 }
 
 // Register class to Quatrain Core class registry for object reference resolution

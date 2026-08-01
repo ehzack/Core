@@ -19,26 +19,6 @@ export class Vendor extends PersistedBaseObject {
    constructor(dao: DataObjectClass<any>) {
       super(dao)
    }
-
-   get name(): string {
-      return this.dataObject.val('name')
-   }
-
-   get vendorSku(): string | undefined {
-      return this.dataObject.val('vendorSku')
-   }
-
-   get role(): string | undefined {
-      return this.dataObject.val('role')
-   }
-
-   get url(): string | undefined {
-      return this.dataObject.val('url')
-   }
-
-   get details(): Record<string, any> {
-      return this.dataObject.val('details') || {}
-   }
 }
 
 // Register class to Quatrain Core class registry for object reference resolution

@@ -10,6 +10,7 @@ import { Vendor } from './Vendor'
  * 
  * Note: Persistence routing and identification are natively carried by Quatrain `ObjectUri` (no explicit 'id' property in PROPS_DEFINITION).
  * Specifications and Vendors are managed as child collections of `Specification` and `Vendor` instances.
+ * Property access uses native `PersistedBaseObject.val('propName')`.
  */
 export abstract class AbstractMdmObject extends PersistedBaseObject {
    static COLLECTION = 'objects'
@@ -91,7 +92,8 @@ export abstract class AbstractMdmObject extends PersistedBaseObject {
     * Adds an individual Specification instance to this object.
     */
    public addSpecification(spec: Specification): this {
-      this._specificationsMap.set(spec.key, spec)
+      const key = spec.val('key') || spec.val('name')
+      this._specificationsMap.set(key, spec)
       return this
    }
 
@@ -141,7 +143,7 @@ export abstract class AbstractMdmObject extends PersistedBaseObject {
    public get specificationsObject(): Record<string, any> {
       const result: Record<string, any> = {}
       for (const [key, spec] of this._specificationsMap.entries()) {
-         result[key] = spec.value
+         result[key] = spec.val('value')
       }
       return result
    }
@@ -158,7 +160,7 @@ export abstract class AbstractMdmObject extends PersistedBaseObject {
          for (const reqProp of specDef.requiredProperties) {
             if (specsObj[reqProp] === undefined || specsObj[reqProp] === null) {
                throw new Error(
-                  `MdmValidationError: Missing required archetype specification '${reqProp}' on object '${this.dataObject.val('name')}' (Archetype: '${specDef.archetypeId}')`
+                  `MdmValidationError: Missing required archetype specification '${reqProp}' on object '${this.val('name')}' (Archetype: '${specDef.archetypeId}')`
                )
             }
          }
