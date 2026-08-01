@@ -1,13 +1,12 @@
 # HOWTO: `@quatrain/mdm` — Step-by-Step Guide: Creating a T-Shirt Product Variant & Inventory Unit
 
-This guide demonstrates how to create a concrete **T-Shirt** garment product using `@quatrain/mdm` with standardized ENUMs, extensible interfaces, archetype specification validation, and subcollections.
+This guide demonstrates how to create a concrete **T-Shirt** garment product using `@quatrain/mdm` with standardized ENUMs, extensible interfaces, archetype specification validation, vendor & SKU attributes, and subcollections.
 
 ---
 
 ## 1. Define the Concrete `TeeShirt` Model Class
 
-Extend `AbstractMdmObject` and define the mandatory `getArchetypeSpec()` schema specifying required and optional properties.
-*Note: Concrete derived classes drop the `MdmObject` suffix (e.g. `TeeShirt`, `Garment`, `Disk`, `HardwareDevice`, `VirtualKeychain`).*
+Extend `AbstractMdmObject` and define the mandatory `getArchetypeSpec()` schema specifying required and optional properties:
 
 ```typescript
 import { 
@@ -44,7 +43,7 @@ export class TeeShirt extends AbstractMdmObject {
 
 ## 2. Register Provider Adapter & Archetype with Pivot Class `Mdm`
 
-Centralize registry initialization via `Mdm` using strongly-typed static `fromObject` factories:
+Centralize registry initialization via `Mdm`:
 
 ```typescript
 import { Mdm, MockMdmAdapter, MdmNature } from '@quatrain/mdm';
@@ -65,9 +64,9 @@ Mdm.registerModel('textile.tshirt', TeeShirt);
 
 ---
 
-## 3. Instantiate & Validate a T-Shirt Product Variant
+## 3. Instantiate & Validate a T-Shirt Product Variant with Vendor & SKU Attributes
 
-Use standardized ENUMs (`GarmentSize.SMALL`, `GarmentSize.MEDIUM`, `GarmentSize.LARGE`, `TextileColor`, `TextileMaterial`, `TextileWashCare`) and extend the interface with custom properties (`customCollar`):
+Use standardized ENUMs, internal `sku`, `vendor` and `vendorSku` properties:
 
 ```typescript
 import { 
@@ -91,10 +90,13 @@ const tshirtSpec: TextileGarmentSpecInterface = {
    customCollar: 'V-Neck' // Extensible property!
 };
 
-// 2. Instantiate T-Shirt Product Variant
+// 2. Instantiate T-Shirt Product Variant with SKU and Vendor info
 const tshirtVariant = TeeShirt.fromObject({
-   uid: 'tshirt_organic_vneck_navy',
+   id: 'tshirt_organic_vneck_navy',
    name: 'Quatrain Organic V-Neck T-Shirt (Navy)',
+   sku: 'QT-TSHIRT-ORG-001',
+   vendor: 'EcoApparel Ltd',
+   vendorSku: 'VEND-ECO-9942',
    archetypeId: 'textile.tshirt',
    nature: MdmNature.PHYSICAL,
    lifecycleState: 'production',
@@ -103,22 +105,22 @@ const tshirtVariant = TeeShirt.fromObject({
 
 // 3. Validate specifications against required archetype properties
 tshirtVariant.validateArchetypeSpecs(); // Returns true
-console.log(tshirtVariant.specifications.colors); // ['navy_blue', 'white', 'black']
+console.log(tshirtVariant.vendorInfo); // { vendor: 'EcoApparel Ltd', vendorSku: 'VEND-ECO-9942' }
 ```
 
 ---
 
 ## 4. Instantiate a Physical Inventory Unit & Attach Subcollections
 
-Create an individual physical unit (serialized item or SKU instance) and manage $N$ child subcollections (*GOTS certifications, QR codes, care tags*):
+Create an individual physical unit (serialized item or SKU instance) with `parentId` referencing the variant:
 
 ```typescript
 // Create an individual physical unit instance
 const tshirtUnit = TeeShirt.fromObject({
-   uid: 'unit_tshirt_sn_2026_0042',
+   id: 'unit_tshirt_sn_2026_0042',
    name: 'Quatrain T-Shirt - Size Medium Navy',
    archetypeId: 'textile.tshirt',
-   parentUid: tshirtVariant.dataObject.uid,
+   parentId: tshirtVariant.dataObject.val('id'),
    nature: MdmNature.PHYSICAL,
    lifecycleState: 'AVAILABLE',
    specifications: {

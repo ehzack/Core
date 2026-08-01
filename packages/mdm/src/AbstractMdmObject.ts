@@ -2,26 +2,56 @@ import { PersistedBaseObject, DataObjectClass, BaseRepository } from '@quatrain/
 import { MdmArchetypeSpec } from './MdmArchetypeSpec'
 
 /**
+ * Interface representing Vendor & Stock Keeping Unit (SKU) details
+ */
+export interface VendorInfoInterface {
+   vendor?: string
+   vendorSku?: string
+}
+
+/**
  * Abstract Base Class for all MDM Domain Objects.
- * MUST be extended by concrete object definitions (e.g. GarmentMdmObject, DiskMdmObject, HardwareDeviceMdmObject).
- * Collection names use clean, universal identifiers without dots to guarantee compatibility across
- * all Quatrain backend adapters (SQLite, PostgreSQL, Supabase, Firestore).
+ * MUST be extended by concrete object definitions (e.g. TeeShirt, Garment, Disk, HardwareDevice, VirtualKeychain).
+ * 
+ * Properties:
+ * - `id`: Backend primary identifier (provided via ObjectUri).
+ * - `name`: Human-readable object name.
+ * - `sku`: Internal Stock Keeping Unit (SKU).
+ * - `vendor`: Vendor, Manufacturer, or Brand name.
+ * - `vendorSku`: Vendor-specific SKU or Part Number.
+ * - `archetypeId`: Identifier of the associated archetype schema.
+ * - `nature`: Classification ('physical', 'virtual', 'service', 'composite').
+ * - `lifecycleState`: Lifecycle status state.
+ * - `parentId`: Identifier of parent object if nested/attached.
+ * - `specifications`: Specific archetype properties payload.
  */
 export abstract class AbstractMdmObject extends PersistedBaseObject {
    static COLLECTION = 'objects'
    static PROPS_DEFINITION = [
       { name: 'id', type: 'string', required: false },
-      { name: 'uid', type: 'string', required: false },
       { name: 'name', type: 'string', required: true },
+      { name: 'sku', type: 'string', required: false },
+      { name: 'vendor', type: 'string', required: false },
+      { name: 'vendorSku', type: 'string', required: false },
       { name: 'archetypeId', type: 'string', required: true },
       { name: 'nature', type: 'string', required: true, default: 'physical' },
       { name: 'lifecycleState', type: 'string', required: true, default: 'AVAILABLE' },
-      { name: 'parentUid', type: 'string', required: false },
+      { name: 'parentId', type: 'string', required: false },
       { name: 'specifications', type: 'object', required: false, default: {} },
    ]
 
    constructor(dao: DataObjectClass<any>) {
       super(dao)
+   }
+
+   /**
+    * Returns the vendor information object
+    */
+   public get vendorInfo(): VendorInfoInterface {
+      return {
+         vendor: this.dataObject.val('vendor'),
+         vendorSku: this.dataObject.val('vendorSku'),
+      }
    }
 
    /**
@@ -52,16 +82,16 @@ export abstract class AbstractMdmObject extends PersistedBaseObject {
 
    /**
     * Returns the subcollection path for attaching N child subitems linked to this parent object.
-    * Scheme: <COLLECTION>/<uid>/<subcollection>
+    * Scheme: <COLLECTION>/<id>/<subcollection>
     */
    public getSubcollectionName(subcollection: string): string {
-      const uid =
-         this.dataObject.val('uid') ||
+      const id =
          this.dataObject.val('id') ||
          this.dataObject.uid ||
+         (this.dataObject.uri ? this.dataObject.uri.path.split('/').pop() : '') ||
          ''
       const collectionName = (this.constructor as typeof AbstractMdmObject).COLLECTION
-      return `${collectionName}/${uid}/${subcollection}`
+      return `${collectionName}/${id}/${subcollection}`
    }
 }
 
