@@ -1,10 +1,14 @@
 import { AbstractMdmObject } from './AbstractMdmObject'
 import { MdmArchetypeSpec } from './MdmArchetypeSpec'
-import { DataObjectClass } from '@quatrain/backend'
+import { MdmNature } from './enums/MdmEnums'
+import { ITextileGarmentSpec, GarmentSize, TextileColor, TextileMaterial } from './domain/TextileDomain'
+import { IMediaDiskSpec, MediaDiskFormat } from './domain/MediaDomain'
+import { IHardwareDeviceSpec, CommTechnology } from './domain/HardwareDomain'
+import { IVirtualKeychainSpec, AuthMechanism } from './domain/VirtualDomain'
 
 /**
  * Concrete Garment MDM Object Class (Extends AbstractMdmObject)
- * Specifications: sizes, colors, materials, washCare.
+ * Enforces standardized and extensible ITextileGarmentSpec interface (sizes, colors, materials, etc.).
  */
 export class GarmentMdmObject extends AbstractMdmObject {
    static COLLECTION = 'mdm.garments'
@@ -13,17 +17,21 @@ export class GarmentMdmObject extends AbstractMdmObject {
       return {
          archetypeId: 'textile.garment',
          name: 'Garment Textile Item',
-         nature: 'physical',
+         nature: MdmNature.PHYSICAL,
          collection: GarmentMdmObject.COLLECTION,
          requiredProperties: ['sizes', 'colors', 'materials'],
-         optionalProperties: ['washCare', 'brand'],
+         optionalProperties: ['washCare', 'brand', 'weightGrams', 'fitType'],
       }
+   }
+
+   public get specifications(): ITextileGarmentSpec {
+      return this.dataObject.val('specifications') as ITextileGarmentSpec
    }
 }
 
 /**
  * Concrete Audio/Video Disk MDM Object Class (Extends AbstractMdmObject)
- * Specifications: format (vinyl/cd/dvd), durationSec, trackCount, rpm.
+ * Enforces standardized and extensible IMediaDiskSpec interface (format, durationSec, trackCount, etc.).
  */
 export class DiskMdmObject extends AbstractMdmObject {
    static COLLECTION = 'mdm.disks'
@@ -32,17 +40,21 @@ export class DiskMdmObject extends AbstractMdmObject {
       return {
          archetypeId: 'media.disk',
          name: 'Audio/Video Media Disk',
-         nature: 'physical',
+         nature: MdmNature.PHYSICAL,
          collection: DiskMdmObject.COLLECTION,
          requiredProperties: ['format', 'durationSec', 'trackCount'],
-         optionalProperties: ['rpm', 'genre', 'label'],
+         optionalProperties: ['rpm', 'genre', 'label', 'isrcCodes', 'catalogNumber'],
       }
+   }
+
+   public get specifications(): IMediaDiskSpec {
+      return this.dataObject.val('specifications') as IMediaDiskSpec
    }
 }
 
 /**
  * Concrete Hardware IoT Device MDM Object Class (Extends AbstractMdmObject)
- * Specifications: serialNumber, commCapabilities, powerCapabilities, sensorBuses.
+ * Enforces standardized and extensible IHardwareDeviceSpec interface (serialNumber, commCapabilities, etc.).
  */
 export class HardwareDeviceMdmObject extends AbstractMdmObject {
    static COLLECTION = 'mdm.devices'
@@ -51,17 +63,21 @@ export class HardwareDeviceMdmObject extends AbstractMdmObject {
       return {
          archetypeId: 'hardware.device',
          name: 'IoT Hardware Device / Probe',
-         nature: 'physical',
+         nature: MdmNature.PHYSICAL,
          collection: HardwareDeviceMdmObject.COLLECTION,
          requiredProperties: ['serialNumber', 'commCapabilities'],
-         optionalProperties: ['powerCapabilities', 'sensorBuses'],
+         optionalProperties: ['powerCapabilities', 'sensorBuses', 'firmwareVersion', 'hardwareRevision'],
       }
+   }
+
+   public get specifications(): IHardwareDeviceSpec {
+      return this.dataObject.val('specifications') as IHardwareDeviceSpec
    }
 }
 
 /**
  * Concrete Virtual Keychain MDM Object Class (Extends AbstractMdmObject)
- * Specifications: authMechanism, targetNetwork, scopes, expiresAt.
+ * Enforces standardized and extensible IVirtualKeychainSpec interface (authMechanism, targetNetwork, etc.).
  */
 export class VirtualKeychainMdmObject extends AbstractMdmObject {
    static COLLECTION = 'mdm.keychains'
@@ -70,10 +86,14 @@ export class VirtualKeychainMdmObject extends AbstractMdmObject {
       return {
          archetypeId: 'virtual.keychain',
          name: 'Network Access Keychain Credentials',
-         nature: 'virtual',
+         nature: MdmNature.VIRTUAL,
          collection: VirtualKeychainMdmObject.COLLECTION,
          requiredProperties: ['authMechanism', 'targetNetwork'],
-         optionalProperties: ['scopes', 'expiresAt'],
+         optionalProperties: ['scopes', 'expiresAt', 'maxUsageCount'],
       }
+   }
+
+   public get specifications(): IVirtualKeychainSpec {
+      return this.dataObject.val('specifications') as IVirtualKeychainSpec
    }
 }

@@ -6,8 +6,13 @@ import {
    HardwareDeviceMdmObject, 
    VirtualKeychainMdmObject 
 } from './MdmArchetypeExamples'
+import { MdmNature } from './enums/MdmEnums'
+import { GarmentSize, TextileColor, TextileMaterial, ITextileGarmentSpec } from './domain/TextileDomain'
+import { MediaDiskFormat, VinylRpm, IMediaDiskSpec } from './domain/MediaDomain'
+import { CommTechnology, PowerSource, IHardwareDeviceSpec } from './domain/HardwareDomain'
+import { AuthMechanism, IVirtualKeychainSpec } from './domain/VirtualDomain'
 
-describe('@quatrain/mdm Pivot Class & AbstractMdmObject Test Suite', () => {
+describe('@quatrain/mdm Pivot Class, ENUMs, Interfaces & AbstractMdmObject Test Suite', () => {
    beforeEach(() => {
       const adapter = new MockMdmAdapter('default')
       Mdm.addAdapter(adapter, 'default', true)
@@ -19,7 +24,7 @@ describe('@quatrain/mdm Pivot Class & AbstractMdmObject Test Suite', () => {
       expect(adapter.alias).toBe('default')
    })
 
-   it('should register archetype specifications and concrete AbstractMdmObject child models', () => {
+   it('should register archetype specifications and concrete AbstractMdmObject child models using ENUMs', () => {
       const garment = new GarmentMdmObject({ name: 'Winter Jacket' } as any)
       const disk = new DiskMdmObject({ name: 'Vinyl LP' } as any)
 
@@ -29,35 +34,45 @@ describe('@quatrain/mdm Pivot Class & AbstractMdmObject Test Suite', () => {
       Mdm.registerModel('textile.garment', GarmentMdmObject)
       Mdm.registerModel('media.disk', DiskMdmObject)
 
+      expect(Mdm.getArchetype('textile.garment')?.nature).toBe(MdmNature.PHYSICAL)
       expect(Mdm.getArchetype('textile.garment')?.requiredProperties).toEqual(['sizes', 'colors', 'materials'])
       expect(Mdm.getArchetype('media.disk')?.requiredProperties).toEqual(['format', 'durationSec', 'trackCount'])
       expect(Mdm.getModel('textile.garment')).toBe(GarmentMdmObject)
    })
 
-   it('should validate required archetype specifications on concrete AbstractMdmObject instances', () => {
+   it('should support standardized and extensible ITextileGarmentSpec with ENUMs (GarmentSize, TextileColor, TextileMaterial)', () => {
+      const garmentSpec: ITextileGarmentSpec = {
+         sizes: [GarmentSize.S, GarmentSize.M, GarmentSize.L, 'CUSTOM_BIG_SIZE'],
+         colors: [TextileColor.NAVY_BLUE, TextileColor.BLACK, '#00FF00'],
+         materials: [TextileMaterial.COTTON, TextileMaterial.ELASTANE],
+         brand: 'Quatrain Wear',
+         customPattern: 'Jacquard'
+      }
+
       const validGarment = GarmentMdmObject.fromObject({
          uid: 'garment_001',
-         name: 'Blue Denim Jeans',
+         name: 'Navy Blue Denim Jacket',
          archetypeId: 'textile.garment',
-         nature: 'physical',
+         nature: MdmNature.PHYSICAL,
          lifecycleState: 'AVAILABLE',
-         specifications: {
-            sizes: ['S', 'M', 'L', 'XL'],
-            colors: ['Blue', 'Black'],
-            materials: ['Cotton 98%', 'Elastane 2%'],
-         },
+         specifications: garmentSpec,
       })
 
       expect(validGarment.validateArchetypeSpecs()).toBe(true)
+      expect(validGarment.specifications.sizes).toContain(GarmentSize.M)
+      expect(validGarment.specifications.colors).toContain(TextileColor.NAVY_BLUE)
+      expect(validGarment.specifications.customPattern).toBe('Jacquard')
+   })
 
+   it('should validate missing required textile properties', () => {
       const invalidGarment = GarmentMdmObject.fromObject({
          uid: 'garment_002',
-         name: 'Incomplete Jeans',
+         name: 'Incomplete Coat',
          archetypeId: 'textile.garment',
-         nature: 'physical',
+         nature: MdmNature.PHYSICAL,
          lifecycleState: 'AVAILABLE',
          specifications: {
-            sizes: ['M'],
+            sizes: [GarmentSize.M],
             // Missing required 'colors' and 'materials'
          },
       })
@@ -65,49 +80,58 @@ describe('@quatrain/mdm Pivot Class & AbstractMdmObject Test Suite', () => {
       expect(() => invalidGarment.validateArchetypeSpecs()).toThrow(/MdmValidationError/)
    })
 
-   it('should support Audio/Video Disk archetype specifications (vinyl, duration, trackCount)', () => {
+   it('should support MediaDiskFormat ENUM and IMediaDiskSpec interface', () => {
+      const diskSpec: IMediaDiskSpec = {
+         format: MediaDiskFormat.VINYL_12IN,
+         durationSec: 2580,
+         trackCount: 10,
+         rpm: VinylRpm.RPM_33,
+         catalogNumber: 'QT-VINYL-2026'
+      }
+
       const vinylDisk = DiskMdmObject.fromObject({
          uid: 'disk_vinyl_001',
          name: 'Dark Side of the Moon Vinyl',
          archetypeId: 'media.disk',
-         nature: 'physical',
+         nature: MdmNature.PHYSICAL,
          lifecycleState: 'AVAILABLE',
-         specifications: {
-            format: 'vinyl_12in',
-            durationSec: 2580,
-            trackCount: 10,
-            rpm: 33,
-         },
+         specifications: diskSpec,
       })
 
       expect(vinylDisk.validateArchetypeSpecs()).toBe(true)
-      expect(vinylDisk.dataObject.val('specifications').format).toBe('vinyl_12in')
-      expect(vinylDisk.dataObject.val('specifications').trackCount).toBe(10)
+      expect(vinylDisk.specifications.format).toBe(MediaDiskFormat.VINYL_12IN)
+      expect(vinylDisk.specifications.rpm).toBe(33)
    })
 
-   it('should support Virtual Keychain Credentials and IoT Hardware Device archetypes', () => {
+   it('should support Virtual Keychain Credentials and IoT Hardware Device archetypes using ENUMs', () => {
+      const hardwareSpec: IHardwareDeviceSpec = {
+         serialNumber: 'SN-BRAD-2026-99',
+         commCapabilities: [CommTechnology.LORAWAN_TERRESTRIAL, CommTechnology.LORAWAN_SATELLITE, CommTechnology.CELLULAR_GSM],
+         powerCapabilities: [PowerSource.SOLAR_MPPT, PowerSource.PRIMARY_LITHIUM]
+      }
+
       const probeDevice = HardwareDeviceMdmObject.fromObject({
          uid: 'dev_probe_001',
          name: 'Soil Probe V2',
          archetypeId: 'hardware.device',
-         nature: 'physical',
+         nature: MdmNature.PHYSICAL,
          lifecycleState: 'ASSOCIATED',
-         specifications: {
-            serialNumber: 'SN-BRAD-2026-99',
-            commCapabilities: ['lorawan_terrestrial', 'lorawan_satellite', 'cellular_gsm'],
-         },
+         specifications: hardwareSpec,
       })
+
+      const keychainSpec: IVirtualKeychainSpec = {
+         authMechanism: AuthMechanism.X509_CERTIFICATE,
+         targetNetwork: 'chirpstack_wss',
+         scopes: ['gateway:connect']
+      }
 
       const keychain = VirtualKeychainMdmObject.fromObject({
          uid: 'keychain_wss_001',
          name: 'ChirpStack WSS Key',
          archetypeId: 'virtual.keychain',
-         nature: 'virtual',
+         nature: MdmNature.VIRTUAL,
          lifecycleState: 'ACTIVE',
-         specifications: {
-            authMechanism: 'x509_certificate',
-            targetNetwork: 'chirpstack_wss',
-         },
+         specifications: keychainSpec,
       })
 
       expect(probeDevice.validateArchetypeSpecs()).toBe(true)

@@ -1,13 +1,7 @@
 import { CollectionProperty } from '@quatrain/backend'
+import { MdmNature } from './enums/MdmEnums'
 
-/**
- * MDM Object Nature
- * - 'physical': Hardware assets, devices, components, enclosures, PCBs.
- * - 'virtual': Digital access keychains, tokens, credentials, licenses.
- * - 'service': Connectivity plans, airtime passes, maintenance, SLA contracts.
- * - 'composite': Bundled physical + virtual + service objects.
- */
-export type MdmNature = 'physical' | 'virtual' | 'service' | 'composite' | string
+export { MdmNature }
 
 /**
  * Definition of an MDM Object Type / Archetype in the Registry
@@ -18,7 +12,7 @@ export interface MdmObjectTypeDefinition {
    /** Human-readable title */
    name: string
    /** Nature classification */
-   nature: MdmNature
+   nature: MdmNature | string
    /** Primary collection name (e.g. 'mdm.physical_units', 'mdm.virtual_keychains') */
    collection: string
    /** Property definitions compatible with Quatrain PersistedBaseObject / CollectionProperty */

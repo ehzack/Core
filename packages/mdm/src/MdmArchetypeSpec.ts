@@ -1,4 +1,4 @@
-import { MdmNature } from './MdmObjectType'
+import { MdmNature } from './enums/MdmEnums'
 
 /**
  * Specification Schema Definition for an Archetype
@@ -7,7 +7,7 @@ import { MdmNature } from './MdmObjectType'
 export interface MdmArchetypeSpec {
    archetypeId: string
    name: string
-   nature: MdmNature
+   nature: MdmNature | string
    collection: string
    /** Array of required specification property names */
    requiredProperties?: string[]
