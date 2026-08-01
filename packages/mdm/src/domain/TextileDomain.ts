@@ -1,3 +1,5 @@
+import { OntologyMappingInterface, MdmStandardOntologies } from './OntologyDomain'
+
 /**
  * Standard Garment Sizes (Full explicit terms, no single-letter abbreviations)
  */
@@ -60,6 +62,15 @@ export enum TextileWashCare {
 }
 
 /**
+ * Standard Recognized GS1 / Schema.org Textile Garment Ontology Mapping
+ */
+export const TEXTILE_GARMENT_ONTOLOGY_DEFAULT: OntologyMappingInterface = {
+   ontologyUri: 'https://schema.org/Product',
+   schemaOrgType: 'https://schema.org/IndividualProduct',
+   gs1GpcCode: '10000024', // GS1 GPC Brick Code: Shirts/Tops/Apparel
+}
+
+/**
  * Standardized and Extensible Textile Garment Specification Interface (ends with 'Interface')
  */
 export interface TextileGarmentSpecInterface extends Record<string, unknown> {
@@ -70,4 +81,5 @@ export interface TextileGarmentSpecInterface extends Record<string, unknown> {
    brand?: string
    weightGrams?: number
    fitType?: 'slim' | 'regular' | 'relaxed' | string
+   ontologyMapping?: OntologyMappingInterface
 }

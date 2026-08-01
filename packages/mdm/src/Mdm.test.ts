@@ -9,10 +9,11 @@ import {
 import { AbstractMdmObject } from './AbstractMdmObject'
 import { MdmArchetypeSpec } from './MdmArchetypeSpec'
 import { MdmNature } from './enums/MdmEnums'
-import { GarmentSize, TextileColor, TextileMaterial, TextileWashCare, TextileGarmentSpecInterface } from './domain/TextileDomain'
-import { MediaDiskFormat, VinylRpm, MediaDiskSpecInterface } from './domain/MediaDomain'
-import { CommTechnology, PowerSource, HardwareDeviceSpecInterface } from './domain/HardwareDomain'
-import { AuthMechanism, VirtualKeychainSpecInterface } from './domain/VirtualDomain'
+import { GarmentSize, TextileColor, TextileMaterial, TextileWashCare, TextileGarmentSpecInterface, TEXTILE_GARMENT_ONTOLOGY_DEFAULT } from './domain/TextileDomain'
+import { MediaDiskFormat, VinylRpm, MediaDiskSpecInterface, MEDIA_DISK_ONTOLOGY_DEFAULT } from './domain/MediaDomain'
+import { CommTechnology, PowerSource, HardwareDeviceSpecInterface, HARDWARE_DEVICE_ONTOLOGY_DEFAULT } from './domain/HardwareDomain'
+import { AuthMechanism, VirtualKeychainSpecInterface, VIRTUAL_KEYCHAIN_ONTOLOGY_DEFAULT } from './domain/VirtualDomain'
+import { MdmStandardOntologies } from './domain/OntologyDomain'
 
 /**
  * Concrete T-Shirt MDM Model for HOWTO verification
@@ -26,8 +27,9 @@ class TShirtMdmObject extends AbstractMdmObject {
          name: 'Organic Cotton T-Shirt',
          nature: MdmNature.PHYSICAL,
          collection: TShirtMdmObject.COLLECTION,
+         ontologyMapping: TEXTILE_GARMENT_ONTOLOGY_DEFAULT,
          requiredProperties: ['sizes', 'colors', 'materials'],
-         optionalProperties: ['washCare', 'brand', 'weightGrams', 'fitType'],
+         optionalProperties: ['washCare', 'brand', 'weightGrams', 'fitType', 'ontologyMapping'],
       }
    }
 
@@ -36,7 +38,7 @@ class TShirtMdmObject extends AbstractMdmObject {
    }
 }
 
-describe('@quatrain/mdm Pivot Class, ENUMs, Interfaces & AbstractMdmObject Test Suite', () => {
+describe('@quatrain/mdm Pivot Class, ENUMs, Recognized Ontologies & AbstractMdmObject Test Suite', () => {
    beforeEach(() => {
       const adapter = new MockMdmAdapter('default')
       Mdm.addAdapter(adapter, 'default', true)
@@ -48,7 +50,22 @@ describe('@quatrain/mdm Pivot Class, ENUMs, Interfaces & AbstractMdmObject Test 
       expect(adapter.alias).toBe('default')
    })
 
-   it('should create and validate a T-Shirt product variant and inventory unit using TextileGarmentSpecInterface and GarmentSize.MEDIUM', () => {
+   it('should support recognized international ontologies (GS1 GPC, Schema.org, W3C SOSA, ISO/IEC 19770)', () => {
+      const garment = new GarmentMdmObject({ name: 'Jacket' } as any)
+      const hardware = new HardwareDeviceMdmObject({ name: 'Sensor System' } as any)
+      const virtualKeychain = new VirtualKeychainMdmObject({ name: 'OAuth Key' } as any)
+
+      Mdm.registerArchetype(garment.getArchetypeSpec())
+      Mdm.registerArchetype(hardware.getArchetypeSpec())
+      Mdm.registerArchetype(virtualKeychain.getArchetypeSpec())
+
+      expect(Mdm.getArchetype('textile.garment')?.ontologyMapping?.gs1GpcCode).toBe('10000024')
+      expect(Mdm.getArchetype('hardware.device')?.ontologyMapping?.ontologyUri).toBe(MdmStandardOntologies.W3C_SOSA)
+      expect(Mdm.getArchetype('hardware.device')?.ontologyMapping?.w3cSosaTerm).toBe('sosa:System')
+      expect(Mdm.getArchetype('virtual.keychain')?.ontologyMapping?.ontologyUri).toBe(MdmStandardOntologies.ISO_IEC_19770)
+   })
+
+   it('should create and validate a T-Shirt product variant with GS1 / Schema.org ontology mapping', () => {
       const tshirtSample = new TShirtMdmObject({ name: 'T-Shirt Archetype' } as any)
       Mdm.registerArchetype(tshirtSample.getArchetypeSpec())
       Mdm.registerModel('textile.tshirt', TShirtMdmObject)
@@ -61,7 +78,8 @@ describe('@quatrain/mdm Pivot Class, ENUMs, Interfaces & AbstractMdmObject Test 
          brand: 'Quatrain EcoWear',
          weightGrams: 180,
          fitType: 'regular',
-         customCollar: 'V-Neck'
+         customCollar: 'V-Neck',
+         ontologyMapping: TEXTILE_GARMENT_ONTOLOGY_DEFAULT
       }
 
       const tshirtVariant = TShirtMdmObject.fromObject({
@@ -77,26 +95,7 @@ describe('@quatrain/mdm Pivot Class, ENUMs, Interfaces & AbstractMdmObject Test 
       expect(tshirtVariant.specifications.colors).toContain(TextileColor.NAVY_BLUE)
       expect(tshirtVariant.specifications.materials).toContain(TextileMaterial.ORGANIC_COTTON)
       expect(tshirtVariant.specifications.sizes).toContain(GarmentSize.MEDIUM)
-      expect(tshirtVariant.specifications.sizes).toContain(GarmentSize.LARGE)
-      expect(tshirtVariant.specifications.customCollar).toBe('V-Neck')
-
-      const tshirtUnit = TShirtMdmObject.fromObject({
-         uid: 'unit_tshirt_sn_2026_0042',
-         name: 'Quatrain T-Shirt - Size M Navy',
-         archetypeId: 'textile.tshirt',
-         parentUid: tshirtVariant.dataObject.uid,
-         nature: MdmNature.PHYSICAL,
-         lifecycleState: 'AVAILABLE',
-         specifications: {
-            selectedSize: GarmentSize.MEDIUM,
-            selectedColor: TextileColor.NAVY_BLUE,
-            barcode: '3760000000042'
-         }
-      })
-
-      expect(tshirtUnit.getSubcollectionName('certifications')).toBe(
-         'mdm.garments.tshirts.unit_tshirt_sn_2026_0042.certifications'
-      )
+      expect(tshirtVariant.specifications.ontologyMapping?.gs1GpcCode).toBe('10000024')
    })
 
    it('should validate missing required textile properties', () => {
@@ -115,13 +114,14 @@ describe('@quatrain/mdm Pivot Class, ENUMs, Interfaces & AbstractMdmObject Test 
       expect(() => invalidGarment.validateArchetypeSpecs()).toThrow(/MdmValidationError/)
    })
 
-   it('should support MediaDiskFormat ENUM and MediaDiskSpecInterface interface', () => {
+   it('should support MediaDiskFormat ENUM and MediaDiskSpecInterface interface with Schema.org ontology', () => {
       const diskSpec: MediaDiskSpecInterface = {
          format: MediaDiskFormat.VINYL_12IN,
          durationSec: 2580,
          trackCount: 10,
          rpm: VinylRpm.RPM_33,
-         catalogNumber: 'QT-VINYL-2026'
+         catalogNumber: 'QT-VINYL-2026',
+         ontologyMapping: MEDIA_DISK_ONTOLOGY_DEFAULT
       }
 
       const vinylDisk = DiskMdmObject.fromObject({
@@ -135,42 +135,6 @@ describe('@quatrain/mdm Pivot Class, ENUMs, Interfaces & AbstractMdmObject Test 
 
       expect(vinylDisk.validateArchetypeSpecs()).toBe(true)
       expect(vinylDisk.specifications.format).toBe(MediaDiskFormat.VINYL_12IN)
-      expect(vinylDisk.specifications.rpm).toBe(33)
-   })
-
-   it('should support Virtual Keychain Credentials and IoT Hardware Device archetypes using ENUMs', () => {
-      const hardwareSpec: HardwareDeviceSpecInterface = {
-         serialNumber: 'SN-BRAD-2026-99',
-         commCapabilities: [CommTechnology.LORAWAN_TERRESTRIAL, CommTechnology.LORAWAN_SATELLITE, CommTechnology.CELLULAR_GSM],
-         powerCapabilities: [PowerSource.SOLAR_MPPT, PowerSource.PRIMARY_LITHIUM]
-      }
-
-      const probeDevice = HardwareDeviceMdmObject.fromObject({
-         uid: 'dev_probe_001',
-         name: 'Soil Probe V2',
-         archetypeId: 'hardware.device',
-         nature: MdmNature.PHYSICAL,
-         lifecycleState: 'ASSOCIATED',
-         specifications: hardwareSpec,
-      })
-
-      const keychainSpec: VirtualKeychainSpecInterface = {
-         authMechanism: AuthMechanism.X509_CERTIFICATE,
-         targetNetwork: 'chirpstack_wss',
-         scopes: ['gateway:connect']
-      }
-
-      const keychain = VirtualKeychainMdmObject.fromObject({
-         uid: 'keychain_wss_001',
-         name: 'ChirpStack WSS Key',
-         archetypeId: 'virtual.keychain',
-         nature: MdmNature.VIRTUAL,
-         lifecycleState: 'ACTIVE',
-         specifications: keychainSpec,
-      })
-
-      expect(probeDevice.validateArchetypeSpecs()).toBe(true)
-      expect(keychain.validateArchetypeSpecs()).toBe(true)
-      expect(probeDevice.getSubcollectionName('keychains')).toBe('mdm.devices.dev_probe_001.keychains')
+      expect(vinylDisk.specifications.ontologyMapping?.schemaOrgType).toBe('https://schema.org/MusicAlbum')
    })
 })

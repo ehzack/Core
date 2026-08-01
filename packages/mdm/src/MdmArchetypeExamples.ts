@@ -1,14 +1,14 @@
 import { AbstractMdmObject } from './AbstractMdmObject'
 import { MdmArchetypeSpec } from './MdmArchetypeSpec'
 import { MdmNature } from './enums/MdmEnums'
-import { TextileGarmentSpecInterface } from './domain/TextileDomain'
-import { MediaDiskSpecInterface } from './domain/MediaDomain'
-import { HardwareDeviceSpecInterface } from './domain/HardwareDomain'
-import { VirtualKeychainSpecInterface } from './domain/VirtualDomain'
+import { TextileGarmentSpecInterface, TEXTILE_GARMENT_ONTOLOGY_DEFAULT } from './domain/TextileDomain'
+import { MediaDiskSpecInterface, MEDIA_DISK_ONTOLOGY_DEFAULT } from './domain/MediaDomain'
+import { HardwareDeviceSpecInterface, HARDWARE_DEVICE_ONTOLOGY_DEFAULT } from './domain/HardwareDomain'
+import { VirtualKeychainSpecInterface, VIRTUAL_KEYCHAIN_ONTOLOGY_DEFAULT } from './domain/VirtualDomain'
 
 /**
  * Concrete Garment MDM Object Class (Extends AbstractMdmObject)
- * Enforces standardized and extensible TextileGarmentSpecInterface (sizes, colors, materials, etc.).
+ * Enforces standardized GS1/Schema.org ontology mapping & TextileGarmentSpecInterface.
  */
 export class GarmentMdmObject extends AbstractMdmObject {
    static COLLECTION = 'mdm.garments'
@@ -19,8 +19,9 @@ export class GarmentMdmObject extends AbstractMdmObject {
          name: 'Garment Textile Item',
          nature: MdmNature.PHYSICAL,
          collection: GarmentMdmObject.COLLECTION,
+         ontologyMapping: TEXTILE_GARMENT_ONTOLOGY_DEFAULT,
          requiredProperties: ['sizes', 'colors', 'materials'],
-         optionalProperties: ['washCare', 'brand', 'weightGrams', 'fitType'],
+         optionalProperties: ['washCare', 'brand', 'weightGrams', 'fitType', 'ontologyMapping'],
       }
    }
 
@@ -31,7 +32,7 @@ export class GarmentMdmObject extends AbstractMdmObject {
 
 /**
  * Concrete Audio/Video Disk MDM Object Class (Extends AbstractMdmObject)
- * Enforces standardized and extensible MediaDiskSpecInterface (format, durationSec, trackCount, etc.).
+ * Enforces standardized Schema.org/GS1 Media ontology mapping & MediaDiskSpecInterface.
  */
 export class DiskMdmObject extends AbstractMdmObject {
    static COLLECTION = 'mdm.disks'
@@ -42,8 +43,9 @@ export class DiskMdmObject extends AbstractMdmObject {
          name: 'Audio/Video Media Disk',
          nature: MdmNature.PHYSICAL,
          collection: DiskMdmObject.COLLECTION,
+         ontologyMapping: MEDIA_DISK_ONTOLOGY_DEFAULT,
          requiredProperties: ['format', 'durationSec', 'trackCount'],
-         optionalProperties: ['rpm', 'genre', 'label', 'isrcCodes', 'catalogNumber'],
+         optionalProperties: ['rpm', 'genre', 'label', 'isrcCodes', 'catalogNumber', 'ontologyMapping'],
       }
    }
 
@@ -54,7 +56,7 @@ export class DiskMdmObject extends AbstractMdmObject {
 
 /**
  * Concrete Hardware IoT Device MDM Object Class (Extends AbstractMdmObject)
- * Enforces standardized and extensible HardwareDeviceSpecInterface (serialNumber, commCapabilities, etc.).
+ * Enforces W3C SOSA / W3C WoT ontology mapping & HardwareDeviceSpecInterface.
  */
 export class HardwareDeviceMdmObject extends AbstractMdmObject {
    static COLLECTION = 'mdm.devices'
@@ -65,8 +67,9 @@ export class HardwareDeviceMdmObject extends AbstractMdmObject {
          name: 'IoT Hardware Device / Probe',
          nature: MdmNature.PHYSICAL,
          collection: HardwareDeviceMdmObject.COLLECTION,
+         ontologyMapping: HARDWARE_DEVICE_ONTOLOGY_DEFAULT,
          requiredProperties: ['serialNumber', 'commCapabilities'],
-         optionalProperties: ['powerCapabilities', 'sensorBuses', 'firmwareVersion', 'hardwareRevision'],
+         optionalProperties: ['powerCapabilities', 'sensorBuses', 'firmwareVersion', 'hardwareRevision', 'ontologyMapping'],
       }
    }
 
@@ -77,7 +80,7 @@ export class HardwareDeviceMdmObject extends AbstractMdmObject {
 
 /**
  * Concrete Virtual Keychain MDM Object Class (Extends AbstractMdmObject)
- * Enforces standardized and extensible VirtualKeychainSpecInterface (authMechanism, targetNetwork, etc.).
+ * Enforces ISO/IEC 19770 ontology mapping & VirtualKeychainSpecInterface.
  */
 export class VirtualKeychainMdmObject extends AbstractMdmObject {
    static COLLECTION = 'mdm.keychains'
@@ -88,8 +91,9 @@ export class VirtualKeychainMdmObject extends AbstractMdmObject {
          name: 'Network Access Keychain Credentials',
          nature: MdmNature.VIRTUAL,
          collection: VirtualKeychainMdmObject.COLLECTION,
+         ontologyMapping: VIRTUAL_KEYCHAIN_ONTOLOGY_DEFAULT,
          requiredProperties: ['authMechanism', 'targetNetwork'],
-         optionalProperties: ['scopes', 'expiresAt', 'maxUsageCount'],
+         optionalProperties: ['scopes', 'expiresAt', 'maxUsageCount', 'ontologyMapping'],
       }
    }
 

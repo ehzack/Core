@@ -1,3 +1,5 @@
+import { OntologyMappingInterface, MdmStandardOntologies } from './OntologyDomain'
+
 /**
  * Standard Audio / Video Disk Formats
  */
@@ -23,6 +25,15 @@ export enum VinylRpm {
 }
 
 /**
+ * Standard Recognized Schema.org / GS1 Media Ontology Mapping
+ */
+export const MEDIA_DISK_ONTOLOGY_DEFAULT: OntologyMappingInterface = {
+   ontologyUri: 'https://schema.org/MusicAlbum',
+   schemaOrgType: 'https://schema.org/MusicAlbum',
+   gs1GpcCode: '50000000', // GS1 GPC Brick Code: Music & Audio Visual Media
+}
+
+/**
  * Standardized and Extensible Media Disk Specification Interface (ends with 'Interface')
  */
 export interface MediaDiskSpecInterface extends Record<string, unknown> {
@@ -34,4 +45,5 @@ export interface MediaDiskSpecInterface extends Record<string, unknown> {
    label?: string
    isrcCodes?: string[]
    catalogNumber?: string
+   ontologyMapping?: OntologyMappingInterface
 }

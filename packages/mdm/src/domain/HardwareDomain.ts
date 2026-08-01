@@ -1,3 +1,5 @@
+import { OntologyMappingInterface, MdmStandardOntologies } from './OntologyDomain'
+
 /**
  * Standard Radio & Communication Technologies
  */
@@ -32,6 +34,17 @@ export enum SensorBus {
 }
 
 /**
+ * Standard Recognized W3C SOSA / W3C WoT / GS1 Hardware Ontology Mapping
+ */
+export const HARDWARE_DEVICE_ONTOLOGY_DEFAULT: OntologyMappingInterface = {
+   ontologyUri: MdmStandardOntologies.W3C_SOSA,
+   w3cSosaTerm: 'sosa:System',
+   w3cWotType: 'wot:Thing',
+   schemaOrgType: 'https://schema.org/Product',
+   gs1GpcCode: '60000000', // GS1 GPC Brick Code: IT & Telecom Hardware
+}
+
+/**
  * Standardized and Extensible Hardware IoT Device Specification Interface (ends with 'Interface')
  */
 export interface HardwareDeviceSpecInterface extends Record<string, unknown> {
@@ -43,4 +56,5 @@ export interface HardwareDeviceSpecInterface extends Record<string, unknown> {
    hardwareRevision?: string
    macAddress?: string
    devEui?: string
+   ontologyMapping?: OntologyMappingInterface
 }

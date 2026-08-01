@@ -1,3 +1,5 @@
+import { OntologyMappingInterface, MdmStandardOntologies } from './OntologyDomain'
+
 /**
  * Standard Virtual Product Auth Mechanisms
  */
@@ -11,6 +13,15 @@ export enum AuthMechanism {
 }
 
 /**
+ * Standard Recognized ISO/IEC 19770 / Schema.org Virtual Product Ontology Mapping
+ */
+export const VIRTUAL_KEYCHAIN_ONTOLOGY_DEFAULT: OntologyMappingInterface = {
+   ontologyUri: MdmStandardOntologies.ISO_IEC_19770,
+   isoStandardRef: 'ISO/IEC 19770-2:2015 (Software Identification Tag & Entitlements)',
+   schemaOrgType: 'https://schema.org/DigitalDocument',
+}
+
+/**
  * Standardized and Extensible Virtual Product Specification Interface (ends with 'Interface')
  */
 export interface VirtualKeychainSpecInterface extends Record<string, unknown> {
@@ -19,4 +30,5 @@ export interface VirtualKeychainSpecInterface extends Record<string, unknown> {
    scopes?: string[]
    expiresAt?: string
    maxUsageCount?: number
+   ontologyMapping?: OntologyMappingInterface
 }
