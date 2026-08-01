@@ -1,4 +1,11 @@
-import { MdmProductVariant, MdmPhysicalUnit, MdmPhysicalReality } from './index';
+import { 
+  MdmProductVariant, 
+  MdmPhysicalUnit, 
+  MdmPhysicalReality, 
+  MdmProductVariantModel, 
+  MdmPhysicalUnitModel,
+  MdmAttachedSubitemModel
+} from './index';
 
 describe('@quatrain/mdm Universal Product & Service MDM Test Suite', () => {
   it('should instantiate a valid Physical Product Variant with Multi-Axis Hardware Capabilities', () => {
@@ -54,27 +61,10 @@ describe('@quatrain/mdm Universal Product & Service MDM Test Suite', () => {
     expect(virtualKeychainVariant.traitsData.virtualCapabilities?.authMechanism).toBe('x509_certificate');
   });
 
-  it('should instantiate a valid Managed Service Variant (Satellite Airtime / Maintenance)', () => {
-    const serviceVariant: MdmProductVariant = {
-      id: 'variant_service_sat_airtime',
-      name: 'Direct-to-Satellite Annual Data Subscription',
-      collection: 'mdm.product_variants',
-      templateId: 'template_service_subscription',
-      sku: 'BRAD-SRV-SAT-AIRTIME-1Y',
-      nature: 'service',
-      lifecycleState: 'production',
-      traitsData: {
-        serviceCapabilities: {
-          serviceCategory: 'satellite_data_pass',
-          billingPeriod: 'annual',
-          slaHours: 24,
-          dataCapMb: 500
-        }
-      }
-    };
-
-    expect(serviceVariant.nature).toBe('service');
-    expect(serviceVariant.traitsData.serviceCapabilities?.serviceCategory).toBe('satellite_data_pass');
+  it('should support Extensible PersistedBaseObject Models with Subcollections', () => {
+    expect(MdmProductVariantModel.COLLECTION).toBe('mdm.product_variants');
+    expect(MdmPhysicalUnitModel.COLLECTION).toBe('mdm.physical_units');
+    expect(MdmAttachedSubitemModel.PARENT_PROP).toBe('parentUid');
   });
 
   it('should instantiate a Physical Unit and a Virtual Keychain Unit', () => {

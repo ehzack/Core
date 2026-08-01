@@ -1,12 +1,12 @@
-import { PersistedBaseObject, BaseRepository } from '@quatrain/backend';
+import { PersistedBaseObject, BaseRepository, DataObjectClass } from '@quatrain/backend';
 import { BaseObjectType } from '@quatrain/core';
 
 /**
  * Product Nature Classification
  * - 'physical': IoT Hardware, PCB, Sensors, Accessories, Enclosures.
  * - 'virtual': Network Access Keychains, API Tokens, Software Licenses, SIM APN Credentials.
- * - 'service': Managed Connectivity (LoRaWAN/Satellite/GSM airtime), Maintenance Contracts, Calibration, Drone Missions.
- * - 'composite': Combined Hardware + Connectivity + Virtual Keychain + Service Bundles.
+ * - 'service': Managed Connectivity (LoRaWAN/Satellite/GSM airtime subscriptions), Maintenance Contracts, Calibration, Drone Missions.
+ * - 'composite': Combined Hardware + Connectivity + Keychains + Services.
  */
 export type MdmProductNature = 'physical' | 'virtual' | 'service' | 'composite';
 
@@ -74,12 +74,12 @@ export interface ServiceCapabilitiesTrait {
 }
 
 /**
- * Product Variant (Collection: 'mdm.product_variants')
+ * Product Variant Interface
  */
-export interface MdmProductVariant extends BaseObjectType {
+export interface MdmProductVariantData extends BaseObjectType {
   id?: string;
   name: string;
-  collection?: 'mdm.product_variants';
+  collection?: string;
   templateId: string;
   sku: string;
   nature: MdmProductNature;
@@ -95,50 +95,131 @@ export interface MdmProductVariant extends BaseObjectType {
 }
 
 /**
- * Physical or Virtual Manufactured Unit / Active Service Subscriptions (Collection: 'mdm.physical_units')
+ * Physical / Virtual / Service Item Unit Interface
  */
-export interface MdmPhysicalUnit extends BaseObjectType {
+export interface MdmPhysicalUnitData extends BaseObjectType {
   id?: string;
   name: string;
-  collection?: 'mdm.physical_units';
+  collection?: string;
   variantId: string;
-  serialNumber: string; // Serial number or Keychain Unique UUID
+  serialNumber: string;
   lifecycleState: 'PLANNED' | 'ORDERED' | 'AVAILABLE' | 'ASSOCIATED' | 'MAINTENANCE' | 'KO' | 'SCRAPPED' | 'ACTIVE' | 'EXPIRED' | string;
   installedRealityId?: string;
   traitsData?: Record<string, unknown>;
 }
 
 /**
- * Physical Reality (Collection: 'mdm.realities')
+ * Physical Reality Interface
  */
-export interface MdmPhysicalReality extends BaseObjectType {
+export interface MdmPhysicalRealityData extends BaseObjectType {
   id?: string;
   name: string;
-  collection?: 'mdm.realities';
+  collection?: string;
   kind: 'plot' | 'pond' | 'barn' | 'storage' | string;
   geometry?: Record<string, unknown>;
   lifecycleState?: string;
 }
 
 /**
- * Abstract MDM Unit & Service Repository
+ * Extensible Product Variant Class based on PersistedBaseObject
  */
-export class MdmPhysicalUnitRepository extends BaseRepository<MdmPhysicalUnit> {
+export class MdmProductVariantModel extends PersistedBaseObject {
+  static readonly COLLECTION = 'mdm.product_variants'
+  static PROPS_DEFINITION = [
+    { name: 'name', type: 'string', required: true },
+    { name: 'templateId', type: 'string', required: true },
+    { name: 'sku', type: 'string', required: true },
+    { name: 'nature', type: 'string', required: true, default: 'physical' },
+    { name: 'lifecycleState', type: 'string', required: true, default: 'production' },
+    { name: 'traitsData', type: 'object', required: false, default: {} }
+  ]
+
+  constructor(dao: DataObjectClass<any>) {
+    super(dao)
+  }
+}
+
+/**
+ * Extensible Physical / Virtual / Service Unit Class based on PersistedBaseObject
+ * Supports subcollections (e.g. N keychains, N credentials or N sub-services attached to parent unit)
+ */
+export class MdmPhysicalUnitModel extends PersistedBaseObject {
+  static readonly COLLECTION = 'mdm.physical_units'
+  static PROPS_DEFINITION = [
+    { name: 'name', type: 'string', required: true },
+    { name: 'variantId', type: 'string', required: true },
+    { name: 'serialNumber', type: 'string', required: true },
+    { name: 'lifecycleState', type: 'string', required: true, default: 'AVAILABLE' },
+    { name: 'installedRealityId', type: 'string', required: false },
+    { name: 'traitsData', type: 'object', required: false, default: {} }
+  ]
+
+  constructor(dao: DataObjectClass<any>) {
+    super(dao)
+  }
+
+  /**
+   * Helper to query child subcollections attached to this parent unit
+   * Collection scheme: mdm.physical_units.<parent_uid>.<subcollection_name>
+   */
+  public getSubcollectionName(subcollection: string): string {
+    return `${MdmPhysicalUnitModel.COLLECTION}.${this.dataObject.uid}.${subcollection}`;
+  }
+}
+
+/**
+ * Extensible Physical Reality Class based on PersistedBaseObject
+ */
+export class MdmPhysicalRealityModel extends PersistedBaseObject {
+  static readonly COLLECTION = 'mdm.realities'
+  static PROPS_DEFINITION = [
+    { name: 'name', type: 'string', required: true },
+    { name: 'kind', type: 'string', required: true },
+    { name: 'geometry', type: 'object', required: false },
+    { name: 'lifecycleState', type: 'string', required: false }
+  ]
+
+  constructor(dao: DataObjectClass<any>) {
+    super(dao)
+  }
+}
+
+/**
+ * Lightweight Child Subcollection Attachment Model for Extensible Attributes
+ * (e.g. N network keychains or N services attached to a parent physical/virtual unit)
+ */
+export class MdmAttachedSubitemModel extends PersistedBaseObject {
+  static readonly COLLECTION = 'mdm.subitems'
+  static PARENT_PROP = 'parentUid'
+  static PROPS_DEFINITION = [
+    { name: 'name', type: 'string', required: true },
+    { name: 'parentUid', type: 'string', required: true },
+    { name: 'kind', type: 'string', required: true },
+    { name: 'payload', type: 'object', required: false, default: {} }
+  ]
+
+  constructor(dao: DataObjectClass<any>) {
+    super(dao)
+  }
+}
+
+/**
+ * Repositories
+ */
+export class MdmPhysicalUnitRepository extends BaseRepository<MdmPhysicalUnitData> {
   public static readonly COLLECTION_NAME = 'mdm.physical_units';
 }
 
-/**
- * Abstract MDM Product Variant Repository
- */
-export class MdmProductVariantRepository extends BaseRepository<MdmProductVariant> {
+export class MdmProductVariantRepository extends BaseRepository<MdmProductVariantData> {
   public static readonly COLLECTION_NAME = 'mdm.product_variants';
 }
 
-/**
- * Abstract MDM Physical Reality Repository
- */
-export class MdmPhysicalRealityRepository extends BaseRepository<MdmPhysicalReality> {
+export class MdmPhysicalRealityRepository extends BaseRepository<MdmPhysicalRealityData> {
   public static readonly COLLECTION_NAME = 'mdm.realities';
 }
+
+export type MdmProductVariant = MdmProductVariantData;
+export type MdmPhysicalUnit = MdmPhysicalUnitData;
+export type MdmPhysicalReality = MdmPhysicalRealityData;
 
 export { PersistedBaseObject };
