@@ -1,78 +1,114 @@
 import { Core } from '@quatrain/core'
-import { AbstractMdmAdapter } from './AbstractMdmAdapter'
-import { MdmArchetypeSpec } from './MdmArchetypeSpec'
+import { AbstractMdmAdapter, MdmObjectConstructor } from './AbstractMdmAdapter'
 import { AbstractMdmObject } from './AbstractMdmObject'
-
-export type MdmBackendRegistry<T extends AbstractMdmAdapter> = {
-   [alias: string]: T
-}
+import { MdmArchetypeSpec } from './MdmArchetypeSpec'
+import { Specification } from './Specification'
+import { Vendor } from './Vendor'
+import { ObjectVendor } from './ObjectVendor'
 
 /**
- * Pivot class `Mdm` providing global registry and manager for Master Data Management (MDM).
- * Manages MDM adapters, archetype specification schemas, and concrete AbstractMdmObject child models.
+ * MDM Core Pivot Class.
+ * Manages global provider adapters, archetypes registry, and custom domain model mappings.
  */
 export class Mdm extends Core {
-   static defaultAdapter = 'default'
-   static logger = this.addLogger('Mdm')
-
-   protected static _adapters: MdmBackendRegistry<any> = {}
-   protected static _archetypeSpecs: Map<string, MdmArchetypeSpec> = new Map()
-   protected static _models: Map<string, typeof AbstractMdmObject> = new Map()
+   private static _adapters: Map<string, AbstractMdmAdapter> = new Map()
+   private static _defaultAlias: string = 'default'
+   private static _archetypes: Map<string, MdmArchetypeSpec> = new Map()
+   private static _models: Map<string, MdmObjectConstructor<any>> = new Map()
 
    /**
-    * Registers an MDM adapter into the global registry.
+    * Register an MDM Provider Adapter under a given alias.
     */
-   static addAdapter(
-      adapter: AbstractMdmAdapter,
-      alias: string = 'default',
-      setDefault: boolean = false
-   ) {
-      this._adapters[alias] = adapter
-      this.info(`Registered MDM adapter ${adapter.constructor.name} under alias '${alias}'`)
-      if (setDefault || Object.keys(this._adapters).length === 1) {
-         this.defaultAdapter = alias
+   public static addAdapter(adapter: AbstractMdmAdapter, alias: string = 'default', isDefault: boolean = false): void {
+      this._adapters.set(alias, adapter)
+      if (isDefault || this._adapters.size === 1) {
+         this._defaultAlias = alias
       }
+      Core.log(`Registered MDM adapter ${adapter.constructor.name} under alias '${alias}'`, 'Mdm')
    }
 
    /**
-    * Retrieves a registered MDM adapter by alias.
+    * Retrieve a registered MDM Provider Adapter.
     */
-   static getAdapter<T extends AbstractMdmAdapter>(
-      alias: string = this.defaultAdapter
-   ): T {
-      if (this._adapters[alias]) {
-         return this._adapters[alias]
+   public static getAdapter(alias?: string): AbstractMdmAdapter {
+      const targetAlias = alias || this._defaultAlias
+      const adapter = this._adapters.get(targetAlias)
+      if (!adapter) {
+         throw new Error(`MdmAdapterError: No MDM adapter registered under alias '${targetAlias}'`)
       }
-      throw new Error(`Unknown MDM adapter alias: '${alias}'`)
+      return adapter
    }
 
    /**
-    * Registers an archetype specification schema into the global MDM registry.
+    * Register an Archetype Specification schema in the central MDM registry.
     */
-   static registerArchetype(archetype: MdmArchetypeSpec) {
-      this._archetypeSpecs.set(archetype.archetypeId, archetype)
-      this.info(`Registered MDM Archetype Spec '${archetype.archetypeId}' (${archetype.nature})`)
+   public static registerArchetype(archetype: MdmArchetypeSpec): void {
+      this._archetypes.set(archetype.archetypeId, archetype)
+      Core.log(`Registered MDM Archetype Spec '${archetype.archetypeId}' (${archetype.nature})`, 'Mdm')
    }
 
    /**
-    * Retrieves a registered archetype specification schema by its ID.
+    * Retrieve a registered Archetype Specification schema by ID.
     */
-   static getArchetype(archetypeId: string): MdmArchetypeSpec | undefined {
-      return this._archetypeSpecs.get(archetypeId)
+   public static getArchetype(archetypeId: string): MdmArchetypeSpec | undefined {
+      return this._archetypes.get(archetypeId)
    }
 
    /**
-    * Registers a concrete child class extending AbstractMdmObject for a specific archetype.
+    * Register a custom AbstractMdmObject child model class for a given archetype ID.
     */
-   static registerModel(archetypeId: string, modelClass: typeof AbstractMdmObject) {
+   public static registerModel<T extends AbstractMdmObject>(archetypeId: string, modelClass: MdmObjectConstructor<T>): void {
       this._models.set(archetypeId, modelClass)
-      this.info(`Registered custom AbstractMdmObject child model for archetype '${archetypeId}'`)
+      Core.log(`Registered custom AbstractMdmObject child model for archetype '${archetypeId}'`, 'Mdm')
    }
 
    /**
-    * Retrieves a registered child model class for a given archetype ID.
+    * Retrieve a registered custom AbstractMdmObject child model class by archetype ID.
     */
-   static getModel(archetypeId: string): typeof AbstractMdmObject | null {
-      return this._models.get(archetypeId) || null
+   public static getModel<T extends AbstractMdmObject>(archetypeId: string): MdmObjectConstructor<T> | undefined {
+      return this._models.get(archetypeId)
+   }
+
+   // --- Specification Read/Write Delegation Methods ---
+
+   public static async saveSpecification(object: AbstractMdmObject, spec: Specification, alias?: string): Promise<Specification> {
+      return this.getAdapter(alias).saveSpecification(object, spec)
+   }
+
+   public static async saveSpecifications(object: AbstractMdmObject, specs: Specification[], alias?: string): Promise<Specification[]> {
+      return this.getAdapter(alias).saveSpecifications(object, specs)
+   }
+
+   public static async getSpecifications(object: AbstractMdmObject, alias?: string): Promise<Specification[]> {
+      return this.getAdapter(alias).getSpecifications(object)
+   }
+
+   // --- Vendor & ObjectVendor Read/Write Delegation Methods ---
+
+   public static async saveVendor(vendor: Vendor, alias?: string): Promise<Vendor> {
+      return this.getAdapter(alias).saveVendor(vendor)
+   }
+
+   public static async getVendor(vendorId: string, alias?: string): Promise<Vendor | null> {
+      return this.getAdapter(alias).getVendor(vendorId)
+   }
+
+   public static async attachVendor(
+      object: AbstractMdmObject,
+      vendor: Vendor,
+      vendorSku?: string,
+      role?: string,
+      isPrimary?: boolean,
+      alias?: string
+   ): Promise<ObjectVendor> {
+      return this.getAdapter(alias).attachVendor(object, vendor, vendorSku, role, isPrimary)
+   }
+
+   public static async getObjectVendors(object: AbstractMdmObject, alias?: string): Promise<ObjectVendor[]> {
+      return this.getAdapter(alias).getObjectVendors(object)
+   }
+
+   public static async getVendors(object: AbstractMdmObject, alias?: string): Promise<Vendor[]> {
+      return this.getAdapter(alias).getVendors(object)
    }
 }

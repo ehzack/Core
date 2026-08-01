@@ -41,7 +41,7 @@ class TeeShirt extends AbstractMdmObject {
    }
 }
 
-describe('@quatrain/mdm Pivot Class, Specification, Vendor & ObjectVendor Relational Test Suite', () => {
+describe('@quatrain/mdm Pivot Class, Adapter Specification & Vendor Read/Write Test Suite', () => {
    beforeEach(() => {
       const adapter = new MockMdmAdapter('default')
       Mdm.addAdapter(adapter, 'default', true)
@@ -53,37 +53,7 @@ describe('@quatrain/mdm Pivot Class, Specification, Vendor & ObjectVendor Relati
       expect(adapter.alias).toBe('default')
    })
 
-   it('should instantiate Specification model extending PersistedBaseObject', () => {
-      const spec = Specification.fromObject({
-         name: 'sizes',
-         key: 'sizes',
-         value: [GarmentSize.MEDIUM, GarmentSize.LARGE],
-         unit: 'size_code',
-         group: 'textile_dimensions'
-      })
-
-      expect(spec.val('key')).toBe('sizes')
-      expect(spec.val('value')).toEqual([GarmentSize.MEDIUM, GarmentSize.LARGE])
-      expect(spec.val('unit')).toBe('size_code')
-      expect(spec.val('group')).toBe('textile_dimensions')
-   })
-
-   it('should instantiate standalone Vendor model extending PersistedBaseObject without parent property', () => {
-      const vendor = Vendor.fromObject({
-         name: 'EcoApparel Corp',
-         sku: 'ECO-CORP-01',
-         url: 'https://ecoapparel.example.com'
-      })
-
-      expect(vendor.val('name')).toBe('EcoApparel Corp')
-      expect(vendor.val('sku')).toBe('ECO-CORP-01')
-      expect(vendor.val('url')).toBe('https://ecoapparel.example.com')
-   })
-
-   it('should associate Vendors to an AbstractMdmObject via ObjectVendor relationship records', () => {
-      const ecoVendor = Vendor.fromObject({ name: 'EcoApparel Mills' })
-      const distroVendor = Vendor.fromObject({ name: 'Textile Global Distro' })
-
+   it('should save and read Specifications via Mdm adapter methods', async () => {
       const tshirtVariant = TeeShirt.fromObject({
          name: 'Quatrain Organic V-Neck T-Shirt (Navy)',
          sku: 'QT-TSHIRT-ORG-001',
@@ -91,19 +61,35 @@ describe('@quatrain/mdm Pivot Class, Specification, Vendor & ObjectVendor Relati
          nature: MdmNature.PHYSICAL,
       })
 
-      tshirtVariant.addVendor(ecoVendor, 'ECO-MILL-883', 'manufacturer', true)
-      tshirtVariant.addVendor(distroVendor, 'TGD-2026-9', 'distributor')
+      const spec1 = Specification.fromObject({ name: 'sizes', key: 'sizes', value: [GarmentSize.MEDIUM] })
+      const spec2 = Specification.fromObject({ name: 'colors', key: 'colors', value: [TextileColor.NAVY_BLUE] })
 
-      const objectVendors = tshirtVariant.getObjectVendors()
-      expect(objectVendors.length).toBe(2)
-      expect(objectVendors[0].val('vendorSku')).toBe('ECO-MILL-883')
-      expect(objectVendors[0].val('role')).toBe('manufacturer')
-      expect(objectVendors[0].val('isPrimary')).toBe(true)
+      await Mdm.saveSpecification(tshirtVariant, spec1)
+      await Mdm.saveSpecification(tshirtVariant, spec2)
 
-      const vendors = tshirtVariant.getVendors()
-      expect(vendors.length).toBe(2)
+      const specs = await Mdm.getSpecifications(tshirtVariant)
+      expect(specs.length).toBe(2)
+      expect(specs[0].val('key')).toBe('sizes')
+      expect(specs[1].val('key')).toBe('colors')
+   })
+
+   it('should save, attach and read Vendors via Mdm adapter methods', async () => {
+      const tshirtVariant = TeeShirt.fromObject({
+         name: 'Quatrain Organic V-Neck T-Shirt (Navy)',
+         sku: 'QT-TSHIRT-ORG-001',
+         archetypeId: 'textile.tshirt',
+         nature: MdmNature.PHYSICAL,
+      })
+
+      const ecoVendor = Vendor.fromObject({ name: 'EcoApparel Mills', sku: 'ECO-01' })
+      await Mdm.saveVendor(ecoVendor)
+
+      const ov = await Mdm.attachVendor(tshirtVariant, ecoVendor, 'ECO-MILL-883', 'manufacturer', true)
+      expect(ov.val('vendorSku')).toBe('ECO-MILL-883')
+
+      const vendors = await Mdm.getVendors(tshirtVariant)
+      expect(vendors.length).toBe(1)
       expect(vendors[0].val('name')).toBe('EcoApparel Mills')
-      expect(vendors[1].val('name')).toBe('Textile Global Distro')
    })
 
    it('should create and validate a TeeShirt product variant and inventory unit using Specification & ObjectVendor collections', () => {
