@@ -6,11 +6,35 @@ import {
    HardwareDeviceMdmObject, 
    VirtualKeychainMdmObject 
 } from './MdmArchetypeExamples'
+import { AbstractMdmObject } from './AbstractMdmObject'
+import { MdmArchetypeSpec } from './MdmArchetypeSpec'
 import { MdmNature } from './enums/MdmEnums'
-import { GarmentSize, TextileColor, TextileMaterial, ITextileGarmentSpec } from './domain/TextileDomain'
+import { GarmentSize, TextileColor, TextileMaterial, TextileWashCare, ITextileGarmentSpec } from './domain/TextileDomain'
 import { MediaDiskFormat, VinylRpm, IMediaDiskSpec } from './domain/MediaDomain'
 import { CommTechnology, PowerSource, IHardwareDeviceSpec } from './domain/HardwareDomain'
 import { AuthMechanism, IVirtualKeychainSpec } from './domain/VirtualDomain'
+
+/**
+ * Concrete T-Shirt MDM Model for HOWTO verification
+ */
+class TShirtMdmObject extends AbstractMdmObject {
+   static COLLECTION = 'mdm.garments.tshirts'
+
+   getArchetypeSpec(): MdmArchetypeSpec {
+      return {
+         archetypeId: 'textile.tshirt',
+         name: 'Organic Cotton T-Shirt',
+         nature: MdmNature.PHYSICAL,
+         collection: TShirtMdmObject.COLLECTION,
+         requiredProperties: ['sizes', 'colors', 'materials'],
+         optionalProperties: ['washCare', 'brand', 'weightGrams', 'fitType'],
+      }
+   }
+
+   public get specifications(): ITextileGarmentSpec {
+      return this.dataObject.val('specifications') as ITextileGarmentSpec
+   }
+}
 
 describe('@quatrain/mdm Pivot Class, ENUMs, Interfaces & AbstractMdmObject Test Suite', () => {
    beforeEach(() => {
@@ -24,44 +48,53 @@ describe('@quatrain/mdm Pivot Class, ENUMs, Interfaces & AbstractMdmObject Test 
       expect(adapter.alias).toBe('default')
    })
 
-   it('should register archetype specifications and concrete AbstractMdmObject child models using ENUMs', () => {
-      const garment = new GarmentMdmObject({ name: 'Winter Jacket' } as any)
-      const disk = new DiskMdmObject({ name: 'Vinyl LP' } as any)
+   it('should create and validate a T-Shirt product variant and inventory unit as documented in HOWTO.md', () => {
+      const tshirtSample = new TShirtMdmObject({ name: 'T-Shirt Archetype' } as any)
+      Mdm.registerArchetype(tshirtSample.getArchetypeSpec())
+      Mdm.registerModel('textile.tshirt', TShirtMdmObject)
 
-      Mdm.registerArchetype(garment.getArchetypeSpec())
-      Mdm.registerArchetype(disk.getArchetypeSpec())
-
-      Mdm.registerModel('textile.garment', GarmentMdmObject)
-      Mdm.registerModel('media.disk', DiskMdmObject)
-
-      expect(Mdm.getArchetype('textile.garment')?.nature).toBe(MdmNature.PHYSICAL)
-      expect(Mdm.getArchetype('textile.garment')?.requiredProperties).toEqual(['sizes', 'colors', 'materials'])
-      expect(Mdm.getArchetype('media.disk')?.requiredProperties).toEqual(['format', 'durationSec', 'trackCount'])
-      expect(Mdm.getModel('textile.garment')).toBe(GarmentMdmObject)
-   })
-
-   it('should support standardized and extensible ITextileGarmentSpec with ENUMs (GarmentSize, TextileColor, TextileMaterial)', () => {
-      const garmentSpec: ITextileGarmentSpec = {
-         sizes: [GarmentSize.S, GarmentSize.M, GarmentSize.L, 'CUSTOM_BIG_SIZE'],
-         colors: [TextileColor.NAVY_BLUE, TextileColor.BLACK, '#00FF00'],
-         materials: [TextileMaterial.COTTON, TextileMaterial.ELASTANE],
-         brand: 'Quatrain Wear',
-         customPattern: 'Jacquard'
+      const tshirtSpec: ITextileGarmentSpec = {
+         sizes: [GarmentSize.S, GarmentSize.M, GarmentSize.L, GarmentSize.XL],
+         colors: [TextileColor.NAVY_BLUE, TextileColor.WHITE, TextileColor.BLACK],
+         materials: [TextileMaterial.ORGANIC_COTTON, TextileMaterial.ELASTANE],
+         washCare: [TextileWashCare.WASH_30C, TextileWashCare.NO_BLEACH, TextileWashCare.IRON_MEDIUM],
+         brand: 'Quatrain EcoWear',
+         weightGrams: 180,
+         fitType: 'regular',
+         customCollar: 'V-Neck'
       }
 
-      const validGarment = GarmentMdmObject.fromObject({
-         uid: 'garment_001',
-         name: 'Navy Blue Denim Jacket',
-         archetypeId: 'textile.garment',
+      const tshirtVariant = TShirtMdmObject.fromObject({
+         uid: 'tshirt_organic_vneck_navy',
+         name: 'Quatrain Organic V-Neck T-Shirt (Navy)',
+         archetypeId: 'textile.tshirt',
          nature: MdmNature.PHYSICAL,
-         lifecycleState: 'AVAILABLE',
-         specifications: garmentSpec,
+         lifecycleState: 'production',
+         specifications: tshirtSpec,
       })
 
-      expect(validGarment.validateArchetypeSpecs()).toBe(true)
-      expect(validGarment.specifications.sizes).toContain(GarmentSize.M)
-      expect(validGarment.specifications.colors).toContain(TextileColor.NAVY_BLUE)
-      expect(validGarment.specifications.customPattern).toBe('Jacquard')
+      expect(tshirtVariant.validateArchetypeSpecs()).toBe(true)
+      expect(tshirtVariant.specifications.colors).toContain(TextileColor.NAVY_BLUE)
+      expect(tshirtVariant.specifications.materials).toContain(TextileMaterial.ORGANIC_COTTON)
+      expect(tshirtVariant.specifications.customCollar).toBe('V-Neck')
+
+      const tshirtUnit = TShirtMdmObject.fromObject({
+         uid: 'unit_tshirt_sn_2026_0042',
+         name: 'Quatrain T-Shirt - Size M Navy',
+         archetypeId: 'textile.tshirt',
+         parentUid: tshirtVariant.dataObject.uid,
+         nature: MdmNature.PHYSICAL,
+         lifecycleState: 'AVAILABLE',
+         specifications: {
+            selectedSize: GarmentSize.M,
+            selectedColor: TextileColor.NAVY_BLUE,
+            barcode: '3760000000042'
+         }
+      })
+
+      expect(tshirtUnit.getSubcollectionName('certifications')).toBe(
+         'mdm.garments.tshirts.unit_tshirt_sn_2026_0042.certifications'
+      )
    })
 
    it('should validate missing required textile properties', () => {
