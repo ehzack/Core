@@ -1,20 +1,19 @@
 # `@quatrain/mdm` — Agnostic Master Data Management (MDM) Core Package
 
-The `@quatrain/mdm` package provides an abstract, domain-agnostic taxonomy and multi-axis hardware capabilities framework for physical IoT hardware assets, components, and domain realities (*agricultural plots, aquaculture ponds, livestock barns, storage silos*).
+The `@quatrain/mdm` package provides an abstract, domain-agnostic Master Data Management (MDM) architecture for physical IoT hardware assets, virtual products (*digital access keychains, tokens, credentials, licenses*), managed services (*airtime passes, connectivity subscriptions, maintenance contracts*), and composite bundles.
 
 ---
 
-## 🏛️ Core Features
+## 🏛️ Architecture & Sibling Conventions
 
-1. **PersistedBaseObject Integration**: Extends `@quatrain/backend` base persistence objects (`mdm.product_templates`, `mdm.product_variants`, `mdm.boms`, `mdm.physical_units`, `mdm.realities`), making `@quatrain/mdm` compatible out-of-the-box with any Quatrain backend (`@quatrain/backend-sqlite`, `@quatrain/backend-postgres`, `@quatrain/backend-firestore`, `@quatrain/backend-supabase`).
-2. **Multi-Axis Hardware Capabilities Matrix**:
-   - Communication Radio Axis (`lorawan_terrestrial`, `lorawan_satellite`, `cellular_gsm`, `hybrid_fallback`).
-   - Electrical Power Axis (`solar_mppt`, `primary_lithium`, `rechargeable_liion`, `external_mains`).
-   - Sensor & Bus Connectivity Axis (`SDI-12`, `RS485_Modbus`, `I2C`, `1-Wire`, `SPI`, pulse counters, analog channels).
-3. **State Machine Compatibility**: Built-in compatibility with `@quatrain/state-machine` for managing hardware device and physical reality lifecycle transitions (*Planned, Available, Associated, Maintenance, Ko, Scrapped*).
+Following the standard **Quatrain Core** sibling package conventions:
+- **Pivot Class `Mdm extends Core`**: Central registry manager providing provider adapter registration (`Mdm.addAdapter()`, `Mdm.getAdapter()`), archetype definition registration (`Mdm.registerObjectType()`, `Mdm.getObjectType()`), and custom model registration (`Mdm.registerModel()`, `Mdm.getModel()`).
+- **Abstract Adapter `AbstractMdmAdapter`**: Pluggable provider interface allowing custom MDM backends (`MockMdmAdapter`, DB adapters).
+- **`MdmObject extends PersistedBaseObject`**: Core domain model inheriting from `@quatrain/backend`, guaranteeing out-of-the-box compatibility with any Quatrain database adapter (`@quatrain/backend-sqlite`, `@quatrain/backend-postgres`, `@quatrain/backend-firestore`, `@quatrain/backend-supabase`).
+- **Subcollections**: Supports attaching $N$ subitems or attributes linked to a parent element via dynamic collection paths (`mdm.objects.<parent_uid>.<subcollection>`).
 
 ---
 
 ## 📦 Usage
 
-See [`HOWTO.md`](HOWTO.md) for practical examples and common scenarios.
+See [`HOWTO.md`](HOWTO.md) for practical examples and registration scenarios.
