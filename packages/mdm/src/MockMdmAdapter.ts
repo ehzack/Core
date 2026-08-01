@@ -1,31 +1,37 @@
 import { AbstractMdmAdapter } from './AbstractMdmAdapter'
-import { MdmObject } from './MdmObject'
-import { MdmObjectTypeDefinition } from './MdmObjectType'
+import { AbstractMdmObject } from './AbstractMdmObject'
+import { MdmArchetypeSpec } from './MdmArchetypeSpec'
 
 /**
  * Mock MDM Adapter for unit testing and offline development
  */
 export class MockMdmAdapter extends AbstractMdmAdapter {
-   private _types: Map<string, MdmObjectTypeDefinition> = new Map()
-   private _objects: Map<string, MdmObject> = new Map()
+   private _archetypes: Map<string, MdmArchetypeSpec> = new Map()
+   private _objects: Map<string, AbstractMdmObject> = new Map()
 
-   async registerType(typeDef: MdmObjectTypeDefinition): Promise<void> {
-      this._types.set(typeDef.archetypeId, typeDef)
+   async registerArchetype(archetype: MdmArchetypeSpec): Promise<void> {
+      this._archetypes.set(archetype.archetypeId, archetype)
    }
 
-   async getType(archetypeId: string): Promise<MdmObjectTypeDefinition | null> {
-      return this._types.get(archetypeId) || null
+   async getArchetype(archetypeId: string): Promise<MdmArchetypeSpec | null> {
+      return this._archetypes.get(archetypeId) || null
    }
 
-   async createObject(data: Record<string, any>): Promise<MdmObject> {
-      const obj = MdmObject.fromObject(data as any)
+   async createObject<T extends AbstractMdmObject>(
+      modelClass: new (...args: any[]) => T,
+      data: Record<string, any>
+   ): Promise<T> {
+      const obj = (modelClass as any).fromObject(data as any)
       if (obj && obj.dataObject && obj.dataObject.uid) {
          this._objects.set(obj.dataObject.uid, obj)
       }
       return obj
    }
 
-   async getObject(uid: string): Promise<MdmObject | null> {
-      return this._objects.get(uid) || null
+   async getObject<T extends AbstractMdmObject>(
+      modelClass: new (...args: any[]) => T,
+      uid: string
+   ): Promise<T | null> {
+      return (this._objects.get(uid) as T) || null
    }
 }

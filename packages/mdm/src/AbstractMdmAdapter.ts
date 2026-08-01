@@ -1,6 +1,6 @@
 import { Core } from '@quatrain/core'
-import { MdmObject } from './MdmObject'
-import { MdmObjectTypeDefinition } from './MdmObjectType'
+import { AbstractMdmObject } from './AbstractMdmObject'
+import { MdmArchetypeSpec } from './MdmArchetypeSpec'
 
 /**
  * Abstract Adapter for MDM Providers
@@ -17,8 +17,8 @@ export abstract class AbstractMdmAdapter extends Core {
       return this._alias
    }
 
-   abstract registerType(typeDef: MdmObjectTypeDefinition): Promise<void>
-   abstract getType(archetypeId: string): Promise<MdmObjectTypeDefinition | null>
-   abstract createObject(data: Record<string, any>): Promise<MdmObject>
-   abstract getObject(uid: string): Promise<MdmObject | null>
+   abstract registerArchetype(archetype: MdmArchetypeSpec): Promise<void>
+   abstract getArchetype(archetypeId: string): Promise<MdmArchetypeSpec | null>
+   abstract createObject<T extends AbstractMdmObject>(modelClass: new (...args: any[]) => T, data: Record<string, any>): Promise<T>
+   abstract getObject<T extends AbstractMdmObject>(modelClass: new (...args: any[]) => T, uid: string): Promise<T | null>
 }

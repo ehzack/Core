@@ -1,54 +1,65 @@
-# HOWTO: `@quatrain/mdm` Usage Scenarios
+# HOWTO: `@quatrain/mdm` Abstract Object & Archetype Usage
 
-## 1. Registering an Adapter and Archetype Definitions with Pivot Class `Mdm`
+## 1. Defining a Concrete Object Class Extending `AbstractMdmObject`
 
 ```typescript
-import { Mdm, MockMdmAdapter, MdmObjectTypeDefinition } from '@quatrain/mdm';
+import { AbstractMdmObject, MdmArchetypeSpec } from '@quatrain/mdm';
 
-// Register provider adapter
-const adapter = new MockMdmAdapter('default');
-Mdm.addAdapter(adapter, 'default', true);
+// Example: Garment Textile Object
+export class GarmentMdmObject extends AbstractMdmObject {
+   static COLLECTION = 'mdm.garments'
 
-// Register Physical Archetype Definition
-Mdm.registerObjectType({
-  archetypeId: 'device.probe',
-  name: 'Probe IoT Device',
-  nature: 'physical',
-  collection: 'mdm.physical_units'
-});
+   getArchetypeSpec(): MdmArchetypeSpec {
+      return {
+         archetypeId: 'textile.garment',
+         name: 'Garment Textile Item',
+         nature: 'physical',
+         collection: GarmentMdmObject.COLLECTION,
+         requiredProperties: ['sizes', 'colors', 'materials'],
+         optionalProperties: ['washCare', 'brand']
+      }
+   }
+}
 
-// Register Virtual Archetype Definition (Network Access Keychain)
-Mdm.registerObjectType({
-  archetypeId: 'keychain.network_access',
-  name: 'Network Access Keychain',
-  nature: 'virtual',
-  collection: 'mdm.virtual_keychains'
-});
+// Example: Audio/Video Media Disk Object
+export class DiskMdmObject extends AbstractMdmObject {
+   static COLLECTION = 'mdm.disks'
 
-// Register Managed Service Archetype Definition
-Mdm.registerObjectType({
-  archetypeId: 'service.satellite_airtime',
-  name: 'Satellite Airtime Subscription',
-  nature: 'service',
-  collection: 'mdm.services'
-});
+   getArchetypeSpec(): MdmArchetypeSpec {
+      return {
+         archetypeId: 'media.disk',
+         name: 'Audio/Video Media Disk',
+         nature: 'physical',
+         collection: DiskMdmObject.COLLECTION,
+         requiredProperties: ['format', 'durationSec', 'trackCount'],
+         optionalProperties: ['rpm', 'genre']
+      }
+   }
+}
 ```
 
-## 2. Instantiating an Extensible `MdmObject` with Subcollections
+## 2. Registering Archetypes and Validating Specifications
 
 ```typescript
-import { MdmObject } from '@quatrain/mdm';
+import { Mdm } from '@quatrain/mdm';
 
-// Create an MdmObject instance from raw data or backend
-const deviceUnit = new MdmObject({
-  uid: 'unit_probe_8c1f640001',
-  name: 'Probe Unit #001',
-  archetypeId: 'device.probe',
-  nature: 'physical',
-  lifecycleState: 'ASSOCIATED'
-} as any);
+// Register Archetype Spec & Model with Pivot Manager
+const garmentObj = new GarmentMdmObject({ name: 'Winter Coat' } as any);
+Mdm.registerArchetype(garmentObj.getArchetypeSpec());
+Mdm.registerModel('textile.garment', GarmentMdmObject);
 
-// Get subcollection path for N child keychains or credentials attached to this parent unit
-const keychainsCollection = deviceUnit.getSubcollectionName('keychains');
-// Result: 'mdm.objects.unit_probe_8c1f640001.keychains'
+// Instantiate & Validate
+const jeans = GarmentMdmObject.fromObject({
+   uid: 'garment_001',
+   name: 'Blue Denim Jeans',
+   archetypeId: 'textile.garment',
+   nature: 'physical',
+   specifications: {
+      sizes: ['S', 'M', 'L'],
+      colors: ['Blue'],
+      materials: ['Cotton 100%']
+   }
+});
+
+jeans.validateArchetypeSpecs(); // Returns true (throws MdmValidationError if required specs are missing)
 ```
