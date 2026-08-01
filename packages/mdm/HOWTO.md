@@ -1,6 +1,6 @@
 # HOWTO: `@quatrain/mdm` — Step-by-Step Guide: Creating a T-Shirt Product Variant & Inventory Unit
 
-This guide demonstrates how to create a concrete **T-Shirt** garment product using `@quatrain/mdm` with standardized ENUMs, extensible interfaces, archetype specification validation, vendor & SKU attributes, and subcollections.
+This guide demonstrates how to create a concrete **T-Shirt** garment product using `@quatrain/mdm` with standardized ENUMs, extensible interfaces, archetype specification validation, multiple `Vendor` items, and child `Specification` collections.
 
 ---
 
@@ -34,7 +34,7 @@ export class TeeShirt extends AbstractMdmObject {
    }
 
    public get specifications(): TextileGarmentSpecInterface {
-      return this.dataObject.val('specifications') as TextileGarmentSpecInterface
+      return this.specificationsObject as TextileGarmentSpecInterface
    }
 }
 ```
@@ -64,9 +64,9 @@ Mdm.registerModel('textile.tshirt', TeeShirt);
 
 ---
 
-## 3. Instantiate & Validate a T-Shirt Product Variant with Vendor & SKU Attributes
+## 3. Instantiate & Populate Child `Specification` & `Vendor` Collections
 
-Use standardized ENUMs, internal `sku`, `vendor` and `vendorSku` properties:
+Attach multiple `Vendor` instances (*manufacturer, distributor*) and populate child `Specification` items:
 
 ```typescript
 import { 
@@ -78,7 +78,7 @@ import {
    MdmNature
 } from '@quatrain/mdm';
 
-// 1. Build standardized and extended specifications
+// 1. Build specifications object
 const tshirtSpec: TextileGarmentSpecInterface = {
    sizes: [GarmentSize.SMALL, GarmentSize.MEDIUM, GarmentSize.LARGE, GarmentSize.EXTRA_LARGE],
    colors: [TextileColor.NAVY_BLUE, TextileColor.WHITE, TextileColor.BLACK],
@@ -87,50 +87,54 @@ const tshirtSpec: TextileGarmentSpecInterface = {
    brand: 'Quatrain EcoWear',
    weightGrams: 180,
    fitType: 'regular',
-   customCollar: 'V-Neck' // Extensible property!
+   customCollar: 'V-Neck'
 };
 
-// 2. Instantiate T-Shirt Product Variant with SKU and Vendor info
+// 2. Instantiate T-Shirt Product Variant
 const tshirtVariant = TeeShirt.fromObject({
-   id: 'tshirt_organic_vneck_navy',
    name: 'Quatrain Organic V-Neck T-Shirt (Navy)',
    sku: 'QT-TSHIRT-ORG-001',
-   vendor: 'EcoApparel Ltd',
-   vendorSku: 'VEND-ECO-9942',
    archetypeId: 'textile.tshirt',
    nature: MdmNature.PHYSICAL,
    lifecycleState: 'production',
-   specifications: tshirtSpec
 });
 
-// 3. Validate specifications against required archetype properties
+// 3. Attach multiple Vendor items (manufacturer & distributor)
+tshirtVariant.createVendor('EcoApparel Mills', 'ECO-MILL-883', 'manufacturer');
+tshirtVariant.createVendor('Textile Global Distro', 'TGD-2026-9', 'distributor');
+
+// 4. Populate Specification child collection
+tshirtVariant.setSpecificationsFromObject(tshirtSpec);
+
+// 5. Validate specifications against archetype schema
 tshirtVariant.validateArchetypeSpecs(); // Returns true
-console.log(tshirtVariant.vendorInfo); // { vendor: 'EcoApparel Ltd', vendorSku: 'VEND-ECO-9942' }
+console.log(tshirtVariant.getVendors().map(v => v.name)); // ['EcoApparel Mills', 'Textile Global Distro']
 ```
 
 ---
 
 ## 4. Instantiate a Physical Inventory Unit & Attach Subcollections
 
-Create an individual physical unit (serialized item or SKU instance) with `parentId` referencing the variant:
+Create an individual physical unit with `parent` referencing the variant:
 
 ```typescript
 // Create an individual physical unit instance
 const tshirtUnit = TeeShirt.fromObject({
-   id: 'unit_tshirt_sn_2026_0042',
    name: 'Quatrain T-Shirt - Size Medium Navy',
    archetypeId: 'textile.tshirt',
-   parentId: tshirtVariant.dataObject.val('id'),
+   parent: tshirtVariant,
    nature: MdmNature.PHYSICAL,
    lifecycleState: 'AVAILABLE',
-   specifications: {
-      selectedSize: GarmentSize.MEDIUM,
-      selectedColor: TextileColor.NAVY_BLUE,
-      barcode: '3760000000042'
-   }
+});
+
+// Populate unit specifications
+tshirtUnit.setSpecificationsFromObject({
+   selectedSize: GarmentSize.MEDIUM,
+   selectedColor: TextileColor.NAVY_BLUE,
+   barcode: '3760000000042'
 });
 
 // Resolve child subcollection path for N attached certifications / tags
 const certificationsCollection = tshirtUnit.getSubcollectionName('certifications');
-// Result: 'tshirts/unit_tshirt_sn_2026_0042/certifications'
+// Result: 'tshirts/tshirts:default/certifications'
 ```

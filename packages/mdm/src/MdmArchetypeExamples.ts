@@ -8,7 +8,7 @@ import { VirtualKeychainSpecInterface, VIRTUAL_KEYCHAIN_ONTOLOGY_DEFAULT } from 
 
 /**
  * Concrete Garment MDM Object Class (Extends AbstractMdmObject)
- * Clean class name 'Garment' (derived concrete class without 'MdmObject' suffix).
+ * Enforces TextileGarmentSpecInterface over child Specification collection.
  */
 export class Garment extends AbstractMdmObject {
    static COLLECTION = 'garments'
@@ -26,13 +26,13 @@ export class Garment extends AbstractMdmObject {
    }
 
    public get specifications(): TextileGarmentSpecInterface {
-      return this.dataObject.val('specifications') as TextileGarmentSpecInterface
+      return this.specificationsObject as TextileGarmentSpecInterface
    }
 }
 
 /**
  * Concrete Audio/Video Disk MDM Object Class (Extends AbstractMdmObject)
- * Clean class name 'Disk' (derived concrete class without 'MdmObject' suffix).
+ * Enforces MediaDiskSpecInterface over child Specification collection.
  */
 export class Disk extends AbstractMdmObject {
    static COLLECTION = 'disks'
@@ -50,13 +50,13 @@ export class Disk extends AbstractMdmObject {
    }
 
    public get specifications(): MediaDiskSpecInterface {
-      return this.dataObject.val('specifications') as MediaDiskSpecInterface
+      return this.specificationsObject as MediaDiskSpecInterface
    }
 }
 
 /**
  * Concrete Hardware IoT Device MDM Object Class (Extends AbstractMdmObject)
- * Clean class name 'HardwareDevice' (derived concrete class without 'MdmObject' suffix).
+ * Enforces HardwareDeviceSpecInterface over child Specification collection.
  */
 export class HardwareDevice extends AbstractMdmObject {
    static COLLECTION = 'devices'
@@ -74,13 +74,13 @@ export class HardwareDevice extends AbstractMdmObject {
    }
 
    public get specifications(): HardwareDeviceSpecInterface {
-      return this.dataObject.val('specifications') as HardwareDeviceSpecInterface
+      return this.specificationsObject as HardwareDeviceSpecInterface
    }
 }
 
 /**
  * Concrete Virtual Keychain MDM Object Class (Extends AbstractMdmObject)
- * Clean class name 'VirtualKeychain' (derived concrete class without 'MdmObject' suffix).
+ * Enforces VirtualKeychainSpecInterface over child Specification collection.
  */
 export class VirtualKeychain extends AbstractMdmObject {
    static COLLECTION = 'keychains'
@@ -98,6 +98,6 @@ export class VirtualKeychain extends AbstractMdmObject {
    }
 
    public get specifications(): VirtualKeychainSpecInterface {
-      return this.dataObject.val('specifications') as VirtualKeychainSpecInterface
+      return this.specificationsObject as VirtualKeychainSpecInterface
    }
 }
