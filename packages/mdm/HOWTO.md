@@ -1,6 +1,6 @@
 # HOWTO: `@quatrain/mdm` — Step-by-Step Guide: Creating a T-Shirt Product Variant & Inventory Unit
 
-This guide demonstrates how to create a concrete **T-Shirt** garment product using `@quatrain/mdm` with standardized ENUMs, extensible interfaces, archetype specification validation, multiple `Vendor` items, and child `Specification` collections.
+This guide demonstrates how to create a concrete **T-Shirt** garment product using `@quatrain/mdm` with standardized ENUMs, extensible interfaces, archetype specification validation, top-level `Vendor` entities, `ObjectVendor` relational associations, and child `Specification` collections.
 
 ---
 
@@ -64,12 +64,13 @@ Mdm.registerModel('textile.tshirt', TeeShirt);
 
 ---
 
-## 3. Instantiate & Populate Child `Specification` & `Vendor` Collections
+## 3. Create Independent `Vendor` Entities and Associate via `ObjectVendor`
 
-Attach multiple `Vendor` instances (*manufacturer, distributor*) and populate child `Specification` items:
+Create top-level `Vendor` instances and associate them to the `TeeShirt` variant with product-vendor metadata (*vendorSku, role, primary status*):
 
 ```typescript
 import { 
+   Vendor,
    GarmentSize, 
    TextileColor, 
    TextileMaterial, 
@@ -78,17 +79,16 @@ import {
    MdmNature
 } from '@quatrain/mdm';
 
-// 1. Build specifications object
-const tshirtSpec: TextileGarmentSpecInterface = {
-   sizes: [GarmentSize.SMALL, GarmentSize.MEDIUM, GarmentSize.LARGE, GarmentSize.EXTRA_LARGE],
-   colors: [TextileColor.NAVY_BLUE, TextileColor.WHITE, TextileColor.BLACK],
-   materials: [TextileMaterial.ORGANIC_COTTON, TextileMaterial.ELASTANE],
-   washCare: [TextileWashCare.WASH_30C, TextileWashCare.NO_BLEACH, TextileWashCare.IRON_MEDIUM],
-   brand: 'Quatrain EcoWear',
-   weightGrams: 180,
-   fitType: 'regular',
-   customCollar: 'V-Neck'
-};
+// 1. Create standalone Vendor entities
+const ecoMillsVendor = Vendor.fromObject({
+   name: 'EcoApparel Mills',
+   url: 'https://ecomills.example.com'
+});
+
+const globalDistroVendor = Vendor.fromObject({
+   name: 'Textile Global Distro',
+   url: 'https://tgd.example.com'
+});
 
 // 2. Instantiate T-Shirt Product Variant
 const tshirtVariant = TeeShirt.fromObject({
@@ -99,16 +99,21 @@ const tshirtVariant = TeeShirt.fromObject({
    lifecycleState: 'production',
 });
 
-// 3. Attach multiple Vendor items (manufacturer & distributor)
-tshirtVariant.createVendor('EcoApparel Mills', 'ECO-MILL-883', 'manufacturer');
-tshirtVariant.createVendor('Textile Global Distro', 'TGD-2026-9', 'distributor');
+// 3. Associate Vendors via ObjectVendor relationship records
+tshirtVariant.addVendor(ecoMillsVendor, 'ECO-MILL-883', 'manufacturer', true);
+tshirtVariant.addVendor(globalDistroVendor, 'TGD-2026-9', 'distributor');
 
 // 4. Populate Specification child collection
-tshirtVariant.setSpecificationsFromObject(tshirtSpec);
+tshirtVariant.setSpecificationsFromObject({
+   sizes: [GarmentSize.SMALL, GarmentSize.MEDIUM, GarmentSize.LARGE],
+   colors: [TextileColor.NAVY_BLUE, TextileColor.WHITE],
+   materials: [TextileMaterial.ORGANIC_COTTON],
+   brand: 'Quatrain EcoWear'
+});
 
 // 5. Validate specifications against archetype schema
 tshirtVariant.validateArchetypeSpecs(); // Returns true
-console.log(tshirtVariant.getVendors().map(v => v.name)); // ['EcoApparel Mills', 'Textile Global Distro']
+console.log(tshirtVariant.getVendors().map(v => v.val('name'))); // ['EcoApparel Mills', 'Textile Global Distro']
 ```
 
 ---

@@ -9,6 +9,7 @@ import {
 import { AbstractMdmObject } from './AbstractMdmObject'
 import { Specification } from './Specification'
 import { Vendor } from './Vendor'
+import { ObjectVendor } from './ObjectVendor'
 import { MdmArchetypeSpec } from './MdmArchetypeSpec'
 import { MdmNature } from './enums/MdmEnums'
 import { GarmentSize, TextileColor, TextileMaterial, TextileWashCare, TextileGarmentSpecInterface, TEXTILE_GARMENT_ONTOLOGY_DEFAULT } from './domain/TextileDomain'
@@ -40,7 +41,7 @@ class TeeShirt extends AbstractMdmObject {
    }
 }
 
-describe('@quatrain/mdm Pivot Class, Native PersistedBaseObject.val() & ObjectUri Test Suite', () => {
+describe('@quatrain/mdm Pivot Class, Specification, Vendor & ObjectVendor Relational Test Suite', () => {
    beforeEach(() => {
       const adapter = new MockMdmAdapter('default')
       Mdm.addAdapter(adapter, 'default', true)
@@ -52,7 +53,7 @@ describe('@quatrain/mdm Pivot Class, Native PersistedBaseObject.val() & ObjectUr
       expect(adapter.alias).toBe('default')
    })
 
-   it('should instantiate Specification model extending PersistedBaseObject and read values via native .val()', () => {
+   it('should instantiate Specification model extending PersistedBaseObject', () => {
       const spec = Specification.fromObject({
          name: 'sizes',
          key: 'sizes',
@@ -67,21 +68,22 @@ describe('@quatrain/mdm Pivot Class, Native PersistedBaseObject.val() & ObjectUr
       expect(spec.val('group')).toBe('textile_dimensions')
    })
 
-   it('should instantiate Vendor model extending PersistedBaseObject and read values via native .val()', () => {
+   it('should instantiate standalone Vendor model extending PersistedBaseObject without parent property', () => {
       const vendor = Vendor.fromObject({
          name: 'EcoApparel Corp',
-         vendorSku: 'VEND-ECO-9942',
-         role: 'manufacturer',
+         sku: 'ECO-CORP-01',
          url: 'https://ecoapparel.example.com'
       })
 
       expect(vendor.val('name')).toBe('EcoApparel Corp')
-      expect(vendor.val('vendorSku')).toBe('VEND-ECO-9942')
-      expect(vendor.val('role')).toBe('manufacturer')
+      expect(vendor.val('sku')).toBe('ECO-CORP-01')
       expect(vendor.val('url')).toBe('https://ecoapparel.example.com')
    })
 
-   it('should support multiple vendors on AbstractMdmObject via createVendor & getVendors', () => {
+   it('should associate Vendors to an AbstractMdmObject via ObjectVendor relationship records', () => {
+      const ecoVendor = Vendor.fromObject({ name: 'EcoApparel Mills' })
+      const distroVendor = Vendor.fromObject({ name: 'Textile Global Distro' })
+
       const tshirtVariant = TeeShirt.fromObject({
          name: 'Quatrain Organic V-Neck T-Shirt (Navy)',
          sku: 'QT-TSHIRT-ORG-001',
@@ -89,18 +91,22 @@ describe('@quatrain/mdm Pivot Class, Native PersistedBaseObject.val() & ObjectUr
          nature: MdmNature.PHYSICAL,
       })
 
-      tshirtVariant.createVendor('EcoApparel Mills', 'ECO-MILL-883', 'manufacturer')
-      tshirtVariant.createVendor('Textile Global Distro', 'TGD-2026-9', 'distributor')
+      tshirtVariant.addVendor(ecoVendor, 'ECO-MILL-883', 'manufacturer', true)
+      tshirtVariant.addVendor(distroVendor, 'TGD-2026-9', 'distributor')
+
+      const objectVendors = tshirtVariant.getObjectVendors()
+      expect(objectVendors.length).toBe(2)
+      expect(objectVendors[0].val('vendorSku')).toBe('ECO-MILL-883')
+      expect(objectVendors[0].val('role')).toBe('manufacturer')
+      expect(objectVendors[0].val('isPrimary')).toBe(true)
 
       const vendors = tshirtVariant.getVendors()
       expect(vendors.length).toBe(2)
       expect(vendors[0].val('name')).toBe('EcoApparel Mills')
-      expect(vendors[0].val('role')).toBe('manufacturer')
       expect(vendors[1].val('name')).toBe('Textile Global Distro')
-      expect(vendors[1].val('role')).toBe('distributor')
    })
 
-   it('should create and validate a TeeShirt product variant and inventory unit using Specification & Vendor collections', () => {
+   it('should create and validate a TeeShirt product variant and inventory unit using Specification & ObjectVendor collections', () => {
       const tshirtSample = TeeShirt.fromObject({ name: 'T-Shirt Archetype', archetypeId: 'textile.tshirt', nature: MdmNature.PHYSICAL })
       Mdm.registerArchetype(tshirtSample.getArchetypeSpec())
       Mdm.registerModel('textile.tshirt', TeeShirt)
@@ -125,7 +131,8 @@ describe('@quatrain/mdm Pivot Class, Native PersistedBaseObject.val() & ObjectUr
          lifecycleState: 'production',
       })
 
-      tshirtVariant.createVendor('Quatrain Apparel', 'VEND-QT-001', 'brand')
+      const qtApparelVendor = Vendor.fromObject({ name: 'Quatrain Apparel' })
+      tshirtVariant.addVendor(qtApparelVendor, 'VEND-QT-001', 'brand', true)
       tshirtVariant.setSpecificationsFromObject(tshirtSpec)
 
       expect(tshirtVariant.validateArchetypeSpecs()).toBe(true)
@@ -186,7 +193,8 @@ describe('@quatrain/mdm Pivot Class, Native PersistedBaseObject.val() & ObjectUr
          lifecycleState: 'AVAILABLE',
       })
 
-      vinylDisk.createVendor('Harvest Records', 'HAR-77491', 'record_label')
+      const harvestVendor = Vendor.fromObject({ name: 'Harvest Records' })
+      vinylDisk.addVendor(harvestVendor, 'HAR-77491', 'record_label', true)
       vinylDisk.setSpecificationsFromObject(diskSpec)
 
       expect(vinylDisk.validateArchetypeSpecs()).toBe(true)
@@ -208,7 +216,8 @@ describe('@quatrain/mdm Pivot Class, Native PersistedBaseObject.val() & ObjectUr
          nature: MdmNature.PHYSICAL,
          lifecycleState: 'ASSOCIATED',
       })
-      probeDevice.createVendor('Brad Technology', 'BRAD-PHY-PCB-HYBRID-01', 'oem')
+      const bradVendor = Vendor.fromObject({ name: 'Brad Technology' })
+      probeDevice.addVendor(bradVendor, 'BRAD-PHY-PCB-HYBRID-01', 'oem', true)
       probeDevice.setSpecificationsFromObject(hardwareSpec)
 
       const keychainSpec: VirtualKeychainSpecInterface = {

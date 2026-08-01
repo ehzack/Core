@@ -3,14 +3,14 @@ import { StringProperty, ObjectProperty, Core } from '@quatrain/core'
 import { MdmArchetypeSpec } from './MdmArchetypeSpec'
 import { Specification } from './Specification'
 import { Vendor } from './Vendor'
+import { ObjectVendor } from './ObjectVendor'
 
 /**
  * Abstract Base Class for all MDM Domain Objects.
  * MUST be extended by concrete object definitions (e.g. TeeShirt, Garment, Disk, HardwareDevice, VirtualKeychain).
  * 
  * Note: Persistence routing and identification are natively carried by Quatrain `ObjectUri` (no explicit 'id' property in PROPS_DEFINITION).
- * Specifications and Vendors are managed as child collections of `Specification` and `Vendor` instances.
- * Property access uses native `PersistedBaseObject.val('propName')`.
+ * Object <-> Vendor relationships are carried by the `ObjectVendor` junction entity collection.
  */
 export abstract class AbstractMdmObject extends PersistedBaseObject {
    static COLLECTION = 'objects'
@@ -30,13 +30,13 @@ export abstract class AbstractMdmObject extends PersistedBaseObject {
       {
          name: 'vendors',
          type: CollectionProperty.TYPE,
-         instanceOf: Vendor,
-         parentKey: 'parent',
+         instanceOf: ObjectVendor,
+         parentKey: 'object',
       },
    ]
 
    protected _specificationsMap: Map<string, Specification> = new Map()
-   protected _vendorsList: Vendor[] = []
+   protected _objectVendorsList: ObjectVendor[] = []
 
    constructor(dao: DataObjectClass<any>) {
       super(dao)
@@ -49,33 +49,33 @@ export abstract class AbstractMdmObject extends PersistedBaseObject {
    abstract getArchetypeSpec(): MdmArchetypeSpec
 
    /**
-    * Adds a Vendor instance to this object's vendors collection.
+    * Associates a Vendor entity to this object via an ObjectVendor relationship record.
     */
-   public addVendor(vendor: Vendor): this {
-      this._vendorsList.push(vendor)
-      return this
-   }
-
-   /**
-    * Creates and attaches a new Vendor to this object.
-    */
-   public createVendor(name: string, vendorSku?: string, role?: string, details?: Record<string, any>): Vendor {
-      const vendor = Vendor.fromObject({
-         name,
+   public addVendor(vendor: Vendor, vendorSku?: string, role?: string, isPrimary: boolean = false): ObjectVendor {
+      const objectVendor = ObjectVendor.fromObject({
+         name: `${this.val('name')} <-> ${vendor.val('name')}`,
+         object: this,
+         vendor,
          vendorSku,
          role: role || 'supplier',
-         details: details || {},
-         parent: this,
+         isPrimary,
       })
-      this.addVendor(vendor)
-      return vendor
+      this._objectVendorsList.push(objectVendor)
+      return objectVendor
    }
 
    /**
-    * Retrieves all attached Vendor instances.
+    * Retrieves all attached ObjectVendor relationship instances.
+    */
+   public getObjectVendors(): ObjectVendor[] {
+      return this._objectVendorsList
+   }
+
+   /**
+    * Retrieves all associated Vendor entities.
     */
    public getVendors(): Vendor[] {
-      return this._vendorsList
+      return this._objectVendorsList.map((ov) => ov.val('vendor') as Vendor).filter(Boolean)
    }
 
    /**

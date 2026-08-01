@@ -1,19 +1,17 @@
 import { PersistedBaseObject, DataObjectClass, BaseRepository } from '@quatrain/backend'
-import { StringProperty, ObjectProperty, Core } from '@quatrain/core'
+import { StringProperty, Core } from '@quatrain/core'
 
 /**
- * Extensible Vendor model class representing a supplier, manufacturer, distributor, or brand.
- * Inherits from Quatrain Core `PersistedBaseObject`.
+ * Top-level Vendor entity representing a manufacturer, supplier, distributor, or brand.
+ * Independent entity without parent property (associated to MDM objects via ObjectVendor).
  */
 export class Vendor extends PersistedBaseObject {
    static COLLECTION = 'vendors'
    static PROPS_DEFINITION = [
       { name: 'name', type: StringProperty.TYPE, required: true },
-      { name: 'vendorSku', type: StringProperty.TYPE, required: false },
-      { name: 'role', type: StringProperty.TYPE, required: false, default: 'supplier' },
+      { name: 'sku', type: StringProperty.TYPE, required: false },
       { name: 'url', type: StringProperty.TYPE, required: false },
       { name: 'details', type: 'object', required: false, default: {} },
-      { name: 'parent', type: ObjectProperty.TYPE, instanceOf: 'AbstractMdmObject', required: false },
    ]
 
    constructor(dao: DataObjectClass<any>) {
@@ -25,7 +23,7 @@ export class Vendor extends PersistedBaseObject {
 Core.addClass('Vendor', Vendor)
 
 /**
- * Repository for Vendor subcollection items
+ * Repository for Vendor entities
  */
 export class VendorRepository extends BaseRepository<any> {
    public static readonly COLLECTION_NAME = 'vendors'
