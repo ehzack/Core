@@ -43,16 +43,21 @@ export class TShirtMdmObject extends AbstractMdmObject {
 
 ## 2. Register Provider Adapter & Archetype with Pivot Class `Mdm`
 
-Centralize registry initialization via `Mdm`:
+Centralize registry initialization via `Mdm` using strongly-typed static `fromObject` factories:
 
 ```typescript
-import { Mdm, MockMdmAdapter } from '@quatrain/mdm';
+import { Mdm, MockMdmAdapter, MdmNature } from '@quatrain/mdm';
 
 // Register provider adapter
 Mdm.addAdapter(new MockMdmAdapter('default'), 'default', true);
 
-// Register T-Shirt Archetype Spec & Model Class
-const tshirtSample = new TShirtMdmObject({ name: 'T-Shirt Archetype' } as any);
+// Instantiate sample and register T-Shirt Archetype Spec & Model Class
+const tshirtSample = TShirtMdmObject.fromObject({ 
+   name: 'T-Shirt Archetype',
+   archetypeId: 'textile.tshirt',
+   nature: MdmNature.PHYSICAL 
+});
+
 Mdm.registerArchetype(tshirtSample.getArchetypeSpec());
 Mdm.registerModel('textile.tshirt', TShirtMdmObject);
 ```

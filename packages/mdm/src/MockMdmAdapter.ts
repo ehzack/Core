@@ -1,4 +1,4 @@
-import { AbstractMdmAdapter } from './AbstractMdmAdapter'
+import { AbstractMdmAdapter, MdmObjectConstructor } from './AbstractMdmAdapter'
 import { AbstractMdmObject } from './AbstractMdmObject'
 import { MdmArchetypeSpec } from './MdmArchetypeSpec'
 
@@ -18,10 +18,10 @@ export class MockMdmAdapter extends AbstractMdmAdapter {
    }
 
    async createObject<T extends AbstractMdmObject>(
-      modelClass: new (...args: any[]) => T,
-      data: Record<string, any>
+      modelClass: MdmObjectConstructor<T>,
+      data: Record<string, unknown>
    ): Promise<T> {
-      const obj = (modelClass as any).fromObject(data as any)
+      const obj = modelClass.fromObject(data)
       if (obj && obj.dataObject && obj.dataObject.uid) {
          this._objects.set(obj.dataObject.uid, obj)
       }
@@ -29,7 +29,7 @@ export class MockMdmAdapter extends AbstractMdmAdapter {
    }
 
    async getObject<T extends AbstractMdmObject>(
-      modelClass: new (...args: any[]) => T,
+      modelClass: MdmObjectConstructor<T>,
       uid: string
    ): Promise<T | null> {
       return (this._objects.get(uid) as T) || null

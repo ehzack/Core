@@ -51,9 +51,9 @@ describe('@quatrain/mdm Pivot Class, ENUMs, Recognized Ontologies & AbstractMdmO
    })
 
    it('should support recognized international ontologies (GS1 GPC, Schema.org, W3C SOSA, ISO/IEC 19770)', () => {
-      const garment = new GarmentMdmObject({ name: 'Jacket' } as any)
-      const hardware = new HardwareDeviceMdmObject({ name: 'Sensor System' } as any)
-      const virtualKeychain = new VirtualKeychainMdmObject({ name: 'OAuth Key' } as any)
+      const garment = GarmentMdmObject.fromObject({ name: 'Jacket', archetypeId: 'textile.garment', nature: MdmNature.PHYSICAL })
+      const hardware = HardwareDeviceMdmObject.fromObject({ name: 'Sensor System', archetypeId: 'hardware.device', nature: MdmNature.PHYSICAL })
+      const virtualKeychain = VirtualKeychainMdmObject.fromObject({ name: 'OAuth Key', archetypeId: 'virtual.keychain', nature: MdmNature.VIRTUAL })
 
       Mdm.registerArchetype(garment.getArchetypeSpec())
       Mdm.registerArchetype(hardware.getArchetypeSpec())
@@ -66,7 +66,7 @@ describe('@quatrain/mdm Pivot Class, ENUMs, Recognized Ontologies & AbstractMdmO
    })
 
    it('should create and validate a T-Shirt product variant with GS1 / Schema.org ontology mapping', () => {
-      const tshirtSample = new TShirtMdmObject({ name: 'T-Shirt Archetype' } as any)
+      const tshirtSample = TShirtMdmObject.fromObject({ name: 'T-Shirt Archetype', archetypeId: 'textile.tshirt', nature: MdmNature.PHYSICAL })
       Mdm.registerArchetype(tshirtSample.getArchetypeSpec())
       Mdm.registerModel('textile.tshirt', TShirtMdmObject)
 
