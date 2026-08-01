@@ -4,10 +4,10 @@ This guide demonstrates how to create a concrete **T-Shirt** garment product usi
 
 ---
 
-## 1. Define the Concrete `TShirtMdmObject` Model Class
+## 1. Define the Concrete `TeeShirt` Model Class
 
 Extend `AbstractMdmObject` and define the mandatory `getArchetypeSpec()` schema specifying required and optional properties.
-*Note: Collection names use clean, universal identifiers (e.g. `'tshirts'` or `'garments'`) compatible across SQL (SQLite, PostgreSQL, Supabase) and NoSQL backends.*
+*Note: Concrete derived classes drop the `MdmObject` suffix (e.g. `TeeShirt`, `Garment`, `Disk`, `HardwareDevice`, `VirtualKeychain`).*
 
 ```typescript
 import { 
@@ -18,9 +18,9 @@ import {
 } from '@quatrain/mdm';
 
 /**
- * Concrete T-Shirt MDM Object Model
+ * Concrete TeeShirt Model Class (Extends AbstractMdmObject)
  */
-export class TShirtMdmObject extends AbstractMdmObject {
+export class TeeShirt extends AbstractMdmObject {
    static COLLECTION = 'tshirts'
 
    getArchetypeSpec(): MdmArchetypeSpec {
@@ -28,7 +28,7 @@ export class TShirtMdmObject extends AbstractMdmObject {
          archetypeId: 'textile.tshirt',
          name: 'Organic Cotton T-Shirt',
          nature: MdmNature.PHYSICAL,
-         collection: TShirtMdmObject.COLLECTION,
+         collection: TeeShirt.COLLECTION,
          requiredProperties: ['sizes', 'colors', 'materials'],
          optionalProperties: ['washCare', 'brand', 'weightGrams', 'fitType']
       }
@@ -52,15 +52,15 @@ import { Mdm, MockMdmAdapter, MdmNature } from '@quatrain/mdm';
 // Register provider adapter
 Mdm.addAdapter(new MockMdmAdapter('default'), 'default', true);
 
-// Instantiate sample and register T-Shirt Archetype Spec & Model Class
-const tshirtSample = TShirtMdmObject.fromObject({ 
+// Instantiate sample and register TeeShirt Archetype Spec & Model Class
+const tshirtSample = TeeShirt.fromObject({ 
    name: 'T-Shirt Archetype',
    archetypeId: 'textile.tshirt',
    nature: MdmNature.PHYSICAL 
 });
 
 Mdm.registerArchetype(tshirtSample.getArchetypeSpec());
-Mdm.registerModel('textile.tshirt', TShirtMdmObject);
+Mdm.registerModel('textile.tshirt', TeeShirt);
 ```
 
 ---
@@ -92,7 +92,7 @@ const tshirtSpec: TextileGarmentSpecInterface = {
 };
 
 // 2. Instantiate T-Shirt Product Variant
-const tshirtVariant = TShirtMdmObject.fromObject({
+const tshirtVariant = TeeShirt.fromObject({
    uid: 'tshirt_organic_vneck_navy',
    name: 'Quatrain Organic V-Neck T-Shirt (Navy)',
    archetypeId: 'textile.tshirt',
@@ -114,7 +114,7 @@ Create an individual physical unit (serialized item or SKU instance) and manage 
 
 ```typescript
 // Create an individual physical unit instance
-const tshirtUnit = TShirtMdmObject.fromObject({
+const tshirtUnit = TeeShirt.fromObject({
    uid: 'unit_tshirt_sn_2026_0042',
    name: 'Quatrain T-Shirt - Size Medium Navy',
    archetypeId: 'textile.tshirt',

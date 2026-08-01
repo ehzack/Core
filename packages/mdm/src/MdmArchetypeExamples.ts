@@ -8,9 +8,9 @@ import { VirtualKeychainSpecInterface, VIRTUAL_KEYCHAIN_ONTOLOGY_DEFAULT } from 
 
 /**
  * Concrete Garment MDM Object Class (Extends AbstractMdmObject)
- * Collection name 'garments' is 100% compatible with SQL (SQLite/PostgreSQL/Supabase) and NoSQL.
+ * Clean class name 'Garment' (derived concrete class without 'MdmObject' suffix).
  */
-export class GarmentMdmObject extends AbstractMdmObject {
+export class Garment extends AbstractMdmObject {
    static COLLECTION = 'garments'
 
    getArchetypeSpec(): MdmArchetypeSpec {
@@ -18,7 +18,7 @@ export class GarmentMdmObject extends AbstractMdmObject {
          archetypeId: 'textile.garment',
          name: 'Garment Textile Item',
          nature: MdmNature.PHYSICAL,
-         collection: GarmentMdmObject.COLLECTION,
+         collection: Garment.COLLECTION,
          ontologyMapping: TEXTILE_GARMENT_ONTOLOGY_DEFAULT,
          requiredProperties: ['sizes', 'colors', 'materials'],
          optionalProperties: ['washCare', 'brand', 'weightGrams', 'fitType', 'ontologyMapping'],
@@ -32,9 +32,9 @@ export class GarmentMdmObject extends AbstractMdmObject {
 
 /**
  * Concrete Audio/Video Disk MDM Object Class (Extends AbstractMdmObject)
- * Collection name 'disks' is 100% compatible with SQL and NoSQL backends.
+ * Clean class name 'Disk' (derived concrete class without 'MdmObject' suffix).
  */
-export class DiskMdmObject extends AbstractMdmObject {
+export class Disk extends AbstractMdmObject {
    static COLLECTION = 'disks'
 
    getArchetypeSpec(): MdmArchetypeSpec {
@@ -42,7 +42,7 @@ export class DiskMdmObject extends AbstractMdmObject {
          archetypeId: 'media.disk',
          name: 'Audio/Video Media Disk',
          nature: MdmNature.PHYSICAL,
-         collection: DiskMdmObject.COLLECTION,
+         collection: Disk.COLLECTION,
          ontologyMapping: MEDIA_DISK_ONTOLOGY_DEFAULT,
          requiredProperties: ['format', 'durationSec', 'trackCount'],
          optionalProperties: ['rpm', 'genre', 'label', 'isrcCodes', 'catalogNumber', 'ontologyMapping'],
@@ -56,9 +56,9 @@ export class DiskMdmObject extends AbstractMdmObject {
 
 /**
  * Concrete Hardware IoT Device MDM Object Class (Extends AbstractMdmObject)
- * Collection name 'devices' is 100% compatible with SQL and NoSQL backends.
+ * Clean class name 'HardwareDevice' (derived concrete class without 'MdmObject' suffix).
  */
-export class HardwareDeviceMdmObject extends AbstractMdmObject {
+export class HardwareDevice extends AbstractMdmObject {
    static COLLECTION = 'devices'
 
    getArchetypeSpec(): MdmArchetypeSpec {
@@ -66,7 +66,7 @@ export class HardwareDeviceMdmObject extends AbstractMdmObject {
          archetypeId: 'hardware.device',
          name: 'IoT Hardware Device / Probe',
          nature: MdmNature.PHYSICAL,
-         collection: HardwareDeviceMdmObject.COLLECTION,
+         collection: HardwareDevice.COLLECTION,
          ontologyMapping: HARDWARE_DEVICE_ONTOLOGY_DEFAULT,
          requiredProperties: ['serialNumber', 'commCapabilities'],
          optionalProperties: ['powerCapabilities', 'sensorBuses', 'firmwareVersion', 'hardwareRevision', 'ontologyMapping'],
@@ -80,9 +80,9 @@ export class HardwareDeviceMdmObject extends AbstractMdmObject {
 
 /**
  * Concrete Virtual Keychain MDM Object Class (Extends AbstractMdmObject)
- * Collection name 'keychains' is 100% compatible with SQL and NoSQL backends.
+ * Clean class name 'VirtualKeychain' (derived concrete class without 'MdmObject' suffix).
  */
-export class VirtualKeychainMdmObject extends AbstractMdmObject {
+export class VirtualKeychain extends AbstractMdmObject {
    static COLLECTION = 'keychains'
 
    getArchetypeSpec(): MdmArchetypeSpec {
@@ -90,7 +90,7 @@ export class VirtualKeychainMdmObject extends AbstractMdmObject {
          archetypeId: 'virtual.keychain',
          name: 'Network Access Keychain Credentials',
          nature: MdmNature.VIRTUAL,
-         collection: VirtualKeychainMdmObject.COLLECTION,
+         collection: VirtualKeychain.COLLECTION,
          ontologyMapping: VIRTUAL_KEYCHAIN_ONTOLOGY_DEFAULT,
          requiredProperties: ['authMechanism', 'targetNetwork'],
          optionalProperties: ['scopes', 'expiresAt', 'maxUsageCount', 'ontologyMapping'],

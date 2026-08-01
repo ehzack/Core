@@ -1,10 +1,10 @@
 import { Mdm } from './Mdm'
 import { MockMdmAdapter } from './MockMdmAdapter'
 import { 
-   GarmentMdmObject, 
-   DiskMdmObject, 
-   HardwareDeviceMdmObject, 
-   VirtualKeychainMdmObject 
+   Garment, 
+   Disk, 
+   HardwareDevice, 
+   VirtualKeychain 
 } from './MdmArchetypeExamples'
 import { AbstractMdmObject } from './AbstractMdmObject'
 import { MdmArchetypeSpec } from './MdmArchetypeSpec'
@@ -16,9 +16,9 @@ import { AuthMechanism, VirtualKeychainSpecInterface, VIRTUAL_KEYCHAIN_ONTOLOGY_
 import { MdmStandardOntologies } from './domain/OntologyDomain'
 
 /**
- * Concrete T-Shirt MDM Model for HOWTO verification
+ * Concrete TeeShirt Model Class for HOWTO verification (Clean name without MdmObject suffix)
  */
-class TShirtMdmObject extends AbstractMdmObject {
+class TeeShirt extends AbstractMdmObject {
    static COLLECTION = 'tshirts'
 
    getArchetypeSpec(): MdmArchetypeSpec {
@@ -26,7 +26,7 @@ class TShirtMdmObject extends AbstractMdmObject {
          archetypeId: 'textile.tshirt',
          name: 'Organic Cotton T-Shirt',
          nature: MdmNature.PHYSICAL,
-         collection: TShirtMdmObject.COLLECTION,
+         collection: TeeShirt.COLLECTION,
          ontologyMapping: TEXTILE_GARMENT_ONTOLOGY_DEFAULT,
          requiredProperties: ['sizes', 'colors', 'materials'],
          optionalProperties: ['washCare', 'brand', 'weightGrams', 'fitType', 'ontologyMapping'],
@@ -38,7 +38,7 @@ class TShirtMdmObject extends AbstractMdmObject {
    }
 }
 
-describe('@quatrain/mdm Pivot Class, ENUMs, Recognized Ontologies & AbstractMdmObject Test Suite', () => {
+describe('@quatrain/mdm Pivot Class, ENUMs, Recognized Ontologies & Clean Concrete Classes Test Suite', () => {
    beforeEach(() => {
       const adapter = new MockMdmAdapter('default')
       Mdm.addAdapter(adapter, 'default', true)
@@ -51,9 +51,9 @@ describe('@quatrain/mdm Pivot Class, ENUMs, Recognized Ontologies & AbstractMdmO
    })
 
    it('should support recognized international ontologies (GS1 GPC, Schema.org, W3C SOSA, ISO/IEC 19770)', () => {
-      const garment = GarmentMdmObject.fromObject({ name: 'Jacket', archetypeId: 'textile.garment', nature: MdmNature.PHYSICAL })
-      const hardware = HardwareDeviceMdmObject.fromObject({ name: 'Sensor System', archetypeId: 'hardware.device', nature: MdmNature.PHYSICAL })
-      const virtualKeychain = VirtualKeychainMdmObject.fromObject({ name: 'OAuth Key', archetypeId: 'virtual.keychain', nature: MdmNature.VIRTUAL })
+      const garment = Garment.fromObject({ name: 'Jacket', archetypeId: 'textile.garment', nature: MdmNature.PHYSICAL })
+      const hardware = HardwareDevice.fromObject({ name: 'Sensor System', archetypeId: 'hardware.device', nature: MdmNature.PHYSICAL })
+      const virtualKeychain = VirtualKeychain.fromObject({ name: 'OAuth Key', archetypeId: 'virtual.keychain', nature: MdmNature.VIRTUAL })
 
       Mdm.registerArchetype(garment.getArchetypeSpec())
       Mdm.registerArchetype(hardware.getArchetypeSpec())
@@ -65,10 +65,10 @@ describe('@quatrain/mdm Pivot Class, ENUMs, Recognized Ontologies & AbstractMdmO
       expect(Mdm.getArchetype('virtual.keychain')?.ontologyMapping?.ontologyUri).toBe(MdmStandardOntologies.ISO_IEC_19770)
    })
 
-   it('should create and validate a T-Shirt product variant with GS1 / Schema.org ontology mapping and clean COLLECTION name', () => {
-      const tshirtSample = TShirtMdmObject.fromObject({ name: 'T-Shirt Archetype', archetypeId: 'textile.tshirt', nature: MdmNature.PHYSICAL })
+   it('should create and validate a TeeShirt product variant and inventory unit with clean class name', () => {
+      const tshirtSample = TeeShirt.fromObject({ name: 'T-Shirt Archetype', archetypeId: 'textile.tshirt', nature: MdmNature.PHYSICAL })
       Mdm.registerArchetype(tshirtSample.getArchetypeSpec())
-      Mdm.registerModel('textile.tshirt', TShirtMdmObject)
+      Mdm.registerModel('textile.tshirt', TeeShirt)
 
       const tshirtSpec: TextileGarmentSpecInterface = {
          sizes: [GarmentSize.SMALL, GarmentSize.MEDIUM, GarmentSize.LARGE, GarmentSize.EXTRA_LARGE],
@@ -82,7 +82,7 @@ describe('@quatrain/mdm Pivot Class, ENUMs, Recognized Ontologies & AbstractMdmO
          ontologyMapping: TEXTILE_GARMENT_ONTOLOGY_DEFAULT
       }
 
-      const tshirtVariant = TShirtMdmObject.fromObject({
+      const tshirtVariant = TeeShirt.fromObject({
          uid: 'tshirt_organic_vneck_navy',
          name: 'Quatrain Organic V-Neck T-Shirt (Navy)',
          archetypeId: 'textile.tshirt',
@@ -97,7 +97,7 @@ describe('@quatrain/mdm Pivot Class, ENUMs, Recognized Ontologies & AbstractMdmO
       expect(tshirtVariant.specifications.sizes).toContain(GarmentSize.MEDIUM)
       expect(tshirtVariant.specifications.ontologyMapping?.gs1GpcCode).toBe('10000024')
 
-      const tshirtUnit = TShirtMdmObject.fromObject({
+      const tshirtUnit = TeeShirt.fromObject({
          uid: 'unit_tshirt_sn_2026_0042',
          name: 'Quatrain T-Shirt - Size M Navy',
          archetypeId: 'textile.tshirt',
@@ -116,8 +116,8 @@ describe('@quatrain/mdm Pivot Class, ENUMs, Recognized Ontologies & AbstractMdmO
       )
    })
 
-   it('should validate missing required textile properties', () => {
-      const invalidGarment = GarmentMdmObject.fromObject({
+   it('should validate missing required textile properties on Garment instance', () => {
+      const invalidGarment = Garment.fromObject({
          uid: 'garment_002',
          name: 'Incomplete Coat',
          archetypeId: 'textile.garment',
@@ -132,7 +132,7 @@ describe('@quatrain/mdm Pivot Class, ENUMs, Recognized Ontologies & AbstractMdmO
       expect(() => invalidGarment.validateArchetypeSpecs()).toThrow(/MdmValidationError/)
    })
 
-   it('should support MediaDiskFormat ENUM and MediaDiskSpecInterface interface with Schema.org ontology', () => {
+   it('should support MediaDiskFormat ENUM and MediaDiskSpecInterface interface on Disk class', () => {
       const diskSpec: MediaDiskSpecInterface = {
          format: MediaDiskFormat.VINYL_12IN,
          durationSec: 2580,
@@ -142,7 +142,7 @@ describe('@quatrain/mdm Pivot Class, ENUMs, Recognized Ontologies & AbstractMdmO
          ontologyMapping: MEDIA_DISK_ONTOLOGY_DEFAULT
       }
 
-      const vinylDisk = DiskMdmObject.fromObject({
+      const vinylDisk = Disk.fromObject({
          uid: 'disk_vinyl_001',
          name: 'Dark Side of the Moon Vinyl',
          archetypeId: 'media.disk',
@@ -156,14 +156,14 @@ describe('@quatrain/mdm Pivot Class, ENUMs, Recognized Ontologies & AbstractMdmO
       expect(vinylDisk.specifications.ontologyMapping?.schemaOrgType).toBe('https://schema.org/MusicAlbum')
    })
 
-   it('should support Virtual Keychain Credentials and IoT Hardware Device archetypes using ENUMs and universal COLLECTION paths', () => {
+   it('should support VirtualKeychain and HardwareDevice archetypes', () => {
       const hardwareSpec: HardwareDeviceSpecInterface = {
          serialNumber: 'SN-BRAD-2026-99',
          commCapabilities: [CommTechnology.LORAWAN_TERRESTRIAL, CommTechnology.LORAWAN_SATELLITE, CommTechnology.CELLULAR_GSM],
          powerCapabilities: [PowerSource.SOLAR_MPPT, PowerSource.PRIMARY_LITHIUM]
       }
 
-      const probeDevice = HardwareDeviceMdmObject.fromObject({
+      const probeDevice = HardwareDevice.fromObject({
          uid: 'dev_probe_001',
          name: 'Soil Probe V2',
          archetypeId: 'hardware.device',
@@ -178,7 +178,7 @@ describe('@quatrain/mdm Pivot Class, ENUMs, Recognized Ontologies & AbstractMdmO
          scopes: ['gateway:connect']
       }
 
-      const keychain = VirtualKeychainMdmObject.fromObject({
+      const keychain = VirtualKeychain.fromObject({
          uid: 'keychain_wss_001',
          name: 'ChirpStack WSS Key',
          archetypeId: 'virtual.keychain',
