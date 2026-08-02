@@ -118,28 +118,27 @@ console.log(tshirtVariant.getVendors().map(v => v.val('name'))); // ['EcoApparel
 
 ---
 
-## 4. Instantiate a Physical Inventory Unit & Attach Subcollections
+## 4. Property Types Guidelines: Inline Maps vs Relational Collections
 
-Create an individual physical unit with `parent` referencing the variant:
+When declaring property definitions (`PROPS_DEFINITION`) in domain models:
+
+| Property Type | Source Package | Usage | Example |
+| :--- | :--- | :--- | :--- |
+| `MapProperty.TYPE` (`'map'`) | `@quatrain/core` | **Inline Group Dictionaries**: Autocontained JSON / JSONB maps stored directly in table columns. | `dimensions`, `vendor_info` |
+| `CollectionProperty.TYPE` (`'collection'`) | `@quatrain/backend` | **Relational Collections**: Child entities persisted as separate table rows with a parent foreign key. | `specifications`, `vendors` |
+| `ObjectProperty.TYPE` (`'object'`) | `@quatrain/core` | **Single Entity References**: Direct link to a single model instance. Requires `instanceOf: ClassName`. | `parent` |
 
 ```typescript
-// Create an individual physical unit instance
-const tshirtUnit = TeeShirt.fromObject({
-   name: 'Quatrain T-Shirt - Size Medium Navy',
-   archetypeId: 'textile.tshirt',
-   parent: tshirtVariant,
-   nature: MdmNature.PHYSICAL,
-   lifecycleState: 'AVAILABLE',
-});
+import { AbstractMdmObject } from '@quatrain/mdm'
+import { MapProperty } from '@quatrain/core'
 
-// Populate unit specifications
-tshirtUnit.setSpecificationsFromObject({
-   selectedSize: GarmentSize.MEDIUM,
-   selectedColor: TextileColor.NAVY_BLUE,
-   barcode: '3760000000042'
-});
-
-// Resolve child subcollection path for N attached certifications / tags
-const certificationsCollection = tshirtUnit.getSubcollectionName('certifications');
-// Result: 'tshirts/tshirts:default/certifications'
+export class Device extends AbstractMdmObject {
+   static COLLECTION = 'devices'
+   static PROPS_DEFINITION = [
+      ...AbstractMdmObject.PROPS_DEFINITION,
+      // Inline specification group JSONB map (use MapProperty.TYPE)
+      { name: 'dimensions', type: MapProperty.TYPE, required: false, default: { unitSystem: 'metric' } },
+      { name: 'vendor_info', type: MapProperty.TYPE, required: false, default: {} },
+   ] as typeof AbstractMdmObject.PROPS_DEFINITION
+}
 ```
