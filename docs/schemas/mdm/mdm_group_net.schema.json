@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://quatrain.dev/schemas/mdm/mdm_group_net.schema.json",
+  "title": "Network Connectivity Master Specification Group Schema",
+  "description": "Standard Quatrain MDM specification group for network interfaces and hardware sub-groups (eth, wifi, lorawan, gsm)",
+  "type": "object",
+  "scope": "unit",
+  "properties": {
+    "eth": {
+      "type": "object",
+      "title": "Ethernet Connectivity Sub-Group",
+      "properties": {
+        "macAddress": {
+          "type": "string",
+          "title": "MAC Address",
+          "pattern": "^([0-9A-Fa-f]{2}:){5}([0-9A-Fa-f]{2})$"
+        },
+        "speedMbps": {
+          "type": "number",
+          "title": "Port Speed (Mbps)",
+          "enum": [10, 100, 1000, 2500, 10000]
+        },
+        "poeSupported": {
+          "type": "boolean",
+          "title": "PoE Power Support",
+          "default": false
+        }
+      }
+    },
+    "wifi": {
+      "type": "object",
+      "title": "Wi-Fi Connectivity Sub-Group",
+      "properties": {
+        "macAddress": {
+          "type": "string",
+          "title": "Wi-Fi MAC Address",
+          "pattern": "^([0-9A-Fa-f]{2}:){5}([0-9A-Fa-f]{2})$"
+        },
+        "supportedStandards": {
+          "type": "array",
+          "title": "Supported Wi-Fi Standards",
+          "items": {
+            "type": "string",
+            "enum": ["802.11a", "802.11b", "802.11g", "802.11n", "802.11ac", "802.11ax"]
+          }
+        },
+        "frequencyBands": {
+          "type": "array",
+          "title": "Frequency Bands (GHz)",
+          "items": {
+            "type": "string",
+            "enum": ["2.4", "5.0", "6.0"]
+          }
+        }
+      }
+    },
+    "lorawan": {
+      "type": "object",
+      "title": "LoRaWAN Connectivity Sub-Group",
+      "properties": {
+        "devEui": {
+          "type": "string",
+          "title": "Device EUI (16 Hex)",
+          "pattern": "^[0-9A-Fa-f]{16}$"
+        },
+        "appEui": {
+          "type": "string",
+          "title": "Application EUI (16 Hex)",
+          "pattern": "^[0-9A-Fa-f]{16}$"
+        },
+        "frequencyBand": {
+          "type": "string",
+          "title": "LoRaWAN Regional Band",
+          "enum": ["EU868", "US915", "AU915", "AS923", "KR920"]
+        },
+        "activationMode": {
+          "type": "string",
+          "title": "Activation Mode",
+          "enum": ["OTAA", "ABP"],
+          "default": "OTAA"
+        }
+      }
+    },
+    "gsm": {
+      "type": "object",
+      "title": "Cellular / GSM Connectivity Sub-Group",
+      "properties": {
+        "imei": {
+          "type": "string",
+          "title": "IMEI Number",
+          "pattern": "^[0-9]{15}$"
+        },
+        "iccid": {
+          "type": "string",
+          "title": "SIM Card ICCID",
+          "pattern": "^[0-9]{18,20}$"
+        },
+        "technologies": {
+          "type": "array",
+          "title": "Cellular Network Technologies",
+          "items": {
+            "type": "string",
+            "enum": ["2G", "3G", "4G", "5G", "NB-IoT", "LTE-M"]
+          }
+        }
+      }
+    }
+  }
+}

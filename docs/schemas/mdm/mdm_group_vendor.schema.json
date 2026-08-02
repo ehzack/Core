@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://quatrain.dev/schemas/mdm/mdm_group_vendor.schema.json",
+  "title": "Vendor Relationship & Product Lifecycle Specification Group Schema",
+  "description": "Standard Quatrain MDM specification group for supplier link and manufacturing lifecycle status",
+  "type": "object",
+  "scope": "type",
+  "required": ["status"],
+  "properties": {
+    "vendorUri": {
+      "type": "string",
+      "title": "Vendor ObjectUri Reference",
+      "pattern": "^vendors/[a-zA-Z0-9_-]+$"
+    },
+    "vendorSku": {
+      "type": "string",
+      "title": "Vendor Product SKU"
+    },
+    "status": {
+      "type": "string",
+      "title": "Lifecycle Status",
+      "enum": ["ACTIVE", "EOL", "DISCONTINUED"],
+      "default": "ACTIVE"
+    },
+    "releaseDate": {
+      "type": "string",
+      "title": "Market Release Date",
+      "format": "date"
+    },
+    "eolDate": {
+      "type": "string",
+      "title": "End of Life Date",
+      "format": "date"
+    }
+  }
+}
