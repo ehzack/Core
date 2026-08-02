@@ -1,6 +1,6 @@
 /**
  * Reusable Standard Specification Groups Registry in @quatrain/mdm.
- * Allows domain models to reference standard Quatrain MDM groups (dimensions, vendor, net)
+ * Allows domain models to reference standard Quatrain MDM groups (dimensions, vendor, electrical, net)
  * and extend them locally.
  */
 export class MdmSpecGroups {
@@ -52,6 +52,26 @@ export class MdmSpecGroups {
          },
          releaseDate: { type: 'string', title: 'Market Release Date', format: 'date' },
          eolDate: { type: 'string', title: 'End of Life Date', format: 'date' }
+      }
+   }
+
+   public static readonly ELECTRICAL = {
+      $id: '@quatrain/mdm/groups/electrical',
+      type: 'object',
+      title: 'Electrical & Power Supply Specification Group',
+      description: 'Operating voltage ratings, current draw, power consumption and supply source',
+      properties: {
+         voltageNominalV: { type: 'number', title: 'Nominal Voltage (V)', minimum: 0 },
+         voltageMinV: { type: 'number', title: 'Minimum Voltage (V)', minimum: 0 },
+         voltageMaxV: { type: 'number', title: 'Maximum Voltage (V)', minimum: 0 },
+         currentMaxmA: { type: 'number', title: 'Peak Current Amperage (mA)', minimum: 0 },
+         powerActivemW: { type: 'number', title: 'Active Power Consumption (mW)', minimum: 0 },
+         powerSleepuW: { type: 'number', title: 'Sleep Standby Consumption (µW)', minimum: 0 },
+         powerSource: {
+            type: 'string',
+            title: 'Power Source',
+            enum: ['BATTERY', 'SOLAR_BATTERY', 'MAINS_AC', 'POE', 'DC_EXTERNAL']
+         }
       }
    }
 
@@ -128,6 +148,7 @@ export class MdmSpecGroups {
    static {
       this.registerGroup('@quatrain/mdm/groups/dimensions', this.DIMENSIONS)
       this.registerGroup('@quatrain/mdm/groups/vendor', this.VENDOR)
+      this.registerGroup('@quatrain/mdm/groups/electrical', this.ELECTRICAL)
       this.registerGroup('@quatrain/mdm/groups/net', this.NET)
       this.registerGroup('@quatrain/mdm/groups/net/eth', this.NET_ETH)
       this.registerGroup('@quatrain/mdm/groups/net/wifi', this.NET_WIFI)

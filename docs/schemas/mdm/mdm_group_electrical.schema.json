@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://quatrain.dev/schemas/mdm/mdm_group_electrical.schema.json",
+  "title": "Electrical & Power Supply Specification Group Schema",
+  "description": "Standard Quatrain MDM specification group for operating voltage ratings, peak amperage, power consumption and power source",
+  "type": "object",
+  "scope": "type",
+  "properties": {
+    "voltageNominalV": {
+      "type": "number",
+      "title": "Nominal Voltage (V)",
+      "minimum": 0
+    },
+    "voltageMinV": {
+      "type": "number",
+      "title": "Minimum Operating Voltage (V)",
+      "minimum": 0
+    },
+    "voltageMaxV": {
+      "type": "number",
+      "title": "Maximum Operating Voltage (V)",
+      "minimum": 0
+    },
+    "currentMaxmA": {
+      "type": "number",
+      "title": "Peak Current Amperage (mA)",
+      "minimum": 0
+    },
+    "powerActivemW": {
+      "type": "number",
+      "title": "Active Power Consumption (mW)",
+      "minimum": 0
+    },
+    "powerSleepuW": {
+      "type": "number",
+      "title": "Sleep Standby Consumption (µW)",
+      "minimum": 0
+    },
+    "powerSource": {
+      "type": "string",
+      "title": "Power Source",
+      "enum": ["BATTERY", "SOLAR_BATTERY", "MAINS_AC", "POE", "DC_EXTERNAL"]
+    }
+  }
+}
