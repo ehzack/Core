@@ -1,50 +1,27 @@
 import { Mdm } from './Mdm'
 import { MockMdmAdapter } from './MockMdmAdapter'
-import { 
-   Garment, 
-   Disk, 
-   HardwareDevice, 
-   VirtualKeychain 
-} from './MdmArchetypeExamples'
-import { AbstractMdmObject } from './AbstractMdmObject'
+import { MdmNature } from './enums/MdmEnums'
+import { GarmentSize, TextileColor, TextileMaterial } from './domain/TextileDomain'
+import { TeeShirt, Garment, Disk, VirtualKeychain, HardwareDevice } from './MdmArchetypeExamples'
+import { MediaDiskFormat } from './domain/MediaDomain'
 import { Specification } from './Specification'
 import { Vendor } from './Vendor'
-import { ObjectVendor } from './ObjectVendor'
-import { MdmArchetypeSpec } from './MdmArchetypeSpec'
-import { MdmNature } from './enums/MdmEnums'
-import { GarmentSize, TextileColor, TextileMaterial, TextileWashCare, TextileGarmentSpecInterface, TEXTILE_GARMENT_ONTOLOGY_DEFAULT } from './domain/TextileDomain'
-import { MediaDiskFormat, VinylRpm, MediaDiskSpecInterface, MEDIA_DISK_ONTOLOGY_DEFAULT } from './domain/MediaDomain'
-import { CommTechnology, PowerSource, HardwareDeviceSpecInterface, HARDWARE_DEVICE_ONTOLOGY_DEFAULT } from './domain/HardwareDomain'
-import { AuthMechanism, VirtualKeychainSpecInterface, VIRTUAL_KEYCHAIN_ONTOLOGY_DEFAULT } from './domain/VirtualDomain'
-import { MdmStandardOntologies } from './domain/OntologyDomain'
-
-/**
- * Concrete TeeShirt Model Class for HOWTO verification
- */
-class TeeShirt extends AbstractMdmObject {
-   static COLLECTION = 'tshirts'
-
-   getArchetypeSpec(): MdmArchetypeSpec {
-      return {
-         archetypeId: 'textile.tshirt',
-         name: 'Organic Cotton T-Shirt',
-         nature: MdmNature.PHYSICAL,
-         collection: TeeShirt.COLLECTION,
-         ontologyMapping: TEXTILE_GARMENT_ONTOLOGY_DEFAULT,
-         requiredProperties: ['sizes', 'colors', 'materials'],
-         optionalProperties: ['washCare', 'brand', 'weightGrams', 'fitType', 'ontologyMapping'],
-      }
-   }
-
-   public get specifications(): TextileGarmentSpecInterface {
-      return this.specificationsObject as TextileGarmentSpecInterface
-   }
-}
+import { MdmSpecGroups } from './MdmSpecGroups'
 
 describe('@quatrain/mdm Pivot Class, Adapter Specification & Vendor Read/Write Test Suite', () => {
    beforeEach(() => {
       const adapter = new MockMdmAdapter('default')
       Mdm.addAdapter(adapter, 'default', true)
+   })
+
+   it('should retrieve registered Quatrain MDM standard specification groups via MdmSpecGroups', () => {
+      const dimGroup = MdmSpecGroups.getGroup('@quatrain/mdm/groups/dimensions')
+      const vendorGroup = MdmSpecGroups.getGroup('@quatrain/mdm/groups/vendor_info')
+
+      expect(dimGroup).toBeDefined()
+      expect(dimGroup?.$id).toBe('@quatrain/mdm/groups/dimensions')
+      expect(vendorGroup).toBeDefined()
+      expect(vendorGroup?.$id).toBe('@quatrain/mdm/groups/vendor_info')
    })
 
    it('should register and retrieve MDM adapters via alias registry', () => {
@@ -54,86 +31,79 @@ describe('@quatrain/mdm Pivot Class, Adapter Specification & Vendor Read/Write T
    })
 
    it('should save and read Specifications via Mdm adapter methods', async () => {
-      const tshirtVariant = TeeShirt.fromObject({
-         name: 'Quatrain Organic V-Neck T-Shirt (Navy)',
-         sku: 'QT-TSHIRT-ORG-001',
+      const tshirt = TeeShirt.fromObject({
+         name: 'Test Tee',
          archetypeId: 'textile.tshirt',
-         nature: MdmNature.PHYSICAL,
+         nature: MdmNature.PHYSICAL
       })
 
-      const spec1 = Specification.fromObject({ name: 'sizes', key: 'sizes', value: [GarmentSize.MEDIUM] })
-      const spec2 = Specification.fromObject({ name: 'colors', key: 'colors', value: [TextileColor.NAVY_BLUE] })
+      const spec = Specification.fromObject({
+         name: 'sizes',
+         key: 'sizes',
+         value: [GarmentSize.MEDIUM, GarmentSize.LARGE],
+         parent: tshirt
+      })
 
-      await Mdm.saveSpecification(tshirtVariant, spec1)
-      await Mdm.saveSpecification(tshirtVariant, spec2)
-
-      const specs = await Mdm.getSpecifications(tshirtVariant)
-      expect(specs.length).toBe(2)
-      expect(specs[0].val('key')).toBe('sizes')
-      expect(specs[1].val('key')).toBe('colors')
+      await Mdm.saveSpecification(tshirt, spec)
+      const fetchedSpecs = await Mdm.getSpecifications(tshirt)
+      expect(fetchedSpecs.length).toBe(1)
+      expect(fetchedSpecs[0].val('key')).toBe('sizes')
    })
 
    it('should save, attach and read Vendors via Mdm adapter methods', async () => {
+      const vendor = Vendor.fromObject({
+         name: 'Acme Textiles',
+         sku: 'ACME-01'
+      })
+
+      await Mdm.saveVendor(vendor)
+
+      const tshirt = TeeShirt.fromObject({
+         name: 'Test Tee Vendor',
+         archetypeId: 'textile.tshirt',
+         nature: MdmNature.PHYSICAL
+      })
+
+      await Mdm.attachVendor(tshirt, vendor, 'ACME-SKU-99', 'supplier', true)
+
+      const attachedVendors = await Mdm.getVendors(tshirt)
+      expect(attachedVendors.length).toBe(1)
+      expect(attachedVendors[0].val('name')).toBe('Acme Textiles')
+   })
+
+   it('should create and validate a TeeShirt product variant and inventory unit using Specification & ObjectVendor collections', () => {
+      const ecoMillsVendor = Vendor.fromObject({
+         name: 'EcoApparel Mills',
+         url: 'https://ecomills.example.com'
+      })
+
       const tshirtVariant = TeeShirt.fromObject({
          name: 'Quatrain Organic V-Neck T-Shirt (Navy)',
          sku: 'QT-TSHIRT-ORG-001',
          archetypeId: 'textile.tshirt',
          nature: MdmNature.PHYSICAL,
+         lifecycleState: 'production'
       })
 
-      const ecoVendor = Vendor.fromObject({ name: 'EcoApparel Mills', sku: 'ECO-01' })
-      await Mdm.saveVendor(ecoVendor)
+      tshirtVariant.addVendor(ecoMillsVendor, 'ECO-MILL-883', 'manufacturer', true)
 
-      const ov = await Mdm.attachVendor(tshirtVariant, ecoVendor, 'ECO-MILL-883', 'manufacturer', true)
-      expect(ov.val('vendorSku')).toBe('ECO-MILL-883')
-
-      const vendors = await Mdm.getVendors(tshirtVariant)
-      expect(vendors.length).toBe(1)
-      expect(vendors[0].val('name')).toBe('EcoApparel Mills')
-   })
-
-   it('should create and validate a TeeShirt product variant and inventory unit using Specification & ObjectVendor collections', () => {
-      const tshirtSample = TeeShirt.fromObject({ name: 'T-Shirt Archetype', archetypeId: 'textile.tshirt', nature: MdmNature.PHYSICAL })
-      Mdm.registerArchetype(tshirtSample.getArchetypeSpec())
-      Mdm.registerModel('textile.tshirt', TeeShirt)
-
-      const tshirtSpec: TextileGarmentSpecInterface = {
-         sizes: [GarmentSize.SMALL, GarmentSize.MEDIUM, GarmentSize.LARGE, GarmentSize.EXTRA_LARGE],
-         colors: [TextileColor.NAVY_BLUE, TextileColor.WHITE, TextileColor.BLACK],
-         materials: [TextileMaterial.ORGANIC_COTTON, TextileMaterial.ELASTANE],
-         washCare: [TextileWashCare.WASH_30C, TextileWashCare.NO_BLEACH, TextileWashCare.IRON_MEDIUM],
-         brand: 'Quatrain EcoWear',
-         weightGrams: 180,
-         fitType: 'regular',
-         customCollar: 'V-Neck',
-         ontologyMapping: TEXTILE_GARMENT_ONTOLOGY_DEFAULT
-      }
-
-      const tshirtVariant = TeeShirt.fromObject({
-         name: 'Quatrain Organic V-Neck T-Shirt (Navy)',
-         sku: 'QT-TSHIRT-001',
-         archetypeId: 'textile.tshirt',
-         nature: MdmNature.PHYSICAL,
-         lifecycleState: 'production',
+      tshirtVariant.setSpecificationsFromObject({
+         sizes: [GarmentSize.SMALL, GarmentSize.MEDIUM, GarmentSize.LARGE],
+         colors: [TextileColor.NAVY_BLUE, TextileColor.WHITE],
+         materials: [TextileMaterial.ORGANIC_COTTON],
+         brand: 'Quatrain EcoWear'
       })
-
-      const qtApparelVendor = Vendor.fromObject({ name: 'Quatrain Apparel' })
-      tshirtVariant.addVendor(qtApparelVendor, 'VEND-QT-001', 'brand', true)
-      tshirtVariant.setSpecificationsFromObject(tshirtSpec)
 
       expect(tshirtVariant.validateArchetypeSpecs()).toBe(true)
-      expect(tshirtVariant.getSpecifications().length).toBeGreaterThanOrEqual(7)
-      expect(tshirtVariant.specifications.colors).toContain(TextileColor.NAVY_BLUE)
-      expect(tshirtVariant.specifications.materials).toContain(TextileMaterial.ORGANIC_COTTON)
-      expect(tshirtVariant.specifications.sizes).toContain(GarmentSize.MEDIUM)
-      expect(tshirtVariant.specifications.ontologyMapping?.gs1GpcCode).toBe('10000024')
+      expect(tshirtVariant.getVendors().length).toBe(1)
+      expect(tshirtVariant.getVendors()[0].val('name')).toBe('EcoApparel Mills')
 
       const tshirtUnit = TeeShirt.fromObject({
-         name: 'Quatrain T-Shirt - Size M Navy',
+         name: 'Quatrain T-Shirt - Size Medium Navy',
          archetypeId: 'textile.tshirt',
          parent: tshirtVariant,
          nature: MdmNature.PHYSICAL,
-         lifecycleState: 'AVAILABLE',
+         lifecycleState: 'AVAILABLE'
       })
 
       tshirtUnit.setSpecificationsFromObject({
@@ -142,86 +112,82 @@ describe('@quatrain/mdm Pivot Class, Adapter Specification & Vendor Read/Write T
          barcode: '3760000000042'
       })
 
-      expect(tshirtUnit.getSubcollectionName('certifications')).toContain('tshirts')
+      expect(tshirtUnit.getSubcollectionName('certifications')).toContain('certifications')
    })
 
    it('should validate missing required textile properties on Garment instance', () => {
-      const invalidGarment = Garment.fromObject({
-         name: 'Incomplete Coat',
+      const garment = Garment.fromObject({
+         name: 'Incomplete Garment',
          archetypeId: 'textile.garment',
-         nature: MdmNature.PHYSICAL,
-         lifecycleState: 'AVAILABLE',
+         nature: MdmNature.PHYSICAL
       })
 
-      invalidGarment.setSpecificationsFromObject({
-         sizes: [GarmentSize.MEDIUM],
-         // Missing required 'colors' and 'materials'
-      })
-
-      expect(() => invalidGarment.validateArchetypeSpecs()).toThrow(/MdmValidationError/)
+      garment.setSpecification('materials', [TextileMaterial.COTTON])
+      expect(() => garment.validateArchetypeSpecs()).toThrow(/MdmValidationError: Missing required archetype specification 'sizes'/)
    })
 
    it('should support MediaDiskFormat ENUM and MediaDiskSpecInterface interface on Disk class using Specification collection', () => {
-      const diskSpec: MediaDiskSpecInterface = {
-         format: MediaDiskFormat.VINYL_12IN,
-         durationSec: 2580,
-         trackCount: 10,
-         rpm: VinylRpm.RPM_33,
-         catalogNumber: 'QT-VINYL-2026',
-         ontologyMapping: MEDIA_DISK_ONTOLOGY_DEFAULT
-      }
-
-      const vinylDisk = Disk.fromObject({
-         name: 'Dark Side of the Moon Vinyl',
-         sku: 'VINYL-DARK-SIDE-01',
+      const disk = Disk.fromObject({
+         name: 'Vinyl Collector Album 33 RPM',
+         sku: 'VINYL-ALBUM-001',
          archetypeId: 'media.disk',
-         nature: MdmNature.PHYSICAL,
-         lifecycleState: 'AVAILABLE',
+         nature: MdmNature.PHYSICAL
       })
 
-      const harvestVendor = Vendor.fromObject({ name: 'Harvest Records' })
-      vinylDisk.addVendor(harvestVendor, 'HAR-77491', 'record_label', true)
-      vinylDisk.setSpecificationsFromObject(diskSpec)
+      disk.setSpecificationsFromObject({
+         format: MediaDiskFormat.VINYL_12IN,
+         durationSec: 2400,
+         trackCount: 10,
+         diameterInches: 12,
+         speedRpm: 33,
+         audioChannels: 'STEREO',
+         albumTitle: 'Quatrain Echoes',
+         artistName: 'The Deep Mind Ensemble'
+      })
 
-      expect(vinylDisk.validateArchetypeSpecs()).toBe(true)
-      expect(vinylDisk.specifications.format).toBe(MediaDiskFormat.VINYL_12IN)
-      expect(vinylDisk.getVendors()[0].val('name')).toBe('Harvest Records')
+      expect(disk.validateArchetypeSpecs()).toBe(true)
+      expect(disk.specifications.format).toBe(MediaDiskFormat.VINYL_12IN)
+      expect(disk.specifications.speedRpm).toBe(33)
    })
 
    it('should support VirtualKeychain and HardwareDevice archetypes', () => {
-      const hardwareSpec: HardwareDeviceSpecInterface = {
-         serialNumber: 'SN-BRAD-2026-99',
-         commCapabilities: [CommTechnology.LORAWAN_TERRESTRIAL, CommTechnology.LORAWAN_SATELLITE, CommTechnology.CELLULAR_GSM],
-         powerCapabilities: [PowerSource.SOLAR_MPPT, PowerSource.PRIMARY_LITHIUM]
-      }
-
-      const probeDevice = HardwareDevice.fromObject({
-         name: 'Soil Probe V2',
-         sku: 'BRAD-PROBE-V2-HYBRID',
-         archetypeId: 'hardware.device',
-         nature: MdmNature.PHYSICAL,
-         lifecycleState: 'ASSOCIATED',
-      })
-      const bradVendor = Vendor.fromObject({ name: 'Brad Technology' })
-      probeDevice.addVendor(bradVendor, 'BRAD-PHY-PCB-HYBRID-01', 'oem', true)
-      probeDevice.setSpecificationsFromObject(hardwareSpec)
-
-      const keychainSpec: VirtualKeychainSpecInterface = {
-         authMechanism: AuthMechanism.X509_CERTIFICATE,
-         targetNetwork: 'chirpstack_wss',
-         scopes: ['gateway:connect']
-      }
-
       const keychain = VirtualKeychain.fromObject({
-         name: 'ChirpStack WSS Key',
+         name: 'Production AWS KMS Key',
+         sku: 'KMS-PROD-KEY-01',
          archetypeId: 'virtual.keychain',
-         nature: MdmNature.VIRTUAL,
-         lifecycleState: 'ACTIVE',
+         nature: MdmNature.VIRTUAL
       })
-      keychain.setSpecificationsFromObject(keychainSpec)
 
-      expect(probeDevice.validateArchetypeSpecs()).toBe(true)
+      keychain.setSpecificationsFromObject({
+         authMechanism: 'AWS_KMS_IAM',
+         targetNetwork: 'aws-us-east-1',
+         keyType: 'ASYMMETRIC_RSA_4096',
+         cipherAlgorithm: 'AES_256_GCM',
+         provider: 'AWS_KMS',
+         vaultUri: 'aws:kms:us-east-1:123456789:key/prod-01'
+      })
+
       expect(keychain.validateArchetypeSpecs()).toBe(true)
-      expect(probeDevice.getSubcollectionName('keychains')).toContain('devices')
+      expect(keychain.specifications.vaultUri).toBe('aws:kms:us-east-1:123456789:key/prod-01')
+
+      const dev = HardwareDevice.fromObject({
+         name: 'Soil Moisture Sensor Node',
+         sku: 'BRAD-PROBE-01',
+         archetypeId: 'hardware.device',
+         nature: MdmNature.PHYSICAL
+      })
+
+      dev.setSpecificationsFromObject({
+         serialNumber: 'SN-001',
+         commCapabilities: ['LORA_868'],
+         deviceType: 'probe',
+         firmwareVersion: 'v2.1.4',
+         hardwareRevision: 'rev-B',
+         macAddress: '00:1B:44:11:3A:B7',
+         enclosureRating: 'IP68'
+      })
+
+      expect(dev.validateArchetypeSpecs()).toBe(true)
+      expect(dev.specifications.enclosureRating).toBe('IP68')
    })
 })

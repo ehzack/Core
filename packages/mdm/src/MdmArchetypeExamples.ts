@@ -31,6 +31,25 @@ export class Garment extends AbstractMdmObject {
 }
 
 /**
+ * Concrete TeeShirt Model Class (Extends Garment)
+ */
+export class TeeShirt extends Garment {
+   static COLLECTION = 'tshirts'
+
+   getArchetypeSpec(): MdmArchetypeSpec {
+      return {
+         archetypeId: 'textile.tshirt',
+         name: 'Organic Cotton T-Shirt',
+         nature: MdmNature.PHYSICAL,
+         collection: TeeShirt.COLLECTION,
+         ontologyMapping: TEXTILE_GARMENT_ONTOLOGY_DEFAULT,
+         requiredProperties: ['sizes', 'colors', 'materials'],
+         optionalProperties: ['washCare', 'brand', 'weightGrams', 'fitType', 'ontologyMapping'],
+      }
+   }
+}
+
+/**
  * Concrete Audio/Video Disk MDM Object Class (Extends AbstractMdmObject)
  * Enforces MediaDiskSpecInterface over child Specification collection.
  */
