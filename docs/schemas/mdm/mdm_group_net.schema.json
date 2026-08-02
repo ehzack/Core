@@ -1,11 +1,16 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://quatrain.dev/schemas/mdm/mdm_group_net.schema.json",
-  "title": "Network Connectivity Master Specification Group Schema",
-  "description": "Standard Quatrain MDM specification group for network interfaces and hardware sub-groups (eth, wifi, lorawan, gsm)",
+  "title": "Network Connectivity Master Specification Group Schema (Unit-Level)",
+  "description": "Standard Quatrain MDM specification group for network interfaces, deployment power source and hardware sub-groups (eth, wifi, lorawan, gsm)",
   "type": "object",
   "scope": "unit",
   "properties": {
+    "powerSource": {
+      "type": "string",
+      "title": "Deployment Unit Power Source",
+      "enum": ["BATTERY", "SOLAR_BATTERY", "MAINS_AC", "POE", "DC_EXTERNAL"]
+    },
     "eth": {
       "type": "object",
       "title": "Ethernet Connectivity Sub-Group",

@@ -58,20 +58,15 @@ export class MdmSpecGroups {
    public static readonly ELECTRICAL = {
       $id: '@quatrain/mdm/groups/electrical',
       type: 'object',
-      title: 'Electrical & Power Supply Specification Group',
-      description: 'Operating voltage ratings, current draw, power consumption and supply source',
+      title: 'Electrical Hardware Ratings Specification Group (Type-Level)',
+      description: 'Static hardware operating voltage ratings, peak current draw and active/sleep power consumption',
       properties: {
          voltageNominalV: { type: 'number', title: 'Nominal Voltage (V)', minimum: 0 },
-         voltageMinV: { type: 'number', title: 'Minimum Voltage (V)', minimum: 0 },
-         voltageMaxV: { type: 'number', title: 'Maximum Voltage (V)', minimum: 0 },
+         voltageMinV: { type: 'number', title: 'Minimum Operating Voltage (V)', minimum: 0 },
+         voltageMaxV: { type: 'number', title: 'Maximum Operating Voltage (V)', minimum: 0 },
          currentMaxmA: { type: 'number', title: 'Peak Current Amperage (mA)', minimum: 0 },
          powerActivemW: { type: 'number', title: 'Active Power Consumption (mW)', minimum: 0 },
-         powerSleepuW: { type: 'number', title: 'Sleep Standby Consumption (µW)', minimum: 0 },
-         powerSource: {
-            type: 'string',
-            title: 'Power Source',
-            enum: ['BATTERY', 'SOLAR_BATTERY', 'MAINS_AC', 'POE', 'DC_EXTERNAL']
-         }
+         powerSleepuW: { type: 'number', title: 'Sleep Standby Consumption (µW)', minimum: 0 }
       }
    }
 
@@ -135,9 +130,14 @@ export class MdmSpecGroups {
    public static readonly NET = {
       $id: '@quatrain/mdm/groups/net',
       type: 'object',
-      title: 'Network & Connectivity Master Specification Group',
-      description: 'Network connectivity interfaces and hardware sub-groups (eth, wifi, lorawan, gsm)',
+      title: 'Network & Connectivity Master Specification Group (Unit-Level)',
+      description: 'Network connectivity interfaces, unit power source and hardware sub-groups (eth, wifi, lorawan, gsm)',
       properties: {
+         powerSource: {
+            type: 'string',
+            title: 'Deployment Unit Power Source',
+            enum: ['BATTERY', 'SOLAR_BATTERY', 'MAINS_AC', 'POE', 'DC_EXTERNAL']
+         },
          eth: this.NET_ETH,
          wifi: this.NET_WIFI,
          lorawan: this.NET_LORAWAN,

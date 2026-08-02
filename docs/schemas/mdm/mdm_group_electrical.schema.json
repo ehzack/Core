@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://quatrain.dev/schemas/mdm/mdm_group_electrical.schema.json",
-  "title": "Electrical & Power Supply Specification Group Schema",
-  "description": "Standard Quatrain MDM specification group for operating voltage ratings, peak amperage, power consumption and power source",
+  "title": "Electrical Hardware Ratings Specification Group Schema (Type-Level)",
+  "description": "Standard Quatrain MDM specification group for static hardware operating voltage ratings, peak amperage, and active/sleep power consumption",
   "type": "object",
   "scope": "type",
   "properties": {
@@ -35,11 +35,6 @@
       "type": "number",
       "title": "Sleep Standby Consumption (µW)",
       "minimum": 0
-    },
-    "powerSource": {
-      "type": "string",
-      "title": "Power Source",
-      "enum": ["BATTERY", "SOLAR_BATTERY", "MAINS_AC", "POE", "DC_EXTERNAL"]
     }
   }
 }
