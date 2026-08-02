@@ -1,6 +1,6 @@
 /**
  * Reusable Standard Specification Groups Registry in @quatrain/mdm.
- * Allows domain models to reference standard Quatrain MDM groups (dimensions, vendor, electrical, net)
+ * Allows domain models to reference standard Quatrain MDM groups (dimensions, vendor, electrical, network)
  * and extend them locally.
  */
 export class MdmSpecGroups {
@@ -61,28 +61,28 @@ export class MdmSpecGroups {
       title: 'Electrical Hardware Ratings Specification Group (Type-Level)',
       description: 'Static hardware operating voltage ratings, peak current draw and active/sleep power consumption',
       properties: {
-         voltageNominalV: { type: 'number', title: 'Nominal Voltage (V)', minimum: 0 },
-         voltageMinV: { type: 'number', title: 'Minimum Operating Voltage (V)', minimum: 0 },
-         voltageMaxV: { type: 'number', title: 'Maximum Operating Voltage (V)', minimum: 0 },
-         currentMaxmA: { type: 'number', title: 'Peak Current Amperage (mA)', minimum: 0 },
-         powerActivemW: { type: 'number', title: 'Active Power Consumption (mW)', minimum: 0 },
-         powerSleepuW: { type: 'number', title: 'Sleep Standby Consumption (µW)', minimum: 0 }
+         voltageNominal: { type: 'number', title: 'Nominal Voltage (V)', minimum: 0 },
+         voltageMin: { type: 'number', title: 'Minimum Operating Voltage (V)', minimum: 0 },
+         voltageMax: { type: 'number', title: 'Maximum Operating Voltage (V)', minimum: 0 },
+         currentMax: { type: 'number', title: 'Peak Current Amperage (mA)', minimum: 0 },
+         powerActive: { type: 'number', title: 'Active Power Consumption (mW)', minimum: 0 },
+         powerSleep: { type: 'number', title: 'Sleep Standby Consumption (µW)', minimum: 0 }
       }
    }
 
-   public static readonly NET_ETH = {
-      $id: '@quatrain/mdm/groups/net/eth',
+   public static readonly NETWORK_ETH = {
+      $id: '@quatrain/mdm/groups/network/eth',
       type: 'object',
       title: 'Ethernet Connectivity Sub-Group',
       properties: {
          macAddress: { type: 'string', title: 'MAC Address', pattern: '^([0-9A-Fa-f]{2}:){5}([0-9A-Fa-f]{2})$' },
-         speedMbps: { type: 'number', title: 'Port Speed (Mbps)', enum: [10, 100, 1000, 2500, 10000] },
+         speed: { type: 'number', title: 'Port Speed (Mbps)', enum: [10, 100, 1000, 2500, 10000] },
          poeSupported: { type: 'boolean', title: 'PoE Power Support', default: false }
       }
    }
 
-   public static readonly NET_WIFI = {
-      $id: '@quatrain/mdm/groups/net/wifi',
+   public static readonly NETWORK_WIFI = {
+      $id: '@quatrain/mdm/groups/network/wifi',
       type: 'object',
       title: 'Wi-Fi Connectivity Sub-Group',
       properties: {
@@ -100,8 +100,8 @@ export class MdmSpecGroups {
       }
    }
 
-   public static readonly NET_LORAWAN = {
-      $id: '@quatrain/mdm/groups/net/lorawan',
+   public static readonly NETWORK_LORAWAN = {
+      $id: '@quatrain/mdm/groups/network/lorawan',
       type: 'object',
       title: 'LoRaWAN Connectivity Sub-Group',
       properties: {
@@ -112,8 +112,8 @@ export class MdmSpecGroups {
       }
    }
 
-   public static readonly NET_GSM = {
-      $id: '@quatrain/mdm/groups/net/gsm',
+   public static readonly NETWORK_GSM = {
+      $id: '@quatrain/mdm/groups/network/gsm',
       type: 'object',
       title: 'Cellular / GSM Connectivity Sub-Group',
       properties: {
@@ -127,8 +127,8 @@ export class MdmSpecGroups {
       }
    }
 
-   public static readonly NET = {
-      $id: '@quatrain/mdm/groups/net',
+   public static readonly NETWORK = {
+      $id: '@quatrain/mdm/groups/network',
       type: 'object',
       title: 'Network & Connectivity Master Specification Group (Unit-Level)',
       description: 'Network connectivity interfaces, unit power source and hardware sub-groups (eth, wifi, lorawan, gsm)',
@@ -138,10 +138,10 @@ export class MdmSpecGroups {
             title: 'Deployment Unit Power Source',
             enum: ['BATTERY', 'SOLAR_BATTERY', 'MAINS_AC', 'POE', 'DC_EXTERNAL']
          },
-         eth: this.NET_ETH,
-         wifi: this.NET_WIFI,
-         lorawan: this.NET_LORAWAN,
-         gsm: this.NET_GSM
+         eth: this.NETWORK_ETH,
+         wifi: this.NETWORK_WIFI,
+         lorawan: this.NETWORK_LORAWAN,
+         gsm: this.NETWORK_GSM
       }
    }
 
@@ -149,11 +149,11 @@ export class MdmSpecGroups {
       this.registerGroup('@quatrain/mdm/groups/dimensions', this.DIMENSIONS)
       this.registerGroup('@quatrain/mdm/groups/vendor', this.VENDOR)
       this.registerGroup('@quatrain/mdm/groups/electrical', this.ELECTRICAL)
-      this.registerGroup('@quatrain/mdm/groups/net', this.NET)
-      this.registerGroup('@quatrain/mdm/groups/net/eth', this.NET_ETH)
-      this.registerGroup('@quatrain/mdm/groups/net/wifi', this.NET_WIFI)
-      this.registerGroup('@quatrain/mdm/groups/net/lorawan', this.NET_LORAWAN)
-      this.registerGroup('@quatrain/mdm/groups/net/gsm', this.NET_GSM)
+      this.registerGroup('@quatrain/mdm/groups/network', this.NETWORK)
+      this.registerGroup('@quatrain/mdm/groups/network/eth', this.NETWORK_ETH)
+      this.registerGroup('@quatrain/mdm/groups/network/wifi', this.NETWORK_WIFI)
+      this.registerGroup('@quatrain/mdm/groups/network/lorawan', this.NETWORK_LORAWAN)
+      this.registerGroup('@quatrain/mdm/groups/network/gsm', this.NETWORK_GSM)
    }
 
    public static registerGroup(groupId: string, schema: Record<string, unknown>): void {

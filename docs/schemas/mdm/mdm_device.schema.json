@@ -10,12 +10,12 @@
     { "key": "dimensions", "scope": "type", "$ref": "https://quatrain.dev/schemas/mdm/mdm_group_dimensions.schema.json" },
     { "key": "vendor", "scope": "type", "$ref": "https://quatrain.dev/schemas/mdm/mdm_group_vendor.schema.json" },
     { "key": "electrical", "scope": "type", "$ref": "https://quatrain.dev/schemas/mdm/mdm_group_electrical.schema.json" },
-    { "key": "net", "scope": "unit", "$ref": "https://quatrain.dev/schemas/mdm/mdm_group_net.schema.json" }
+    { "key": "network", "scope": "unit", "$ref": "https://quatrain.dev/schemas/mdm/mdm_group_network.schema.json" }
   ],
-  "requiredProperties": ["dimensions", "vendor", "electrical", "net"],
+  "requiredProperties": ["dimensions", "vendor", "electrical", "network"],
   "jsonSchema": {
     "type": "object",
-    "required": ["dimensions", "vendor", "electrical", "net"],
+    "required": ["dimensions", "vendor", "electrical", "network"],
     "properties": {
       "dimensions": {
         "$ref": "https://quatrain.dev/schemas/mdm/mdm_group_dimensions.schema.json"
@@ -26,8 +26,8 @@
       "electrical": {
         "$ref": "https://quatrain.dev/schemas/mdm/mdm_group_electrical.schema.json"
       },
-      "net": {
-        "$ref": "https://quatrain.dev/schemas/mdm/mdm_group_net.schema.json"
+      "network": {
+        "$ref": "https://quatrain.dev/schemas/mdm/mdm_group_network.schema.json"
       }
     }
   }

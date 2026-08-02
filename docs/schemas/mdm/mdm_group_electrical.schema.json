@@ -6,32 +6,32 @@
   "type": "object",
   "scope": "type",
   "properties": {
-    "voltageNominalV": {
+    "voltageNominal": {
       "type": "number",
       "title": "Nominal Voltage (V)",
       "minimum": 0
     },
-    "voltageMinV": {
+    "voltageMin": {
       "type": "number",
       "title": "Minimum Operating Voltage (V)",
       "minimum": 0
     },
-    "voltageMaxV": {
+    "voltageMax": {
       "type": "number",
       "title": "Maximum Operating Voltage (V)",
       "minimum": 0
     },
-    "currentMaxmA": {
+    "currentMax": {
       "type": "number",
       "title": "Peak Current Amperage (mA)",
       "minimum": 0
     },
-    "powerActivemW": {
+    "powerActive": {
       "type": "number",
       "title": "Active Power Consumption (mW)",
       "minimum": 0
     },
-    "powerSleepuW": {
+    "powerSleep": {
       "type": "number",
       "title": "Sleep Standby Consumption (µW)",
       "minimum": 0
