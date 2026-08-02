@@ -15,6 +15,8 @@ import { ObjectVendor } from './ObjectVendor'
 export abstract class AbstractMdmObject extends PersistedBaseObject {
    static COLLECTION = 'objects'
    static PROPS_DEFINITION = [
+      { name: 'id', type: StringProperty.TYPE, required: false },
+      { name: 'uid', type: StringProperty.TYPE, required: false },
       { name: 'name', type: StringProperty.TYPE, required: true },
       { name: 'sku', type: StringProperty.TYPE, required: false },
       { name: 'archetypeId', type: StringProperty.TYPE, required: true },
@@ -80,12 +82,12 @@ export abstract class AbstractMdmObject extends PersistedBaseObject {
 
    /**
     * Returns the subcollection path for Specifications attached to this parent object.
-    * Scheme: <COLLECTION>/<uri_path>/specifications
+    * Scheme: <COLLECTION>/<id>/specifications
     */
    public get specificationsCollectionName(): string {
-      const uriPath = this.dataObject.uri ? this.dataObject.uri.path : this.dataObject.uid || ''
       const collectionName = (this.constructor as typeof AbstractMdmObject).COLLECTION
-      return `${collectionName}/${uriPath}/specifications`
+      const id = this.val('id') || this.val('uid') || this.dataObject.uid || (this.dataObject.uri ? this.dataObject.uri.path.split('/').pop() : '') || ''
+      return `${collectionName}/${id}/specifications`
    }
 
    /**
@@ -170,12 +172,12 @@ export abstract class AbstractMdmObject extends PersistedBaseObject {
 
    /**
     * Returns the subcollection path for attaching N child subitems linked to this parent object.
-    * Scheme: <COLLECTION>/<uri_path>/<subcollection>
+    * Scheme: <COLLECTION>/<id>/<subcollection>
     */
    public getSubcollectionName(subcollection: string): string {
-      const uriPath = this.dataObject.uri ? this.dataObject.uri.path : this.dataObject.uid || ''
       const collectionName = (this.constructor as typeof AbstractMdmObject).COLLECTION
-      return `${collectionName}/${uriPath}/${subcollection}`
+      const id = this.val('id') || this.val('uid') || this.dataObject.uid || (this.dataObject.uri ? this.dataObject.uri.path.split('/').pop() : '') || ''
+      return `${collectionName}/${id}/${subcollection}`
    }
 }
 
