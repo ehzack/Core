@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://quatrain.dev/schemas/mdm/mdm_group_dimensions.schema.json",
+  "$id": "https://quatrain.dev/schemas/mdm/group_dimensions.schema.json",
   "title": "Physical Dimensions & Enclosure Specification Group Schema",
   "description": "Standard Quatrain MDM specification group for physical dimensions (metric/imperial) and ingress protection rating",
   "type": "object",

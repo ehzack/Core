@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://quatrain.dev/schemas/mdm/mdm_group_vendor.schema.json",
+  "$id": "https://quatrain.dev/schemas/mdm/group_vendor.schema.json",
   "title": "Vendor Relationship & Product Lifecycle Specification Group Schema",
   "description": "Standard Quatrain MDM specification group for supplier link and manufacturing lifecycle status",
   "type": "object",

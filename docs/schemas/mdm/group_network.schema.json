@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://quatrain.dev/schemas/mdm/mdm_group_network.schema.json",
+  "$id": "https://quatrain.dev/schemas/mdm/group_network.schema.json",
   "title": "Network Connectivity Master Specification Group Schema (Unit-Level)",
   "description": "Standard Quatrain MDM specification group for network interfaces, deployment power source and hardware sub-groups (eth, wifi, lorawan, gsm)",
   "type": "object",

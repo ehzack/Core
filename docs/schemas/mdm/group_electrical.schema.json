@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://quatrain.dev/schemas/mdm/mdm_group_electrical.schema.json",
+  "$id": "https://quatrain.dev/schemas/mdm/group_electrical.schema.json",
   "title": "Electrical Hardware Ratings Specification Group Schema (Type-Level)",
   "description": "Standard Quatrain MDM specification group for static hardware operating voltage ratings, peak amperage, and active/sleep power consumption",
   "type": "object",
