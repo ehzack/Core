@@ -100,9 +100,9 @@
     "last_published": "2026-07-09T10:20:33.883Z"
   },
   "@quatrain/worker": {
-    "version": "1.2.10",
-    "hash": "fOk4DemwT4k0EuCceDzBwTyxhSY=-6c7ce11befee6ce336ae697260fe41511014e8bb831595305333e6549b30ccff",
-    "last_published": "2026-07-28T14:17:57.826Z"
+    "version": "1.2.11",
+    "hash": "XZzVuSHewVwVIXy31X0gJBxB8mc=-6c7ce11befee6ce336ae697260fe41511014e8bb831595305333e6549b30ccff",
+    "last_published": "2026-08-11T13:57:48.573Z"
   },
   "@quatrain/testing": {
     "version": "1.1.4",
@@ -383,5 +383,10 @@
     "version": "1.0.1",
     "hash": "fn3znzxhHVeAAIw824KjX9OJJL0=-5bf8ccbe01954f2d71e05515d57923b8b111306f460d77bd2c38f75b0d845446",
     "last_published": "2026-07-24T13:16:08.626Z"
+  },
+  "@quatrain/mdm": {
+    "version": "1.0.1",
+    "hash": "aEzydtPgR9RBMznSdLl08Equk2c=-db9eea82f74fa5d4280e790a45c0e3b71a6bec0c18e4c2bdfd4eba008f9ad842",
+    "last_published": "2026-08-11T13:57:41.722Z"
   }
 }

@@ -3624,6 +3624,24 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@quatrain/mdm@workspace:packages/mdm":
+  version: 0.0.0-use.local
+  resolution: "@quatrain/mdm@workspace:packages/mdm"
+  dependencies:
+    "@quatrain/backend": "workspace:*"
+    "@quatrain/core": "workspace:*"
+    "@quatrain/log": "workspace:*"
+    "@quatrain/state-machine": "workspace:*"
+    "@quatrain/types": "workspace:*"
+    "@tsconfig/recommended": "npm:^1.0.1"
+    "@types/jest": "npm:^29.5.12"
+    "@types/node": "npm:^22.10.1"
+    jest: "npm:^29.7.0"
+    ts-jest: "npm:^29.4.6"
+    typescript: "npm:^5.2.2"
+  languageName: unknown
+  linkType: soft
+
 "@quatrain/messaging-firebase@workspace:packages/messaging-firebase":
   version: 0.0.0-use.local
   resolution: "@quatrain/messaging-firebase@workspace:packages/messaging-firebase"
@@ -3818,7 +3836,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@quatrain/state-machine@workspace:packages/state-machine":
+"@quatrain/state-machine@workspace:*, @quatrain/state-machine@workspace:packages/state-machine":
   version: 0.0.0-use.local
   resolution: "@quatrain/state-machine@workspace:packages/state-machine"
   dependencies:
