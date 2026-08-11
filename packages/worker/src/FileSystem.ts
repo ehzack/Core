@@ -116,74 +116,31 @@ export class FileSystem {
       Worker.info(`Uploading file ${filename} to ${meta.uploadUrl}`)
       const { size } = fs.statSync(filename)
 
-      if (size < 32 * 1024) {
-         return new Promise((resolve, reject) => {
-            fetch(meta.uploadUrl, {
-               method: 'PUT',
-               mode: 'cors',
-               duplex: 'half',
-               body: readFileSync(filename),
-               headers: {
-                  'Content-Type': meta.contentType || mime,
-                  'Content-length': String(size),
-               },
-            } as any)
-               .then(() => resolve({ ...meta, size, uploadUrl: undefined }))
-               .catch((err) => {
-                  Worker.error(
-                     `An error occured while uploading ${filename}: ${err.message}`
-                  )
-                  reject(err)
-               })
-         })
-      }
+      try {
+         Worker.info(`Uploading file ${filename} with size ${size} bytes`)
+         const fileBuffer = fs.readFileSync(filename)
 
-      return new Promise((resolve, reject) => {
-         try {
-            let done = 0 // total bytes uploaded
-            let prev = 0 // latest value of done stored when % done was displayed
-            const { size } = fs.statSync(filename)
-            const readStream = fs.createReadStream(filename)
+         const res = await fetch(meta.uploadUrl, {
+            method: 'PUT',
+            mode: 'cors',
+            duplex: 'half',
+            body: fileBuffer,
+            headers: {
+               'Content-Type': meta.contentType || mime,
+               'Content-Length': String(size),
+            },
+         } as any)
 
-            const sizeMB = (size / (1024 * 1024)).toFixed(2)
-
-            readStream.on('data', (data) => {
-               done += data.length
-               if (done - prev >= size / 20) {
-                  // only display message when 5% more has been uploaded
-                  Worker.info(
-                     `${((done / size) * 100).toFixed(2)}% - ${(
-                        done /
-                        (1024 * 1024)
-                     ).toFixed(2)}MB / ${sizeMB}MB`
-                  )
-                  prev = done
-               }
-            })
-
-            Worker.info(`Uploading file ${filename} with size ${size} bytes`)
-            fetch(meta.uploadUrl, {
-               method: 'PUT',
-               mode: 'cors',
-               duplex: 'half',
-               body: readStream,
-               headers: {
-                  'Content-Type': meta.contentType || mime,
-                  'Content-length': String(size),
-               },
-            } as any)
-               .then(() => resolve({ ...meta, size, uploadUrl: undefined }))
-               .catch((err) => {
-                  Worker.error(
-                     `An error occured while uploading ${filename}: ${err.message}`
-                  )
-                  reject(err)
-               })
-         } catch (err) {
-            Worker.error(err)
-            reject(err)
+         if (res && res.ok === false) {
+            const errorText = typeof res.text === 'function' ? await res.text().catch(() => '') : ''
+            throw new Error(`HTTP upload failed with status ${res.status || 'unknown'}: ${errorText}`)
          }
-      })
+
+         return { ...meta, size, uploadUrl: undefined }
+      } catch (err: any) {
+         Worker.error(`An error occured while uploading ${filename}: ${err.message}`)
+         throw err
+      }
    }
 
    /**
