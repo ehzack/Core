@@ -16,12 +16,12 @@ describe('@quatrain/mdm Pivot Class, Adapter Specification & Vendor Read/Write T
 
    it('should retrieve registered Quatrain MDM standard specification groups via MdmSpecGroups', () => {
       const dimGroup = MdmSpecGroups.getGroup('@quatrain/mdm/groups/dimensions')
-      const vendorGroup = MdmSpecGroups.getGroup('@quatrain/mdm/groups/vendor_info')
+      const vendorGroup = MdmSpecGroups.getGroup('@quatrain/mdm/groups/vendor')
 
       expect(dimGroup).toBeDefined()
       expect(dimGroup?.$id).toBe('@quatrain/mdm/groups/dimensions')
       expect(vendorGroup).toBeDefined()
-      expect(vendorGroup?.$id).toBe('@quatrain/mdm/groups/vendor_info')
+      expect(vendorGroup?.$id).toBe('@quatrain/mdm/groups/vendor')
    })
 
    it('should register and retrieve MDM adapters via alias registry', () => {
