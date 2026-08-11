@@ -5,8 +5,15 @@ import path from 'node:path'
  * General utility class providing common static helpers for workers.
  */
 export class Helpers {
+   private static _ffmpegPathPromise: Promise<string> | null = null
+
    /** Default absolute path to the system's FFmpeg binary. */
-   static FFMPEG = Worker.getSystemCommandPath('ffmpeg')
+   static get FFMPEG(): Promise<string> {
+      if (!this._ffmpegPathPromise) {
+         this._ffmpegPathPromise = Worker.getSystemCommandPath('ffmpeg').catch(() => 'ffmpeg')
+      }
+      return this._ffmpegPathPromise
+   }
 
    /**
     * Generate a thubnail from a video file at given frame position
