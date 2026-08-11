@@ -26,3 +26,9 @@ If the task requires editing, refactoring, fixing, or extending the packages, mo
 In addition to the framework-level guidelines, you MUST adhere to the user's personal coding preferences, custom shortcuts, and general development rules published in their dedicated Gist:
 👉 [Gist: Personal Gemini Rules & Instructions](https://gist.github.com/crapougnax/47971b85aa73dd702f4372a89858111c)
 
+---
+
+## 🛑 Strict TypeScript & Code Quality Rules
+
+- **No `as any` Type Bypasses**: Never use `as any`, `@ts-ignore`, `@ts-nocheck`, or type assertion shortcuts to silence TypeScript errors. Always construct fully compliant, strongly-typed objects that satisfy the target interfaces and schemas.
+
