@@ -90,7 +90,6 @@ export class Worker extends Core {
          })
          .catch((err) => {
             Worker.error(`Failed to push event to backend: ${err.message}`)
-            throw new Error(`Failed to push event to backend: ${err.message}`)
          })
    }
 

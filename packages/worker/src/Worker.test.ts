@@ -42,9 +42,8 @@ describe('Worker', () => {
    })
 
    describe('pushEvent', () => {
-      it('should return false when endpoint is not set', () => {
-         const result = Worker.pushEvent('test-event')
-         expect(result).toBe(false)
+      it('should throw error when endpoint is not set', () => {
+         expect(() => Worker.pushEvent('test-event')).toThrow('Events endpoint is mandatory but missing')
          expect(mockedAxios.patch).not.toHaveBeenCalled()
       })
 
@@ -145,9 +144,8 @@ describe('Worker', () => {
    })
 
    describe('pushEventAsync', () => {
-      it('should return false when endpoint is not set', async () => {
-         const result = await Worker.pushEventAsync('test-event')
-         expect(result).toBe(false)
+      it('should throw error when endpoint is not set', async () => {
+         await expect(Worker.pushEventAsync('test-event')).rejects.toThrow('Events endpoint is mandatory but missing')
          expect(mockedAxios.patch).not.toHaveBeenCalled()
       })
 
@@ -173,14 +171,12 @@ describe('Worker', () => {
          )
       })
 
-      it('should return false on axios error', async () => {
+      it('should throw error on axios error', async () => {
          Worker.endpoint = 'https://api.example.com/events'
 
          mockedAxios.patch.mockRejectedValue(new Error('Network error'))
 
-         const result = await Worker.pushEventAsync('test-event')
-
-         expect(result).toBe(false)
+         await expect(Worker.pushEventAsync('test-event')).rejects.toThrow('Failed to push event to backend: Network error')
       })
 
       it('should handle non-OK status response', async () => {
