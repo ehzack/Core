@@ -66,8 +66,8 @@ export class Worker extends Core {
     */
    static pushEvent(event: string, data = {}, ts = 0) {
       if (!this.endpoint) {
-         Worker.warn(`Events endpoint is not set, can't send update!`)
-         return false
+         Worker.error(`Events endpoint is mandatory but missing! Cannot report job status to source.`)
+         throw new Error(`Events endpoint is mandatory but missing`)
       }
 
       ts = ts === Date.now() ? Date.now() + 1 : Date.now()
@@ -89,8 +89,8 @@ export class Worker extends Core {
             return true
          })
          .catch((err) => {
-            Worker.error(`Failed to push event to backend: ${err}`)
-            return false
+            Worker.error(`Failed to push event to backend: ${err.message}`)
+            throw new Error(`Failed to push event to backend: ${err.message}`)
          })
    }
 
@@ -103,8 +103,8 @@ export class Worker extends Core {
     */
    static async pushEventAsync(event: string, data = {}, ts = 0) {
       if (!this.endpoint) {
-         Worker.warn(`Events endpoint is not set, can't send update!`)
-         return false
+         Worker.error(`Events endpoint is mandatory but missing! Cannot report job status to source.`)
+         throw new Error(`Events endpoint is mandatory but missing`)
       }
 
       try {
@@ -119,13 +119,13 @@ export class Worker extends Core {
 
          const res = await axios.patch(Worker.endpoint, payload)
 
-         if (res.statusText === 'OK') {
+         if (res.statusText === 'OK' || res.status === 200) {
             Worker.info(`Event pushed to backend: ${res.statusText}`)
             return true
          }
-      } catch (err) {
-         Worker.error(`Failed to push event to backend: ${err}`)
-         return false
+      } catch (err: any) {
+         Worker.error(`Failed to push event to backend: ${err.message}`)
+         throw new Error(`Failed to push event to backend: ${err.message}`)
       }
    }
 
