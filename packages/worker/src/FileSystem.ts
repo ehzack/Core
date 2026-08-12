@@ -122,14 +122,11 @@ export class FileSystem {
 
          const res = await fetch(meta.uploadUrl, {
             method: 'PUT',
-            mode: 'cors',
-            duplex: 'half',
             body: fileBuffer,
             headers: {
                'Content-Type': meta.contentType || mime,
-               'Content-Length': String(size),
             },
-         } as any)
+         })
 
          if (res && res.ok === false) {
             const errorText = typeof res.text === 'function' ? await res.text().catch(() => '') : ''

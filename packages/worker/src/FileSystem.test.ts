@@ -63,6 +63,13 @@ describe('FileSystem Utilities (Worker)', () => {
          return Readable.from(Buffer.alloc(35 * 1024)) as any
       })
 
+      jest.spyOn(fs, 'readFileSync').mockImplementation((p) => {
+         if (typeof p === 'string' && (p.endsWith('test.txt') || p.endsWith('small.mp4') || p.endsWith('large.mp4') || p.endsWith('large-fail.mp4') || p.endsWith('small-fail.mp4') || p.endsWith('large-sync-fail.mp4'))) {
+            return Buffer.alloc(35 * 1024)
+         }
+         return (jest.requireActual('node:fs').readFileSync)(p)
+      })
+
       jest.spyOn(fs, 'existsSync').mockImplementation((p) => {
          if (typeof p === 'string' && (p.endsWith('test.txt') || p.endsWith('small.mp4') || p.endsWith('large.mp4') || p.endsWith('large-fail.mp4') || p.endsWith('small-fail.mp4') || p.endsWith('large-sync-fail.mp4'))) {
             return true
@@ -346,8 +353,8 @@ describe('FileSystem Utilities (Worker)', () => {
             callback(null, mockMetadata)
          });
 
-         // Make createReadStream throw a synchronous error
-         jest.spyOn(fs, 'createReadStream').mockImplementationOnce(() => {
+         // Make readFileSync throw a synchronous error
+         jest.spyOn(fs, 'readFileSync').mockImplementationOnce(() => {
             throw new Error('Sync stream error')
          })
 
