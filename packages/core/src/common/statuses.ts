@@ -39,6 +39,9 @@ export const UPDATED = statuses.UPDATED
 export const UPLOADING = statuses.UPLOADING
 export const UPLOADED = statuses.UPLOADED
 export const UPLOAD_KO = statuses.UPLOAD_KO
+export const TRIAGING = statuses.TRIAGING
+export const OPTIMIZING = statuses.OPTIMIZING
+export const FINISHING = statuses.FINISHING
 export const VALIDATED = statuses.VALIDATED
 export const ZIPPING = statuses.ZIPPING
 
