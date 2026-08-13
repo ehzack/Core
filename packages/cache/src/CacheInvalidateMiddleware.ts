@@ -60,19 +60,25 @@ export class CacheInvalidateMiddleware implements BackendMiddleware {
          }
 
          for (const prefix of prefixes) {
-            // Depending on how keys are stored in cache, we append a wildcard to match all nested payloads.
-            // Adjust this wildcard depending on the specific cache implementation's pattern matching style.
-            const pattern = prefix.endsWith('*') ? prefix : `${prefix}*`
+            const cleanPrefix = prefix.replace(/^\/+/, '').replace(/:+$/, '')
+            if (!cleanPrefix) continue
 
-            for (const cache of caches) {
-               try {
-                  const keys = await cache.keys(pattern)
-                  if (keys.length > 0) {
-                     await cache.del(...keys)
-                     Log.info(`[CacheInvalidateMiddleware] Invalidated ${keys.length} keys matching ${pattern} on cache adapter.`)
+            const patterns = new Set<string>([
+               prefix.endsWith('*') ? prefix : `${prefix}*`,
+               `*${cleanPrefix}*`
+            ])
+
+            for (const pattern of patterns) {
+               for (const cache of caches) {
+                  try {
+                     const keys = await cache.keys(pattern)
+                     if (keys.length > 0) {
+                        await cache.del(...keys)
+                        Log.info(`[CacheInvalidateMiddleware] Invalidated ${keys.length} keys matching ${pattern} on cache adapter.`)
+                     }
+                  } catch (e) {
+                     Log.error(`[CacheInvalidateMiddleware] Failed to invalidate cache pattern ${pattern}: ${e}`)
                   }
-               } catch (e) {
-                  Log.error(`[CacheInvalidateMiddleware] Failed to invalidate cache pattern ${pattern}: ${e}`)
                }
             }
          }
