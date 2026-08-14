@@ -145,27 +145,59 @@ export class FileSystem {
     */
    static getInfo = (file: string): Promise<any> => {
       if (file.endsWith('.mp4') || file.endsWith('.insv')) {
-         return new Promise((resolve, reject) =>
+         try {
+            const ffprobeStatic = require('ffprobe-static')
+            if (ffprobeStatic && ffprobeStatic.path) {
+               ffmpeg.setFfprobePath(ffprobeStatic.path)
+            }
+         } catch {
+            // ffprobe-static not present, fallback to system PATH
+         }
+
+         return new Promise((resolve) =>
             ffmpeg.ffprobe(file, (err: any, metadata: any) => {
                if (err) {
-                  Worker.error(err)
-                  reject(err)
+                  Worker.error(`ffprobe error on ${file}: ${(err as Error)?.message || err}`)
+                  return resolve({})
                }
-               //   Worker.debug(`ffprobe getInfo: ${JSON.stringify(metadata)}`)
+
+               if (!metadata || !metadata.streams || !metadata.streams.length) {
+                  Worker.warn(`No streams found in ffprobe metadata for ${file}`)
+                  return resolve({})
+               }
+
+               const videoStream =
+                  metadata.streams.find((s: any) => s.codec_type === 'video') ||
+                  metadata.streams[0]
+
+               if (!videoStream) {
+                  return resolve({})
+               }
+
                const {
                   width,
                   height,
                   duration,
                   bit_rate: bitrate,
                   nb_frames: nbFramees,
-               } = metadata.streams[0]
+               } = videoStream
+
                const nb_frames: number = Number.parseFloat(nbFramees as string)
-               const framerate = nb_frames / Number.parseFloat(duration as string)
+               const durationNum: number = Number.parseFloat(duration as string)
+               const framerate =
+                  nb_frames && durationNum ? nb_frames / durationNum : undefined
+
                resolve({
                   width,
                   height,
-                  framerate: Number.parseInt(framerate.toFixed(0)),
-                  duration: Number.parseInt(duration as string),
+                  framerate:
+                     framerate && !Number.isNaN(framerate)
+                        ? Number.parseInt(framerate.toFixed(0))
+                        : undefined,
+                  duration:
+                     durationNum && !Number.isNaN(durationNum)
+                        ? Number.parseInt(durationNum.toFixed(0))
+                        : undefined,
                   bitrate,
                })
             })
