@@ -111,7 +111,12 @@ export class FileSystem {
       mime = 'video/mp4'
    ): Promise<FileType> {
       // try to get more file metadata
-      const info = await FileSystem.getInfo(filename)
+      let info = {}
+      try {
+         info = await FileSystem.getInfo(filename)
+      } catch (err: any) {
+         Worker.warn(`Could not probe media info for ${filename}: ${(err as Error)?.message || err}`)
+      }
       meta = { ...meta, ...info }
       Worker.info(`Uploading file ${filename} to ${meta.uploadUrl}`)
       const { size } = fs.statSync(filename)
@@ -154,11 +159,11 @@ export class FileSystem {
             // ffprobe-static not present, fallback to system PATH
          }
 
-         return new Promise((resolve) =>
+         return new Promise((resolve, reject) =>
             ffmpeg.ffprobe(file, (err: any, metadata: any) => {
                if (err) {
-                  Worker.error(`ffprobe error on ${file}: ${(err as Error)?.message || err}`)
-                  return resolve({})
+                  Worker.error(err)
+                  return reject(err)
                }
 
                if (!metadata || !metadata.streams || !metadata.streams.length) {
@@ -183,21 +188,13 @@ export class FileSystem {
                } = videoStream
 
                const nb_frames: number = Number.parseFloat(nbFramees as string)
-               const durationNum: number = Number.parseFloat(duration as string)
-               const framerate =
-                  nb_frames && durationNum ? nb_frames / durationNum : undefined
+               const framerate = nb_frames / Number.parseFloat(duration as string)
 
                resolve({
                   width,
                   height,
-                  framerate:
-                     framerate && !Number.isNaN(framerate)
-                        ? Number.parseInt(framerate.toFixed(0))
-                        : undefined,
-                  duration:
-                     durationNum && !Number.isNaN(durationNum)
-                        ? Number.parseInt(durationNum.toFixed(0))
-                        : undefined,
+                  framerate: Number.parseInt(framerate.toFixed(0)),
+                  duration: Number.parseInt(duration as string),
                   bitrate,
                })
             })
