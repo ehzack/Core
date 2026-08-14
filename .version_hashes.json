@@ -100,9 +100,9 @@
     "last_published": "2026-07-09T10:20:33.883Z"
   },
   "@quatrain/worker": {
-    "version": "1.2.12",
-    "hash": "DCxhRjs+KqSa57rFK8/61LANy18=-e1563c560490b6898907c07b6817f66f3c4d2a0ef3bb3a89b8f22fd7960862ba",
-    "last_published": "2026-08-12T10:30:15.870Z"
+    "version": "1.2.14",
+    "hash": "Q8kF5hw7NTnkLaxQ2BVhFH1grIA=-e1563c560490b6898907c07b6817f66f3c4d2a0ef3bb3a89b8f22fd7960862ba",
+    "last_published": "2026-08-14T12:17:17.237Z"
   },
   "@quatrain/testing": {
     "version": "1.1.4",
