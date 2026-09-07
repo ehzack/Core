@@ -6,6 +6,7 @@ export interface ServerAdapter {
    get(path: string, handler: ApiHandler): void
    post(path: string, handler: ApiHandler): void
    put(path: string, handler: ApiHandler): void
+   patch(path: string, handler: ApiHandler): void
    delete(path: string, handler: ApiHandler): void
    
    use(middleware: ApiMiddleware | any): void

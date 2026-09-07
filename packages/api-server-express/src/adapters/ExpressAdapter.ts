@@ -27,12 +27,12 @@ export class ExpressAdapter implements ServerAdapter {
    }
 
    private mapRequestResponse(req: express.Request, res: express.Response): { apiReq: ApiRequest; apiRes: ApiResponse } {
-      const apiReq: ApiRequest = {
+      const apiReq: ApiRequest = Object.assign(req, {
          body: req.body,
          params: req.params,
          query: req.query,
          headers: req.headers as Record<string, string | string[] | undefined>
-      }
+      })
 
       const apiRes: ApiResponse = {
          status: (code: number) => {
@@ -42,7 +42,7 @@ export class ExpressAdapter implements ServerAdapter {
          json: (data: any) => {
             res.json(data)
          },
-         send: (data: string) => {
+         send: (data?: any) => {
             res.send(data)
          },
          setHeader: (name: string, value: string) => {
@@ -96,6 +96,16 @@ export class ExpressAdapter implements ServerAdapter {
     */
    put(path: string, handler: ApiHandler): void {
       (this.appOrRouter as express.Router).put(path, this.wrapHandler(handler))
+   }
+
+   /**
+    * Registers a PATCH endpoint.
+    * 
+    * @param path - The URI path.
+    * @param handler - The standard Quatrain ApiHandler.
+    */
+   patch(path: string, handler: ApiHandler): void {
+      (this.appOrRouter as express.Router).patch(path, this.wrapHandler(handler))
    }
 
    /**
