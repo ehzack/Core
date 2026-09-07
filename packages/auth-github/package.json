@@ -20,7 +20,7 @@
   "dependencies": {
     "@quatrain/api": "workspace:*",
     "@quatrain/auth": "^1.2.11",
-    "@quatrain/backend": "^1.2.18"
+    "@quatrain/backend": "^1.2.19"
   },
   "devDependencies": {
     "@tsconfig/recommended": "^1.0.1",
