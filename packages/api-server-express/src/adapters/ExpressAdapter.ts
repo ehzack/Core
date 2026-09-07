@@ -131,12 +131,12 @@ export class ExpressAdapter implements ServerAdapter {
    }
 
    /**
-    * Attaches a native Express middleware or sub-router.
+    * Attaches a native Express middleware, path prefix, or sub-router.
     * 
-    * @param middleware - The Express RequestHandler or Router.
+    * @param args - Arguments forwarded directly to express.use (e.g. path and RequestHandlers).
     */
-   use(middleware: any): void {
-      (this.appOrRouter as express.Router).use(middleware)
+   use(...args: any[]): void {
+      ;(this.appOrRouter as any).use(...args)
    }
 
    /**

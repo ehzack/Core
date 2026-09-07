@@ -9,7 +9,7 @@ export interface ServerAdapter {
    patch(path: string, ...handlers: (ApiHandler | any)[]): void
    delete(path: string, ...handlers: (ApiHandler | any)[]): void
    
-   use(middleware: ApiMiddleware | any): void
+   use(...args: any[]): void
    addMiddleware?(middleware: ApiMiddleware): void
    createRouter(path: string): ServerAdapter
    start(port: number, callback?: () => void): void
