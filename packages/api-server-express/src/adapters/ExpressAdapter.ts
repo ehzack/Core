@@ -68,54 +68,66 @@ export class ExpressAdapter implements ServerAdapter {
       }
    }
 
+   private normalizeHandler(handler: any): express.RequestHandler {
+      if (typeof handler === 'function' && handler.length >= 3) {
+         return handler
+      }
+      return this.wrapHandler(handler)
+   }
+
    /**
     * Registers a GET endpoint.
     * 
     * @param path - The URI path.
-    * @param handler - The standard Quatrain ApiHandler.
+    * @param handlers - Standard Quatrain ApiHandlers or native Express middlewares.
     */
-   get(path: string, handler: ApiHandler): void {
-      (this.appOrRouter as express.Router).get(path, this.wrapHandler(handler))
+   get(path: string, ...handlers: (ApiHandler | any)[]): void {
+      const wrapped = handlers.map(h => this.normalizeHandler(h))
+      ;(this.appOrRouter as express.Router).get(path, ...wrapped)
    }
 
    /**
     * Registers a POST endpoint.
     * 
     * @param path - The URI path.
-    * @param handler - The standard Quatrain ApiHandler.
+    * @param handlers - Standard Quatrain ApiHandlers or native Express middlewares.
     */
-   post(path: string, handler: ApiHandler): void {
-      (this.appOrRouter as express.Router).post(path, this.wrapHandler(handler))
+   post(path: string, ...handlers: (ApiHandler | any)[]): void {
+      const wrapped = handlers.map(h => this.normalizeHandler(h))
+      ;(this.appOrRouter as express.Router).post(path, ...wrapped)
    }
 
    /**
     * Registers a PUT endpoint.
     * 
     * @param path - The URI path.
-    * @param handler - The standard Quatrain ApiHandler.
+    * @param handlers - Standard Quatrain ApiHandlers or native Express middlewares.
     */
-   put(path: string, handler: ApiHandler): void {
-      (this.appOrRouter as express.Router).put(path, this.wrapHandler(handler))
+   put(path: string, ...handlers: (ApiHandler | any)[]): void {
+      const wrapped = handlers.map(h => this.normalizeHandler(h))
+      ;(this.appOrRouter as express.Router).put(path, ...wrapped)
    }
 
    /**
     * Registers a PATCH endpoint.
     * 
     * @param path - The URI path.
-    * @param handler - The standard Quatrain ApiHandler.
+    * @param handlers - Standard Quatrain ApiHandlers or native Express middlewares.
     */
-   patch(path: string, handler: ApiHandler): void {
-      (this.appOrRouter as express.Router).patch(path, this.wrapHandler(handler))
+   patch(path: string, ...handlers: (ApiHandler | any)[]): void {
+      const wrapped = handlers.map(h => this.normalizeHandler(h))
+      ;(this.appOrRouter as express.Router).patch(path, ...wrapped)
    }
 
    /**
     * Registers a DELETE endpoint.
     * 
     * @param path - The URI path.
-    * @param handler - The standard Quatrain ApiHandler.
+    * @param handlers - Standard Quatrain ApiHandlers or native Express middlewares.
     */
-   delete(path: string, handler: ApiHandler): void {
-      (this.appOrRouter as express.Router).delete(path, this.wrapHandler(handler))
+   delete(path: string, ...handlers: (ApiHandler | any)[]): void {
+      const wrapped = handlers.map(h => this.normalizeHandler(h))
+      ;(this.appOrRouter as express.Router).delete(path, ...wrapped)
    }
 
    /**
