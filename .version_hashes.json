@@ -1,13 +1,13 @@
 {
   "@quatrain/auth-firebase": {
     "version": "1.2.9",
-    "hash": "f7lurMdVwemvga4U8TzUvi2SWuw=-ac4a3c55d3b67083ef74cb9f219b601700285d30ff87bdaa3ead2d8474191f69",
+    "hash": "f7lurMdVwemvga4U8TzUvi2SWuw=-60479b3216eb43a6191f8edcddbf4eac5201e410f9549ac2ceac5bd1641b241c",
     "last_published": "2026-07-28T14:17:21.880Z"
   },
   "@quatrain/auth-supabase": {
-    "version": "1.2.10",
-    "hash": "7IZlIBUrEfonUD+Df5D4REMhvq0=-df447c562f76b1a1596eb541e6f2b185c045ce880b08552e1fde7abc9f6ea4cc",
-    "last_published": "2026-07-28T14:17:49.314Z"
+    "version": "1.2.11",
+    "hash": "p4TucOdTDiqdYUm/oPlt9UooZFw=-e04385758a988fbfb83686a86f0934c2c347aa987b951db3123153c53d020f87",
+    "last_published": "2026-09-14T11:39:51.134Z"
   },
   "@quatrain/backend": {
     "version": "1.2.20",
@@ -305,9 +305,9 @@
     "last_published": "2026-07-26T20:12:54.259Z"
   },
   "@quatrain/auth": {
-    "version": "1.2.11",
-    "hash": "qnysQvKyI/A90Mtq/Q6YS5RqIeM=-d0d6129f17d28d2a1ff423366d1ca0f2a5f35a06fa6f9e90aa739e6beb1c0577",
-    "last_published": "2026-07-28T14:17:14.580Z"
+    "version": "1.2.12",
+    "hash": "yvrMIKrmn458Rubu++sSONDtqJw=-d0d6129f17d28d2a1ff423366d1ca0f2a5f35a06fa6f9e90aa739e6beb1c0577",
+    "last_published": "2026-09-14T11:39:40.146Z"
   },
   "@quatrain/cloudwrapper": {
     "version": "1.2.3",
@@ -366,7 +366,7 @@
   },
   "@quatrain/auth-github": {
     "version": "1.2.11",
-    "hash": "bz+s09FsFbPUF2uLYFeR+cDRiIc=-89e1f34d3190fc7d16db02b53d5ed2b7e24fe79b8db61c303844bf4173d51377",
+    "hash": "bz+s09FsFbPUF2uLYFeR+cDRiIc=-a0b3e503b5b08c29a87afccdb512dc511da90677d8313971f50c0e695f3b68ac",
     "last_published": "2026-07-28T14:17:40.211Z"
   },
   "@quatrain/git-client": {
