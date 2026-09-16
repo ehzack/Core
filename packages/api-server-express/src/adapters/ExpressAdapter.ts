@@ -42,27 +42,7 @@ export class ExpressAdapter implements ServerAdapter {
          headers: req.headers as Record<string, string | string[] | undefined>
       })
 
-      const apiRes: ApiResponse = Object.assign(res, {
-         status: (code: number) => {
-            res.status(code)
-            return apiRes
-         },
-         json: (data: any) => {
-            res.json(data)
-         },
-         send: (data?: any) => {
-            res.send(data)
-         },
-         setHeader: (name: string, value: string) => {
-            res.setHeader(name, value)
-         },
-         write: (data: string) => {
-            res.write(data)
-         },
-         end: () => {
-            res.end()
-         }
-      })
+      const apiRes: ApiResponse = res
 
       return { apiReq, apiRes }
    }

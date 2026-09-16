@@ -196,6 +196,44 @@ describe('ExpressAdapter', () => {
          expect(typeof capturedRes.on).toBe('function')
          expect(typeof capturedRes.redirect).toBe('function')
       })
+
+      it('should invoke send, json, and status without recursion', async () => {
+         const mockSend = jest.fn()
+         const mockJson = jest.fn()
+         const mockStatus = jest.fn().mockReturnThis()
+
+         const mockRouter = {
+            get: jest.fn((path, wrapped) => {
+               const req = {}
+               const res = {
+                  status: mockStatus,
+                  json: mockJson,
+                  send: mockSend,
+                  setHeader: jest.fn(),
+                  write: jest.fn(),
+                  end: jest.fn(),
+                  on: jest.fn(),
+                  emit: jest.fn()
+               }
+               wrapped(req, res, jest.fn())
+            })
+         }
+
+         const ad = new ExpressAdapter(mockRouter as any)
+         let capturedRes: any = null
+
+         ad.get('/send-test', async (req, res) => {
+            capturedRes = res
+            res.status(200).send('ok')
+            res.json({ success: true })
+         })
+
+         await new Promise((resolve) => setTimeout(resolve, 10))
+
+         expect(mockStatus).toHaveBeenCalledWith(200)
+         expect(mockSend).toHaveBeenCalledWith('ok')
+         expect(mockJson).toHaveBeenCalledWith({ success: true })
+      })
    })
 
    describe('Middleware Routing and Mounting', () => {
