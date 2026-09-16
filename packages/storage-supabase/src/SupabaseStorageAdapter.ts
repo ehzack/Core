@@ -306,7 +306,14 @@ export class SupabaseStorageAdapter extends AbstractStorageAdapter {
       readable.push(buffer)
       readable.push(null)
 
-      return readable.pipe(res)
+      if (typeof res?.on === 'function') {
+         return readable.pipe(res)
+      } else if (typeof res?.send === 'function') {
+         return res.send(buffer)
+      } else if (typeof res?.write === 'function' && typeof res?.end === 'function') {
+         res.write(buffer)
+         return res.end()
+      }
    }
 
    /**

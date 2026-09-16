@@ -34,7 +34,7 @@ export class ExpressAdapter implements ServerAdapter {
          headers: req.headers as Record<string, string | string[] | undefined>
       })
 
-      const apiRes: ApiResponse = {
+      const apiRes: ApiResponse = Object.assign(res, {
          status: (code: number) => {
             res.status(code)
             return apiRes
@@ -54,7 +54,7 @@ export class ExpressAdapter implements ServerAdapter {
          end: () => {
             res.end()
          }
-      }
+      })
 
       return { apiReq, apiRes }
    }
