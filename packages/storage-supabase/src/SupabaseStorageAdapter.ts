@@ -289,11 +289,13 @@ export class SupabaseStorageAdapter extends AbstractStorageAdapter {
    }
 
    /**
-    * Fetches and pipes the file content into the given response stream.
+    * Fetches and streams the file content into the given response stream or HTTP response object.
+    * Piped directly if `res` is a Writable stream (implements `.on()`), or dispatches via `.send()` / `.write()`
+    * as a defensive fallback for non-stream response objects.
     * 
-    * @param file - File to stream.
-    * @param res - Writable stream or HTTP response object.
-    * @returns The piped stream instance.
+    * @param file - File footprint to stream.
+    * @param res - Writable stream or HTTP response object (supports .pipe(), .send(), or .write()/.end()).
+    * @returns The piped stream instance or response completion.
     */
    async stream(file: FileType, res: any) {
       Storage.debug(`GET Stream : ${file.ref}`)

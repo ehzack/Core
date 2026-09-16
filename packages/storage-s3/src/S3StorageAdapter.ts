@@ -278,11 +278,13 @@ export class S3StorageAdapter extends AbstractStorageAdapter {
    }
 
    /**
-    * Directly pipes an S3 object to an external HTTP response or stream.
+    * Fetches and streams an S3 object into an external HTTP response or writable stream.
+    * Piped directly if `res` is a Writable stream (implements `.on()`), or dispatches via `.send()` / `.write()`
+    * as a defensive fallback for non-stream response objects.
     * 
-    * @param file - Target file.
-    * @param res - The response or writable stream.
-    * @returns The piped stream instance.
+    * @param file - Target file footprint.
+    * @param res - The response or writable stream (supports .pipe(), .send(), or .write()/.end()).
+    * @returns The piped stream instance or response completion.
     */
    async stream(file: FileType, res: any) {
       const command = new GetObjectCommand({
