@@ -1,6 +1,6 @@
 {
   "name": "@quatrain/cloudwrapper-supabase",
-  "version": "1.2.5-beta.0",
+  "version": "1.2.5",
   "license": "AGPL-3.0-only",
   "description": "Cloud Wrapper adapter for Supabase",
   "repository": {
