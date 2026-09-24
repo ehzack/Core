@@ -31,6 +31,5 @@
     "build": "tsc",
     "wbuild": "tsc --watch",
     "bump-to": "yarn version"
-  },
-  "stableVersion": "1.2.11"
+  }
 }

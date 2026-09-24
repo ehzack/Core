@@ -43,6 +43,5 @@
   },
   "typedoc": {
     "entryPoint": "src/index.ts"
-  },
-  "stableVersion": "1.0.0"
+  }
 }
