@@ -1,6 +1,6 @@
 {
   "name": "@quatrain/worker",
-  "version": "1.2.14",
+  "version": "1.2.15-beta.0",
   "description": "Container Worker helpers",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -34,9 +34,9 @@
     "typescript": "^5.1.5"
   },
   "dependencies": {
-    "@quatrain/core": "^1.2.18",
-    "@quatrain/queue": "^1.2.3",
-    "@quatrain/storage": "^1.2.14",
+    "@quatrain/core": "workspace:*",
+    "@quatrain/queue": "workspace:*",
+    "@quatrain/storage": "workspace:*",
     "axios": "^1.7.7",
     "fluent-ffmpeg": "^2.1.2",
     "fs-extra": "^11.2.0",
@@ -50,5 +50,6 @@
   },
   "typedoc": {
     "entryPoint": "src/index.ts"
-  }
+  },
+  "stableVersion": "1.2.14"
 }

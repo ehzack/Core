@@ -1,5 +1,5 @@
 # Stage 1: Builder
-FROM node:22-alpine AS builder
+FROM --platform=$BUILDPLATFORM node:22-alpine AS builder
 
 WORKDIR /app
 RUN corepack enable
@@ -21,7 +21,7 @@ COPY tsconfig.json ./
 RUN yarn config set nodeLinker node-modules
 
 # Install dependencies
-RUN touch docs/yarn.lock && yarn install --immutable
+RUN touch docs/yarn.lock && YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn install
 
 # Run full documentation aggregation
 # On utilise 10Go de RAM pour TypeDoc

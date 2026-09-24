@@ -75,6 +75,7 @@ export class Core {
     * 
     * @param key - Identification string.
     * @param value - Value.
+    * @deprecated Deprecated since Quatrain v1.2.0. Use `@quatrain/config` instead.
     */
    static async addConfig(key: string, value: any) {
       if (!this.storage.set) {
@@ -88,6 +89,7 @@ export class Core {
     * 
     * @param key - The target identifier.
     * @returns The recovered value.
+    * @deprecated Deprecated since Quatrain v1.2.0. Use `@quatrain/config` instead.
     */
    static async getConfig(key: string) {
       if (!this.storage.get) {
@@ -95,7 +97,6 @@ export class Core {
       }
       return await this.storage.get(`${this.storagePrefix}_${key}`)
    }
-
    /**
     * Maps a specific entity class to an active name so the factory reflection can locate it.
     * 

@@ -1,5 +1,6 @@
 const fs = require('node:fs');
 const path = require('node:path');
+const crypto = require('node:crypto');
 const { spawnSync } = require('node:child_process');
 const { computePackageHash, getDepsHash } = require('./hashUtils');
 
@@ -75,6 +76,13 @@ async function publishAll() {
     const previousDataMap = {};
     let anyPackageChanged = false;
     
+    const forceBuild = process.argv.includes('--force');
+    const tagArgIndex = process.argv.indexOf('--tag');
+    const isBeta = process.argv.includes('--beta') || (tagArgIndex !== -1 && process.argv[tagArgIndex + 1] === 'beta');
+    const defaultTag = isBeta ? 'beta' : 'latest';
+    const npmTag = tagArgIndex !== -1 ? process.argv[tagArgIndex + 1] : defaultTag;
+    const tagString = npmTag ? `--tag ${npmTag}` : '';
+
     console.log('[PREPARE] Computing stable hashes prior to build...');
     for (const pkg of packages) {
         const pkgDir = getPkgDir(pkg);
@@ -90,16 +98,12 @@ async function publishAll() {
         previousDataMap[pkgName] = registry[pkgName] || {};
         
         const hasDist = fs.existsSync(path.join(pkgDir, 'dist')) || fs.existsSync(path.join(pkgDir, 'lib'));
+        const needsFinalize = !isBeta && pkgJson.version.includes('-beta');
         
-        if (!hasDist || previousDataMap[pkgName].hash !== computedHashes[pkgName]) {
+        if (!hasDist || previousDataMap[pkgName].hash !== computedHashes[pkgName] || needsFinalize) {
             anyPackageChanged = true;
         }
     }
-
-    const forceBuild = process.argv.includes('--force');
-    const tagArgIndex = process.argv.indexOf('--tag');
-    const npmTag = tagArgIndex !== -1 ? process.argv[tagArgIndex + 1] : 'latest';
-    const tagString = npmTag ? `--tag ${npmTag}` : '';
 
     if (!anyPackageChanged && !forceBuild) {
         console.log('[BUILD] No package changes detected and build artifacts present. Skipping build phase completely.');
@@ -130,19 +134,53 @@ async function publishAll() {
         const pkgName = pkgJson.name;
         
         const hash = computedHashes[pkgName];
-        const previousData = previousDataMap[pkgName];
-        
-        if (previousData.hash !== hash) {
-            console.log(`[PUBLISH] Changes detected in ${pkgName}. Releasing...`);
+        const previousData = previousDataMap[pkgName] || {};
+        const prevBuf = Buffer.from(previousData.hash || '');
+        const currBuf = Buffer.from(hash || '');
+        const isHashMatching = prevBuf.length === currBuf.length && crypto.timingSafeEqual(prevBuf, currBuf);
+
+        const needsFinalize = !isBeta && pkgJson.version.includes('-beta');
+
+        if (!isHashMatching || needsFinalize) {
+            console.log(`[PUBLISH] Changes detected or beta finalization needed in ${pkgName}. Releasing...`);
             
             try {
-                // Execute standard release pipeline
-                runSync('yarn', ['version', 'patch'], { cwd: pkgDir, stdio: 'inherit' });
-                
-                // Read new version and keep original content
+                let newVersion;
+                let updatedPkgJson;
                 const originalPkgContent = fs.readFileSync(pkgJsonPath, 'utf8');
-                const updatedPkgJson = JSON.parse(originalPkgContent);
-                const newVersion = updatedPkgJson.version;
+                let bumpedContent = originalPkgContent;
+
+                if (isBeta) {
+                    const currentVer = pkgJson.version;
+                    const betaMatch = currentVer.match(/^(\d+\.\d+\.\d+)-beta\.(\d+)$/);
+                    if (betaMatch) {
+                        const nextCount = parseInt(betaMatch[2], 10) + 1;
+                        newVersion = `${betaMatch[1]}-beta.${nextCount}`;
+                    } else {
+                        // Current version is stable (e.g. 1.2.19), bump patch and append -beta.0
+                        const base = currentVer.split('-')[0];
+                        const parts = base.split('.').map(Number);
+                        parts[2] = (parts[2] || 0) + 1;
+                        newVersion = `${parts.join('.')}-beta.0`;
+                    }
+                    runSync('yarn', ['version', newVersion], { cwd: pkgDir, stdio: 'inherit' });
+                    bumpedContent = fs.readFileSync(pkgJsonPath, 'utf8');
+                    updatedPkgJson = JSON.parse(bumpedContent);
+                } else {
+                    // Standard stable release (on main)
+                    if (pkgJson.version.includes('-beta')) {
+                        // Finalize beta version to stable SemVer
+                        newVersion = pkgJson.version.split('-')[0];
+                        runSync('yarn', ['version', newVersion], { cwd: pkgDir, stdio: 'inherit' });
+                        bumpedContent = fs.readFileSync(pkgJsonPath, 'utf8');
+                        updatedPkgJson = JSON.parse(bumpedContent);
+                    } else {
+                        runSync('yarn', ['version', 'patch'], { cwd: pkgDir, stdio: 'inherit' });
+                        bumpedContent = fs.readFileSync(pkgJsonPath, 'utf8');
+                        updatedPkgJson = JSON.parse(bumpedContent);
+                        newVersion = updatedPkgJson.version;
+                    }
+                }
                 
                 // Strip workspace: protocol before packing
                 ['dependencies', 'devDependencies', 'peerDependencies'].forEach(deptype => {
@@ -161,6 +199,15 @@ async function publishAll() {
                         }
                     }
                 });
+
+                // Ensure repository metadata exists for npm provenance verification
+                if (!updatedPkgJson.repository || !updatedPkgJson.repository.url) {
+                    updatedPkgJson.repository = {
+                        type: 'git',
+                        url: 'git+https://github.com/Quatrain/Core.git',
+                        directory: `packages/${pkg}`
+                    };
+                }
 
                 try {
                     // Temporarily write the versioned + stripped file
@@ -206,7 +253,8 @@ async function publishAll() {
                     }
                 } finally {
                     // Restore the package.json to retain workspace: protocols but keep the version bump
-                    fs.writeFileSync(pkgJsonPath, originalPkgContent, 'utf8');
+                    // eslint-disable-next-line security/detect-non-literal-fs-filename
+                    fs.writeFileSync(pkgJsonPath, bumpedContent, 'utf8');
                     if (fs.existsSync(path.join(pkgDir, 'package.tgz'))) fs.unlinkSync(path.join(pkgDir, 'package.tgz'));
                     if (fs.existsSync(path.join(pkgDir, '.npmignore'))) fs.unlinkSync(path.join(pkgDir, '.npmignore'));
                 }
@@ -217,12 +265,13 @@ async function publishAll() {
                     hash: hash,
                     last_published: new Date().toISOString()
                 };
-                
                 changed = true;
-                console.log(`[PUBLISH] Success for ${pkgName} v${newVersion}`);
+                
+                console.log(`[PUBLISH] Success for ${pkgName} v${newVersion} (tag: ${npmTag})`);
                 publishedPackages.push({
                     Package: pkgName,
-                    Version: newVersion
+                    Version: newVersion,
+                    Tag: npmTag
                 });
                 
             } catch (error) {

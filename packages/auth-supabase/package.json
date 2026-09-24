@@ -1,6 +1,6 @@
 {
   "name": "@quatrain/auth-supabase",
-  "version": "1.2.11",
+  "version": "1.2.12-beta.0",
   "license": "AGPL-3.0-only",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -20,8 +20,8 @@
   "author": "Quatrain Développement SAS <developers@quatrain.com>",
   "dependencies": {
     "@quatrain/api": "workspace:*",
-    "@quatrain/auth": "^1.2.12",
-    "@quatrain/backend": "^1.2.20",
+    "@quatrain/auth": "workspace:*",
+    "@quatrain/backend": "workspace:*",
     "@supabase/supabase-js": "^2.108.2"
   },
   "devDependencies": {
@@ -37,6 +37,7 @@
     "typescript": "^5.2.2"
   },
   "scripts": {
+    "test": "jest",
     "test-ci": "jest --runInBand",
     "build": "tsc",
     "wbuild": "tsc --watch",
@@ -44,5 +45,6 @@
   },
   "typedoc": {
     "entryPoint": "src/index.ts"
-  }
+  },
+  "stableVersion": "1.2.11"
 }
